@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "manar_platform_v4": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}
