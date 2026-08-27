@@ -3606,6 +3606,9 @@ main,.container,.content,.page,.section{max-width:100%;overflow-x:hidden}
 </style>
 
 
+<style id="prediction-results-only-final">
+.prediction-social,#openPredictionSocialBtn{display:none!important}
+</style>
 <style id="reference-home-design-100">
 /* =========================================================
    تصميم الواجهة الرئيسية مطابق للتصميم المرجعي المرفق
@@ -8269,7 +8272,7 @@ table{
   .table-wrap,.stand-table-wrap,.table-responsive{overflow-x:auto!important;}
 }
 </style>
-<style id="semantic-program-icons">.quick-icon,.home-section-icon{display:flex!important;align-items:center;justify-content:center;font-size:34px!important}.quick-icon svg,.home-section-icon svg{display:none!important}.semantic-icon{font-size:34px;line-height:1;display:block}.home-section-icon .semantic-icon{font-size:38px}</style><script id="semantic-icons-script">(()=>{const map={tournaments:'🏆',teams:'🛡️',players:'👥',matches:'⚽',cards:'🟨',overallRanking:'🥇',table:'📋',stats:'📊',matchSheetsSection:'📄',referees:'🧑‍⚖️',archive:'🗃️',settings:'⚙️',backup:'💾',suspendedPlayers:'⛔',news:'📰',payments:'💰',contact:'📞'};function setIcon(el,key){if(!el||!map[key])return;el.innerHTML='<span class="semantic-icon" aria-hidden="true">'+map[key]+'</span>';}function run(){document.querySelectorAll('.quick[onclick],.home-section-card[onclick]').forEach(b=>{let m=(b.getAttribute('onclick')||'').match(/(?:goPage|openHomeSection)\([\'\"]([^\'\"]+)/);if(m){let icon=b.querySelector('.quick-icon,.home-section-icon');setIcon(icon,m[1]);}});document.querySelectorAll('.quick,.home-section-card').forEach(b=>{let t=(b.textContent||'').trim();let icon=b.querySelector('.quick-icon,.home-section-icon');if(icon&&!icon.querySelector('.semantic-icon')){for(const [k,v] of Object.entries({players:'اللاعبون',matches:'المباريات',cards:'الإنذارات',stats:'الإحصائيات',referees:'الحكام',archive:'الأرشيف',settings:'الإعدادات',backup:'النسخ الاحتياطي'})){if(t.includes(v)){setIcon(icon,k);break;}}}})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();setTimeout(run,300);setTimeout(run,1000);})();</script>
+<style id="semantic-program-icons">.quick-icon,.home-section-icon{display:flex!important;align-items:center;justify-content:center;font-size:34px!important}.quick-icon svg,.home-section-icon svg{display:none!important}.semantic-icon{font-size:34px;line-height:1;display:block}.home-section-icon .semantic-icon{font-size:38px}</style><script id="semantic-icons-script">(()=>{const map={tournaments:'🏆',teams:'🛡️',players:'👥',matches:'⚽',cards:'🟨',overallRanking:'🥇',table:'📋',stats:'📊',matchSheetsSection:'📄',referees:'🧑‍⚖️',archive:'🗃️',settings:'⚙️',backup:'💾',predictions:'🎯',suspendedPlayers:'⛔',news:'📰',payments:'💰',contact:'📞'};function setIcon(el,key){if(!el||!map[key])return;el.innerHTML='<span class="semantic-icon" aria-hidden="true">'+map[key]+'</span>';}function run(){document.querySelectorAll('.quick[onclick],.home-section-card[onclick]').forEach(b=>{let m=(b.getAttribute('onclick')||'').match(/(?:goPage|openHomeSection)\([\'\"]([^\'\"]+)/);if(m){let icon=b.querySelector('.quick-icon,.home-section-icon');setIcon(icon,m[1]);}});document.querySelectorAll('.quick,.home-section-card').forEach(b=>{let t=(b.textContent||'').trim();let icon=b.querySelector('.quick-icon,.home-section-icon');if(icon&&!icon.querySelector('.semantic-icon')){for(const [k,v] of Object.entries({players:'اللاعبون',matches:'المباريات',cards:'الإنذارات',stats:'الإحصائيات',referees:'الحكام',archive:'الأرشيف',settings:'الإعدادات',backup:'النسخ الاحتياطي'})){if(t.includes(v)){setIcon(icon,k);break;}}}})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();setTimeout(run,300);setTimeout(run,1000);})();</script>
 <section id="backupSection" class="section backup-section" style="display:none;">
   <div class="section-title"><span>💾</span> النسخ الاحتياطي</div>
   <div class="backup-card">
@@ -9187,11 +9190,30 @@ window.addEventListener('load',function(){document.documentElement.classList.add
 @media(max-width:600px){.stats-live-bar{font-size:11px}.stats-live-bar button{width:100%;min-height:38px}}
 </style>
 
+<style id="prediction-feature-style-final">
+#predictionsSection{padding:0}.prediction-card{max-width:900px;margin:auto}.prediction-head{text-align:center;padding:8px 0 16px}.prediction-icon{font-size:54px}.prediction-head h2{margin:7px 0;color:#075b43}.prediction-head p{margin:0;color:#60716a;font-weight:800}.prediction-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.prediction-grid label{display:block;font-weight:900;margin-bottom:6px}.prediction-grid select{width:100%;min-height:46px}.prediction-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}.prediction-result{display:none;margin-top:16px;padding:15px;border-radius:18px;background:#f7fbf9;border:1px solid #d5e7df}.prediction-result.show{display:block}.prediction-match-title{text-align:center;font-size:20px;font-weight:900;margin-bottom:13px}.prediction-percentages{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.prediction-percent{background:#fff;border-radius:13px;padding:11px;text-align:center;border:1px solid #e2ece8}.prediction-percent b{display:block;font-size:25px;margin-top:5px}.prediction-score{text-align:center;font-weight:900;margin:15px}.prediction-score strong{font-size:29px;color:#075b43}.prediction-analysis{font-size:13px;line-height:1.9;background:#fff;padding:11px;border-radius:12px}.prediction-social{text-align:center;margin-top:10px;font-size:12px}.prediction-note{text-align:center;color:#71807a;font-size:11px;line-height:1.7;margin-top:8px}@media(max-width:600px){.prediction-grid{grid-template-columns:1fr}.prediction-actions .btn{width:100%}.prediction-percent b{font-size:21px}}
+</style>
+<section id="predictionsSection" class="page">
+<div class="card prediction-card"><div class="prediction-head"><div class="prediction-icon">🎯</div><h2>توقع نتيجة المباراة</h2><p>تحليل البيانات السابقة وإعطاء نسبة الفوز والتعادل والخسارة</p></div>
+<div class="prediction-grid"><div><label for="predictionTournament">البطولة</label><select id="predictionTournament"><option value="" selected>اختر البطولة</option></select></div><div><label for="predictionMatch">المباراة القادمة</label><select id="predictionMatch" disabled><option value="">اختر المباراة</option></select></div></div>
+<div class="prediction-actions"><button type="button" class="btn primary" id="runPredictionBtn">🎯 تحليل وتوقع</button><button type="button" class="btn secondary" id="openPredictionSocialBtn">🌐 فتح مصدر التواصل</button></div><div id="predictionResult" class="prediction-result"></div></div></section>
+<script id="prediction-feature-script-final">
+(function(){const SOCIAL='https://www.facebook.com/share/g/1F2BrLarNZ/';const $=id=>document.getElementById(id);const A=v=>Array.isArray(v)?v:[];const N=v=>{const n=Number(v);return Number.isFinite(n)?n:null};const esc=s=>String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
+function D(){return window.db||{tournaments:[],teams:[],matches:[]}}function tn(id){const x=A(D().teams).find(t=>String(t.id)===String(id));return x?.name||'فريق'}function sides(m){return{h:String(m.home||m.homeTeamId||m.homeTeam||''),a:String(m.away||m.awayTeamId||m.awayTeam||'')}}function sheets(){try{return typeof uniqueMatchSheets==='function'?A(uniqueMatchSheets()):[]}catch(e){return[]}}
+function hist(id,tid){const r=[];sheets().forEach(s=>{const m=A(D().matches).find(x=>String(x.id)===String(s.matchId));if(!m||String(s.tournamentId||m.tournamentId||'')!==String(tid))return;const q=sides(m),side=q.h===String(id)?'h':q.a===String(id)?'a':'';if(!side)return;const hg=N(s.homeScore),ag=N(s.awayScore);if(hg===null||ag===null)return;const gf=side==='h'?hg:ag,ga=side==='h'?ag:hg;r.push({gf,ga,r:gf>ga?'W':gf<ga?'L':'D'})});return r}
+function met(id,tid){const all=hist(id,tid),recent=all.slice(-5);const c=a=>{if(!a.length)return{g:0,w:0,d:0,l:0,gf:0,ga:0,ppg:1};let w=0,d=0,l=0,gf=0,ga=0;a.forEach(x=>{gf+=x.gf;ga+=x.ga;x.r==='W'?w++:x.r==='D'?d++:l++});return{g:a.length,w,d,l,gf,ga,ppg:(w*3+d)/a.length}};return{all:c(all),recent:c(recent)}}
+function fillT(){const s=$('predictionTournament');if(!s)return;const old=s.value;s.innerHTML='<option value="" selected>اختر البطولة</option>'+A(D().tournaments).map(t=>`<option value="${esc(t.id)}">${esc(t.name||'بطولة')}</option>`).join('');if(A(D().tournaments).some(t=>String(t.id)===old))s.value=old}
+function dt(m){if(!m.date)return null;const x=new Date(String(m.date)+'T'+String(m.time||'00:00'));return isNaN(x)?null:x}
+function fillM(){const s=$('predictionTournament'),q=$('predictionMatch');if(!s||!q)return;const now=new Date(),a=A(D().matches).map((m,i)=>({m,i})).filter(x=>String(x.m.tournamentId||x.m.tournament||'')===String(s.value)&&dt(x.m)&&dt(x.m)>=now&&!['finished','ended','منتهية','انتهت'].includes(String(x.m.status||'').toLowerCase()));q.disabled=!a.length;q.innerHTML='<option value="">'+(a.length?'اختر المباراة':'لا توجد مباريات قادمة')+'</option>'+a.map(x=>{const q=sides(x.m);return`<option value="${esc(x.m.id??x.i)}">${esc(tn(q.h))} × ${esc(tn(q.a))} — ${esc(x.m.date||'')}</option>`}).join('')}
+function calc(tid,m){const q=sides(m),h=met(q.h,tid),a=met(q.a,tid),hs=.62*h.recent.ppg/3+.38*h.all.ppg/3,as=.62*a.recent.ppg/3+.38*a.all.ppg/3,d=hs-as+.05;const z=1/(1+Math.exp(-5*d));let draw=Math.max(.12,Math.min(.30,.23-Math.abs(d)*.08)),hw=z*(1-draw),aw=(1-z)*(1-draw),sum=hw+draw+aw;hw/=sum;draw/=sum;aw/=sum;const hg=Math.max(0,Math.min(5,Math.round(.65+(h.recent.g?h.recent.gf/h.recent.g:1)))),ag=Math.max(0,Math.min(5,Math.round(.55+(a.recent.g?a.recent.gf/a.recent.g:1))));return{q,h,a,hw,draw,aw,hg,ag}}
+function render(){const tid=$('predictionTournament')?.value,mid=$('predictionMatch')?.value,box=$('predictionResult');if(!tid||!mid||!box){box?.classList.remove('show');return}const f=A(D().matches).find(m=>String(m.id)===String(mid));if(!f)return;const p=calc(tid,f),hn=tn(p.q.h),an=tn(p.q.a),pc=x=>Math.round(x*100);box.innerHTML=`<div class="prediction-match-title">${esc(hn)} × ${esc(an)}</div><div class="prediction-percentages"><div class="prediction-percent">فوز ${esc(hn)}<b>${pc(p.hw)}%</b></div><div class="prediction-percent">تعادل<b>${pc(p.draw)}%</b></div><div class="prediction-percent">فوز ${esc(an)}<b>${pc(p.aw)}%</b></div></div><div class="prediction-score">النتيجة الأقرب <strong>${p.hg} - ${p.ag}</strong></div><div class="prediction-analysis">التحليل يعتمد على نتائج الكشوفات السابقة المتوفرة، معدل الأهداف، النقاط، وآخر 5 مباريات لكل فريق. <br>عدد المباريات المستخدمة: ${p.h.all.g+p.a.all.g}</div><div class="prediction-social">🌐 مصدر التواصل الاجتماعي: <a href="${SOCIAL}" target="_blank" rel="noopener noreferrer">فيسبوك</a></div><div class="prediction-note">لا تستطيع صفحة HTML المحلية قراءة منشورات Facebook تلقائيًا بسبب قيود المتصفح. يمكن فتح المجموعة ومراجعة المحتوى، أما إدخاله تلقائيًا في التوقع فيحتاج API أو خادم وسيط.</div>`;box.classList.add('show')}
+function init(){const s=$('predictionTournament');s?.addEventListener('change',fillM);$('runPredictionBtn')?.addEventListener('click',render);$('openPredictionSocialBtn')?.addEventListener('click',()=>window.open(SOCIAL,'_blank','noopener,noreferrer'));fillT();fillM()}window.refreshPredictionSection=()=>{fillT();fillM()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();
+</script>
 <script id="reference-home-icons">
 (function(){
   const icons={
     tournaments:'🏆',teams:'🛡️',players:'👥',matches:'⚽',overallRanking:'🥇',table:'📊',stats:'📈',
-    matchSheetsSection:'📋',referees:'⚖️',archive:'🗃️',settings:'⚙️',backup:'💾'
+    matchSheetsSection:'📋',referees:'⚖️',archive:'🗃️',settings:'⚙️',backup:'💾',predictionsSection:'🎯'
   };
   function apply(){
     document.querySelectorAll('#home .home-section-card[onclick]').forEach(card=>{
@@ -9827,174 +9849,41 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 
-<!-- Firebase Cloud Sync v4: shared data for GitHub Pages + Cloudflare -->
-<script type="module" id="manar-firebase-cloud-sync-v4">
-import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
-
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBl8ETnvRg4w-7BTleNROgmzSaqtPbUWRE",
-  authDomain: "almanar-sports.firebaseapp.com",
-  databaseURL: "https://almanar-sports-default-rtdb.firebaseio.com",
-  projectId: "almanar-sports",
-  storageBucket: "almanar-sports.firebasestorage.app",
-  messagingSenderId: "933674233471",
-  appId: "1:933674233471:web:6dbcd5517687aa9a47194a"
-};
-
-const CLOUD_PATH = "manar_platform_v4";
-const SYNC_KEYS = [
-  "manar_match_sheets_v1",
-  "manar_match_sheets_v2",
-  "manar_referees_v1",
-  "manar_media_news_v1",
-  "manar_audit_log_v1",
-  "manar_player_management_windows_v1",
-  "manar_player_transfers_v1",
-  "manar_tournament_archive_v1",
-  "manar_contact_messages_v1",
-  "manar_contact_settings_v1",
-  "manar_sports_v2",
-  "manar_sports_v1",
-  "almanar_sports_v1",
-  "sports_platform_v1",
-  "professional-match-sheets-v2",
-  "professional-sheet-entry-v2",
-  "sheet-editor-v3",
-  "simple-match-sheets-v3",
-  "deep-stats-v2",
-  "players-management-v1",
-  "suspended-players-fix-v2"
-];
-
-let applyingRemote = false;
-let firebaseReady = false;
-let db = null;
-let auth = null;
-const timers = new Map();
-
-function cloudStatus(msg, ok=false) {
-  let el = document.getElementById("manarFirebaseStatus");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "manarFirebaseStatus";
-    el.style.cssText =
-      "position:fixed;bottom:10px;left:10px;z-index:99999;padding:7px 11px;" +
-      "border-radius:999px;background:#ffffffee;box-shadow:0 2px 12px #0002;" +
-      "font:700 12px Tahoma,Arial;color:#8a2d20;direction:rtl";
-    document.body.appendChild(el);
+<script id="FINAL-MATCH-TOURNAMENT-AUTO-SYNC">
+(function(){
+  'use strict';
+  function clean(v){return String(v==null?'':v).trim();}
+  function getDB(){return window.db && typeof window.db==='object' ? window.db : null;}
+  function sync(){
+    const db=getDB(), sel=document.getElementById('matchTour');
+    if(!db || !sel || !Array.isArray(db.tournaments)) return;
+    const current=clean(sel.value);
+    const tours=db.tournaments.filter(t=>t && clean(t.id) && clean(t.name) && t.archived!==true && clean(t.status).toLowerCase()!=='archived');
+    sel.innerHTML='';
+    const first=document.createElement('option');
+    first.value='';
+    first.textContent=tours.length ? 'اختر البطولة' : 'لا توجد بطولات مسجلة';
+    sel.appendChild(first);
+    tours.forEach(t=>{
+      const o=document.createElement('option');
+      o.value=String(t.id);
+      o.textContent='🏆 '+String(t.name);
+      sel.appendChild(o);
+    });
+    if(current && tours.some(t=>clean(t.id)===current)) sel.value=current;
+    else if(tours.length) sel.value=String(tours[0].id);
+    if(typeof window.refreshMatchTeams==='function') window.refreshMatchTeams();
   }
-  el.textContent = (ok ? "☁️ " : "⚠️ ") + msg;
-  el.style.color = ok ? "#075b43" : "#8a2d20";
-  if (ok) setTimeout(()=>{ if(el) el.style.opacity=".45"; }, 5000);
-}
-
-function readLocal(key) {
-  try { return JSON.parse(localStorage.getItem(key) || "null"); }
-  catch (_) { return null; }
-}
-
-async function writeCloud(key, value) {
-  if (!db || applyingRemote || value === null || value === undefined) return;
-  try {
-    await set(ref(db, `${CLOUD_PATH}/${key}`), value);
-  } catch (e) {
-    cloudStatus("تعذر حفظ البيانات في Firebase", false);
-    console.error("Firebase write:", e);
-  }
-}
-
-function scheduleCloudWrite(key) {
-  if (!firebaseReady || applyingRemote || !SYNC_KEYS.includes(key)) return;
-  clearTimeout(timers.get(key));
-  timers.set(key, setTimeout(()=>writeCloud(key, readLocal(key)), 350));
-}
-
-async function loadCloud() {
-  if (!db) return;
-  for (const key of SYNC_KEYS) {
-    try {
-      const snap = await get(ref(db, `${CLOUD_PATH}/${key}`));
-      const localRaw = localStorage.getItem(key);
-      if (snap.exists()) {
-        const cloudRaw = JSON.stringify(snap.val());
-        if (cloudRaw !== localRaw) {
-          applyingRemote = true;
-          localStorage.setItem(key, cloudRaw);
-          applyingRemote = false;
-        }
-      } else if (localRaw) {
-        await writeCloud(key, readLocal(key));
-      }
-    } catch (e) {
-      console.error("Firebase initial sync:", key, e);
-    }
-  }
-}
-
-async function startFirebase() {
-  try {
-    const app = getApps().length ? getApps()[0] : initializeApp(FIREBASE_CONFIG);
-    auth = getAuth(app);
-    db = getDatabase(app);
-
-    // Anonymous authentication avoids putting an administrator password in the website code.
-    if (!auth.currentUser) {
-      try { await signInAnonymously(auth); }
-      catch (e) {
-        // If Anonymous Auth is disabled, public Firebase rules can still permit read/write.
-        console.warn("Anonymous Firebase Auth is unavailable:", e);
-      }
-    }
-
-    firebaseReady = true;
-    cloudStatus("المزامنة السحابية متصلة", true);
-
-    // Real-time listeners: every device receives changes from Firebase.
-    for (const key of SYNC_KEYS) {
-      onValue(ref(db, `${CLOUD_PATH}/${key}`), snap => {
-        if (!snap.exists() || applyingRemote) return;
-        const incoming = JSON.stringify(snap.val());
-        if (incoming === localStorage.getItem(key)) return;
-        applyingRemote = true;
-        localStorage.setItem(key, incoming);
-        applyingRemote = false;
-        sessionStorage.setItem("manar_firebase_remote_update", "1");
-        // Refresh only after a real remote change.
-        setTimeout(() => location.reload(), 80);
-      }, err => {
-        console.error("Firebase listener:", key, err);
-      });
-    }
-
-    await loadCloud();
-    cloudStatus("المزامنة السحابية متصلة", true);
-  } catch (e) {
-    cloudStatus("تعذر الاتصال بـ Firebase", false);
-    console.error("Firebase startup:", e);
-  }
-}
-
-// Catch ALL application saves made through localStorage, including news edits/deletes.
-const nativeSetItem = Storage.prototype.setItem;
-Storage.prototype.setItem = function(key, value) {
-  nativeSetItem.call(this, key, value);
-  if (this === localStorage) scheduleCloudWrite(String(key));
-};
-const nativeRemoveItem = Storage.prototype.removeItem;
-Storage.prototype.removeItem = function(key) {
-  nativeRemoveItem.call(this, key);
-  if (this === localStorage && SYNC_KEYS.includes(String(key)) && firebaseReady) {
-    // A deleted record is represented by null at the cloud path.
-    set(ref(db, `${CLOUD_PATH}/${String(key)}`), null).catch(console.error);
-  }
-};
-
-window.addEventListener("load", () => {
-  // Let the existing application finish loading before syncing.
-  setTimeout(startFirebase, 250);
-});
+  window.refreshMatchTournamentSelect=sync;
+  function run(){sync();setTimeout(sync,100);setTimeout(sync,500);setTimeout(sync,1200);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)sync();});
+  window.addEventListener('storage',sync);
+  setInterval(function(){
+    const s=document.getElementById('matchTour');
+    if(s && document.getElementById('matches')?.classList.contains('active')) sync();
+  },1500);
+})();
 </script>
 
 </body>
