@@ -1,0 +1,20 @@
+{
+  "name": "المنصة الرياضية",
+  "short_name": "المنصة الرياضية",
+  "description": "منصة رياضية لإدارة البطولات والفرق واللاعبين والمباريات والحكام.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6fbf8",
+  "theme_color": "#087f5b",
+  "icons": [
+    {
+      "src": "sports-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
