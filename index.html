@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function(){
     setTimeout(buildSelectors,150);
   });
 })();
-</script><link href="icons/favicon-48.png" rel="icon" sizes="48x48" type="image/png"/><link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link href="icons/icon-192.png" rel="apple-touch-icon" sizes="192x192"/><link href="./manifest.webmanifest" rel="manifest"/><meta content="#063f2d" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="المنصة الرياضية" name="apple-mobile-web-app-title"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-512.png" rel="icon" sizes="512x512" type="image/png"/><meta content="المنصة الرياضية" name="application-name"/><script id="standings-rotate-real-arabic-script">
+</script><link href="icons/favicon-48.png" rel="icon" sizes="48x48" type="image/png"/><link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link href="icons/icon-192.png" rel="apple-touch-icon" sizes="192x192"/><link rel="manifest" href="./manifest.webmanifest"><meta content="#063f2d" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="المنصة الرياضية" name="apple-mobile-web-app-title"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-512.png" rel="icon" sizes="512x512" type="image/png"/><meta content="المنصة الرياضية" name="application-name"/><script id="standings-rotate-real-arabic-script">
 document.addEventListener('DOMContentLoaded', function(){
   function fixStandingsHeaders(){
     const table=document.querySelector('#statsBody .stats-ranking-card:first-of-type table');
@@ -7448,6 +7448,48 @@ body.admin #predictionsSection{display:block}
 #installAppSection .install-section-actions button{min-width:190px}
 @media(max-width:600px){#installAppSection .install-sports-hero{padding:12px}.install-big-icon{width:60px!important;height:60px!important;min-width:60px!important;font-size:33px!important}#installAppSection .install-section-actions button{width:100%;min-width:0}}
 </style>
+
+
+<script id="pwa-repair-bootstrap">
+(function(){
+  "use strict";
+  // PWA repair: keep the install button usable even when the browser delays
+  // beforeinstallprompt, and register the service worker as early as possible.
+  let installPrompt = null;
+  function standalone(){
+    return matchMedia("(display-mode: standalone)").matches ||
+           navigator.standalone === true ||
+           document.referrer.indexOf("android-app://") === 0;
+  }
+  function setButtons(){
+    const ids=["sectionInstallBtn","installAppBtn","pwaInstallBtn","sportsInstallBtn","bottomInstallBtn"];
+    ids.forEach(function(id){
+      const b=document.getElementById(id);
+      if(!b) return;
+      b.hidden=standalone();
+      if(!standalone()) b.style.display="";
+    });
+  }
+  window.addEventListener("beforeinstallprompt",function(e){
+    e.preventDefault();
+    installPrompt=e;
+    window.__sportsInstallPrompt=e;
+    setButtons();
+  });
+  window.addEventListener("appinstalled",function(){
+    installPrompt=null;
+    window.__sportsInstallPrompt=null;
+    setButtons();
+  });
+  window.addEventListener("load",function(){
+    if("serviceWorker" in navigator){
+      navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(function(){});
+    }
+    setTimeout(setButtons,800);
+  });
+  window.addEventListener("pageshow",setButtons);
+})();
+</script>
 
 </head><body>
 <button aria-label="تثبيت المنصة الرياضية" id="installAppBtn" type="button"><span class="install-sport-icon">⚽</span><span>تثبيت المنصة</span></button>
