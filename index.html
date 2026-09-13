@@ -7450,46 +7450,7 @@ body.admin #predictionsSection{display:block}
 </style>
 
 
-<script id="pwa-repair-bootstrap">
-(function(){
-  "use strict";
-  // PWA repair: keep the install button usable even when the browser delays
-  // beforeinstallprompt, and register the service worker as early as possible.
-  let installPrompt = null;
-  function standalone(){
-    return matchMedia("(display-mode: standalone)").matches ||
-           navigator.standalone === true ||
-           document.referrer.indexOf("android-app://") === 0;
-  }
-  function setButtons(){
-    const ids=["sectionInstallBtn"];
-    ids.forEach(function(id){
-      const b=document.getElementById(id);
-      if(!b) return;
-      b.hidden=standalone();
-      if(!standalone()) b.style.display="";
-    });
-  }
-  window.addEventListener("beforeinstallprompt",function(e){
-    e.preventDefault();
-    installPrompt=e;
-    window.__sportsInstallPrompt=e;
-    setButtons();
-  });
-  window.addEventListener("appinstalled",function(){
-    installPrompt=null;
-    window.__sportsInstallPrompt=null;
-    setButtons();
-  });
-  window.addEventListener("load",function(){
-    if("serviceWorker" in navigator){
-      navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(function(){});
-    }
-    setTimeout(setButtons,800);
-  });
-  window.addEventListener("pageshow",setButtons);
-})();
-</script>
+
 
 
 <style id="prediction-professional-vivid-design">
@@ -8275,7 +8236,7 @@ body.admin #predictionsSection{display:block}
 }
 </style>
 
-</head><body>
+<style>#headToHeadSection .h2h-tournament em{font-style:normal;color:#607487;font-size:12px;font-weight:900;margin-inline-start:8px;white-space:nowrap}</style></head><body>
 <header><div class="brand"><img loading="lazy" decoding="async" alt="شعار المنصة الرياضية" class="brand-logo" src="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'&gt;&lt;circle cx='64' cy='64' r='58' fill='%23ffffff' stroke='%23087f5b' stroke-width='6'/&gt;&lt;path d='M64 34l17 12-7 20H54l-7-20z' fill='%23087f5b'/&gt;&lt;path d='M47 46L28 49l-7 21 17 13 19-17M81 46l19 3 7 21-17 13-19-17M54 66l-7 21 17 12 17-12-7-21' fill='none' stroke='%23087f5b' stroke-width='6' stroke-linejoin='round'/&gt;&lt;/svg&gt;"><div class="brand-text"><h1>🏆 المنصة الرياضية</h1><small>نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.</small></div><div aria-label="الوقت والتاريخ" class="header-clock"><div class="clock-time"><span>◷</span><b id="headerTime">03:55:42 م</b></div><div class="clock-date"><span>▣</span><b id="headerDate">2026-08-14</b></div><div class="clock-day" id="headerDay">الجمعة</div></div><div id="authBar"><span class="role-pill" id="rolePill">👁️ مشاهد</span><button class="login-btn" id="loginBtn" onclick="openLogin()">↪ دخول</button><button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none">خروج</button></div></img></div></header><div id="loginOverlay" onclick="if(event.target===this)closeLogin()"><div class="login-box"><h2>🔐 تسجيل الدخول</h2><p>اختر الحساب وأدخل كلمة المرور للوصول إلى صلاحيات الإدارة.</p><div class="auth-note">المشاهدة متاحة للجميع بدون تسجيل دخول. تسجيل الدخول مطلوب فقط لإدارة البيانات والإعدادات.</div><div class="grid"><div><label>نوع الحساب</label><select id="loginRole"><option value="admin">👑 مدير النظام (Admin)</option><option value="editor">🛠️ صلاحية متوسطة</option></select></div><div><label>اسم المستخدم</label><input autocomplete="username" id="loginUser" placeholder="اسم المستخدم"/></div><div><label>كلمة المرور</label><input autocomplete="current-password" id="loginPass" placeholder="كلمة المرور" type="password"/></div></div><div id="loginError" style="color:#b42318;font-size:13px;margin-top:8px;display:none"></div><div class="actions"><button class="btn" onclick="login()">دخول</button><button class="btn secondary" onclick="closeLogin()">إلغاء</button></div></div></div><div aria-label="الساعة والتاريخ" class="clock-date-box" id="clockDateBox"><div class="clock-date-part"><span class="clock-label">التاريخ</span><div class="digital-date" id="digitalDate">15 / 08 / 2026</div></div><div class="clock-divider"></div><div class="clock-time-part"><span class="clock-label">الوقت</span><div class="digital-clock" id="digitalClock">00:00:00 م</div></div></div><div aria-label="الشريط الإخباري" class="news-ticker" id="homeNewsTicker"><div class="news-ticker-label">📰 الأخبار الرياضية</div><div class="news-ticker-viewport"><div class="news-ticker-track" id="homeNewsTrack"><span class="news-empty">لا توجد أخبار رياضية حالياً</span></div></div></div><nav class="app-sidebar" id="nav"><button aria-label="الواجهة الرئيسية" class="active" data-page="home"><span class="nav-ico">🏠</span><span class="nav-label">الواجهة الرئيسية</span></button><button data-page="tournaments">🏆 <span>البطولات</span></button><button class="nav-item" data-page="teams">⚽ <span>تسجيل الفرق</span></button><button data-page="players">👥 <span>اللاعبون</span></button><button data-page="matches">⚽ <span>المباريات</span></button><button data-page="matchSheetsSection">📋 <span>كشوفات المباريات</span></button><button data-page="predictionsSection">🎯 <span>توقع نتيجة المباراة</span></button><button data-page="stats">📈 <span>الإحصائيات</span></button><button data-page="tournamentArchiveSection">🗄️ <span>أرشيف البطولات</span></button><button data-page="table">📊 <span>الترتيب</span></button><button data-page="overallRanking" type="button">🏆 <span>التصنيف العام</span></button><button data-page="mediaSection">📰 <span>الإعلام</span></button><button data-page="contactSection">📞 <span>تواصل معنا</span></button><button class="nav-item" data-page="referees">⚖️ <span>حكام رابطة المنار</span></button><button class="admin-only" data-page="settings">👤⚙️ <span>إدارة المستخدمين</span></button><button class="admin-only" data-page="auditLog" data-perm="audit">🧾 <span>سجل المراجعة</span></button><button data-page="headToHeadSection">⚔️ <span>تاريخ المواجهات</span></button><button class="admin-only" data-page="backup">💾 <span>النسخ الاحتياطي</span></button><button data-page="pollsSection">🗳️ <span>استطلاع رأي</span></button><button data-page="installAppSection" id="installProgramNavBtn">📲 <span>تثبيت البرنامج</span></button></nav><main><section class="page" id="installAppSection">
 <div class="card install-section-card">
   <div class="section-title"><div><h2>📲 تثبيت البرنامج</h2><small>ثبّت المنصة الرياضية على هاتفك للوصول إليها بسرعة مثل التطبيق.</small></div><span class="badge" id="appVersionBadge">الإصدار الحالي</span></div>
@@ -15572,6 +15533,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(q&&q.value)renderProfessional();
   }
   window.__renderProfessionalPrediction=renderProfessional;
+  window.__getPredictionForMatch=function(m){try{return currentPrediction(m)}catch(e){return null}};
+  window.__getActualScoreForPrediction=function(m){try{return actualScore(m)}catch(e){return null}};
   window.__refreshProfessionalPrediction=refreshStable;
   // قوائم التوقع تشمل المباراة قبل وبعد انتهائها، مع حفظ التوقع الأصلي.
   window.fillPredictionMatches=function(){listTournaments();listAll();};
@@ -15653,40 +15616,26 @@ const oldGo=window.goPage;if(typeof oldGo==='function'&&!oldGo.__pollWrapped){wi
 <script id="sports-install-controller-final">
 (function(){
   'use strict';
-  const VERSION='2026.09.12.2';
-  let deferredPrompt=null;
+  const VERSION='2026.09.13.1';
+  let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true || document.referrer.indexOf('android-app://')===0;
   const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent||'');
   const isAndroid=()=>/android/i.test(navigator.userAgent||'');
-  function setStatus(text,kind){
-    const el=$('installUpdateStatus'); if(!el)return;
-    el.textContent=text;
-    el.style.background=kind==='ok'?'#e8f7ef':kind==='update'?'#fff4d6':'#f4f7f8';
-    el.style.color=kind==='ok'?'#075f45':kind==='update'?'#765500':'#40514b';
-  }
+  function setStatus(text,kind){const el=$('installUpdateStatus');if(!el)return;el.textContent=text;el.style.background=kind==='ok'?'#e8f7ef':kind==='update'?'#fff4d6':kind==='warn'?'#fff1f1':'#f4f7f8';el.style.color=kind==='ok'?'#075f45':kind==='update'?'#765500':kind==='warn'?'#8b1e1e':'#40514b';}
   function setHelp(text){const h=$('installHelpText');if(h)h.innerHTML=text;}
-  function hideInstallButtons(){
-    ['installAppBtn','pwaInstallBtn','sportsInstallBtn','bottomInstallBtn','sectionInstallBtn'].forEach(id=>{
-      const b=$(id); if(b){b.style.display='none';b.hidden=true;}
-    });
-  }
-  function showInstallButtons(){
-    ['installAppBtn','pwaInstallBtn','sportsInstallBtn','bottomInstallBtn','sectionInstallBtn'].forEach(id=>{
-      const b=$(id); if(b){b.style.display='';b.hidden=false;b.disabled=false;}
-    });
-  }
   function sync(){
-    const installed=isStandalone();
-    const b=$('sectionInstallBtn'), badge=$('appVersionBadge');
+    const installed=isStandalone(), b=$('sectionInstallBtn'), u=$('sectionUpdateBtn'), badge=$('appVersionBadge');
     if(badge)badge.textContent='الإصدار '+VERSION;
     if(installed){
-      hideInstallButtons();
+      if(b){b.style.display='none';b.hidden=true;}
+      if(u){u.style.display='';u.hidden=false;}
       setStatus('✅ المنصة مثبتة على الهاتف.','ok');
-      setHelp('تم تثبيت <b>المنصة الرياضية</b> بنجاح. يمكنك فتحها من شاشة الهاتف مثل أي تطبيق.');
+      setHelp('المنصة الرياضية مثبتة ويمكن فتحها من شاشة الهاتف مثل أي تطبيق. إذا صدرت نسخة جديدة اضغط <b>«تحديث المنصة»</b>.');
       return;
     }
-    showInstallButtons();
+    if(u){u.style.display='none';u.hidden=true;}
+    if(b){b.style.display='';b.hidden=false;b.disabled=false;}
     if(deferredPrompt){
       setStatus('📲 المنصة جاهزة للتثبيت.','ok');
       setHelp('اضغط <b>«تثبيت المنصة»</b> وسيظهر طلب التثبيت مباشرة.');
@@ -15694,97 +15643,59 @@ const oldGo=window.goPage;if(typeof oldGo==='function'&&!oldGo.__pollWrapped){wi
       setStatus('📱 التثبيت من Safari.','');
       setHelp('على iPhone/iPad: افتح المنصة في <b>Safari</b> ثم «مشاركة» ← <b>إضافة إلى الشاشة الرئيسية</b>.');
     }else if(isAndroid()){
-      setStatus('📲 اضغط «تثبيت المنصة»؛ وإذا لم يظهر طلب التثبيت فافتح قائمة المتصفح ⋮.','');
-      setHelp('إذا لم يظهر طلب التثبيت، افتح قائمة المتصفح <b>⋮</b> ثم اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>. تأكد أيضًا من فتح المنصة عبر <b>HTTPS</b>.');
+      setStatus('📲 التثبيت متاح من قائمة المتصفح إذا لم يظهر الزر المباشر.','');
+      setHelp('إذا لم يظهر طلب التثبيت، افتح قائمة المتصفح <b>⋮</b> ثم اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>.');
     }else{
       setStatus('ℹ️ التثبيت يعتمد على دعم المتصفح.','');
-      setHelp('افتح المنصة في متصفح حديث يدعم تطبيقات الويب، ثم اختر <b>تثبيت التطبيق</b> من قائمة المتصفح.');
+      setHelp('افتح المنصة في متصفح حديث ثم اختر <b>تثبيت التطبيق</b> من قائمة المتصفح.');
     }
   }
   async function install(){
     if(isStandalone()){sync();return;}
     if(deferredPrompt){
-      const prompt=deferredPrompt;
-      deferredPrompt=null;
-      try{
-        await prompt.prompt();
-        const choice=await prompt.userChoice;
-        if(choice && choice.outcome==='accepted'){
-          setStatus('✅ تم قبول التثبيت. جارٍ إكمال التثبيت...','ok');
-          setHelp('انتظر لحظات حتى تكتمل إضافة <b>المنصة الرياضية</b> إلى الهاتف.');
-        }else{
-          setStatus('لم يتم التثبيت. يمكنك المحاولة مرة أخرى.','');
-        }
-      }catch(e){
-        setStatus('تعذر فتح نافذة التثبيت. افتح قائمة المتصفح ⋮ ثم اختر «تثبيت التطبيق».','warn');
-        setHelp('إذا لم يظهر «تثبيت التطبيق»، تأكد من فتح المنصة من <b>HTTPS</b> ومن وجود ملفات <b>manifest.webmanifest</b> و<b>sw.js</b> بجانب الصفحة.');
-      }
-      sync();
-      return;
+      const prompt=deferredPrompt; deferredPrompt=null;
+      try{await prompt.prompt();const choice=await prompt.userChoice;if(choice&&choice.outcome==='accepted'){setStatus('✅ تم قبول التثبيت.','ok');setHelp('انتظر لحظات حتى تكتمل إضافة <b>المنصة الرياضية</b> إلى الهاتف.');}else{setStatus('لم يتم التثبيت. يمكنك المحاولة مرة أخرى.','');}}catch(e){setStatus('تعذر فتح نافذة التثبيت.','warn');setHelp('افتح قائمة المتصفح <b>⋮</b> ثم اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>.');}
+      sync();return;
     }
-    // Android/Chrome fallback: the install prompt is only exposed when
-    // the browser considers the deployed site installable.
-    if(isAndroid()){
-      setStatus('📲 التثبيت الجاهز غير متاح حاليًا من المتصفح.','warn');
-      setHelp('افتح قائمة المتصفح <b>⋮</b> ثم اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>. إذا لم يظهر الخيار، أعد فتح الصفحة بعد رفع ملفات النسخة كاملة.');
-      return;
-    }
-    if(isIOS()){
-      setStatus('📱 التثبيت من Safari.','');
-      setHelp('اضغط «مشاركة» ثم <b>إضافة إلى الشاشة الرئيسية</b>.');
-      return;
-    }
-    setStatus('ℹ️ اختر «تثبيت التطبيق» من قائمة المتصفح.','');
-    setHelp('يجب تشغيل المنصة عبر HTTPS مع manifest.webmanifest و sw.js.');
+    if(isIOS()){setStatus('📱 التثبيت من Safari.','');setHelp('اضغط «مشاركة» ثم <b>إضافة إلى الشاشة الرئيسية</b>.');return;}
+    setStatus('📲 افتح قائمة المتصفح لإكمال التثبيت.','');setHelp('اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>. يجب أن تكون المنصة منشورة عبر <b>HTTPS</b>.');
+  }
+  async function updateApp(){
+    const u=$('sectionUpdateBtn');if(u){u.disabled=true;u.textContent='⏳ جارٍ تحديث المنصة...';}
+    try{if(swRegistration)await swRegistration.update();else if('serviceWorker' in navigator){const r=await navigator.serviceWorker.getRegistration('./');if(r)await r.update();}}catch(e){}
+    const url=new URL(location.href);url.searchParams.set('platformUpdate',VERSION);url.searchParams.set('v',Date.now());location.replace(url.href);
   }
   function bind(){
-    ['sectionInstallBtn'].forEach(id=>{
-      const b=$(id); if(b && !b.dataset.installBound){b.dataset.installBound='1';b.addEventListener('click',install);}
-    });
-    const u=$('sectionUpdateBtn');
-    if(u && !u.dataset.updateBound){
-      u.dataset.updateBound='1';
-      u.addEventListener('click',async()=>{
-        u.disabled=true;u.textContent='⏳ جارٍ تحديث المنصة...';
-        try{if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.update().catch(()=>null)));}}catch(e){}
-        const url=new URL(location.href);url.searchParams.set('platformUpdate',VERSION);location.replace(url.href);
-      });
-    }
+    const b=$('sectionInstallBtn');if(b&&!b.dataset.installBound){b.dataset.installBound='1';b.addEventListener('click',install);}
+    const u=$('sectionUpdateBtn');if(u&&!u.dataset.updateBound){u.dataset.updateBound='1';u.addEventListener('click',updateApp);}
     sync();
   }
-  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;sync();});
-  window.addEventListener('appinstalled',()=>{deferredPrompt=null;sync();});
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;window.__sportsInstallPrompt=e;sync();});
+  window.addEventListener('appinstalled',()=>{deferredPrompt=null;window.__sportsInstallPrompt=null;sync();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync();});
   window.addEventListener('pageshow',sync);
-  window.addEventListener('load',()=>{
-    if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(()=>navigator.serviceWorker.ready).catch(()=>{});}
+  window.addEventListener('load',async()=>{
+    if('serviceWorker' in navigator){try{swRegistration=await navigator.serviceWorker.register('./sw.js',{scope:'./'});await navigator.serviceWorker.ready;}catch(e){}}
     bind();setTimeout(sync,500);
   });
-  if(document.readyState!=='loading')bind(); else document.addEventListener('DOMContentLoaded',bind);
+  if(document.readyState!=='loading')bind();else document.addEventListener('DOMContentLoaded',bind);
 })();
 </script>
 
 <script id="pwa-final-diagnostics">
 (function(){
   async function checkPWA(){
-    const el=document.getElementById('installUpdateStatus');
-    if(!el)return;
-    const secure=window.isSecureContext || location.hostname==='localhost';
-    let sw=false, manifest=false;
+    const el=document.getElementById('installUpdateStatus');if(!el)return;
+    const secure=window.isSecureContext||location.hostname==='localhost';
+    if(!secure){el.textContent='⚠️ يجب فتح المنصة عبر HTTPS حتى يعمل التثبيت.';return;}
     try{
-      manifest=!!document.querySelector('link[rel="manifest"]');
-      if('serviceWorker' in navigator){
-        const regs=await navigator.serviceWorker.getRegistrations();
-        sw=regs.length>0;
-      }
-    }catch(e){}
-    if(!secure){
-      el.textContent='⚠️ يجب فتح المنصة عبر HTTPS حتى يعمل تثبيت التطبيق.';
-    }else if(!manifest || !sw){
-      el.textContent='⚠️ ملفات التثبيت غير مكتملة. ارفع manifest.webmanifest و sw.js مع ملفات الأيقونات.';
-    }
+      const m=await fetch('./manifest.webmanifest',{cache:'no-store'});
+      const manifest=m.ok&&/json|manifest/i.test(m.headers.get('content-type')||'');
+      let sw=false;if('serviceWorker' in navigator){const r=await navigator.serviceWorker.getRegistration('./');sw=!!r;}
+      if(!manifest||!sw){el.textContent='⚠️ ملفات التثبيت غير مكتملة. تأكد من رفع manifest.webmanifest و sw.js ومجلد icons.';}
+    }catch(e){el.textContent='⚠️ تعذر التحقق من ملفات التثبيت. تأكد من HTTPS ورفع ملفات المنصة كاملة.';}
   }
-  window.addEventListener('load',()=>setTimeout(checkPWA,1200));
+  window.addEventListener('load',()=>setTimeout(checkPWA,1500));
 })();
 </script>
 
@@ -16354,7 +16265,7 @@ setInterval(function(){
       const sc=score(sh);if(!sc)return;
       const h=teamName(m?.homeTeamId??m?.homeTeam??m?.home??sh?.homeTeamId??sh?.homeTeam,m,'h');
       const aw=teamName(m?.awayTeamId??m?.awayTeam??m?.away??sh?.awayTeamId??sh?.awayTeam,m,'a');
-      if(wanted.has(h)&&wanted.has(aw)&&h!==aw){used.add(mid);rows.push({h,aw,sc,t:tournamentName(m,sh)})}
+      if(wanted.has(h)&&wanted.has(aw)&&h!==aw){used.add(mid);rows.push({h,aw,sc,t:tournamentName(m,sh),d:norm(m?.date||m?.matchDate||sh?.date||sh?.matchDate||'غير محدد')})}
     });
     return rows;
   }
@@ -16386,7 +16297,7 @@ setInterval(function(){
           '<div class="h2h-score-wrap"><small>النتيجة</small><div class="h2h-score">'+r.sc.h+' <i>—</i> '+r.sc.a+'</div><span class="h2h-vs">VS</span></div>'+
           '<div class="h2h-team h2h-away"><strong>'+esc(r.aw)+'</strong><span class="h2h-team-mark">⚽</span></div>'+
         '</div>'+
-        '<div class="h2h-tournament"><span>🏆</span><strong>'+esc(r.t)+'</strong></div>'+
+        '<div class="h2h-tournament"><span>🏆</span><strong>'+esc(r.t)+'</strong><em>📅 '+esc(r.d)+'</em></div>'+
       '</article>';
     }).join(''):'<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>لا توجد مواجهات مسجلة</strong><span>اختر فريقين آخرين أو أضف نتائج المباريات.</span></div>';
   }
@@ -16433,5 +16344,222 @@ setInterval(function(){
 <script id="platform-final-health-check">
 (function(){'use strict';function check(){const sections=[...document.querySelectorAll('section[id]')],ids=sections.map(x=>x.id),counts={};ids.forEach(id=>counts[id]=(counts[id]||0)+1);const duplicateIds=Object.keys(counts).filter(id=>counts[id]>1),missingNav=[];document.querySelectorAll('#nav button[data-page]').forEach(b=>{const p=b.getAttribute('data-page');if(p&&!document.getElementById(p)&&p!=='cards')missingNav.push(p)});window.__manarPlatformHealth={ok:!duplicateIds.length&&!missingNav.length,sections:ids.length,duplicateIds,missingNav,install:{section:!!document.getElementById('installAppSection'),button:!!document.getElementById('sectionInstallBtn'),updateButton:!!document.getElementById('sectionUpdateBtn'),manifest:!!document.querySelector('link[rel="manifest"]'),serviceWorker:'serviceWorker' in navigator},checkedAt:new Date().toISOString()};return window.__manarPlatformHealth}window.checkManarPlatform=check;if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',check,{once:true});else check()})();
 </script>
+
+<script id="prediction-match-sheets-final-v2">
+(function(){
+'use strict';
+const S=v=>String(v??'').trim(), A=v=>Array.isArray(v)?v:[];
+const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const KEY='manar_prediction_history_v1';
+
+function D(){return (window.db&&typeof window.db==='object')?window.db:{tournaments:[],teams:[],matches:[]};}
+function team(id){return A(D().teams).find(t=>S(t.id)===S(id))||{};}
+function tn(id){return team(id).name||'فريق';}
+function logo(id){
+  const t=team(id), l=t.logo||t.logoUrl||t.image||t.photo||t.teamLogo||'';
+  return l?'<img class="prediction-list-logo" loading="lazy" decoding="async" src="'+esc(l)+'" alt="">':'<span class="prediction-list-logo-fallback">⚽</span>';
+}
+function sides(m){return {h:S(m.home??m.homeTeamId??m.homeTeam??m.homeId),a:S(m.away??m.awayTeamId??m.awayTeam??m.awayId)};}
+function tidOf(m){return S(m.tournamentId||m.tournament||m.tournamentID||'');}
+function matchLabel(m){
+  const s=sides(m);
+  const date=m.date?S(m.date):'', time=m.time?S(m.time):'';
+  return '<div class="prediction-list-teams"><div>'+logo(s.h)+'<b>'+esc(tn(s.h))+'</b></div><span>×</span><div><b>'+esc(tn(s.a))+'</b>'+logo(s.a)+'</div></div>'+
+         '<div class="prediction-list-meta">'+(date?'<span>📅 '+esc(date)+'</span>':'')+(time?'<span>🕒 '+esc(time)+'</span>':'')+'</div>';
+}
+function getSheets(){
+  let list=[];
+  try{if(typeof uniqueMatchSheets==='function')list=A(uniqueMatchSheets());}catch(e){}
+  if(!list.length){
+    try{
+      list=[
+        ...A(JSON.parse(localStorage.getItem('manar_match_sheets_v3')||'[]')),
+        ...A(JSON.parse(localStorage.getItem('manar_match_sheets_v2')||'[]')),
+        ...A(JSON.parse(localStorage.getItem('manar_match_sheets_v1')||'[]'))
+      ];
+    }catch(e){}
+  }
+  return list.filter(Boolean);
+}
+function sheetFor(id){
+  const same=getSheets().filter(x=>S(x.matchId)===S(id));
+  same.sort((a,b)=>S(b.updatedAt||b.createdAt).localeCompare(S(a.updatedAt||a.createdAt)));
+  return same[0]||null;
+}
+function actual(m){
+  const sh=sheetFor(m.id);
+  if(!sh)return null;
+  const h=Number(sh.homeScore),a=Number(sh.awayScore);
+  return Number.isFinite(h)&&Number.isFinite(a)?{h,a}:null;
+}
+function history(){
+  try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(e){return {};}
+}
+function outcome(h,a){return h>a?'H':h<a?'A':'D';}
+function rate(pred,real){
+  if(pred.h===real.h&&pred.a===real.a)return 100;
+  const close=Math.max(0,1-(Math.abs(pred.h-real.h)+Math.abs(pred.a-real.a))/6);
+  const same=outcome(pred.h,pred.a)===outcome(real.h,real.a);
+  return Math.round((same?(0.65+0.35*close):(0.15+0.15*close))*100);
+}
+function prediction(m){
+  try{
+    if(typeof window.__getPredictionForMatch==='function'){
+      const p=window.__getPredictionForMatch(m);
+      if(p && Number.isFinite(Number(p.hw)) && Number.isFinite(Number(p.draw)) && Number.isFinite(Number(p.aw))){
+        return {p,home:Number(p.hg)||0,away:Number(p.ag)||0,homePct:Math.round(Number(p.hw)*100),drawPct:Math.round(Number(p.draw)*100),awayPct:Math.round(Number(p.aw)*100)};
+      }
+    }
+  }catch(e){}
+  const h=history()[S(m.id)];
+  if(h)return {p:null,home:Number(h.home)||0,away:Number(h.away)||0,homePct:Number(h.homePct)||0,drawPct:Number(h.drawPct)||0,awayPct:Number(h.awayPct)||0};
+  return null;
+}
+function matchSort(a,b){
+  const da=new Date(S(a.date||'2999-12-31')+'T'+S(a.time||'23:59')).getTime();
+  const db=new Date(S(b.date||'2999-12-31')+'T'+S(b.time||'23:59')).getTime();
+  return da-db;
+}
+function setup(){
+  const sec=document.getElementById('predictionsSection');
+  if(!sec||sec.dataset.sheetPredictionV2==='1')return;
+  sec.dataset.sheetPredictionV2='1';
+  sec.innerHTML=`
+    <div class="card prediction-card prediction-sheets-card">
+      <div class="prediction-head"><div class="prediction-icon">🎯</div><h2>توقع نتيجة المباراة</h2></div>
+      <div class="prediction-filter-box">
+        <label for="predictionTournamentV2">البطولة</label>
+        <select id="predictionTournamentV2"><option value="">🏆 اختر اسم البطولة</option></select>
+      </div>
+      <div id="predictionSummaryV2"></div>
+      <div class="prediction-block">
+        <div class="prediction-block-title">🎯 المباريات المتاحة للتوقع <span id="predictionOpenCount">0</span></div>
+        <div id="predictionOpenList"></div>
+      </div>
+      <div class="prediction-block prediction-completed-block">
+        <div class="prediction-block-title">📊 مقارنة التوقع بالنتيجة الفعلية <span id="predictionDoneCount">0</span></div>
+        <div id="predictionDoneList"></div>
+      </div>
+    </div>`;
+  const sel=document.getElementById('predictionTournamentV2');
+  sel.addEventListener('change',()=>render(true));
+  render(true);
+}
+function fillTours(keep){
+  const sel=document.getElementById('predictionTournamentV2'); if(!sel)return;
+  const old=keep??S(sel.value), ids=[];
+  A(D().matches).forEach(m=>{const id=tidOf(m);if(id&&!ids.includes(id))ids.push(id)});
+  const tours=A(D().tournaments).filter(t=>t&&t.name&&ids.includes(S(t.id))&&t.archived!==true);
+  sel.innerHTML='<option value="">🏆 اختر اسم البطولة</option>'+tours.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');
+  if(old&&tours.some(t=>S(t.id)===old))sel.value=old;
+}
+function render(force){
+  const sel=document.getElementById('predictionTournamentV2'); if(!sel)return;
+  fillTours(S(sel.value));
+  const tid=S(sel.value);
+  const open=document.getElementById('predictionOpenList'), done=document.getElementById('predictionDoneList');
+  const oc=document.getElementById('predictionOpenCount'), dc=document.getElementById('predictionDoneCount'), sum=document.getElementById('predictionSummaryV2');
+  if(!tid){
+    if(sum)sum.innerHTML='<div class="prediction-empty">اختر اسم البطولة لعرض المباريات والتوقعات.</div>';
+    if(open)open.innerHTML='';
+    if(done)done.innerHTML='';
+    if(oc)oc.textContent='0';
+    if(dc)dc.textContent='0';
+    return;
+  }
+  const all=A(D().matches).filter(m=>tidOf(m)===tid).slice().sort(matchSort);
+  const openMatches=all.filter(m=>!sheetFor(m.id));
+  const doneMatches=all.filter(m=>!!sheetFor(m.id));
+  const hist=history();
+  const predictedCount=all.filter(m=>!!hist[S(m.id)]).length;
+  const sheetCount=doneMatches.length;
+  if(sum)sum.innerHTML='<div class="prediction-summary"><span>🏆 '+esc((A(D().tournaments).find(t=>S(t.id)===tid)||{}).name||'البطولة')+
+    '</span><span>🎯 التوقعات السابقة: <b>'+predictedCount+'</b></span><span>📋 الكشوفات المدخلة: <b>'+sheetCount+'</b></span><span>⚽ المباريات للتوقع: <b>'+openMatches.length+'</b></span></div>';
+  if(oc)oc.textContent=String(openMatches.length);
+  if(dc)dc.textContent=String(doneMatches.filter(m=>!!hist[S(m.id)]).length);
+
+  if(!openMatches.length) open.innerHTML='<div class="prediction-empty success">✅ لا توجد مباريات جديدة للتوقع؛ جميع المباريات التي أُدخلت كشوفاتها أُزيلت من قائمة التوقع.</div>';
+  else open.innerHTML=openMatches.map(m=>{
+    const pr=prediction(m);
+    if(!pr)return '<div class="prediction-match-card">'+matchLabel(m)+'<div class="prediction-no-data">لا توجد معلومات كافية لإظهار التوقع حالياً.</div></div>';
+    return '<div class="prediction-match-card">'+matchLabel(m)+
+      '<div class="prediction-prob-grid"><div>فوز '+esc(tn(sides(m).h))+'<b>'+pr.homePct+'%</b></div><div>تعادل<b>'+pr.drawPct+'%</b></div><div>فوز '+esc(tn(sides(m).a))+'<b>'+pr.awayPct+'%</b></div></div>'+
+      '<div class="prediction-nearest">النتيجة الأقرب للتوقع <strong>'+pr.home+' - '+pr.away+'</strong></div></div>';
+  }).join('');
+
+  const comparisons=doneMatches.filter(m=>!!hist[S(m.id)]);
+  if(!comparisons.length) done.innerHTML='<div class="prediction-empty">لا توجد مباراة منتهية لها توقع سابق ومُدخل لها كشف بعد.</div>';
+  else done.innerHTML=comparisons.map(m=>{
+    const h=hist[S(m.id)], real=actual(m), s=sides(m);
+    if(!real)return '';
+    const pred={h:Number(h.home),a:Number(h.away)}, r=rate(pred,real);
+    return '<div class="prediction-compare-card">'+matchLabel(m)+
+      '<div class="prediction-compare-grid"><div><small>التوقع</small><strong>'+pred.h+' - '+pred.a+'</strong></div><div><small>النتيجة الفعلية</small><strong>'+real.h+' - '+real.a+'</strong></div><div><small>نسبة التطابق</small><strong>'+r+'%</strong></div></div>'+
+      '<div class="prediction-compare-note">'+(r===100?'🎯 تطابق كامل للنتيجة':'📊 تمت مقارنة التوقع بالنتيجة الفعلية')+'</div></div>';
+  }).join('');
+}
+function signature(){
+  const d=D(), t=A(d.teams), m=A(d.matches);
+  const sel=document.getElementById('predictionTournamentV2'), tid=S(sel?.value);
+  const relevant=m.filter(x=>!tid||tidOf(x)===tid).map(x=>[x.id,x.home,x.homeTeamId,x.away,x.awayTeamId,x.date,x.time,x.status,x.homeScore,x.awayScore]).flat();
+  const sheets=getSheets().map(x=>[x.matchId,x.homeScore,x.awayScore,x.updatedAt]).flat();
+  const teams=t.map(x=>[x.id,x.name,x.logo]).flat();
+  return JSON.stringify([tid,relevant,sheets,teams]);
+}
+function start(){
+  setup();
+  let last='';
+  setInterval(()=>{
+    const sec=document.getElementById('predictionsSection');
+    if(!sec||!sec.classList.contains('active'))return;
+    const sig=signature();
+    if(sig!==last){last=sig;render(false);}
+  },1200);
+  window.addEventListener('storage',e=>{
+    if(/^manar_(sports|match_sheets|prediction)/.test(S(e.key||''))){
+      setTimeout(()=>{if(document.getElementById('predictionsSection')?.classList.contains('active'))render(false)},60);
+    }
+  });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
+<style id="prediction-match-sheets-final-v2-style">
+#predictionsSection .prediction-sheets-card{overflow:hidden}
+#predictionsSection .prediction-filter-box{padding:13px 0 4px}
+#predictionsSection .prediction-summary{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 14px}
+#predictionsSection .prediction-summary span{padding:7px 10px;border-radius:999px;background:#f0f7f4;border:1px solid #d7e7df;color:#36584c;font-size:11px;font-weight:800}
+#predictionsSection .prediction-summary b{color:#075f45}
+#predictionsSection .prediction-block{margin-top:12px}
+#predictionsSection .prediction-block-title{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 13px;border-radius:13px;background:linear-gradient(135deg,#eefaf5,#f4f9ff);border:1px solid #d5e7df;color:#075f45;font-weight:950}
+#predictionsSection .prediction-block-title span{min-width:28px;text-align:center;border-radius:999px;background:#075f45;color:#fff;padding:4px 8px;font-size:11px}
+#predictionsSection .prediction-match-card,#predictionsSection .prediction-compare-card{margin-top:9px;padding:12px;border:1px solid #dce8e2;border-radius:15px;background:#fff;box-shadow:0 5px 15px rgba(8,55,39,.05)}
+#predictionsSection .prediction-list-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:7px;text-align:center;font-size:14px;font-weight:900;color:#173d31}
+#predictionsSection .prediction-list-teams>div{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+#predictionsSection .prediction-list-teams b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#predictionsSection .prediction-list-teams>span{font-size:17px;color:#087f5b}
+#predictionsSection .prediction-list-logo{width:38px;height:38px;min-width:38px;object-fit:contain;border-radius:10px;background:#fff;border:1px solid #d7e5de;padding:2px}
+#predictionsSection .prediction-list-logo-fallback{width:38px;height:38px;min-width:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#eef7f3;border:1px solid #d7e5de;font-size:20px}
+#predictionsSection .prediction-list-meta{display:flex;justify-content:center;gap:12px;margin-top:7px;color:#71827b;font-size:10px}
+#predictionsSection .prediction-prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+#predictionsSection .prediction-prob-grid>div{padding:9px 5px;border-radius:11px;text-align:center;font-size:10px;font-weight:800;background:#f6fbf8;border:1px solid #dceae4}
+#predictionsSection .prediction-prob-grid b{display:block;font-size:19px;color:#075f45;margin-top:3px}
+#predictionsSection .prediction-nearest{margin-top:8px;padding:10px;text-align:center;border-radius:11px;background:#fff8e8;border:1px solid #f0d694;color:#7a5900;font-size:11px}
+#predictionsSection .prediction-nearest strong{font-size:22px;color:#c46d00;display:block;margin-top:2px}
+#predictionsSection .prediction-empty{margin-top:9px;padding:18px;text-align:center;color:#71817b;background:#f8fbfa;border:1px dashed #cddcd5;border-radius:13px;font-size:12px}
+#predictionsSection .prediction-empty.success{background:#effbf5;border-color:#bfe2cf;color:#176044}
+#predictionsSection .prediction-no-data{margin-top:9px;padding:10px;text-align:center;border-radius:10px;background:#fff9e8;color:#7a5900;font-size:11px}
+#predictionsSection .prediction-compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+#predictionsSection .prediction-compare-grid>div{padding:9px 5px;text-align:center;border-radius:11px;background:#f8fafc;border:1px solid #dfe8ec}
+#predictionsSection .prediction-compare-grid small{display:block;color:#718096;font-size:10px}
+#predictionsSection .prediction-compare-grid strong{display:block;margin-top:4px;font-size:20px;color:#075f45}
+#predictionsSection .prediction-compare-note{margin-top:8px;padding:9px;border-radius:10px;text-align:center;background:#eef8f3;color:#176044;font-size:11px;font-weight:900}
+@media(max-width:600px){
+ #predictionsSection .prediction-list-teams{font-size:12px}
+ #predictionsSection .prediction-list-logo,#predictionsSection .prediction-list-logo-fallback{width:34px;height:34px;min-width:34px}
+ #predictionsSection .prediction-prob-grid b{font-size:17px}
+ #predictionsSection .prediction-compare-grid strong{font-size:18px}
+}
+</style>
 </body>
 </html>
