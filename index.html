@@ -169,15 +169,14 @@ document.addEventListener('DOMContentLoaded', function(){
     setTimeout(buildSelectors,150);
   });
 })();
-</script><link href="icons/favicon-48.png" rel="icon" sizes="48x48" type="image/png"/><link href="icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link href="icons/icon-192.png" rel="apple-touch-icon" sizes="192x192"/><link rel="manifest" href="./manifest.webmanifest"><meta content="#063f2d" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="المنصة الرياضية" name="apple-mobile-web-app-title"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-512.png" rel="icon" sizes="512x512" type="image/png"/><meta content="المنصة الرياضية" name="application-name"/>
+</script><link rel="icon" href="./icons/favicon-48.png" sizes="48x48" type="image/png"><link rel="icon" href="./icons/icon-192.png" sizes="192x192" type="image/png"><link rel="icon" href="./icons/icon-512.png" sizes="512x512" type="image/png"><link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" sizes="180x180"><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#063f2d"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="بطولات المنار"><meta name="application-name" content="بطولات المنار">
 
-<meta content="#0b1220" name="theme-color"/>
+
 
 
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 
-<link href="./icons/favicon-48.png" rel="icon" sizes="48x48" type="image/png"/>
-<link href="./icons/apple-touch-icon.png" rel="apple-touch-icon"/>
+
 
 <meta content="firebase-sync-v4-clean-final" name="manar-sync-version"/>
 
@@ -15903,6 +15902,162 @@ html{scroll-behavior:auto!important}
 })();
 </script>
 
+
+<style id="professional-suspended-players-style">
+/* ===== واجهة احترافية للاعبين الموقوفين ===== */
+#suspendedPlayersPanel{
+  background:linear-gradient(145deg,#f7fffc 0%,#eef8f5 48%,#f8fbff 100%)!important;
+  border:1px solid #cfe5dc!important;
+  border-radius:22px!important;
+  box-shadow:0 14px 35px rgba(5,70,48,.10)!important;
+  overflow:hidden!important;
+}
+#suspendedPlayersPanel>.section-title{
+  margin:-12px -12px 16px!important;
+  padding:16px 18px!important;
+  background:linear-gradient(110deg,#064b37,#0a8f62 65%,#16b985)!important;
+  border:0!important;color:#fff!important;
+}
+#suspendedPlayersPanel>.section-title h3{color:#fff!important;font-size:19px!important;margin:0!important}
+#suspendedPlayersPanel>.section-title .badge{
+  background:rgba(255,255,255,.16)!important;color:#fff!important;
+  border:1px solid rgba(255,255,255,.25)!important;
+}
+#suspendedPlayersBody{display:grid;gap:14px}
+.suspension-hero{
+  display:flex;align-items:center;gap:12px;padding:15px;
+  border-radius:18px;background:linear-gradient(135deg,#fff5f5,#fff,#fff8e9);
+  border:1px solid #ffd4d4;box-shadow:0 7px 20px rgba(130,30,30,.07);
+}
+.suspension-hero .hero-icon{
+  width:52px;height:52px;flex:0 0 52px;border-radius:16px;
+  display:grid;place-items:center;font-size:27px;
+  background:linear-gradient(135deg,#ff4d5a,#d6333f);color:#fff;
+  box-shadow:0 7px 16px rgba(214,51,63,.25);
+}
+.suspension-hero strong{display:block;font-size:17px;color:#8e1e29}
+.suspension-hero small{display:block;margin-top:3px;color:#68777c;font-weight:700;font-size:11px}
+.suspension-hero .count{
+  margin-right:auto;min-width:48px;height:42px;padding:0 12px;border-radius:999px;
+  display:grid;place-items:center;background:#fff;color:#c62828;
+  border:2px solid #ffc4c9;font-size:19px;font-weight:900;
+}
+.suspended-player-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.suspended-player-card{
+  position:relative;overflow:hidden;border-radius:18px;background:#fff;
+  border:1px solid #dbe8e3;box-shadow:0 8px 22px rgba(16,61,48,.08);
+  transition:.2s;
+}
+.suspended-player-card:hover{transform:translateY(-2px);box-shadow:0 13px 28px rgba(16,61,48,.13)}
+.suspended-player-card:before{
+  content:"";position:absolute;right:0;top:0;width:6px;height:100%;
+  background:linear-gradient(180deg,#e03131,#ff922b);
+}
+.spc-head{display:flex;align-items:center;gap:11px;padding:14px 15px 11px;background:linear-gradient(135deg,#fff,#f7fbfa)}
+.spc-avatar{
+  width:48px;height:48px;flex:0 0 48px;border-radius:15px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ffebee,#fff3e0);border:1px solid #ffcdd2;font-size:25px;
+}
+.spc-name{min-width:0;flex:1}.spc-name strong{display:block;font-size:16px;color:#183f34;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spc-name small{display:block;margin-top:4px;color:#71817c;font-size:11px}
+.spc-status{font-size:10px;font-weight:900;color:#b42318;background:#fff0f0;border:1px solid #ffc8cc;padding:5px 8px;border-radius:999px}
+.spc-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:4px 15px 15px}
+.spc-item{padding:9px 10px;border-radius:12px;background:#f7faf9;border:1px solid #e5eeea;min-width:0}
+.spc-item label{display:block;font-size:9px;color:#81908b;font-weight:900;margin:0 0 3px}
+.spc-item b{display:block;font-size:11px;color:#274b40;white-space:normal;overflow-wrap:anywhere}
+.spc-item.next{grid-column:1/-1;background:linear-gradient(135deg,#eef8ff,#f8fbff);border-color:#d4e5f3}
+.spc-item.next b{color:#1769aa}
+.suspended-empty{
+  padding:28px 15px;text-align:center;border-radius:18px;background:#fff;
+  border:1px dashed #cfded8;color:#71817c;
+}
+.suspended-empty .empty-icon{font-size:38px;display:block;margin-bottom:7px}
+.suspended-empty strong{display:block;color:#31584a;font-size:15px}
+.suspended-summary{
+  display:flex;gap:8px;flex-wrap:wrap;padding:2px 0;
+}
+.suspended-summary span{
+  flex:1;min-width:130px;padding:9px 11px;border-radius:12px;text-align:center;
+  background:#fff;border:1px solid #dbe8e3;color:#567069;font-size:11px;font-weight:800;
+}
+.suspended-summary b{color:#075f45;font-size:15px;margin-left:3px}
+@media(max-width:700px){
+  .suspended-player-list{grid-template-columns:1fr}
+  .suspension-hero{padding:12px}
+  .suspension-hero strong{font-size:15px}
+  .spc-head{padding:13px}
+  .spc-info{padding:4px 13px 13px}
+}
+</style>
+<script id="professional-suspended-players-render">
+(function(){
+  function esc(v){
+    return typeof window.esc==='function' ? window.esc(v) :
+      String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  }
+  function render(){
+    const box=document.getElementById('suspendedPlayersBody');
+    if(!box || typeof window.suspensionCurrentState!=='function') return;
+    let all=[];
+    try{ all=window.suspensionCurrentState()||[]; }catch(e){ return; }
+    const active=all.filter(x=>x&&x.active);
+    const db=(typeof window.DB==='function'?window.DB():window.db)||{};
+    const teams=Array.isArray(db.teams)?db.teams:[];
+    const tours=Array.isArray(db.tournaments)?db.tournaments:[];
+    const teamName=id=>teams.find(t=>String(t.id)===String(id))?.name||'غير محدد';
+    const tourName=id=>tours.find(t=>String(t.id)===String(id))?.name||'غير محددة';
+    const matchText=m=>{
+      if(!m)return 'بانتظار المباراة القادمة';
+      try{return typeof window.label==='function'?window.label(m):
+        ((m.homeName||m.home||'الفريق الأول')+' × '+(m.awayName||m.away||'الفريق الثاني'));}
+      catch(e){return 'المباراة القادمة';}
+    };
+    if(!active.length){
+      box.innerHTML=`<div class="suspended-empty"><span class="empty-icon">🎉</span>
+        <strong>لا يوجد لاعبون موقوفون حاليًا</strong>
+        <div style="margin-top:5px;font-size:11px">ستظهر هنا العقوبات الفعّالة تلقائيًا بعد تسجيلها في كشوفات المباريات.</div>
+      </div>`;
+      return;
+    }
+    const automatic=active.filter(x=>x.automatic).length;
+    const manual=active.length-automatic;
+    const cards=active.map((x,i)=>{
+      const p=x.p||{};
+      const reason=x.reason||x.note||'عقوبة';
+      const next=(x.nextMatches&&x.nextMatches[0])?matchText(x.nextMatches[0]):'بانتظار المباراة القادمة';
+      return `<article class="suspended-player-card">
+        <div class="spc-head">
+          <div class="spc-avatar">⛔</div>
+          <div class="spc-name"><strong>${esc(p.name||'لاعب غير معروف')}</strong>
+            <small>لاعب موقوف حاليًا • #${i+1}</small></div>
+          <span class="spc-status">موقوف</span>
+        </div>
+        <div class="spc-info">
+          <div class="spc-item"><label>⚽ الفريق</label><b>${esc(teamName(p.teamId))}</b></div>
+          <div class="spc-item"><label>🏆 البطولة</label><b>${esc(tourName(x.tournamentId))}</b></div>
+          <div class="spc-item"><label>📌 سبب الإيقاف</label><b>${esc(reason)}</b></div>
+          <div class="spc-item"><label>🔢 عدد المباريات</label><b>${esc(String(Math.max(1,Number(x.matches)||1)))} مباراة</b></div>
+          <div class="spc-item next"><label>📅 المباراة الموقوف عنها</label><b>${esc(next)}</b></div>
+        </div>
+      </article>`;
+    }).join('');
+    box.innerHTML=`<div class="suspension-hero">
+      <div class="hero-icon">⛔</div><div><strong>قائمة اللاعبين الموقوفين الآن</strong>
+      <small>تُحدّث تلقائيًا من كشوفات المباريات والعقوبات المسجلة</small></div>
+      <div class="count">${active.length}</div>
+    </div>
+    <div class="suspended-summary">
+      <span>🚫 إجمالي الموقوفين <b>${active.length}</b></span>
+      <span>🟨🟥 عقوبات تلقائية <b>${automatic}</b></span>
+      <span>📝 عقوبات إدارية <b>${manual}</b></span>
+    </div>
+    <div class="suspended-player-list">${cards}</div>`;
+  }
+  window.renderSuspendedPlayers=render;
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(render,250);setTimeout(render,1000);});
+  window.addEventListener('storage',()=>setTimeout(render,80));
+})();
+</script>
 </body>
 </html>
 <style id="stats-vivid-harmonious-tables-final">

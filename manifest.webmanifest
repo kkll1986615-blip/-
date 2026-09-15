@@ -1,29 +1,18 @@
 {
-  "name": "المنصة الرياضية",
-  "short_name": "المنصة الرياضية",
-  "description": "منصة رياضية لإدارة البطولات والفرق والمباريات والإحصائيات",
+  "id": "./",
+  "name": "المنصة الرياضية - بطولات المنار",
+  "short_name": "بطولات المنار",
+  "description": "منصة المنار لإدارة البطولات والمباريات واللاعبين والحكام والإحصائيات",
   "lang": "ar",
   "dir": "rtl",
-  "id": "./",
-  "start_url": "./?source=pwa",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f4f8f6",
+  "orientation": "portrait-primary",
+  "background_color": "#063f2d",
   "theme_color": "#063f2d",
-  "prefer_related_applications": false,
   "icons": [
-    {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }
