@@ -11716,8 +11716,45 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       هذا مهم حتى تبقى الإحصائيات مرتبطة بما أدخله المستخدم فعليًا في الكشف،
       ولا تتأثر بإحصائيات اللاعب الحالية أو ببيانات قديمة في جدول آخر.
     */
-    const rel=relevantSheets(tid);
+    /*
+      في قسم الإحصائيات: كل كشف محفوظ يُعد كشفًا مدخلًا ومباراة مكتملة،
+      بغض النظر عن حالة المباراة أو تاريخها. لا نستخدم relevantSheets هنا
+      لأن تلك الدالة مخصصة لعرض/معالجة أقسام أخرى وقد تشترط حالة المباراة.
+      هذا التعديل محصور داخل الإحصائيات فقط.
+    */
     const tourObj=A(dbx().tournaments).find(t=>S(t.id)===tid||S(t.name).trim()===tid);
+    const statsAllSheets=sheets();
+    const statsMatches=A(dbx().matches).map((m,i)=>({m,i,id:matchKey(m,i)}));
+    const rel=[];
+    const relSeen=new Set();
+    statsAllSheets.forEach(sh=>{
+      if(!sh||!sh.matchId)return;
+      let mrec=statsMatches.find(x=>x.id===S(sh.matchId));
+      if(!mrec && typeof sheetFixtureKey==='function'){
+        const fixture=statsMatches.find(x=>{
+          try{return sheetFixtureKey(x.m)===sheetFixtureKey({
+            home:sh.homeTeamId??sh.homeTeam??sh.home,
+            away:sh.awayTeamId??sh.awayTeam??sh.away,
+            date:sh.date,time:sh.time
+          })}catch(e){return false}
+        });
+        if(fixture)mrec=fixture;
+      }
+      const shTour=[sh.tournamentId,sh.tournament,sh.tournamentName,sh.tournament_name,sh.competitionId,sh.competitionName]
+        .filter(v=>v!==undefined&&v!==null&&S(v).trim()).map(v=>S(v).trim());
+      const belongsBySheet=shTour.some(v=>v===S(tid)||v===S(tourObj?.name).trim());
+      const belongsByMatch=!!mrec && belongs(mrec.m,tid);
+      if((belongsBySheet||belongsByMatch)){
+        const key=S(sh.matchId);
+        if(!relSeen.has(key)){rel.push({m:mrec?.m||{},i:mrec?.i??0,sh});relSeen.add(key);}
+      }
+    });
+    /* دعم الكشوفات القديمة التي لا تحمل معرف البطولة داخل الكشف. */
+    statsMatches.forEach(({m,i,id})=>{
+      if(!belongs(m,tid)||relSeen.has(id))return;
+      const sh=statsAllSheets.find(x=>S(x.matchId)===id);
+      if(sh){rel.push({m,i,sh});relSeen.add(id);}
+    });
     const tournamentTeamIds=new Set();
     rel.forEach(({m,sh})=>{
       [m?.home,m?.homeTeamId,m?.teamAId,sh?.homeTeamId,sh?.homeTeam,
@@ -11900,7 +11937,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
 
     box.innerHTML=`
       ${isGroupTournament(tourObj) ? `<div class="stats-stage-control"><div><b>🏆 مرحلة البطولة:</b> ${tourObj.stage==='knockout'?'خروج المغلوب':'المجموعات'}</div><div class="stats-stage-note">${tourObj.stage==='knockout'?'تم الانتقال إلى مرحلة خروج المغلوب. تبقى بيانات المجموعات محفوظة.':'بعد انتهاء مرحلة المجموعات يمكن الانتقال إلى خروج المغلوب.'}</div>${currentRole!=='viewer' ? `<button type="button" class="btn primary" onclick="toggleTournamentKnockoutStage('${esc(tid)}')">${tourObj.stage==='knockout'?'↩️ العودة إلى المجموعات':'🏁 بدء خروج المغلوب'}</button>`:''}</div>` : ''}
-      <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">🏟️</span><b>${totalTournamentMatches}</b><span>عدد المباريات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalFinished}</b><span>المباريات المكتملة بالكشوفات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>عدد الأهداف المسجلة في البطولة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>عدد ركلات الجزاء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>عدد البطاقات الصفراء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>عدد البطاقات الحمراء</span></div></div>
+      <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">🏟️</span><b>${totalTournamentMatches}</b><span>عدد المباريات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalFinished}</b><span>الكشوفات المدخلة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>عدد الأهداف المسجلة في البطولة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>عدد ركلات الجزاء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>عدد البطاقات الصفراء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>عدد البطاقات الحمراء</span></div></div>
       ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=Object.values(tm).filter(x=>{const tt=teamObjForStats(x.id);return Number(tt?.groupNumber||0)===gi;}).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق / المجموعة','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)} <span class="badge">المجموعة ${letter}</span></td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد مباريات مكتملة لهذه البطولة.')}
       ${addTable(`الهدافين في ${name} — أكثر 3`,'⚽',['#','اللاعب','الفريق','الأهداف'],topScorers.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.n}</b></td></tr>`),'لا توجد أهداف مسجلة في الكشوفات.')}
       ${addTable(`أقوى خط هجوم في ${name} — أقوى 3`,'🔥',['#','الفريق','الأهداف المسجلة'],attack.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.gf}</b></td></tr>`),'لا توجد بيانات هجومية كافية.')}
