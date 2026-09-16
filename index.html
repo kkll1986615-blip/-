@@ -8886,6 +8886,28 @@ try{
 }catch(e){console.warn('Main database migration skipped:',e)}
 // مزامنة قاعدة البيانات مع window حتى تعمل قوائم الكشوفات والاختيارات الديناميكية.
 window.db=db;
+/* استعادة احتياطية من IndexedDB فقط عندما فشل الحفظ المحلي بسبب امتلاء localStorage. */
+(function restoreMainDatabaseFromIndexedDB(){
+  try{
+    if(localStorage.getItem('manar_sports_v2_idb_fallback')!=='1')return;
+    const req=indexedDB.open('manar_sports_storage_v1',1);
+    req.onupgradeneeded=()=>{try{req.result.createObjectStore('main')}catch(e){}};
+    req.onsuccess=()=>{
+      try{
+        const tx=req.result.transaction('main','readonly');
+        const getReq=tx.objectStore('main').get('database');
+        getReq.onsuccess=()=>{
+          const saved=getReq.result;
+          if(saved&&saved.db&&typeof saved.db==='object'){
+            db=saved.db;window.db=db;
+            try{rebuildIndexes()}catch(e){}
+            try{renderAll()}catch(e){}
+          }
+        };
+      }catch(e){console.warn('IndexedDB restore skipped:',e)}
+    };
+  }catch(e){console.warn('IndexedDB restore unavailable:',e)}
+})();
 if(!Array.isArray(db.archives))db.archives=[];
 if(!Array.isArray(db.matches))db.matches=[];
 db.matches.forEach(m=>{if(!Array.isArray(m.cards))m.cards=[]});
@@ -8969,10 +8991,43 @@ function save(){
     if(!Array.isArray(db.suspensions))db.suspensions=[];
 
     const payload=JSON.stringify(db);
-    try{localStorage.setItem(KEY,payload);}catch(storageErr){
-      /* لا نحذف الشعار عند امتلاء التخزين؛ نبلغ المستخدم بدل فقدان البيانات. */
-      throw new Error('مساحة التخزين ممتلئة. تم الحفاظ على شعار الفريق ولم تُحذف البيانات.');
+    let localSaved=false;
+    try{
+      localStorage.setItem(KEY,payload);
+      localSaved=true;
+      try{localStorage.removeItem('manar_sports_v2_idb_fallback');}catch(e){}
+    }catch(storageErr){
+      /*
+       * إصلاح نهائي لمشكلة امتلاء localStorage:
+       * نحذف فقط مفاتيح النسخ الرئيسية القديمة/المكررة، ولا نحذف أي بيانات البطولة الحالية.
+       */
+      const legacyKeys=['manar_sports_v1','almanar_sports_v1','sports_platform_v1'];
+      legacyKeys.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+      try{localStorage.setItem(KEY,payload);localSaved=true;}catch(retryErr){
+        /*
+         * إذا كانت مساحة localStorage ممتلئة حتى بعد تنظيف النسخ القديمة،
+         * نحفظ القاعدة كاملة في IndexedDB. هذا يحافظ على شعار الفريق وباقي البيانات
+         * ولا يختزل الشعار أو يحذفه.
+         */
+        try{
+          const req=indexedDB.open('manar_sports_storage_v1',1);
+          req.onupgradeneeded=()=>{try{req.result.createObjectStore('main')}catch(e){}};
+          req.onsuccess=()=>{
+            try{
+              const tx=req.result.transaction('main','readwrite');
+              tx.objectStore('main').put({savedAt:Date.now(),db:JSON.parse(payload)},'database');
+              tx.oncomplete=()=>{try{localStorage.setItem('manar_sports_v2_idb_fallback','1')}catch(e){}};
+            }catch(e){console.error('IndexedDB save error:',e)}
+          };
+          req.onerror=()=>console.error('IndexedDB open error:',req.error);
+          localSaved=true;
+          console.warn('localStorage ممتلئ؛ تم حفظ قاعدة البيانات كاملة في IndexedDB.');
+        }catch(idbErr){
+          throw new Error('تعذر حفظ البيانات. يرجى تحرير مساحة التخزين في المتصفح ثم المحاولة مرة أخرى.');
+        }
+      }
     }
+    if(!localSaved)throw new Error('تعذر حفظ البيانات');
     __manarDataVersion++;
     window.db=db;
 
@@ -8990,7 +9045,7 @@ function save(){
     return true;
   }catch(e){
     console.error('Platform save error:',e);
-    alert('❌ تعذر حفظ البيانات محليًا: '+(e?.message||e));
+    alert('❌ تعذر حفظ البيانات: '+(e?.message||e));
     return false;
   }
 }
@@ -11852,7 +11907,10 @@ document.addEventListener('DOMContentLoaded',function(){
 
   /* 8) تحديث كل القوائم بعد أي حفظ، خصوصًا قائمة اللاعبين العامة. */
   function persistAndRefresh(){
-    try{localStorage.setItem(typeof KEY!=='undefined'?KEY:'manar_sports_v2',JSON.stringify(db));}catch(e){console.error(e);}
+    try{
+      if(typeof window.save==='function')window.save();
+      else localStorage.setItem(typeof KEY!=='undefined'?KEY:'manar_sports_v2',JSON.stringify(db));
+    }catch(e){console.error(e);}
     if(typeof window.renderAll==='function')window.renderAll();
     setTimeout(()=>{
       refreshTeamRegistrationCascade();
