@@ -17616,6 +17616,404 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
   #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:9px !important;}
 }
 </style>
+
+
+<!-- FINAL: إحصائيات موحدة من كشوفات المباريات + ملخص كشف احترافي -->
+<style id="final-sheet-authoritative-stats-ui">
+  #statsBody .sheet-source-banner{
+    padding:12px 14px;margin:0 0 14px;border-radius:14px;
+    background:linear-gradient(135deg,#eefaf5,#f8fffc);
+    border:1px solid #c9e7d8;color:#245c49;font-weight:800;
+    display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap
+  }
+  #statsBody .stats-summary-grid{margin-bottom:14px}
+  #statsBody .sheet-stat-card{border-radius:16px!important}
+  #statsBody .sheet-stat-card b{font-size:27px!important}
+  #statsBody .sheet-data-card{
+    margin:14px 0;padding:14px;border:1px solid #dce8e2;border-radius:18px;
+    background:#fff;box-shadow:0 7px 22px rgba(20,70,50,.07)
+  }
+  #statsBody .sheet-data-card h3{
+    margin:0 0 11px;color:#075f45;font-size:16px;
+    display:flex;align-items:center;gap:7px
+  }
+  #statsBody .sheet-data-card table{min-width:0!important}
+  #statsBody .sheet-data-card .no-data{
+    padding:18px;text-align:center;color:#718096;background:#f7faf9;
+    border:1px dashed #cbdad3;border-radius:12px
+  }
+
+  #ksReportsList .ks-pro-card{
+    background:#fff;border:1px solid #d8e6df;border-radius:20px;
+    overflow:hidden;margin:0 0 16px;box-shadow:0 10px 28px rgba(20,70,50,.08)
+  }
+  #ksReportsList .ks-pro-head{
+    padding:14px 15px;background:linear-gradient(135deg,#075b43,#0a8a63);
+    color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px
+  }
+  #ksReportsList .ks-pro-title{font-size:17px;font-weight:900}
+  #ksReportsList .ks-pro-score{font-size:23px;font-weight:900;white-space:nowrap}
+  #ksReportsList .ks-pro-meta{
+    padding:9px 13px;background:#f5faf8;border-bottom:1px solid #e2ece7;
+    color:#587067;font-size:12px;display:flex;gap:10px;flex-wrap:wrap
+  }
+  #ksReportsList .ks-pro-body{padding:13px}
+  #ksReportsList .ks-pro-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  #ksReportsList .ks-pro-box{
+    border:1px solid #e0e9e5;border-radius:13px;padding:10px;background:#fbfdfc
+  }
+  #ksReportsList .ks-pro-box h4{
+    margin:0 0 8px;color:#075f45;font-size:13px
+  }
+  #ksReportsList .ks-pro-list{margin:0;padding:0;list-style:none;display:grid;gap:5px}
+  #ksReportsList .ks-pro-list li{
+    padding:7px 8px;border-radius:8px;background:#f5f9f7;font-size:12px
+  }
+  #ksReportsList .ks-pro-image{
+    margin-top:10px;padding-top:10px;border-top:1px solid #edf2ef
+  }
+  #ksReportsList .ks-pro-image img{
+    display:block;width:100%;max-height:420px;object-fit:contain;
+    border:1px solid #dce8e2;border-radius:12px;background:#fff
+  }
+  #ksReportsList .ks-pro-actions{margin-top:11px;display:flex;gap:8px}
+  #ksReportsList .ks-pro-actions .btn{flex:1}
+  @media(max-width:600px){
+    #ksReportsList .ks-pro-grid{grid-template-columns:1fr}
+    #ksReportsList .ks-pro-score{font-size:20px}
+  }
+</style>
+
+<script id="final-authoritative-sheet-stats-v2">
+(function(){
+  'use strict';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v??'');
+  const $=id=>document.getElementById(id);
+  const E=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+  function DB(){
+    try{
+      if(window.db && typeof window.db==='object') return window.db;
+      if(typeof db!=='undefined' && db && typeof db==='object') return db;
+    }catch(e){}
+    return {tournaments:[],teams:[],players:[],matches:[]};
+  }
+  function sheets(){
+    try{
+      if(typeof uniqueMatchSheets==='function') return A(uniqueMatchSheets());
+    }catch(e){}
+    try{
+      const keys=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
+      for(const k of keys){
+        const x=JSON.parse(localStorage.getItem(k)||'[]');
+        if(Array.isArray(x)&&x.length) return x;
+      }
+    }catch(e){}
+    return [];
+  }
+  function teams(){return A(DB().teams)}
+  function players(){return A(DB().players)}
+  function matches(){return A(DB().matches)}
+  function tournaments(){return A(DB().tournaments)}
+  function tidOfSheet(sh){
+    return S(sh?.tournamentId??sh?.tournament??sh?.tournamentName??sh?.tournament_name??'').trim();
+  }
+  function matchOf(sh){
+    const ms=matches(), id=S(sh?.matchId);
+    return ms.find((m,i)=>S(m?.id)===id) ||
+           (typeof matchKey==='function' ? ms.find((m,i)=>S(matchKey(m,i))===id) : null) || {};
+  }
+  function teamName(raw){
+    if(raw&&typeof raw==='object') raw=raw.id??raw.name??'';
+    const v=S(raw).trim();
+    const t=teams().find(x=>S(x.id)===v||S(x.name).trim()===v);
+    return t?.name || (v || 'فريق');
+  }
+  function playerName(raw){
+    if(raw&&typeof raw==='object') return raw.name||raw.playerName||'';
+    const v=S(raw).trim();
+    const p=players().find(x=>S(x.id)===v||S(x.name).trim()===v);
+    return p?.name || (v || 'لاعب');
+  }
+  function tournamentName(tid){
+    const v=S(tid).trim();
+    const t=tournaments().find(x=>S(x.id)===v||S(x.name).trim()===v);
+    return t?.name || v || 'البطولة';
+  }
+  function side(sh,m,home){
+    const raw=home
+      ? (sh?.homeTeamId??sh?.homeTeam??m?.home??m?.homeTeamId??m?.homeTeam)
+      : (sh?.awayTeamId??sh?.awayTeam??m?.away??m?.awayTeamId??m?.awayTeam);
+    return S(raw).trim();
+  }
+  function num(v){
+    const n=Number(v);
+    return Number.isFinite(n)&&n>=0?n:0;
+  }
+  function scoreFromSheet(sh,m){
+    return {
+      hg:num(sh?.homeScore),
+      ag:num(sh?.awayScore)
+    };
+  }
+  function refName(raw){
+    if(raw&&typeof raw==='object') raw=raw.id??raw.name??raw.refereeId??'';
+    const v=S(raw).trim();
+    if(!v)return '';
+    let list=[];
+    try{list=JSON.parse(localStorage.getItem('manar_referees_v1')||'[]')}catch(e){}
+    const r=A(list).find(x=>S(x.id)===v||S(x.name).trim()===v);
+    return r?.name || v;
+  }
+  function cardsOf(sh){
+    return A(sh?.cards).map(c=>{
+      const type=S(c?.type??c?.cardType??'').toLowerCase();
+      const red=type==='red'||c?.red===true||c?.isRed===true;
+      return {
+        player:playerName(c?.playerId??c?.playerName??c?.player),
+        team:teamName(c?.teamId??c?.teamName??c?.team),
+        type:red?'حمراء':'صفراء'
+      };
+    }).filter(x=>x.player);
+  }
+  function scorerIds(sh){
+    const a=A(sh?.homeScorers), b=A(sh?.awayScorers);
+    if(a.length+b.length) return [...a,...b];
+    return A(sh?.goalScorers);
+  }
+
+  function renderAuthoritativeStats(){
+    const sel=$('statsTour'), box=$('statsBody');
+    if(!sel||!box)return;
+    const old=S(sel.value);
+    const ts=tournaments().filter(t=>t&&t.archived!==true&&S(t.status)!=='archived');
+    sel.innerHTML='<option value="">— اختر البطولة —</option>'+
+      ts.map(t=>`<option value="${E(t.id)}">${E(t.name||'بطولة')}</option>`).join('');
+    if(old && ts.some(t=>S(t.id)===old)) sel.value=old;
+    const tid=S(sel.value);
+    if(!tid){
+      box.innerHTML='<div class="empty">🏆 اختر اسم البطولة لعرض إحصائياتها من الكشوفات.</div>';
+      return;
+    }
+
+    const tour=tournaments().find(t=>S(t.id)===tid||S(t.name).trim()===tid);
+    const wanted=new Set([tid,tour?.id,tour?.name,tour?.title].filter(Boolean).map(v=>S(v).trim().toLowerCase()));
+
+    /* المصدر الوحيد: الكشوفات المحفوظة */
+    const rel=sheets().filter(sh=>{
+      const vals=[sh?.tournamentId,sh?.tournament,sh?.tournamentName,sh?.tournament_name,sh?.competitionId,sh?.competitionName]
+        .filter(Boolean).map(v=>S(v).trim().toLowerCase());
+      if(vals.some(v=>wanted.has(v))) return true;
+      const m=matchOf(sh);
+      const mv=[m?.tournamentId,m?.tournament,m?.tournamentName,m?.tournament_name,m?.competitionId,m?.competitionName]
+        .filter(Boolean).map(v=>S(v).trim().toLowerCase());
+      return mv.some(v=>wanted.has(v));
+    });
+
+    const tm={};
+    const scorers={}, best={}, refereeCounts={}, cardRows=[];
+    let goals=0, yellow=0, red=0;
+
+    rel.forEach(sh=>{
+      const m=matchOf(sh), q=scoreFromSheet(sh,m);
+      goals+=q.hg+q.ag;
+
+      const hId=side(sh,m,true), aId=side(sh,m,false);
+      const hName=teamName(hId), aName=teamName(aId);
+      if(hId){
+        const k=hId; tm[k] ||= {id:k,name:hName,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+        tm[k].p++; tm[k].gf+=q.hg; tm[k].ga+=q.ag;
+      }
+      if(aId){
+        const k=aId; tm[k] ||= {id:k,name:aName,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+        tm[k].p++; tm[k].gf+=q.ag; tm[k].ga+=q.hg;
+      }
+      if(hId&&aId){
+        if(q.hg>q.ag){tm[hId].w++;tm[hId].pts+=3;tm[aId].l++}
+        else if(q.hg<q.ag){tm[aId].w++;tm[aId].pts+=3;tm[hId].l++}
+        else {tm[hId].d++;tm[aId].d++;tm[hId].pts++;tm[aId].pts++}
+      }
+
+      scorerIds(sh).forEach(id=>{
+        const key=S(id).trim(); if(key) scorers[key]=(scorers[key]||0)+1;
+      });
+
+      const bp=S(sh?.bestPlayerId??sh?.bestPlayer).trim();
+      if(bp) best[bp]=(best[bp]||0)+1;
+
+      const refs=[
+        sh?.referee1,sh?.referee2,sh?.referee3,sh?.referee4,
+        ...A(sh?.referees)
+      ].map(refName).filter(Boolean);
+      const unique=[...new Set(refs)];
+      unique.forEach(r=>refereeCounts[r]=(refereeCounts[r]||0)+1);
+
+      cardsOf(sh).forEach(c=>{
+        cardRows.push(c);
+        c.type==='صفراء'?yellow++:red++;
+      });
+    });
+
+    const standings=Object.values(tm).map(x=>({...x,gd:x.gf-x.ga}))
+      .sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
+
+    const scorerRows=Object.entries(scorers).map(([id,n])=>({
+      id,n,name:playerName(id),
+      team:(players().find(p=>S(p.id)===S(id))?.teamId)||''
+    })).sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar')).slice(0,10);
+
+    const bestRows=Object.entries(best).map(([id,n])=>({
+      id,n,name:playerName(id),
+      team:(players().find(p=>S(p.id)===S(id))?.teamId)||''
+    })).sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar')).slice(0,4);
+
+    const cardPlayerRows={};
+    cardRows.forEach(c=>{
+      const key=c.player+'__'+c.team;
+      cardPlayerRows[key] ||= {player:c.player,team:c.team,y:0,r:0,total:0};
+      c.type==='صفراء'?cardPlayerRows[key].y++:cardPlayerRows[key].r++;
+      cardPlayerRows[key].total++;
+    });
+    const cardPlayers=Object.values(cardPlayerRows)
+      .sort((a,b)=>b.total-a.total||a.player.localeCompare(b.player,'ar')).slice(0,10);
+
+    const refs=Object.entries(refereeCounts)
+      .map(([name,n])=>({name,n})).sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar')).slice(0,10);
+
+    const table=(title,icon,heads,rows,empty)=>{
+      return `<div class="sheet-data-card"><h3>${icon} ${E(title)}</h3>`+
+        (rows.length
+          ? `<div class="table-wrap"><table><thead><tr>${heads.map(h=>`<th>${E(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`
+          : `<div class="no-data">${E(empty)}</div>`)+'</div>';
+    };
+
+    const bestTable=table(
+      `أكثر 4 لاعبين حصولًا على أفضل لاعب في ${tour?.name||tournamentName(tid)}`,'⭐',
+      ['#','اسم اللاعب','الفريق','مرات أفضل لاعب'],
+      bestRows.map((x,i)=>`<tr><td>${i+1}</td><td><b>${E(x.name)}</b></td><td>${E(teamName(x.team))}</td><td><b>${x.n}</b></td></tr>`),
+      'لا توجد اختيارات لأفضل لاعب في الكشوفات.'
+    );
+
+    box.innerHTML=
+      `<div class="sheet-source-banner"><span>📋 مصدر الإحصائيات المعتمد: كشوفات المباريات فقط</span><span>عدد الكشوفات: ${rel.length}</span></div>`+
+      `<div class="stats-summary-grid">
+        <div class="stat sheet-stat-card"><span class="stat-emoji">📋</span><b>${rel.length}</b><span>الكشوفات المكتملة</span></div>
+        <div class="stat sheet-stat-card"><span class="stat-emoji">⚽</span><b>${goals}</b><span>الأهداف</span></div>
+        <div class="stat sheet-stat-card"><span class="stat-emoji">🟨</span><b>${yellow}</b><span>البطاقات الصفراء</span></div>
+        <div class="stat sheet-stat-card"><span class="stat-emoji">🟥</span><b>${red}</b><span>البطاقات الحمراء</span></div>
+      </div>`+
+      table('ترتيب الفرق من الكشوفات','🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','الفارق','النقاط'],
+        standings.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right"><b>${E(x.name)}</b></td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gd>0?'+':''}${x.gd}</td><td><b>${x.pts}</b></td></tr>`),
+        'لا توجد كشوفات مكتملة لهذه البطولة.'
+      )+
+      table('الهدافون — من الكشوفات','⚽',['#','اسم اللاعب','الفريق','عدد الأهداف'],
+        scorerRows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right"><b>${E(x.name)}</b></td><td>${E(teamName(x.team))}</td><td><b>${x.n}</b></td></tr>`),
+        'لا توجد أهداف مسجلة في الكشوفات.'
+      )+
+      table('الإنذارات — اللاعب / الفريق / نوع البطاقة','🟨',['#','اسم اللاعب','الفريق','نوع البطاقة'],
+        cardRows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right"><b>${E(x.player)}</b></td><td>${E(x.team)}</td><td>${x.type==='صفراء'?'🟨 صفراء':'🟥 حمراء'}</td></tr>`),
+        'لا توجد بطاقات مسجلة في الكشوفات.'
+      )+
+      table('أكثر اللاعبين حصولًا على البطاقات','🪪',['#','اسم اللاعب','الفريق','الإجمالي','صفراء','حمراء'],
+        cardPlayers.map((x,i)=>`<tr><td>${i+1}</td><td><b>${E(x.player)}</b></td><td>${E(x.team)}</td><td><b>${x.total}</b></td><td>${x.y}</td><td>${x.r}</td></tr>`),
+        'لا توجد بطاقات مسجلة.'
+      )+
+      table('الحكام — عدد المشاركات في الكشوفات','⚖️',['#','الحكم','المشاركات'],
+        refs.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right"><b>${E(x.name)}</b></td><td>${x.n}</td></tr>`),
+        'لا توجد أسماء حكام في الكشوفات.'
+      )+
+      bestTable;
+  }
+
+  function professionalSheetSummary(){
+    const box=$('ksReportsList'), sel=$('ksTournament');
+    if(!box||!sel)return;
+    const tid=S(sel.value).trim();
+    if(!tid){
+      box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة لعرض الكشوفات المدخلة.</div>';
+      return;
+    }
+    const list=sheets().filter(sh=>{
+      const vals=[sh?.tournamentId,sh?.tournament,sh?.tournamentName,sh?.tournament_name,sh?.competitionId,sh?.competitionName]
+        .filter(Boolean).map(v=>S(v).trim().toLowerCase());
+      const tour=tournaments().find(t=>S(t.id)===tid);
+      const wanted=new Set([tid,tour?.id,tour?.name,tour?.title].filter(Boolean).map(v=>S(v).trim().toLowerCase()));
+      if(vals.some(v=>wanted.has(v)))return true;
+      const m=matchOf(sh);
+      return [m?.tournamentId,m?.tournament,m?.tournamentName,m?.tournament_name].filter(Boolean)
+        .map(v=>S(v).trim().toLowerCase()).some(v=>wanted.has(v));
+    });
+    if(!list.length){
+      box.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';
+      return;
+    }
+
+    box.innerHTML=list.map(sh=>{
+      const m=matchOf(sh);
+      const h=teamName(side(sh,m,true)), a=teamName(side(sh,m,false));
+      const q=scoreFromSheet(sh,m);
+      const cards=cardsOf(sh);
+      const goals=scorerIds(sh).map(x=>playerName(x)).filter(Boolean);
+      const refs=[
+        sh?.referee1,sh?.referee2,sh?.referee3,sh?.referee4,
+        ...A(sh?.referees)
+      ].map(refName).filter(Boolean);
+      const refUnique=[...new Set(refs)];
+      const refItems=[1,2,3,4].map((n,i)=>sh?.['referee'+n] ? `الحكم ${n}: ${refName(sh['referee'+n])}` : `الحكم ${n}: —`);
+      const best=playerName(sh?.bestPlayerId??sh?.bestPlayer);
+      const supervisor=S(sh?.supervisor).trim();
+      const imgs=A(sh?.images||sh?.imageData||sh?.image).filter(Boolean);
+      const actions=(typeof authorized==='function' ? authorized() : document.body.classList.contains('admin')||document.body.classList.contains('editor'))
+        ? `<div class="ks-pro-actions"><button class="btn blue" type="button" data-ks-edit="${E(sh.matchId)}">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="${E(sh.matchId)}">🗑️ حذف الكشف</button></div>` : '';
+
+      return `<article class="ks-pro-card">
+        <div class="ks-pro-head">
+          <div><div class="ks-pro-title">${E(h)} × ${E(a)}</div><small>📋 كشف رقم ${E(sh.sheetNumber||'—')}</small></div>
+          <div class="ks-pro-score">${q.hg} — ${q.ag}</div>
+        </div>
+        <div class="ks-pro-meta">
+          <span>📅 ${E(m.date||sh.date||'—')}</span>
+          <span>⏰ ${E(m.time||sh.time||'—')}</span>
+          <span>🏆 ${E(tournamentName(tid))}</span>
+        </div>
+        <div class="ks-pro-body">
+          <div class="ks-pro-grid">
+            <div class="ks-pro-box"><h4>⚽ الأهداف</h4><ul class="ks-pro-list">${goals.length?goals.map((g,i)=>`<li>⚽ ${i+1}. ${E(g)}</li>`).join(''):'<li>لا توجد أهداف مسجلة</li>'}</ul></div>
+            <div class="ks-pro-box"><h4>🟨🟥 الإنذارات</h4><ul class="ks-pro-list">${cards.length?cards.map(c=>`<li>${c.type==='صفراء'?'🟨':'🟥'} ${E(c.player)} — ${E(c.team)}</li>`).join(''):'<li>لا توجد بطاقات</li>'}</ul></div>
+            <div class="ks-pro-box"><h4>⭐ أفضل لاعب</h4><ul class="ks-pro-list"><li>${E(best||'—')}</li></ul></div>
+            <div class="ks-pro-box"><h4>⚖️ الحكام</h4><ul class="ks-pro-list">${refItems.map(x=>`<li>${E(x)}</li>`).join('')}</ul></div>
+            <div class="ks-pro-box"><h4>👤 مشرف المباراة</h4><ul class="ks-pro-list"><li>${E(supervisor||'—')}</li></ul></div>
+          </div>
+          ${imgs.length?`<div class="ks-pro-image"><h4 style="margin:0 0 8px;color:#075f45">🖼️ صورة الكشف</h4>${imgs.map(img=>`<img src="${E(img)}" alt="صورة كشف المباراة" loading="lazy">`).join('')}</div>`:''}
+          ${actions}
+        </div>
+      </article>`;
+    }).join('');
+  }
+
+  /* نجعل هذه النسخة هي المرجع الأخير حتى لا تعود طبقات الإحصائيات القديمة */
+  window.renderStats=renderAuthoritativeStats;
+  window.refreshStatsFromSheets=renderAuthoritativeStats;
+  window.renderPublicMatchSheetsReadOnly=professionalSheetSummary;
+
+  function refreshAll(){
+    try{renderAuthoritativeStats()}catch(e){console.error(e)}
+    try{professionalSheetSummary()}catch(e){console.error(e)}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(refreshAll,120);
+    setTimeout(refreshAll,700);
+    setTimeout(refreshAll,1600);
+  });
+  window.addEventListener('storage',function(e){
+    if(String(e.key||'').includes('manar_match_sheets') || String(e.key||'').includes('manar_db')){
+      setTimeout(refreshAll,80);
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
 <style id="professional-match-management-v1">
