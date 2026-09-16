@@ -12310,7 +12310,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     box.innerHTML=`
       ${isGroupTournament(tourObj) ? `<div class="stats-stage-control"><div><b>🏆 مرحلة البطولة:</b> ${tourObj.stage==='knockout'?'خروج المغلوب':'المجموعات'}</div><div class="stats-stage-note">الإحصائيات مبنية حصراً على الكشوفات المحفوظة للبطولة.</div>${currentRole!=='viewer' ? `<button type="button" class="btn primary" onclick="toggleTournamentKnockoutStage('${esc(tid)}')">${tourObj.stage==='knockout'?'↩️ العودة إلى المجموعات':'🏁 بدء خروج المغلوب'}</button>`:''}</div>` : ''}
       <div class="stats-source-note" style="margin-bottom:12px;padding:11px 14px;border:1px solid #cfe5da;border-radius:10px;background:#f4fbf7;font-weight:800">📋 مصدر الإحصائيات: الكشوفات المدخلة والمحفوظه فقط — عدد الكشوفات المحتسبة: ${totalFinished}</div>
-      <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalTournamentMatches}</b><span>الكشوفات المدخلة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>الأهداف في الكشوفات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>ركلات الجزاء في الكشوفات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>الصفراء في الكشوفات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>الحمراء في الكشوفات</span></div></div>
+      <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalTournamentMatches}</b><span>عدد المباريات</span><small style="display:block;font-size:9px;color:#71827b;margin-top:2px">من الكشوفات المدخلة</small></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>الأهداف في الكشوفات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>ركلات الجزاء في الكشوفات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>الصفراء في الكشوفات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>الحمراء في الكشوفات</span></div></div>
       ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=Object.values(tm).filter(x=>{const tt=teamObjForStats(x.id);return Number(tt?.groupNumber||0)===gi;}).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق / المجموعة','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد كشوفات مدخلة لهذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد كشوفات مدخلة لهذه البطولة.')}
       ${addTable(`الهدافين في ${name} — أكثر 5`,'⚽',['#','اللاعب','الفريق','الأهداف'],topScorers.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.n}</b></td></tr>`),'لا توجد أهداف مسجلة في الكشوفات.')}
       ${addTable(`أكثر الفرق حصولًا على الإنذارات في ${name} — أكثر 4`,'🟨',['#','الفريق','إجمالي البطاقات','صفراء','حمراء'],mostCards.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.total}</b></td><td>${x.y}</td><td>${x.r}</td></tr>`),'لا توجد بطاقات مسجلة في الكشوفات.')}
@@ -17422,3 +17422,123 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
 </style>
 </body>
 </html>
+<!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
+<style id="final-match-management-professional">
+#manarMatchEditModal{position:fixed;inset:0;z-index:99999;display:none;align-items:flex-end;justify-content:center;background:rgba(8,32,24,.58);backdrop-filter:blur(5px);padding:12px}
+#manarMatchEditModal.show{display:flex}
+#manarMatchEditModal .mme-box{width:min(560px,100%);max-height:92vh;overflow:auto;background:#fff;border:1px solid #d8e8e1;border-radius:24px 24px 16px 16px;box-shadow:0 24px 70px rgba(0,0,0,.28);direction:rtl}
+#manarMatchEditModal .mme-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;background:linear-gradient(135deg,#075f45,#087f5b);color:#fff}
+#manarMatchEditModal .mme-head h3{margin:0;font-size:17px;font-weight:950}
+#manarMatchEditModal .mme-close{width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:24px;cursor:pointer}
+#manarMatchEditModal .mme-body{padding:16px}
+#manarMatchEditModal .mme-fixture{padding:14px;border:1px solid #dceae4;border-radius:18px;background:linear-gradient(145deg,#f7fcfa,#f5f9ff);text-align:center;margin-bottom:14px}
+#manarMatchEditModal .mme-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;font-weight:950;color:#173d31;font-size:15px}
+#manarMatchEditModal .mme-vs{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#075f45;color:#fff}
+#manarMatchEditModal .mme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#manarMatchEditModal .mme-field{padding:11px;border:1px solid #e0e9e5;border-radius:14px;background:#fbfdfc}
+#manarMatchEditModal label{display:block;font-size:11px;font-weight:900;color:#486158;margin-bottom:6px}
+#manarMatchEditModal input,#manarMatchEditModal select{width:100%;box-sizing:border-box;border:1px solid #cfded7;border-radius:11px;padding:10px;background:#fff;font:inherit;font-size:13px;outline:none}
+#manarMatchEditModal input:focus,#manarMatchEditModal select:focus{border-color:#0b8b65;box-shadow:0 0 0 3px rgba(11,139,101,.10)}
+#manarMatchEditModal .mme-status-note{margin:10px 0;padding:10px 12px;border-radius:12px;background:#eefaf4;border:1px solid #c8e6d6;color:#176044;font-size:11px;font-weight:900}
+#manarMatchEditModal .mme-actions{display:flex;gap:8px;margin-top:14px}
+#manarMatchEditModal .mme-actions button{flex:1;min-height:44px;border:0;border-radius:13px;font-weight:950;cursor:pointer}
+#manarMatchEditModal .mme-save{background:#075f45;color:#fff}.mme-cancel{background:#eef3f1;color:#315148}
+#manarMatchEditModal .mme-score{font-size:17px;font-weight:950;text-align:center}
+@media(max-width:430px){#manarMatchEditModal{padding:0}#manarMatchEditModal .mme-box{max-height:96vh;border-radius:22px 22px 0 0}.mme-grid{grid-template-columns:1fr!important}}
+</style>
+<div id="manarMatchEditModal" aria-hidden="true">
+  <div class="mme-box" role="dialog" aria-modal="true" aria-labelledby="mmeTitle">
+    <div class="mme-head"><h3 id="mmeTitle">✏️ تعديل بيانات المباراة</h3><button type="button" class="mme-close" id="mmeClose">×</button></div>
+    <div class="mme-body">
+      <div class="mme-fixture"><div class="mme-teams"><b id="mmeHome">الفريق الأول</b><span class="mme-vs">VS</span><b id="mmeAway">الفريق الثاني</b></div><div id="mmeSheetNote" class="mme-status-note" style="display:none"></div></div>
+      <div class="mme-grid">
+        <div class="mme-field"><label>📅 تاريخ المباراة</label><input id="mmeDate" type="date"></div>
+        <div class="mme-field"><label>⏰ وقت المباراة</label><input id="mmeTime" type="time"></div>
+        <div class="mme-field"><label>🏟️ الملعب</label><select id="mmeStadium"><option value="ملعب المنار الرئيسي">ملعب المنار الرئيسي</option><option value="ملعب آخر">ملعب آخر</option></select></div>
+        <div class="mme-field" id="mmeOtherWrap" style="display:none"><label>🏟️ اسم الملعب الآخر</label><input id="mmeOther" type="text" placeholder="اكتب اسم الملعب"></div>
+        <div class="mme-field"><label>📌 حالة المباراة</label><select id="mmeStatus"><option value="scheduled">📅 مجدولة</option><option value="finished">✅ منتهية</option></select></div>
+        <div class="mme-field"><label>⚽ نتيجة المباراة</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="mmeHG" class="mme-score" type="number" min="0" inputmode="numeric" placeholder="0"><input id="mmeAG" class="mme-score" type="number" min="0" inputmode="numeric" placeholder="0"></div></div>
+      </div>
+      <div class="mme-actions"><button type="button" class="mme-cancel" id="mmeCancel">إلغاء</button><button type="button" class="mme-save" id="mmeSave">💾 حفظ التعديلات</button></div>
+    </div>
+  </div>
+</div>
+<script id="final-match-management-professional-js">
+(function(){
+'use strict';
+const S=v=>String(v??'').trim();
+const A=v=>Array.isArray(v)?v:[];
+const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function DB(){return (window.db&&typeof window.db==='object')?window.db:{tournaments:[],teams:[],matches:[]};}
+function sheetFor(id){try{const a=typeof window.uniqueMatchSheets==='function'?A(window.uniqueMatchSheets()):[];return a.find(x=>S(x.matchId)===S(id))||null}catch(e){return null}}
+function teamName2(id){const t=A(DB().teams).find(x=>S(x.id)===S(id)||S(x.name)===S(id));return t?.name||S(id)||'فريق';}
+function ids(m){return {h:S(m?.home??m?.homeTeamId??m?.homeTeam),a:S(m?.away??m?.awayTeamId??m?.awayTeam)}}
+function effectiveFinished(m){return !!m&&!!sheetFor(m.id)||['finished','ended','completed','complete','final','منتهية','انتهت','مكتملة'].includes(S(m?.status).toLowerCase());}
+function getMatch(id){return A(DB().matches).find(x=>S(x.id)===S(id))||null}
+const modal=document.getElementById('manarMatchEditModal');
+const close=()=>{if(!modal)return;modal.classList.remove('show');modal.setAttribute('aria-hidden','true');};
+function refreshAll(){
+ try{if(typeof window.renderMatches==='function')window.renderMatches()}catch(e){}
+ try{if(typeof window.renderUpcomingMatches==='function')window.renderUpcomingMatches()}catch(e){}
+ try{if(typeof window.refreshMatchViewTournaments==='function')window.refreshMatchViewTournaments();else if(typeof window.renderMatchView==='function')window.renderMatchView()}catch(e){}
+ try{if(typeof window.renderHome==='function')window.renderHome()}catch(e){}
+}
+window.editMatch=function(id){
+ if(typeof window.hasPermission==='function'&&!window.hasPermission('matches')){alert('تعديل المباريات متاح للمدير أو منحه المدير صلاحية المباريات.');return;}
+ const m=getMatch(id);if(!m){alert('لم يتم العثور على المباراة.');return;}
+ const sh=sheetFor(id), z=ids(m), finished=effectiveFinished(m);
+ document.getElementById('mmeHome').textContent=teamName2(z.h);document.getElementById('mmeAway').textContent=teamName2(z.a);
+ document.getElementById('mmeDate').value=S(m.date);
+ document.getElementById('mmeTime').value=S(m.time);
+ const st=S(m.stadium||'ملعب المنار الرئيسي');
+ const std=document.getElementById('mmeStadium'),oth=document.getElementById('mmeOther'),ow=document.getElementById('mmeOtherWrap');
+ if(st!=='ملعب المنار الرئيسي'&&st!=='ملعب آخر'){std.value='ملعب آخر';oth.value=st;ow.style.display='block'}else{std.value=st||'ملعب المنار الرئيسي';oth.value='';ow.style.display=std.value==='ملعب آخر'?'block':'none'}
+ const status=document.getElementById('mmeStatus');status.value=finished?'finished':(S(m.status)==='scheduled'?'scheduled':'finished');status.disabled=!!sh;
+ const note=document.getElementById('mmeSheetNote');note.style.display=sh?'block':'none';note.textContent=sh?'📋 توجد نسخة كشف محفوظة لهذه المباراة؛ لذلك تعتبر المباراة منتهية تلقائيًا، حتى لو كانت مسجلة سابقًا كمجدولة.':'يمكن تغيير حالة المباراة يدويًا. عند إدخال كشف المباراة ستصبح منتهية تلقائيًا.';
+ const hg=sh?.homeScore??m.hg??m.homeGoals??m.homeScore??0,ag=sh?.awayScore??m.ag??m.awayGoals??m.awayScore??0;
+ document.getElementById('mmeHG').value=Number(hg)||0;document.getElementById('mmeAG').value=Number(ag)||0;
+ const scoreDisabled=!!sh;document.getElementById('mmeHG').disabled=scoreDisabled;document.getElementById('mmeAG').disabled=scoreDisabled;
+ modal.dataset.id=S(id);modal.classList.add('show');modal.setAttribute('aria-hidden','false');
+};
+document.getElementById('mmeStadium')?.addEventListener('change',function(){document.getElementById('mmeOtherWrap').style.display=this.value==='ملعب آخر'?'block':'none'});
+document.getElementById('mmeClose')?.addEventListener('click',close);document.getElementById('mmeCancel')?.addEventListener('click',close);
+modal?.addEventListener('click',e=>{if(e.target===modal)close()});
+document.getElementById('mmeSave')?.addEventListener('click',function(){
+ const id=S(modal.dataset.id),m=getMatch(id);if(!m)return close();
+ const sh=sheetFor(id),date=S(document.getElementById('mmeDate').value),time=S(document.getElementById('mmeTime').value),std=document.getElementById('mmeStadium').value,other=S(document.getElementById('mmeOther').value);
+ if(!date||!time)return alert('يرجى إدخال تاريخ ووقت المباراة.');
+ const stadium=std==='ملعب آخر'?(other||'ملعب آخر'):std;
+ let status=sh?'finished':S(document.getElementById('mmeStatus').value)==='finished'?'finished':'scheduled';
+ let hg=sh?Number(sh.homeScore):Math.max(0,parseInt(document.getElementById('mmeHG').value,10)||0),ag=sh?Number(sh.awayScore):Math.max(0,parseInt(document.getElementById('mmeAG').value,10)||0);
+ m.date=date;m.time=time;m.stadium=stadium;m.status=status;
+ if(!sh){m.hg=hg;m.ag=ag;}
+ if(typeof window.save==='function')window.save();
+ close();refreshAll();
+ alert(sh?'تم تعديل المباراة بنجاح — وتم اعتمادها كمنتهية لوجود كشف.':'تم تعديل المباراة بنجاح');
+});
+})();
+</script>
+<script id="final-sheet-means-finished">
+(function(){
+'use strict';
+const S=v=>String(v??'').trim(),A=v=>Array.isArray(v)?v:[];
+function sheets(){try{return typeof window.uniqueMatchSheets==='function'?A(window.uniqueMatchSheets()):[]}catch(e){return[]}}
+function has(id){return sheets().some(x=>S(x?.matchId)===S(id))}
+function D(){return window.db||{matches:[]}}
+function finished(m){return has(m?.id)||['finished','ended','completed','complete','final','منتهية','انتهت','مكتملة'].includes(S(m?.status).toLowerCase())}
+window.isMatchFinishedEffective=finished;
+function renderViewFinal(){
+ const filter=document.getElementById('matchViewFilter')?.value||'',tid=document.getElementById('matchViewTournament')?.value||'',box=document.getElementById('matchViewList');if(!box||!tid||!filter)return;
+ let rows=A(D().matches).filter(m=>S(m.tournamentId??m.tournament??m.tournamentID)==S(tid));
+ rows=rows.filter(m=>filter==='finished'?finished(m):!finished(m)).sort((a,b)=>{const da=new Date(`${a.date||'2999-12-31'}T${a.time||'23:59'}`).getTime(),db=new Date(`${b.date||'2999-12-31'}T${b.time||'23:59'}`).getTime();return filter==='scheduled'?da-db:db-da});
+ const title=filter==='finished'?'✅ المباريات المنتهية':'📅 المباريات المجدولة';
+ if(!rows.length){box.innerHTML=`<div class="upcoming-empty">لا توجد ${filter==='finished'?'مباريات منتهية':'مباريات مجدولة'} في البطولة المختارة حاليًا.</div>`;return}
+ const tn=id=>{const t=A(D().teams).find(x=>S(x.id)===S(id)||S(x.name)===S(id));return t?.name||S(id)||'فريق'};
+ const list=rows.map(m=>{const sh=sheets().find(x=>S(x.matchId)===S(m.id));const h=Number(sh?.homeScore??m.hg??0)||0,a=Number(sh?.awayScore??m.ag??0)||0;return `<div class="upcoming-match" style="${filter==='finished'?'background:linear-gradient(145deg,#fff,#f7f3ff)':''}"><div class="upcoming-head"><span>🏆 ${esc(tourName(m.tournamentId))}</span><span>${filter==='finished'?'✅ منتهية':'📅 مجدولة'}</span></div><div class="upcoming-teams"><span>${esc(tn(m.home))}</span><span class="vs">${filter==='finished'?`${h} - ${a}`:'VS'}</span><span>${esc(tn(m.away))}</span></div><div class="upcoming-meta"><span>📅 ${esc(m.date||'بدون تاريخ')}</span><span>⏰ ${esc(m.time||'—')}</span><span>🏟️ ${esc(m.stadium||'—')}</span></div><div class="actions" style="margin-top:10px;display:flex;gap:6px;justify-content:center"><button type="button" class="btn primary manager-only" onclick="editMatch('${esc(m.id)}')">✏️ تعديل</button><button type="button" class="btn danger manager-only" onclick="del('matches','${esc(m.id)}')">🗑️ حذف</button></div></div>`}).join('');
+ box.innerHTML=`<div class="section-title"><h2 style="margin:0">${title}</h2><span class="badge">${rows.length} مباراة</span></div><div class="upcoming-grid">${list}</div>`;
+ if(typeof applyPermissions==='function')applyPermissions();
+}
+window.renderMatchView=renderViewFinal;
+window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderViewFinal()};
+})();
+</script>
