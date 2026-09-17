@@ -13395,8 +13395,8 @@ function fillRefs(saved){for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)cont
 function updateRefereeOptions(){const chosen=new Set();for(let i=1;i<=4;i++){const v=S($('ksRef'+i)?.value);if(v)chosen.add(v)}for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)continue;const own=S(el.value);[...el.options].forEach(o=>{if(!o.value)return;o.disabled=chosen.has(o.value)&&o.value!==own})}}
 function validateReferees(){const vals=[1,2,3,4].map(i=>S($('ksRef'+i)?.value)).filter(Boolean);return new Set(vals).size===vals.length}
 function fillTours(){const s=$('ksTournament');if(!s)return;const old=s.value;s.innerHTML='<option value="">اختر البطولة</option>'+tours().map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name||t.title||'بطولة')+'</option>').join('');if([...s.options].some(o=>o.value===old))s.value=old}
-function fillMatches(){const s=$('ksMatch'),tid=S($('ksTournament')?.value);if(!s)return;s.innerHTML='<option value="">اختر مباراة لم يتم إدخال كشفها</option>';s.disabled=!tid;if(!tid)return;const savedIds=new Set(rows().map(x=>S(x.matchId)));matches().forEach((m,i)=>{if(tourId(m)!==tid||savedIds.has(mid(m,i)))return;const status=finished(m)?'منتهية':'قادمة';const o=document.createElement('option');o.value=mid(m,i);o.textContent=tName(teamId(m,'home'))+' '+Number(m.hg??m.homeGoals??m.homeScore??0)+' - '+Number(m.ag??m.awayGoals??m.awayScore??0)+' '+tName(teamId(m,'away'))+' — '+S(m.date||'')+' ('+status+')';s.appendChild(o)})}
-function renderPending(){const b=$('ksPending'),tid=S($('ksTournament')?.value);if(!b)return;if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض المباريات المنتهية والقادمة التي لم يتم إدخال كشوفاتها.</div>';return}const saved=new Set(rows().map(s=>S(s.matchId)));const list=matches().map((m,i)=>({m,i})).filter(x=>tourId(x.m)===tid&&!saved.has(mid(x.m,x.i)));if(!list.length){b.innerHTML='<div class="ks-empty">✅ لا توجد مباريات بانتظار إدخال كشف.</div>';return}b.innerHTML=list.map(x=>{const ended=finished(x.m);return '<div class="ks-match-card"><div class="ks-match-title">'+esc(tName(teamId(x.m,'home')))+' <b>'+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' — '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+'</b> '+esc(tName(teamId(x.m,'away')))+'</div><div class="ks-meta"><span>'+ (ended?'🏁 مباراة منتهية':'📅 مباراة قادمة') +'</span><span>📅 '+esc(x.m.date||'—')+'</span><span>⏰ '+esc(x.m.time||'—')+'</span><span>🏟️ '+esc(x.m.stadium||'—')+'</span></div>'+(canManage()?'<button class="btn blue" type="button" data-ks-open="'+esc(mid(x.m,x.i))+'">➕ إنشاء الكشف</button>':'')+'</div>'}).join('')}
+function fillMatches(){const s=$('ksMatch'),tid=S($('ksTournament')?.value);if(!s)return;s.innerHTML='<option value="">اختر مباراة لم يتم إدخال كشف لها</option>';s.disabled=!tid;if(!tid)return;const savedIds=new Set(rows().map(x=>S(x.matchId)));matches().forEach((m,i)=>{if(tourId(m)!==tid||savedIds.has(mid(m,i)))return;const o=document.createElement('option');o.value=mid(m,i);const status=finished(m)?'منتهية':'قادمة';o.textContent=tName(teamId(m,'home'))+' '+Number(m.hg??m.homeGoals??m.homeScore??0)+' - '+Number(m.ag??m.awayGoals??m.awayScore??0)+' '+tName(teamId(m,'away'))+' — '+S(m.date||'')+' ('+status+')';s.appendChild(o)})}
+function renderPending(){const b=$('ksPending'),tid=S($('ksTournament')?.value);if(!b)return;if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض المباريات التي لم يُدخل لها كشف.</div>';return}const saved=new Set(rows().map(s=>S(s.matchId)));const list=matches().map((m,i)=>({m,i})).filter(x=>tourId(x.m)===tid&&!saved.has(mid(x.m,x.i)));if(!list.length){b.innerHTML='<div class="ks-empty">✅ لا توجد مباريات بانتظار إنشاء كشف.</div>';return}b.innerHTML=list.map(x=>'<div class="ks-match-card"><div class="ks-match-title">'+esc(tName(teamId(x.m,'home')))+' <b>'+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' — '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+'</b> '+esc(tName(teamId(x.m,'away')))+'</div><div class="ks-meta"><span>📅 '+esc(x.m.date||'—')+'</span><span>⏰ '+esc(x.m.time||'—')+'</span><span>🏟️ '+esc(x.m.stadium||'—')+'</span><span>📌 '+(finished(x.m)?'منتهية':'قادمة')+'</span></div>'+(canManage()?'<button class="btn blue" type="button" data-ks-open="'+esc(mid(x.m,x.i))+'">➕ إنشاء الكشف</button>':'')+'</div>').join('')}
 let active='',cards=[],editing=false;
 function renderTeams(m,saved){const h=teamId(m,'home'),a=teamId(m,'away'),sel=$('ksCardTeam');sel.innerHTML='<option value="">اختر الفريق</option>'+[[h,tName(h)],[a,tName(a)]].map(x=>'<option value="'+esc(x[0])+'">'+esc(x[1])+'</option>').join('');sel.value=S(saved?.cards?.[0]?.teamId||'');renderPlayers()}
 function renderPlayers(){const tid=S($('ksCardTeam')?.value),sel=$('ksCardPlayer');if(!sel)return;sel.innerHTML='<option value="">اختر اللاعب</option>'+teamPlayers(tid).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('');sel.disabled=!tid}
@@ -17802,5 +17802,43 @@ function renderViewFinal(){
 }
 window.renderMatchView=renderViewFinal;
 window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderViewFinal()};
+})();
+</script>
+
+
+<script id="manar-auto-update-final">
+(function(){
+  'use strict';
+  if(!('serviceWorker' in navigator)) return;
+  var reloading=false;
+  function reloadOnce(){
+    if(reloading) return;
+    reloading=true;
+    var u=new URL(location.href);
+    u.searchParams.set('platformAutoUpdate','1');
+    u.searchParams.set('_v',Date.now());
+    location.replace(u.href);
+  }
+  navigator.serviceWorker.addEventListener('message',function(e){
+    if(e.data && (e.data.type==='MANAR_PLATFORM_UPDATED' || e.data.type==='SKIP_WAITING')) reloadOnce();
+  });
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(!reloading) reloadOnce();
+  });
+  async function checkForUpdate(){
+    try{
+      var reg=await navigator.serviceWorker.getRegistration('./');
+      if(!reg) reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
+      await reg.update();
+      if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+    }catch(e){}
+  }
+  window.addEventListener('load',function(){
+    checkForUpdate();
+    setInterval(checkForUpdate,30000);
+  },{once:true});
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden) checkForUpdate();
+  });
 })();
 </script>
