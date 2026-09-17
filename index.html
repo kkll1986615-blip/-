@@ -8672,6 +8672,12 @@ body.admin #predictionsSection{display:block}
   }
 }
 </style>
+
+<style id="team-logo-save-fix">
+.team-logo-upload-preview{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px 10px;border:1px dashed #cbdad3;border-radius:10px;background:#f7fbf9}
+.team-logo-upload-preview img{width:58px;height:58px;border-radius:50%;object-fit:contain;background:#fff;border:2px solid #d7e5df}
+.team-logo-upload-preview small{color:#5f716a}
+</style>
 </head><body>
 <!-- المنصة الرياضية | تنظيم وصيانة 2026-09-14: إزالة رقع معطلة فقط، مع الحفاظ على البيانات والوظائف الحالية. -->
 <header><div class="brand"><img loading="lazy" decoding="async" alt="شعار المنصة الرياضية" class="brand-logo" src="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'&gt;&lt;circle cx='64' cy='64' r='58' fill='%23ffffff' stroke='%23087f5b' stroke-width='6'/&gt;&lt;path d='M64 34l17 12-7 20H54l-7-20z' fill='%23087f5b'/&gt;&lt;path d='M47 46L28 49l-7 21 17 13 19-17M81 46l19 3 7 21-17 13-19-17M54 66l-7 21 17 12 17-12-7-21' fill='none' stroke='%23087f5b' stroke-width='6' stroke-linejoin='round'/&gt;&lt;/svg&gt;"><div class="brand-text"><h1>🏆 المنصة الرياضية</h1><small>نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.</small></div><div aria-label="الوقت والتاريخ" class="header-clock"><div class="clock-time"><span>◷</span><b id="headerTime">03:55:42 م</b></div><div class="clock-date"><span>▣</span><b id="headerDate">2026-08-14</b></div><div class="clock-day" id="headerDay">الجمعة</div></div><div id="authBar"><span class="role-pill" id="rolePill">👁️ مشاهد</span><button class="login-btn" id="loginBtn" onclick="openLogin()">↪ دخول</button><button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none">خروج</button></div></img></div></header><div id="loginOverlay" onclick="if(event.target===this)closeLogin()"><div class="login-box"><h2>🔐 تسجيل الدخول</h2><p>اختر الحساب وأدخل كلمة المرور للوصول إلى صلاحيات الإدارة.</p><div class="auth-note">المشاهدة متاحة للجميع بدون تسجيل دخول. تسجيل الدخول مطلوب فقط لإدارة البيانات والإعدادات.</div><div class="grid"><div><label>نوع الحساب</label><select id="loginRole"><option value="admin">👑 مدير النظام (Admin)</option><option value="editor">🛠️ صلاحية متوسطة</option></select></div><div><label>اسم المستخدم</label><input autocomplete="username" id="loginUser" placeholder="اسم المستخدم"/></div><div><label>كلمة المرور</label><input autocomplete="current-password" id="loginPass" placeholder="كلمة المرور" type="password"/></div></div><div id="loginError" style="color:#b42318;font-size:13px;margin-top:8px;display:none"></div><div class="actions"><button class="btn" onclick="login()">دخول</button><button class="btn secondary" onclick="closeLogin()">إلغاء</button></div></div></div><div aria-label="الساعة والتاريخ" class="clock-date-box" id="clockDateBox"><div class="clock-date-part"><span class="clock-label">التاريخ</span><div class="digital-date" id="digitalDate">15 / 08 / 2026</div></div><div class="clock-divider"></div><div class="clock-time-part"><span class="clock-label">الوقت</span><div class="digital-clock" id="digitalClock">00:00:00 م</div></div></div><div aria-label="الشريط الإخباري" class="news-ticker" id="homeNewsTicker"><div class="news-ticker-label">📰 الأخبار الرياضية</div><div class="news-ticker-viewport"><div class="news-ticker-track" id="homeNewsTrack"><span class="news-empty">لا توجد أخبار رياضية حالياً</span></div></div></div><nav class="app-sidebar" id="nav"><button aria-label="الواجهة الرئيسية" class="active" data-page="home"><span class="nav-ico">🏠</span><span class="nav-label">الواجهة الرئيسية</span></button><button data-page="tournaments">🏆 <span>البطولات</span></button><button class="nav-item" data-page="teams">⚽ <span>تسجيل الفرق</span></button><button data-page="players">👥 <span>اللاعبون</span></button><button data-page="matches">⚽ <span>المباريات</span></button><button data-page="matchSheetsSection">📋 <span>كشوفات المباريات</span></button><button data-page="predictionsSection">🎯 <span>توقع نتيجة المباراة</span></button><button data-page="stats">📈 <span>الإحصائيات</span></button><button data-page="tournamentArchiveSection">🗄️ <span>أرشيف البطولات</span></button><button data-page="overallRanking" type="button">🏆 <span>التصنيف العام</span></button><button data-page="mediaSection">📰 <span>الإعلام</span></button><button data-page="contactSection">📞 <span>تواصل معنا</span></button><button class="nav-item" data-page="referees">⚖️ <span>حكام رابطة المنار</span></button><button class="admin-only" data-page="settings">👤⚙️ <span>إدارة المستخدمين</span></button><button class="admin-only" data-page="auditLog" data-perm="audit">🧾 <span>سجل المراجعة</span></button><button data-page="headToHeadSection">⚔️ <span>تاريخ المواجهات</span></button><button class="admin-only" data-page="backup">💾 <span>النسخ الاحتياطي</span></button><button data-page="pollsSection">🗳️ <span>استطلاع رأي</span></button><button data-page="installAppSection" id="installProgramNavBtn">📲 <span>تثبيت البرنامج</span></button></nav><main><section class="page" id="installAppSection">
@@ -8917,8 +8923,31 @@ if(!Array.isArray(db.suspensions))db.suspensions=[];
 
 /* ==================== سجل المراجعة ==================== */
 const AUDIT_KEY='manar_audit_log_v1';
-function getAuditLog(){try{const x=JSON.parse(localStorage.getItem(AUDIT_KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}}
-function saveAuditLog(a){localStorage.setItem(AUDIT_KEY,JSON.stringify(a.slice(0,1000)))}
+function getAuditLog(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(AUDIT_KEY)||'[]');
+    if(!Array.isArray(raw))return[];
+    /* حذف تلقائي لأي سجل مراجعة مضى على إنشائه أكثر من 7 أيام. */
+    const cutoff=Date.now()-(7*24*60*60*1000);
+    const fresh=raw.filter(x=>{
+      const t=Date.parse(x?.time||'');
+      return !Number.isFinite(t) || t>=cutoff;
+    });
+    /* حفظ القائمة المنقحة حتى لا تبقى السجلات القديمة في التخزين. */
+    if(fresh.length!==raw.length){
+      try{localStorage.setItem(AUDIT_KEY,JSON.stringify(fresh.slice(0,1000)));}catch(e){}
+    }
+    return fresh;
+  }catch(e){return[]}
+}
+function saveAuditLog(a){
+  const cutoff=Date.now()-(7*24*60*60*1000);
+  const fresh=(Array.isArray(a)?a:[]).filter(x=>{
+    const t=Date.parse(x?.time||'');
+    return !Number.isFinite(t) || t>=cutoff;
+  });
+  localStorage.setItem(AUDIT_KEY,JSON.stringify(fresh.slice(0,1000)));
+}
 function auditNow(){return new Date().toISOString()}
 function auditLabel(role){if(role==='admin')return 'مدير النظام';if(role==='editor')return 'مستخدم متوسط';if(role==='viewer')return 'زائر';return USERS[role]?.user||'مستخدم';}
 function auditAdd(action,section,details){
@@ -8963,6 +8992,9 @@ function renderAuditLog(){
 }
 function formatAuditDate(v){try{const d=new Date(v);return d.toLocaleString('ar-IQ',{hour12:true,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){return v||'—'}}
 function clearAuditLog(){if(currentRole!=='admin')return alert('مسح سجل المراجعة متاح للمدير فقط.');if(!confirm('هل تريد مسح سجل المراجعة بالكامل؟'))return;localStorage.removeItem(AUDIT_KEY);renderAuditLog();}
+/* تشغيل التنظيف تلقائيًا عند فتح المنصة، دون تدخل المستخدم. */
+try{getAuditLog();}catch(e){}
+
 function setupAuditFilters(){['auditSectionFilter','auditActionFilter','auditSearch'].forEach(id=>{const e=document.getElementById(id);if(e&&!e.dataset.auditBound){e.dataset.auditBound='1';e.addEventListener('input',renderAuditLog);e.addEventListener('change',renderAuditLog)}});}
 
 /* مراجع صريحة لعناصر الصفحة - لتعمل بشكل صحيح على Android وChrome وWebView */
@@ -9050,34 +9082,85 @@ function save(){
     return false;
   }
 }
-function readLogo(file){return new Promise((resolve,reject)=>{
-  if(!file){resolve('');return;}
-  if(!String(file.type||'').startsWith('image/')){reject(new Error('الملف المختار ليس صورة'));return;}
-  const r=new FileReader(); r.onerror=reject;
-  r.onload=()=>{
-    const src=String(r.result||''); const img=new Image();
-    img.onload=()=>{
-      try{
-        /* تصغير الشعارات بقوة حتى لا تمتلئ مساحة localStorage وتفشل عملية الحفظ. */
-        const MAX=180;
-        const scale=Math.min(1,MAX/Math.max(img.naturalWidth||img.width||1,img.naturalHeight||img.height||1));
-        const w=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
-        const h=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
-        const c=document.createElement('canvas'); c.width=w; c.height=h;
-        const ctx=c.getContext('2d'); ctx.clearRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
-        let out=c.toDataURL('image/webp',0.68);
-        if(!out||out.length>90000) out=c.toDataURL('image/jpeg',0.65);
-        if(out&&out.length>120000){
-          const c2=document.createElement('canvas'); c2.width=120;c2.height=120;
-          const x=c2.getContext('2d');x.drawImage(img,0,0,120,120);out=c2.toDataURL('image/jpeg',0.58);
+function readLogo(file){
+  return new Promise((resolve,reject)=>{
+    if(!file){resolve('');return;}
+
+    /* قبول ملفات الصور حتى لو كان نوع MIME ناقصًا أو غير موثوق به. */
+    const name=String(file.name||'').toLowerCase();
+    const looksLikeImage=String(file.type||'').toLowerCase().startsWith('image/') ||
+      /\.(jpg|jpeg|png|webp|gif|bmp|avif|heic|heif)$/i.test(name);
+    if(!looksLikeImage){
+      reject(new Error('اختر ملف صورة صالحًا'));
+      return;
+    }
+
+    const r=new FileReader();
+    r.onerror=()=>reject(new Error('تعذر قراءة ملف الصورة'));
+    r.onload=()=>{
+      const src=String(r.result||'');
+      if(!src){reject(new Error('ملف الصورة فارغ'));return;}
+
+      const img=new Image();
+      img.onload=()=>{
+        try{
+          const ow=img.naturalWidth||img.width||1;
+          const oh=img.naturalHeight||img.height||1;
+
+          /* حجم موحد للشعار مع ضغط قوي حتى يبقى الحفظ مستقرًا على الهاتف. */
+          const MAX=180;
+          const scale=Math.min(1,MAX/Math.max(ow,oh));
+          const w=Math.max(1,Math.round(ow*scale));
+          const h=Math.max(1,Math.round(oh*scale));
+
+          const c=document.createElement('canvas');
+          c.width=w;c.height=h;
+          const ctx=c.getContext('2d',{alpha:true});
+          if(!ctx)throw new Error('Canvas غير متاح');
+
+          ctx.clearRect(0,0,w,h);
+          ctx.imageSmoothingEnabled=true;
+          ctx.imageSmoothingQuality='high';
+          ctx.drawImage(img,0,0,w,h);
+
+          /* WebP أولاً، ثم JPEG كحل احتياطي للمتصفحات القديمة. */
+          let out=c.toDataURL('image/webp',0.62);
+          if(!out || !out.startsWith('data:image/')) out='';
+          if(!out || out.length>85000){
+            const jpeg=document.createElement('canvas');
+            jpeg.width=w;jpeg.height=h;
+            const jx=jpeg.getContext('2d');
+            jx.fillStyle='#ffffff';
+            jx.fillRect(0,0,w,h);
+            jx.drawImage(img,0,0,w,h);
+            out=jpeg.toDataURL('image/jpeg',0.58);
+          }
+
+          /* حد أمان نهائي: الشعار لا يتجاوز تقريبًا 60KB إن أمكن. */
+          if(out.length>65000){
+            const c2=document.createElement('canvas');
+            const s=Math.min(140/Math.max(ow,oh),1);
+            c2.width=Math.max(1,Math.round(ow*s));
+            c2.height=Math.max(1,Math.round(oh*s));
+            const x=c2.getContext('2d');
+            x.fillStyle='#ffffff';
+            x.fillRect(0,0,c2.width,c2.height);
+            x.drawImage(img,0,0,c2.width,c2.height);
+            out=c2.toDataURL('image/jpeg',0.52);
+          }
+
+          if(!out || out.length<50)throw new Error('تعذر تحويل الصورة');
+          resolve(out);
+        }catch(e){
+          reject(e);
         }
-        resolve(out||src);
-      }catch(e){resolve(src);}
+      };
+      img.onerror=()=>reject(new Error('الصورة غير قابلة للقراءة أو غير مدعومة من المتصفح'));
+      img.src=src;
     };
-    img.onerror=()=>resolve(src); img.src=src;
-  };
-  r.readAsDataURL(file);
-})}
+    r.readAsDataURL(file);
+  });
+}
 async function optimizeStoredTeamLogos(){
   try{
     const teams=Array.isArray(db?.teams)?db.teams:[];
@@ -9425,11 +9508,29 @@ async function updateTeam(){
   t.president=document.getElementById('editTeamPresident').value.trim();
   t.coach=document.getElementById('editTeamCoach').value.trim();
   const lf=document.getElementById('editTeamLogo');
-  if(lf&&lf.files&&lf.files[0]){
-    try{t.logo=await readLogo(lf.files[0]);}catch(e){return alert('تعذر قراءة شعار الفريق: '+(e?.message||e));}
+  const selectedLogo=lf&&lf.files&&lf.files[0]?lf.files[0]:null;
+
+  /* إذا اختار المستخدم شعارًا جديدًا، يجب تحويله وتصغيره قبل تعديل السجل. */
+  if(selectedLogo){
+    try{
+      const compressedLogo=await readLogo(selectedLogo);
+      if(!compressedLogo || !compressedLogo.startsWith('data:image/')){
+        return alert('تعذر تجهيز شعار الفريق للحفظ.');
+      }
+      t.logo=compressedLogo;
+    }catch(e){
+      return alert('تعذر قراءة شعار الفريق: '+(e?.message||e));
+    }
   }
-  /* ضغط الشعارات القديمة قبل الحفظ لمنع امتلاء localStorage. */
+
+  /* ضغط أي شعارات قديمة كبيرة قبل كتابة قاعدة البيانات. */
   await optimizeStoredTeamLogos();
+
+  /* تأكيد وجود الشعار الجديد داخل سجل الفريق قبل الحفظ. */
+  if(selectedLogo && (!t.logo || !String(t.logo).startsWith('data:image/'))){
+    return alert('لم يتم تجهيز شعار الفريق للحفظ.');
+  }
+
   if(!save())return;
   refreshTeamEditTourFilter();
   const tourSel=document.getElementById('editTeamTourFilter');if(tourSel)tourSel.value=t.tournamentId||'';
@@ -17452,6 +17553,40 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
 })();
 </script>
 
+
+<script id="team-logo-preview-fix">
+(function(){
+  function attachPreview(inputId){
+    const input=document.getElementById(inputId);
+    if(!input || input.dataset.logoPreviewAttached)return;
+    input.dataset.logoPreviewAttached='1';
+
+    const wrap=document.createElement('div');
+    wrap.className='team-logo-upload-preview';
+    wrap.style.display='none';
+    wrap.innerHTML='<img alt="معاينة شعار الفريق"><small>سيتم تصغير الشعار تلقائيًا عند الحفظ.</small>';
+    input.parentNode.appendChild(wrap);
+
+    input.addEventListener('change',function(){
+      const file=input.files&&input.files[0];
+      if(!file){wrap.style.display='none';return;}
+      const reader=new FileReader();
+      reader.onload=function(){
+        const img=wrap.querySelector('img');
+        if(img){img.src=String(reader.result||'');wrap.style.display='flex';}
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function init(){
+    attachPreview('teamLogo');
+    attachPreview('editTeamLogo');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
 </body>
 </html>
 <!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
