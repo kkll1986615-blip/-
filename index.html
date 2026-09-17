@@ -8678,7 +8678,8 @@ body.admin #predictionsSection{display:block}
 <div class="card install-section-card">
   <div class="section-title"><div><h2>📲 تثبيت البرنامج</h2><small>ثبّت المنصة الرياضية على هاتفك للوصول إليها بسرعة مثل التطبيق.</small></div><span class="badge" id="appVersionBadge">الإصدار الحالي</span></div>
   <div class="install-sports-hero">
-    <div class="install-big-icon" aria-hidden="true"><img loading="lazy" decoding="async" src="icons/icon-192.png" alt="أيقونة المنصة الرياضية"></div>
+    <div class="install-big-icon" aria-hidden="true"><img loading="eager" decoding="async" src="./icons/icon-192.png?v=20260917" alt="أيقونة المنصة الرياضية"
+             onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22%3E%3Crect width=%22192%22 height=%22192%22 rx=%2240%22 fill=%22%23063f2d%22/%3E%3Ccircle cx=%2296%22 cy=%2296%22 r=%2270%22 fill=%22%23fff%22/%3E%3Cpath d=%22M96 48l20 15-8 25h-24l-8-25zM55 78l-25 18 10 29 29-3 10-24zm82 0l25 18-10 29-29-3-10-24zM61 126l14 29h42l14-29-20-4H81zm35-64l-18 13 7 22h22l7-22z%22 fill=%22%23063f2d%22/%3E%3C/svg%3E';"></div>
     <div><h3>المنصة الرياضية</h3><p>تثبيت سريع وآمن على الهاتف، مع ظهور خيار التحديث عند صدور نسخة جديدة.</p></div>
   </div>
   <div class="install-update-status" id="installUpdateStatus">جارٍ فحص حالة التثبيت والتحديث...</div>
@@ -17420,6 +17421,37 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
   #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:9px !important;}
 }
 </style>
+
+<!-- PWA ICON ROBUST FIX — 2026-09-17 -->
+<style id="pwa-icon-robust-fix">
+#installAppSection .install-big-icon{
+  background:linear-gradient(145deg,#063f2d,#0ca678)!important;
+  border:2px solid rgba(255,255,255,.9)!important;
+  padding:0!important;
+}
+#installAppSection .install-big-icon img{
+  width:100%!important;height:100%!important;
+  object-fit:cover!important;display:block!important;
+  border-radius:inherit!important;
+}
+</style>
+<script id="pwa-icon-error-fallback">
+(function(){
+  function fixIcon(){
+    document.querySelectorAll('#installAppSection .install-big-icon img').forEach(function(img){
+      if(!img.getAttribute('src')) return;
+      img.addEventListener('error',function(){
+        if(this.dataset.fallbackApplied) return;
+        this.dataset.fallbackApplied='1';
+        this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22%3E%3Crect width=%22192%22 height=%22192%22 rx=%2240%22 fill=%22%23063f2d%22/%3E%3Ccircle cx=%2296%22 cy=%2296%22 r=%2270%22 fill=%22%23fff%22/%3E%3Cpath d=%22M96 48l20 15-8 25h-24l-8-25zM55 78l-25 18 10 29 29-3 10-24zm82 0l25 18-10 29-29-3-10-24zM61 126l14 29h42l14-29-20-4H81zm35-64l-18 13 7 22h22l7-22z%22 fill=%22%23063f2d%22/%3E%3C/svg%3E';
+      },{once:true});
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fixIcon,{once:true});
+  else fixIcon();
+})();
+</script>
+
 </body>
 </html>
 <!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
