@@ -1,19 +1,17 @@
-const CACHE_NAME = "manar-sports-pwa-2026-09-18-icon2";
-const CORE = [
+const CACHE_NAME = "sports-platform-shell-v1";
+const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icons/favicon-48.png",
+  "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/apple-touch-icon.png"
+  "./icons/icon-512.png"
 ];
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(CORE))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting())
   );
 });
 
@@ -25,22 +23,24 @@ self.addEventListener("activate", event => {
   );
 });
 
-self.addEventListener("message", event => {
-  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
-});
-
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
+  const req = event.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+
+  // Do not cache Firebase/API requests; always use the network for live data.
+  if (url.hostname.includes("firebaseio.com") ||
+      url.hostname.includes("googleapis.com") ||
+      url.hostname.includes("gstatic.com")) return;
+
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      const network = fetch(event.request).then(response => {
-        if (response && response.ok) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-        }
-        return response;
-      }).catch(() => cached);
-      return cached || network;
-    })
+    caches.match(req).then(cached =>
+      cached || fetch(req).then(res => {
+        if (!res || res.status !== 200 || res.type === "opaque") return res;
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+        return res;
+      }).catch(() => caches.match("./index.html"))
+    )
   );
 });
