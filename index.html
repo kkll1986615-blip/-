@@ -13689,10 +13689,79 @@ window.__manarFirebaseHardReset=async function(){
   try{for(const k of SYNC_KEYS)await set(ref(db,CLOUD_PATH+'/'+k),null);dirty.clear();}
   finally{applyingRemote=false}
 };
-async function pullAll(){try{applyingRemote=true;let n=0;for(const k of SYNC_KEYS){const snap=await get(ref(db,CLOUD_PATH+'/'+k));if(snap.exists()){localStorage.setItem(k,JSON.stringify(snap.val()));n++}else{localStorage.removeItem(k)}}dirty.clear();
-/* مهم: بعد تنزيل بيانات Firebase يجب إعادة تحميل متغير db نفسه؛ وإلا تبقى قوائم الاختيار مرتبطة بالبيانات القديمة الفارغة. */
-try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
-render();status('تمت مزامنة '+n+' قسمًا من السحابة',true)}catch(e){status('فشل تنزيل بيانات السحابة: '+(e?.message||e),false)}finally{applyingRemote=false}}
+function normalizeCloudArray(value){
+  if(Array.isArray(value)) return value;
+  if(value && typeof value==='object') return Object.keys(value).sort((a,b)=>Number(a)-Number(b)).map(k=>value[k]).filter(Boolean);
+  return [];
+}
+async function pullOneSafe(key){
+  try{
+    const snap=await get(ref(db,CLOUD_PATH+'/'+key));
+    if(snap.exists()){
+      localStorage.setItem(key,JSON.stringify(snap.val()));
+      return {key,ok:true,exists:true};
+    }
+    return {key,ok:true,exists:false};
+  }catch(error){
+    return {key,ok:false,error};
+  }
+}
+async function recoverRefereesFromFirebase(){
+  if(!db) throw new Error('لم يتم الاتصال بقاعدة Firebase');
+  const paths=[
+    CLOUD_PATH+'/manar_referees_v1',
+    'manar_referees_v1',
+    CLOUD_PATH+'/referees',
+    'referees'
+  ];
+  const errors=[];
+  for(const path of paths){
+    try{
+      const snap=await get(ref(db,path));
+      if(!snap.exists()) continue;
+      const cloud=normalizeCloudArray(snap.val());
+      if(!cloud.length) continue;
+      const local=normalizeCloudArray(localValue('manar_referees_v1'));
+      const merged=[...local];
+      const keys=new Set(local.map(x=>String(x?.id||x?.name||'').trim()));
+      for(const item of cloud){
+        const key=String(item?.id||item?.name||'').trim();
+        if(!keys.has(key)){merged.push(item);keys.add(key);}
+      }
+      localStorage.setItem('manar_referees_v1',JSON.stringify(merged));
+      await set(ref(db,CLOUD_PATH+'/manar_referees_v1'),merged);
+      render();
+      status('تم استرجاع '+merged.length+' حكمًا بنجاح',true);
+      alert('تم استرجاع الحكام بنجاح: '+merged.length+' حكمًا');
+      return true;
+    }catch(error){errors.push(path+': '+(error?.message||error));}
+  }
+  throw new Error(errors.join(' | ')||'لم توجد بيانات حكام محفوظة في المسارات المعروفة');
+}
+async function pullAll(){
+  applyingRemote=true;
+  try{
+    status('جارٍ تنزيل بيانات السحابة...',true);
+    const results=await Promise.all(SYNC_KEYS.map(pullOneSafe));
+    const successful=results.filter(x=>x.ok&&x.exists).length;
+    const failed=results.filter(x=>!x.ok);
+    /* لا نحذف البيانات المحلية عند غياب قسم في السحابة. */
+    try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
+    render();
+    if(failed.length){
+      status('تم تنزيل '+successful+' قسمًا، وتعذر '+failed.length+' أقسام',false);
+      alert('تم تنزيل '+successful+' قسمًا. الأقسام المتعذرة: '+failed.map(x=>x.key).join('، '));
+    }else{
+      status('تم تنزيل '+successful+' قسمًا من السحابة',true);
+      alert('تم تنزيل البيانات بنجاح');
+    }
+  }catch(e){
+    status('فشل تنزيل بيانات السحابة: '+(e?.message||e),false);
+    alert('فشل التنزيل: '+(e?.message||e));
+  }finally{applyingRemote=false}
+}
+window.__manarRecoverReferees=recoverRefereesFromFirebase;
+$('fsRecoverReferees')?.addEventListener('click',()=>recoverRefereesFromFirebase().catch(e=>alert('تعذر استرجاع الحكام: '+(e?.message||e))));
 $('fsLogin')?.addEventListener('click',async()=>{const email=$('fsAuthEmail').value.trim(),pass=$('fsAuthPassword').value;if(!email||!pass){alert('أدخل بريد Firebase وكلمة المرور.');return}try{await signInWithEmailAndPassword(auth,email,pass);sessionStorage.setItem('manar_firebase_email',email);$('fsAuthPassword').value='';status('تم تسجيل الدخول إلى Firebase — جاري تأكيد المزامنة',true)}catch(e){status('فشل تسجيل الدخول: '+(e?.message||e),false);alert('تعذر تسجيل الدخول إلى Firebase. تأكد من البريد وكلمة المرور وتفعيل Email/Password في Firebase Authentication.')}});
 $('fsLogout')?.addEventListener('click',async()=>{try{await signOut(auth);sessionStorage.removeItem('manar_firebase_email');status('تم الخروج — القراءة ما زالت متاحة',true)}catch(e){status('فشل تسجيل الخروج',false)}});
 $('fsPush')?.addEventListener('click',pushAll);$('fsPull')?.addEventListener('click',pullAll);
@@ -13720,29 +13789,7 @@ async function initialSync(){
     الدخول، أما إذا لم يوجد تسجيل دخول فتبقى محفوظة محليًا ولا تُحذف.
   */
   if(localHasData){
-    /*
-      حماية بيانات الحكام:
-      أثناء تحديث index.html قد تكون نسخة الجهاز الحالية تحتوي على بقية
-      البيانات، بينما قائمة الحكام المحلية مفقودة أو فارغة. في هذه الحالة
-      لا نرفع القائمة الفارغة إلى Firebase؛ نسترجع قائمة الحكام الموجودة
-      في السحابة أولاً، ثم نستخدمها محلياً. هذا يمنع ضياع أسماء الحكام.
-    */
-    const refereeKey='manar_referees_v1';
-    const localRef=localValue(refereeKey);
-    const cloudRef=initialValues[refereeKey];
-    const localRefHasData=Array.isArray(localRef)
-      ? localRef.some(r=>r&&String(r.name??r.refereeName??'').trim())
-      : !!(localRef&&typeof localRef==='object'&&Object.keys(localRef).length);
-    const cloudRefHasData=Array.isArray(cloudRef)
-      ? cloudRef.some(r=>r&&String(r.name??r.refereeName??'').trim())
-      : !!(cloudRef&&typeof cloudRef==='object'&&Object.keys(cloudRef).length);
-
-    if(!localRefHasData && cloudRefHasData){
-      localStorage.setItem(refereeKey,JSON.stringify(cloudRef));
-    }
-
     for(const k of SYNC_KEYS){
-      if(k===refereeKey && !localRefHasData && cloudRefHasData) continue;
       if(localStorage.getItem(k)!==null)dirty.add(k);
     }
     if(signedIn && dirty.size){
