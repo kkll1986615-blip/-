@@ -175,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function(){
 <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
 <meta content="#063f2d" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="المنصة الرياضية" name="apple-mobile-web-app-title"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-512.png" rel="icon" sizes="512x512" type="image/png"/><meta content="المنصة الرياضية" name="application-name"/><meta name="pwa-icon-fix" content="2026-09-17"/>
-<meta name="firebase-shared-sync-fix" content="2026-09-18">
 
 <meta content="#075f45" name="theme-color"/>
 
@@ -8112,7 +8111,46 @@ body.admin #predictionsSection{display:block}
     const t=sources.find(x=>str(x?.id)===id||norm(x?.name)===id||norm(x?.title)===id);
     return norm(t?.name||t?.title||m?.tournamentName||sh?.tournamentName||'بطولة غير محددة');
   }
-  function history(a,b){const A=norm(a),B=norm(b),wanted=new Set([A,B]),ms=allMatches(),out=[],used=new Set();sheets().forEach(sh=>{const mid=str(sh?.matchId),m=ms.find(x=>str(x?.id)===mid);if(!m||used.has(mid))return;const hs=Number(sh?.homeScore),as=Number(sh?.awayScore);if(!Number.isFinite(hs)||!Number.isFinite(as))return;const h=teamName(m?.homeTeamId??m?.homeTeam??m?.home??sh?.homeTeamId??sh?.homeTeam),aw=teamName(m?.awayTeamId??m?.awayTeam??m?.away??sh?.awayTeamId??sh?.awayTeam);if(wanted.has(h)&&wanted.has(aw)&&h!==aw){used.add(mid);out.push({h,a:aw,sc:{h:hs,a:as},t:tournamentName(m,sh),d:norm(m?.date||m?.matchDate||m?.scheduledDate||sh?.date||sh?.matchDate||'غير محدد')});}});return out;}
+  function history(a,b){
+    const A=norm(a),B=norm(b),wanted=new Set([A,B]),ms=allMatches(),out=[],used=new Set();
+    sheets().forEach(sh=>{
+      const mid=str(sh?.matchId),m=ms.find(x=>str(x?.id)===mid);
+      if(!m||used.has(mid))return;
+
+      const hs=Number(sh?.homeScore),as=Number(sh?.awayScore);
+      if(!Number.isFinite(hs)||!Number.isFinite(as))return;
+
+      /*
+       * مهم جدًا:
+       * نتيجة المواجهة المباشرة يجب أن تعتمد على أطراف الكشف نفسه،
+       * لأن ترتيب الفريقين في سجل المباراة القديم قد يختلف عن ترتيب
+       * الفريقين المحفوظ داخل الكشف. لذلك نستخدم homeTeamId/awayTeamId
+       * من الكشف أولًا، ثم نرجع إلى المباراة فقط عند غيابهما.
+       */
+      const sheetHomeRaw=sh?.homeTeamId??sh?.homeTeam;
+      const sheetAwayRaw=sh?.awayTeamId??sh?.awayTeam;
+      const matchHomeRaw=m?.homeTeamId??m?.homeTeam??m?.home;
+      const matchAwayRaw=m?.awayTeamId??m?.awayTeam??m?.away;
+
+      const homeRaw=(sheetHomeRaw!==undefined&&sheetHomeRaw!==null&&str(sheetHomeRaw))
+        ? sheetHomeRaw : matchHomeRaw;
+      const awayRaw=(sheetAwayRaw!==undefined&&sheetAwayRaw!==null&&str(sheetAwayRaw))
+        ? sheetAwayRaw : matchAwayRaw;
+
+      const h=teamName(homeRaw),aw=teamName(awayRaw);
+      if(wanted.has(h)&&wanted.has(aw)&&h!==aw){
+        used.add(mid);
+        out.push({
+          h,
+          a:aw,
+          sc:{h:hs,a:as},
+          t:tournamentName(m,sh),
+          d:norm(m?.date||m?.matchDate||m?.scheduledDate||sh?.date||sh?.matchDate||'غير محدد')
+        });
+      }
+    });
+    return out;
+  }
   function fill(){const a=document.getElementById('h2hTeamA'),b=document.getElementById('h2hTeamB');if(!a||!b)return;const oldA=str(a.value),oldB=str(b.value),list=teams(),html='<option value="">— اختر الفريق —</option>'+list.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');if(a.innerHTML!==html)a.innerHTML=html;if(b.innerHTML!==html)b.innerHTML=html;if(list.includes(oldA))a.value=oldA;if(list.includes(oldB))b.value=oldB;}
   function render(){const a=document.getElementById('h2hTeamA'),b=document.getElementById('h2hTeamB'),box=document.getElementById('h2hResults'),sum=document.getElementById('h2hSummary');if(!a||!b||!box||!sum)return;const A=str(a.value),B=str(b.value);if(!A||!B){sum.textContent='اختر الفريقين لعرض تاريخ المواجهات.';box.innerHTML='<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>اختر اسم الفريقين أولاً</strong><span>سيظهر سجل المواجهات هنا.</span></div>';return;}if(A===B){sum.textContent='';box.innerHTML='<div class="h2h-empty"><strong>يرجى اختيار فريقين مختلفين.</strong></div>';return;}const rows=history(A,B),wa=rows.filter(r=>r.sc.h>r.sc.a).length,wb=rows.filter(r=>r.sc.a>r.sc.h).length,dr=rows.filter(r=>r.sc.h===r.sc.a).length;sum.innerHTML='<div class="h2h-summary-head"><span>⚔️ سجل المواجهات المباشرة</span><b>'+rows.length+' مباراة</b></div><div class="h2h-summary-stats"><span class="a-stat">فوز '+esc(A)+': <b>'+wa+'</b></span><span class="draw-stat">تعادل: <b>'+dr+'</b></span><span class="b-stat">فوز '+esc(B)+': <b>'+wb+'</b></span></div>';box.innerHTML=rows.length?rows.map((r,i)=>'<article class="h2h-row"><div class="h2h-match-top"><span>المواجهة '+(i+1)+'</span><span class="h2h-result-pill">'+(r.sc.h>r.sc.a?'فوز '+esc(r.h):r.sc.a>r.sc.h?'فوز '+esc(r.a):'تعادل')+'</span></div><div class="h2h-versus"><div class="h2h-team h2h-home"><span class="h2h-team-mark">⚽</span><strong>'+esc(r.h)+'</strong></div><div class="h2h-score-wrap"><small>النتيجة</small><div class="h2h-score">'+r.sc.h+' <i>—</i> '+r.sc.a+'</div></div><div class="h2h-team h2h-away"><strong>'+esc(r.a)+'</strong><span class="h2h-team-mark">⚽</span></div></div><div class="h2h-tournament"><span>🏆</span><strong>'+esc(r.t)+'</strong><em>📅 '+esc(r.d)+'</em></div></article>').join(''):'<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>لا توجد مواجهات مسجلة</strong><span>اختر فريقين آخرين أو أضف نتائج المباريات.</span></div>';}
   let timer=0;
@@ -10596,16 +10634,143 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script><script>
 (function(){
 const KEY='manar_referees_v1';
-function data(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
-function save(a){localStorage.setItem(KEY,JSON.stringify(a));if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(KEY)}
+function S(v){return String(v??'').trim()}
+function data(){
+  try{
+    const x=JSON.parse(localStorage.getItem(KEY)||'[]');
+    return Array.isArray(x)?x:[];
+  }catch(e){return[]}
+}
+function cleanRefs(list){
+  const out=[], seen=new Set();
+  (Array.isArray(list)?list:[]).forEach((x,i)=>{
+    if(!x)return;
+    const name=S(x.name??x.refereeName??x.fullName);
+    if(!name)return;
+    const id=S(x.id) || ('R_'+Date.now()+'_'+i);
+    const key=name.toLocaleLowerCase('ar');
+    if(seen.has(key))return;
+    seen.add(key);
+    out.push({id,name,age:Number(x.age)||0,photo:S(x.photo||'')});
+  });
+  return out;
+}
+function save(a){
+  const cleaned=cleanRefs(a);
+  localStorage.setItem(KEY,JSON.stringify(cleaned));
+  if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(KEY);
+}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let editingRefereeId=null;
-window.addManarReferee=function(){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const n=document.getElementById('refereeName').value.trim(),a=Number(document.getElementById('refereeAge').value),file=document.getElementById('refereePhoto').files[0];if(!n){alert('يرجى إدخال اسم الحكم');return}if(!a||a<1||a>120){alert('يرجى إدخال عمر صحيح');return}const d=data();if(d.some(x=>x.name.trim()===n&&x.id!==editingRefereeId)){alert('هذا الحكم موجود مسبقًا');return}const finish=(photo)=>{if(editingRefereeId){const x=d.find(x=>x.id===editingRefereeId);if(x){x.name=n;x.age=a;if(photo!==null)x.photo=photo}editingRefereeId=null;auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);}else{d.push({id:Date.now(),name:n,age:a,photo:photo||''});auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);}save(d);document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم';renderManarReferees()};if(file){const r=new FileReader();r.onload=()=>finish(r.result);r.readAsDataURL(file)}else finish(null)};
-window.editManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const x=data().find(x=>x.id===id);if(!x)return;editingRefereeId=id;document.getElementById('refereeName').value=x.name;document.getElementById('refereeAge').value=x.age;document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='💾 حفظ التعديل';document.getElementById('refereeName').focus()};
-window.deleteManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}if(confirm('هل تريد حذف الحكم؟')){const removed=data().find(x=>x.id===id);save(data().filter(x=>x.id!==id));auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);if(editingRefereeId===id){editingRefereeId=null;document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم'}renderManarReferees()}};
-window.renderManarReferees=function(){const b=document.getElementById('refereesTableBody');if(!b)return;const d=data().slice().sort((a,b)=>Number(b.age||0)-Number(a.age||0));const c=document.getElementById('refereeCount');if(c)c.textContent=d.length+' حكم';b.innerHTML=d.length?d.map((x,i)=>`<div class="referee-card"><div class="referee-card-top"><div class="referee-number">${i+1}</div><div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div><div class="referee-main"><div class="referee-name">${esc(x.name)}</div><div class="referee-role">حكم في رابطة المنار</div></div></div><div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age}</strong> سنة</span><span class="referee-status">● حكم معتمد</span></div><div class="referee-actions" data-perm="referees"><button type="button" class="referee-edit" onclick="editManarReferee(${x.id})">✏️ تعديل</button><button type="button" class="referee-delete" onclick="deleteManarReferee(${x.id})">🗑️ حذف</button></div></div>`).join(''):'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';if(typeof applyPermissions==='function')applyPermissions()};
+
+function sheetSources(){
+  const out=[];
+  ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
+    try{
+      const x=JSON.parse(localStorage.getItem(k)||'[]');
+      if(Array.isArray(x))out.push(...x);
+    }catch(e){}
+  });
+  return out;
+}
+function refereeNameFromValue(v,current){
+  const value=S(v);
+  if(!value)return '';
+  if(/^[0-9]+$/.test(value)||/^R_[A-Za-z0-9_-]+$/.test(value))return '';
+  const hit=(current||[]).find(r=>S(r.id)===value);
+  if(hit)return S(hit.name);
+  return value;
+}
+window.repairRefereeRegistry=function(allowCloudPush=true){
+  const current=cleanRefs(data());
+  const byName=new Map(current.map(r=>[S(r.name).toLocaleLowerCase('ar'),r]));
+  let changed=false;
+  sheetSources().forEach(sh=>{
+    const vals=[];
+    if(Array.isArray(sh?.referees))vals.push(...sh.referees);
+    [1,2,3,4].forEach(i=>vals.push(sh?.['referee'+i]));
+    vals.forEach(v=>{
+      const name=refereeNameFromValue(v,current);
+      if(!name)return;
+      const key=name.toLocaleLowerCase('ar');
+      if(!byName.has(key)){
+        const r={id:'R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),name,age:0,photo:''};
+        byName.set(key,r);current.push(r);changed=true;
+      }
+    });
+  });
+  if(changed){
+    localStorage.setItem(KEY,JSON.stringify(cleanRefs(current)));
+    if(allowCloudPush && typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(KEY);
+  }
+  try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}
+  try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
+  return current;
+};
+
+window.addManarReferee=function(){
+  if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}
+  const n=S(document.getElementById('refereeName')?.value),a=Number(document.getElementById('refereeAge')?.value),file=document.getElementById('refereePhoto')?.files?.[0];
+  if(!n){alert('يرجى إدخال اسم الحكم');return}
+  if(!a||a<1||a>120){alert('يرجى إدخال عمر صحيح');return}
+  const d=cleanRefs(data());
+  if(d.some(x=>S(x.name).toLocaleLowerCase('ar')===n.toLocaleLowerCase('ar')&&S(x.id)!==S(editingRefereeId))){alert('هذا الحكم موجود مسبقًا');return}
+  const finish=(photo)=>{
+    if(editingRefereeId){
+      const x=d.find(x=>S(x.id)===S(editingRefereeId));
+      if(x){x.name=n;x.age=a;if(photo!==null)x.photo=photo}
+      auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);
+    }else{
+      d.push({id:'R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),name:n,age:a,photo:photo||''});
+      auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);
+    }
+    save(d);
+    document.getElementById('refereeName').value='';
+    document.getElementById('refereeAge').value='';
+    document.getElementById('refereePhoto').value='';
+    const btn=document.querySelector('#referees .btn-primary');if(btn)btn.textContent='➕ إضافة الحكم';
+    editingRefereeId=null;
+    renderManarReferees();
+    try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
+  };
+  if(file){
+    const r=new FileReader();r.onload=()=>finish(r.result);r.readAsDataURL(file)
+  }else finish(null)
+};
+window.editManarReferee=function(id){
+  if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}
+  const x=data().find(x=>S(x.id)===S(id));if(!x)return;
+  editingRefereeId=id;
+  document.getElementById('refereeName').value=x.name;
+  document.getElementById('refereeAge').value=x.age||'';
+  document.getElementById('refereePhoto').value='';
+  const btn=document.querySelector('#referees .btn-primary');if(btn)btn.textContent='💾 حفظ التعديل';
+  document.getElementById('refereeName').focus()
+};
+window.deleteManarReferee=function(id){
+  if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}
+  if(confirm('هل تريد حذف الحكم؟')){
+    const removed=data().find(x=>S(x.id)===S(id));
+    save(data().filter(x=>S(x.id)!==S(id)));
+    auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);
+    if(S(editingRefereeId)===S(id)){
+      editingRefereeId=null;
+      document.getElementById('refereeName').value='';
+      document.getElementById('refereeAge').value='';
+      const btn=document.querySelector('#referees .btn-primary');if(btn)btn.textContent='➕ إضافة الحكم'
+    }
+    renderManarReferees();
+  }
+};
+window.renderManarReferees=function(){
+  const b=document.getElementById('refereesTableBody');if(!b)return;
+  const d=cleanRefs(data()).slice().sort((a,b)=>Number(b.age||0)-Number(a.age||0));
+  const c=document.getElementById('refereeCount');if(c)c.textContent=d.length+' حكم';
+  b.innerHTML=d.length?d.map((x,i)=>`<div class="referee-card"><div class="referee-card-top"><div class="referee-number">${i+1}</div><div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div><div class="referee-main"><div class="referee-name">${esc(x.name)}</div><div class="referee-role">حكم في رابطة المنار</div></div></div><div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age||'—'}</strong> ${x.age?'سنة':''}</span><span class="referee-status">● حكم معتمد</span></div><div class="referee-actions" data-perm="referees"><button type="button" class="referee-edit" onclick="editManarReferee('${esc(x.id)}')">✏️ تعديل</button><button type="button" class="referee-delete" onclick="deleteManarReferee('${esc(x.id)}')">🗑️ حذف</button></div></div>`).join(''):'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';
+  if(typeof applyPermissions==='function')applyPermissions()
+};
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement&&(document.activeElement.id==='refereeName'||document.activeElement.id==='refereeAge'))addManarReferee()});
-document.addEventListener('DOMContentLoaded',renderManarReferees);
+document.addEventListener('DOMContentLoaded',()=>{repairRefereeRegistry(false);renderManarReferees()});
 })();
 </script><script id="ordered-home-sections-js">
 /* فتح الأيقونات مباشرة داخل القسم المطلوب، دون المرور بالواجهة الرئيسية */
@@ -13671,66 +13836,43 @@ function hasLocalData(){try{const m=localValue('manar_sports_v2');return !!(m&&t
 async function initialSync(){
   if(initialDone)return;
   initialDone=true;
-
-  /*
-    المزامنة المشتركة:
-    - إذا كان المفتاح موجودًا في Firebase، تكون بيانات Firebase هي المصدر
-      المشترك لجميع المواقع والأجهزة، ومنها الأخبار.
-    - إذا لم يكن المفتاح موجودًا في Firebase وكان موجودًا محليًا، نرفعه
-      للسحابة عند وجود حساب Firebase مصرح له.
-    - لا نستخدم وجود manar_sports_v2 محليًا لمنع سحب manar_media_news_v1؛
-      لأن ذلك كان يجعل نسخة GitHub التي لديها بيانات محلية لا ترى الأخبار
-      المنشورة من Netlify.
-  */
-  let pulled=0, pushed=0;
+  let pulled=0,pushed=0;
   const pendingPush=[];
-
   for(const k of SYNC_KEYS){
-    const cloudExists = initialValues[k] !== null;
-    const localExists = localStorage.getItem(k) !== null;
-
-    if(cloudExists){
-      try{
-        localStorage.setItem(k, JSON.stringify(initialValues[k]));
-        pulled++;
-      }catch(e){
-        console.warn('تعذر تنزيل المفتاح '+k,e);
+    const cloudExists=initialValues[k]!==null;
+    const localExists=localStorage.getItem(k)!==null;
+    if(k==='manar_referees_v1'){
+      let localRefs=[];
+      try{localRefs=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){}
+      const localHasRefs=Array.isArray(localRefs)&&localRefs.length>0;
+      const cloudRefs=cloudExists&&Array.isArray(initialValues[k])?initialValues[k]:[];
+      if(cloudRefs.length>0){
+        localStorage.setItem(k,JSON.stringify(cloudRefs));pulled++;
+      }else if(!localHasRefs&&cloudExists){
+        localStorage.setItem(k,JSON.stringify([]));pulled++;
+      }else if(localHasRefs&&!cloudExists&&canWrite()){
+        pendingPush.push(k);
       }
-    }else if(localExists && canWrite()){
+      continue;
+    }
+    if(cloudExists){
+      localStorage.setItem(k,JSON.stringify(initialValues[k]));pulled++;
+    }else if(localExists&&canWrite()){
       pendingPush.push(k);
     }
   }
-
   if(pendingPush.length){
     applyingRemote=true;
-    try{
-      await pushKeys(pendingPush);
-      pushed=pendingPush.length;
-    }catch(e){
-      status('تم تنزيل البيانات المشتركة، وتعذر رفع بعض البيانات المحلية: '+(e?.message||e),false);
-    }finally{
-      applyingRemote=false;
-    }
+    try{await pushKeys(pendingPush);pushed=pendingPush.length}finally{applyingRemote=false}
   }
-
-  dirty.clear();
-
-  /* إعادة بناء قاعدة المنصة بعد تنزيل manar_sports_v2 من Firebase. */
-  try{
-    if(localStorage.getItem('manar_sports_v2')!==null && typeof window.db!=='undefined'){
-      window.db=loadMainDatabase();
-      db=window.db;
-    }
-  }catch(e){
-    console.warn('Database reload after initial Firebase sync failed:',e);
+  if(localStorage.getItem('manar_sports_v2')!==null&&typeof window.db!=='undefined'){
+    try{window.db=loadMainDatabase();db=window.db}catch(e){}
   }
-
+  try{repairRefereeRegistry(true)}catch(e){console.warn('Referee registry repair failed:',e)}
   render();
-  if(pushed){
-    status('تمت مزامنة البيانات: تنزيل '+pulled+' قسمًا ورفع '+pushed+' قسمًا',true);
-  }else{
-    status('تمت مزامنة البيانات المشتركة من Firebase',true);
-  }
+  try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}
+  try{if(typeof window.fillRefs==='function')window.fillRefs()}catch(e){}
+  status(pulled||pushed?'تمت مزامنة البيانات وحماية سجل الحكام من المسح':'تم تجهيز المزامنة',true);
 }
 async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getDatabase(app);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction};patchStorage();const saved=sessionStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
  if(!auth.currentUser){signInAnonymously(auth).catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
@@ -13745,8 +13887,21 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
       applyingRemote=true;
       try{
         /* نعالج الإضافة/التعديل وكذلك الحذف من السحابة. */
-        if(snap.exists()) localStorage.setItem(k,JSON.stringify(snap.val()));
-        else localStorage.removeItem(k);
+        if(k==='manar_referees_v1'){
+          const incoming=snap.exists()&&Array.isArray(snap.val())?snap.val():[];
+          let existing=[];
+          try{existing=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){existing=[]}
+          if(incoming.length>0 || !Array.isArray(existing) || existing.length===0){
+            if(snap.exists()) localStorage.setItem(k,JSON.stringify(incoming));
+            else if(!existing.length)localStorage.removeItem(k);
+          }
+          try{if(typeof window.repairRefereeRegistry==='function')window.repairRefereeRegistry(false)}catch(e){}
+          try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}
+          try{if(typeof window.fillRefs==='function')window.fillRefs()}catch(e){}
+        }else{
+          if(snap.exists()) localStorage.setItem(k,JSON.stringify(snap.val()));
+          else localStorage.removeItem(k);
+        }
         dirty.delete(k);
         if(k==='manar_sports_v2'){
           try{db=loadMainDatabase();window.db=db;__manarDataVersion++}catch(e){console.warn('Database reload after realtime update failed:',e)}
@@ -16370,4 +16525,1494 @@ function getSheets(){
   if(!list.length){
     try{
       list=[
-  
+        ...A(JSON.parse(localStorage.getItem('manar_match_sheets_v3')||'[]')),
+        ...A(JSON.parse(localStorage.getItem('manar_match_sheets_v2')||'[]')),
+        ...A(JSON.parse(localStorage.getItem('manar_match_sheets_v1')||'[]'))
+      ];
+    }catch(e){}
+  }
+  return list.filter(Boolean);
+}
+function sheetFor(id){
+  const same=getSheets().filter(x=>S(x.matchId)===S(id));
+  same.sort((a,b)=>S(b.updatedAt||b.createdAt).localeCompare(S(a.updatedAt||a.createdAt)));
+  return same[0]||null;
+}
+function actual(m){
+  const sh=sheetFor(m.id);
+  if(!sh)return null;
+  const h=Number(sh.homeScore),a=Number(sh.awayScore);
+  return Number.isFinite(h)&&Number.isFinite(a)?{h,a}:null;
+}
+function history(){
+  try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(e){return {};}
+}
+function outcome(h,a){return h>a?'H':h<a?'A':'D';}
+function rate(pred,real){
+  if(pred.h===real.h&&pred.a===real.a)return 100;
+  const close=Math.max(0,1-(Math.abs(pred.h-real.h)+Math.abs(pred.a-real.a))/6);
+  const same=outcome(pred.h,pred.a)===outcome(real.h,real.a);
+  return Math.round((same?(0.65+0.35*close):(0.15+0.15*close))*100);
+}
+function prediction(m){
+  try{
+    if(typeof window.__getPredictionForMatch==='function'){
+      const p=window.__getPredictionForMatch(m);
+      if(p && Number.isFinite(Number(p.hw)) && Number.isFinite(Number(p.draw)) && Number.isFinite(Number(p.aw))){
+        return {p,home:Number(p.hg)||0,away:Number(p.ag)||0,homePct:Math.round(Number(p.hw)*100),drawPct:Math.round(Number(p.draw)*100),awayPct:Math.round(Number(p.aw)*100)};
+      }
+    }
+  }catch(e){}
+  const h=history()[S(m.id)];
+  if(h)return {p:null,home:Number(h.home)||0,away:Number(h.away)||0,homePct:Number(h.homePct)||0,drawPct:Number(h.drawPct)||0,awayPct:Number(h.awayPct)||0};
+  return null;
+}
+function matchSort(a,b){
+  const da=new Date(S(a.date||'2999-12-31')+'T'+S(a.time||'23:59')).getTime();
+  const db=new Date(S(b.date||'2999-12-31')+'T'+S(b.time||'23:59')).getTime();
+  return da-db;
+}
+function setup(){
+  const sec=document.getElementById('predictionsSection');
+  if(!sec||sec.dataset.sheetPredictionV2==='1')return;
+  sec.dataset.sheetPredictionV2='1';
+  sec.innerHTML=`
+    <div class="card prediction-card prediction-sheets-card">
+      <div class="prediction-head"><div class="prediction-icon">🎯</div><h2>توقع نتيجة المباراة</h2></div>
+      <div class="prediction-filter-box">
+        <label for="predictionTournamentV2">البطولة</label>
+        <select id="predictionTournamentV2"><option value="">🏆 اختر اسم البطولة</option></select>
+      </div>
+      <div id="predictionSummaryV2"></div>
+      <div class="prediction-block">
+        <div class="prediction-block-title">🎯 المباريات المتاحة للتوقع <span id="predictionOpenCount">0</span></div>
+        <div id="predictionOpenList"></div>
+      </div>
+      <div class="prediction-block prediction-completed-block">
+        <div class="prediction-block-title">📊 مقارنة التوقع بالنتيجة الفعلية <span id="predictionDoneCount">0</span></div>
+        <div id="predictionDoneList"></div>
+      </div>
+    </div>`;
+  const sel=document.getElementById('predictionTournamentV2');
+  sel.addEventListener('change',()=>render(true));
+  render(true);
+}
+function fillTours(keep){
+  const sel=document.getElementById('predictionTournamentV2'); if(!sel)return;
+  const old=keep??S(sel.value);
+  /* إظهار جميع البطولات النشطة، وليس البطولات التي لديها مباراة فقط. */
+  const tours=A(D().tournaments).filter(t=>t&&t.name&&t.archived!==true);
+  sel.innerHTML='<option value="">🏆 اختر اسم البطولة</option>'+tours.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');
+  if(old&&tours.some(t=>S(t.id)===old))sel.value=old;
+}
+function render(force){
+  const sel=document.getElementById('predictionTournamentV2'); if(!sel)return;
+  fillTours(S(sel.value));
+  const tid=S(sel.value);
+  const open=document.getElementById('predictionOpenList'), done=document.getElementById('predictionDoneList');
+  const oc=document.getElementById('predictionOpenCount'), dc=document.getElementById('predictionDoneCount'), sum=document.getElementById('predictionSummaryV2');
+  if(!tid){
+    if(sum)sum.innerHTML='<div class="prediction-empty">اختر اسم البطولة لعرض المباريات والتوقعات.</div>';
+    if(open)open.innerHTML='';
+    if(done)done.innerHTML='';
+    if(oc)oc.textContent='0';
+    if(dc)dc.textContent='0';
+    return;
+  }
+  const all=A(D().matches).filter(m=>tidOf(m)===tid).slice().sort(matchSort);
+  // القاعدة المعتمدة: وجود كشف المباراة = مباراة منتهية، وعدم وجوده = متاحة للتوقع.
+  const openMatches=all.filter(m=>!sheetFor(m.id));
+  const doneMatches=all.filter(m=>!!sheetFor(m.id));
+  const hist=history();
+  const predictedCount=all.filter(m=>!!hist[S(m.id)]).length;
+  const sheetCount=doneMatches.length;
+  if(sum)sum.innerHTML='<div class="prediction-summary"><span>🏆 '+esc((A(D().tournaments).find(t=>S(t.id)===tid)||{}).name||'البطولة')+
+    '</span><span>🎯 التوقعات السابقة: <b>'+predictedCount+'</b></span><span>📋 الكشوفات المدخلة: <b>'+sheetCount+'</b></span><span>⚽ المباريات المتاحة للتوقع: <b>'+openMatches.length+'</b></span></div>';
+  if(oc)oc.textContent=String(openMatches.length);
+  if(dc)dc.textContent=String(doneMatches.filter(m=>!!hist[S(m.id)]).length);
+
+  if(!openMatches.length) open.innerHTML='<div class="prediction-empty success">✅ لا توجد مباريات جديدة للتوقع؛ جميع المباريات التي أُدخلت كشوفاتها أُزيلت من قائمة التوقع.</div>';
+  else open.innerHTML=openMatches.map(m=>{
+    const pr=prediction(m);
+    if(!pr)return '<div class="prediction-match-card">'+matchLabel(m)+'<div class="prediction-no-data">لا توجد معلومات كافية لإظهار التوقع حالياً.</div></div>';
+    return '<div class="prediction-match-card">'+matchLabel(m)+
+      '<div class="prediction-prob-grid"><div>فوز '+esc(tn(sides(m).h))+'<b>'+pr.homePct+'%</b></div><div>تعادل<b>'+pr.drawPct+'%</b></div><div>فوز '+esc(tn(sides(m).a))+'<b>'+pr.awayPct+'%</b></div></div>'+
+      '<div class="prediction-nearest">النتيجة الأقرب للتوقع <strong>'+pr.home+' - '+pr.away+'</strong></div></div>';
+  }).join('');
+
+  const comparisons=doneMatches.filter(m=>!!hist[S(m.id)]);
+  if(!comparisons.length) done.innerHTML='<div class="prediction-empty">لا توجد مباراة منتهية لها توقع سابق ومُدخل لها كشف بعد.</div>';
+  else done.innerHTML=comparisons.map(m=>{
+    const h=hist[S(m.id)], real=actual(m), s=sides(m);
+    if(!real)return '';
+    const pred={h:Number(h.home),a:Number(h.away)}, r=rate(pred,real);
+    return '<div class="prediction-compare-card">'+matchLabel(m)+
+      '<div class="prediction-compare-grid"><div><small>التوقع</small><strong>'+pred.h+' - '+pred.a+'</strong></div><div><small>النتيجة الفعلية</small><strong>'+real.h+' - '+real.a+'</strong></div><div><small>نسبة التطابق</small><strong>'+r+'%</strong></div></div>'+
+      '<div class="prediction-compare-note">'+(r===100?'🎯 تطابق كامل للنتيجة':'📊 تمت مقارنة التوقع بالنتيجة الفعلية')+'</div></div>';
+  }).join('');
+}
+function signature(){
+  const d=D(), t=A(d.teams), m=A(d.matches);
+  const sel=document.getElementById('predictionTournamentV2'), tid=S(sel?.value);
+  const relevant=m.filter(x=>!tid||tidOf(x)===tid).map(x=>[x.id,x.home,x.homeTeamId,x.away,x.awayTeamId,x.date,x.time,x.status,x.homeScore,x.awayScore]).flat();
+  const sheets=getSheets().map(x=>[x.matchId,x.homeScore,x.awayScore,x.updatedAt]).flat();
+  const teams=t.map(x=>[x.id,x.name,x.logo]).flat();
+  return JSON.stringify([tid,relevant,sheets,teams]);
+}
+function start(){
+  setup();
+  /* polling and duplicate storage repaint removed; the data-driven engine owns updates. */
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
+<style id="prediction-match-sheets-final-v2-style">
+#predictionsSection .prediction-sheets-card{overflow:hidden}
+#predictionsSection .prediction-filter-box{padding:13px 0 4px}
+#predictionsSection .prediction-summary{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 14px}
+#predictionsSection .prediction-summary span{padding:7px 10px;border-radius:999px;background:#f0f7f4;border:1px solid #d7e7df;color:#36584c;font-size:11px;font-weight:800}
+#predictionsSection .prediction-summary b{color:#075f45}
+#predictionsSection .prediction-block{margin-top:12px}
+#predictionsSection .prediction-block-title{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 13px;border-radius:13px;background:linear-gradient(135deg,#eefaf5,#f4f9ff);border:1px solid #d5e7df;color:#075f45;font-weight:950}
+#predictionsSection .prediction-block-title span{min-width:28px;text-align:center;border-radius:999px;background:#075f45;color:#fff;padding:4px 8px;font-size:11px}
+#predictionsSection .prediction-match-card,#predictionsSection .prediction-compare-card{margin-top:9px;padding:12px;border:1px solid #dce8e2;border-radius:15px;background:#fff;box-shadow:0 5px 15px rgba(8,55,39,.05)}
+#predictionsSection .prediction-list-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:7px;text-align:center;font-size:14px;font-weight:900;color:#173d31}
+#predictionsSection .prediction-list-teams>div{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+#predictionsSection .prediction-list-teams b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#predictionsSection .prediction-list-teams>span{font-size:17px;color:#087f5b}
+#predictionsSection .prediction-list-logo{width:38px;height:38px;min-width:38px;object-fit:contain;border-radius:10px;background:#fff;border:1px solid #d7e5de;padding:2px}
+#predictionsSection .prediction-list-logo-fallback{width:38px;height:38px;min-width:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#eef7f3;border:1px solid #d7e5de;font-size:20px}
+#predictionsSection .prediction-list-meta{display:flex;justify-content:center;gap:12px;margin-top:7px;color:#71827b;font-size:10px}
+#predictionsSection .prediction-prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+#predictionsSection .prediction-prob-grid>div{padding:9px 5px;border-radius:11px;text-align:center;font-size:10px;font-weight:800;background:#f6fbf8;border:1px solid #dceae4}
+#predictionsSection .prediction-prob-grid b{display:block;font-size:19px;color:#075f45;margin-top:3px}
+#predictionsSection .prediction-nearest{margin-top:8px;padding:10px;text-align:center;border-radius:11px;background:#fff8e8;border:1px solid #f0d694;color:#7a5900;font-size:11px}
+#predictionsSection .prediction-nearest strong{font-size:22px;color:#c46d00;display:block;margin-top:2px}
+#predictionsSection .prediction-empty{margin-top:9px;padding:18px;text-align:center;color:#71817b;background:#f8fbfa;border:1px dashed #cddcd5;border-radius:13px;font-size:12px}
+#predictionsSection .prediction-empty.success{background:#effbf5;border-color:#bfe2cf;color:#176044}
+#predictionsSection .prediction-no-data{margin-top:9px;padding:10px;text-align:center;border-radius:10px;background:#fff9e8;color:#7a5900;font-size:11px}
+#predictionsSection .prediction-compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+#predictionsSection .prediction-compare-grid>div{padding:9px 5px;text-align:center;border-radius:11px;background:#f8fafc;border:1px solid #dfe8ec}
+#predictionsSection .prediction-compare-grid small{display:block;color:#718096;font-size:10px}
+#predictionsSection .prediction-compare-grid strong{display:block;margin-top:4px;font-size:20px;color:#075f45}
+#predictionsSection .prediction-compare-note{margin-top:8px;padding:9px;border-radius:10px;text-align:center;background:#eef8f3;color:#176044;font-size:11px;font-weight:900}
+@media(max-width:600px){
+ #predictionsSection .prediction-list-teams{font-size:12px}
+ #predictionsSection .prediction-list-logo,#predictionsSection .prediction-list-logo-fallback{width:34px;height:34px;min-width:34px}
+ #predictionsSection .prediction-prob-grid b{font-size:17px}
+ #predictionsSection .prediction-compare-grid strong{font-size:18px}
+}
+</style>
+
+<!-- FINAL PATCH: توقعات مختلفة حسب بيانات كل فريق + سجل توقعات احترافي + نسبة التطابق -->
+<style id="prediction-data-driven-final-style">
+#predictionsSection .prediction-data-driven-note{
+  margin:10px 0 14px;padding:12px 14px;border-radius:15px;
+  background:linear-gradient(135deg,#e8fff6,#eef6ff,#fff7df);
+  border:1px solid #b9dfd0;color:#174b3d;font-size:12px;font-weight:800;
+}
+#predictionsSection .prediction-data-driven-card{
+  position:relative;overflow:hidden;margin-top:10px;padding:14px;border-radius:18px;
+  background:linear-gradient(145deg,#ffffff,#f4fbff 48%,#f1fff8);
+  border:1px solid #cfe3ec;box-shadow:0 8px 24px rgba(20,75,90,.08);
+}
+#predictionsSection .prediction-data-driven-card:before{
+  content:"";position:absolute;inset:0 auto 0 0;width:5px;
+  background:linear-gradient(180deg,#00b894,#0984e3,#f6b500);
+}
+#predictionsSection .prediction-data-driven-card .pdd-team-row{
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center;
+}
+#predictionsSection .pdd-team{display:flex;align-items:center;justify-content:center;gap:7px;font-weight:950;color:#173d31;min-width:0}
+#predictionsSection .pdd-team b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#predictionsSection .pdd-logo{width:40px;height:40px;min-width:40px;border-radius:12px;object-fit:contain;background:#fff;border:1px solid #d7e6df;padding:2px}
+#predictionsSection .pdd-vs{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#075f45,#0984e3);color:#fff;font-weight:1000}
+#predictionsSection .pdd-meta{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:7px;color:#718096;font-size:10px}
+#predictionsSection .pdd-probs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}
+#predictionsSection .pdd-prob{padding:10px 5px;border-radius:12px;background:#fff;border:1px solid #dbe8ee;text-align:center;font-size:10px;font-weight:900}
+#predictionsSection .pdd-prob b{display:block;font-size:22px;margin-top:3px}
+#predictionsSection .pdd-prob.home{border-top:4px solid #00b894}.pdd-prob.home b{color:#008f70}
+#predictionsSection .pdd-prob.draw{border-top:4px solid #f6b500}.pdd-prob.draw b{color:#c27a00}
+#predictionsSection .pdd-prob.away{border-top:4px solid #0984e3}.pdd-prob.away b{color:#0867b7}
+#predictionsSection .pdd-score{
+  margin-top:9px;padding:10px;border-radius:12px;text-align:center;
+  background:linear-gradient(135deg,#fff8e6,#fff);border:1px solid #efd58b;color:#765500;font-size:11px;font-weight:900;
+}
+#predictionsSection .pdd-score strong{display:block;font-size:24px;color:#c46d00;margin-top:2px}
+#predictionsSection .pdd-data{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px;
+}
+#predictionsSection .pdd-data div{padding:7px;border-radius:10px;background:#f8fbfd;border:1px solid #e1e9ee;text-align:center;font-size:10px;color:#64748b}
+#predictionsSection .pdd-data b{display:block;color:#173d31;font-size:12px;margin-top:2px}
+#predictionsSection .pdd-confidence{
+  margin-top:8px;padding:8px 10px;border-radius:11px;text-align:center;
+  background:linear-gradient(90deg,#eefbf6,#edf6ff);border:1px solid #cce3ef;color:#245a76;font-size:11px;font-weight:900;
+}
+#predictionsSection .prediction-history-card{
+  margin-top:10px;padding:13px;border-radius:17px;background:#fff;
+  border:1px solid #dce6ec;box-shadow:0 6px 18px rgba(20,50,70,.06);
+}
+#predictionsSection .prediction-history-head{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px;
+}
+#predictionsSection .prediction-history-head strong{color:#075f45}
+#predictionsSection .prediction-history-badge{
+  padding:5px 9px;border-radius:999px;background:linear-gradient(135deg,#7048e8,#e83e8c);
+  color:#fff;font-size:10px;font-weight:900;
+}
+#predictionsSection .prediction-history-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+}
+#predictionsSection .prediction-history-grid>div{
+  padding:9px 5px;border-radius:12px;background:linear-gradient(145deg,#f9fbff,#fff);
+  border:1px solid #e0e8ee;text-align:center;
+}
+#predictionsSection .prediction-history-grid small{display:block;color:#7a8794;font-size:9px}
+#predictionsSection .prediction-history-grid b{display:block;margin-top:3px;font-size:19px;color:#173d31}
+#predictionsSection .pdd-match-rate{
+  margin-top:8px;padding:9px;border-radius:12px;text-align:center;font-weight:950;
+  background:linear-gradient(135deg,#eafff5,#fff8df);border:1px solid #cfe6d8;color:#176044;
+}
+#predictionsSection .pdd-match-rate.exact{background:linear-gradient(135deg,#e7fff3,#dff7ff);border-color:#8bd9bd;color:#007653}
+#predictionsSection .pdd-match-rate.low{background:linear-gradient(135deg,#fff0f0,#fff8e8);border-color:#f0b6b6;color:#a33b3b}
+@media(max-width:600px){
+  #predictionsSection .pdd-team{font-size:12px}.pdd-logo{width:34px!important;height:34px!important;min-width:34px!important}
+  #predictionsSection .pdd-prob b{font-size:19px}.prediction-history-grid b{font-size:17px!important}
+}
+</style>
+<script id="prediction-data-driven-final-engine">
+(function(){
+'use strict';
+const KEY='manar_prediction_history_v1';
+const S=v=>String(v??'').trim();
+const A=v=>Array.isArray(v)?v:[];
+const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function DB(){return (window.db&&typeof window.db==='object')?window.db:{tournaments:[],teams:[],matches:[]};}
+function teams(){return A(DB().teams)}
+function matches(){return A(DB().matches)}
+function team(id){return teams().find(t=>S(t.id)===S(id)||S(t.name)===S(id))||{}}
+function tname(id){return team(id).name||S(id)||'فريق'}
+function logo(id){let t=team(id),u=t.logo||t.logoUrl||t.image||t.photo||t.teamLogo||'';return u?'<img loading="lazy" decoding="async" class="pdd-logo" src="'+esc(u)+'" alt="">':'<span class="pdd-logo" style="display:flex;align-items:center;justify-content:center;font-size:21px">⚽</span>'}
+function sides(m){return {h:S(m.home??m.homeTeamId??m.homeTeam??m.homeId),a:S(m.away??m.awayTeamId??m.awayTeam??m.awayId)}}
+function tid(m){return S(m.tournamentId||m.tournament||m.tournamentID||'')}
+function readHist(){try{let x=JSON.parse(localStorage.getItem(KEY)||'{}');return x&&typeof x==='object'?x:{}}catch(e){return {}}}
+function writeHist(x){try{localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}}
+function getSheets(){
+ let list=[];
+ try{if(typeof uniqueMatchSheets==='function')list=A(uniqueMatchSheets())}catch(e){}
+ if(!list.length){try{list=[...A(JSON.parse(localStorage.getItem('manar_match_sheets_v3')||'[]')),...A(JSON.parse(localStorage.getItem('manar_match_sheets_v2')||'[]')),...A(JSON.parse(localStorage.getItem('manar_match_sheets_v1')||'[]'))]}catch(e){}}
+ const map=new Map();
+ list.filter(Boolean).forEach(x=>{let k=S(x.matchId);if(k)map.set(k,x)});
+ return [...map.values()];
+}
+function sheetMatch(sh){return matches().find(m=>S(m.id)===S(sh.matchId))}
+function score(sh){
+ let h=Number(sh.homeScore),a=Number(sh.awayScore);
+ return Number.isFinite(h)&&Number.isFinite(a)?{h,a}:null
+}
+function collect(teamId, tournamentId, useTournament){
+ const all=getSheets(), rows=[];
+ all.forEach(sh=>{
+   const m=sheetMatch(sh), sc=score(sh); if(!m||!sc)return;
+   if(useTournament && tournamentId && tid(m)!==S(tournamentId))return;
+   const z=sides(m), isH=S(z.h)===S(teamId), isA=S(z.a)===S(teamId);
+   if(!isH&&!isA)return;
+   rows.push({gf:isH?sc.h:sc.a,ga:isH?sc.a:sc.h,win:(isH?sc.h:sc.a)>(isH?sc.a:sc.h)?1:0,draw:sc.h===sc.a?1:0,date:S(m.date),time:S(m.time),m});
+ });
+ rows.sort((a,b)=>(S(b.date)+' '+S(b.time)).localeCompare(S(a.date)+' '+S(a.time)));
+ return rows;
+}
+function stats(teamId,tournamentId){
+ let rows=collect(teamId,tournamentId,true), scope='البطولة';
+ if(!rows.length){rows=collect(teamId,tournamentId,false);scope='جميع البطولات'}
+ let g=rows.length,gf=rows.reduce((n,x)=>n+x.gf,0),ga=rows.reduce((n,x)=>n+x.ga,0);
+ let w=rows.reduce((n,x)=>n+x.win,0),d=rows.reduce((n,x)=>n+x.draw,0);
+ let recent=rows.slice(0,5),rg=recent.length,rgf=recent.reduce((n,x)=>n+x.gf,0),rga=recent.reduce((n,x)=>n+x.ga,0);
+ return {rows,g,gf,ga,w,d,l:g-w-d,avgGF:g?gf/g:0,avgGA:g?ga/g:0,recentG:rg,recentGF:rg?rgf/rg:0,recentGA:rg?rga/rg:0,scope}
+}
+function leagueAverages(tournamentId){
+ let rows=getSheets().map(sh=>{let m=sheetMatch(sh),sc=score(sh);return m&&sc&&(!tournamentId||tid(m)===S(tournamentId))?sc:null}).filter(Boolean);
+ if(!rows.length)rows=getSheets().map(sh=>{let m=sheetMatch(sh),sc=score(sh);return m&&sc?sc:null}).filter(Boolean);
+ if(!rows.length)return {home:1.25,away:1.0,total:2.25};
+ return {home:rows.reduce((n,x)=>n+x.h,0)/rows.length,away:rows.reduce((n,x)=>n+x.a,0)/rows.length,total:rows.reduce((n,x)=>n+x.h+x.a,0)/rows.length};
+}
+function poisson(k,l){let e=Math.exp(-l),p=1;for(let i=1;i<=k;i++)p*=l/i;return e*p}
+function predict(m){
+ const z=sides(m), H=stats(z.h,tid(m)), V=stats(z.a,tid(m)), L=leagueAverages(tid(m));
+ const leagueTeamAvg=Math.max(.65,L.total/2);
+ const atkH=H.g?(.62*(H.recentGF/leagueTeamAvg)+.38*(H.avgGF/leagueTeamAvg)):1;
+ const atkV=V.g?(.62*(V.recentGF/leagueTeamAvg)+.38*(V.avgGF/leagueTeamAvg)):1;
+ const defH=H.g?(.62*(H.recentGA/leagueTeamAvg)+.38*(H.avgGA/leagueTeamAvg)):1;
+ const defV=V.g?(.62*(V.recentGA/leagueTeamAvg)+.38*(V.avgGA/leagueTeamAvg)):1;
+ const formH=H.g?Math.max(.72,Math.min(1.28,.62*(H.recentGF/Math.max(.8,leagueTeamAvg))+.38*((H.w*3+H.d)/(3*H.g)))):1;
+ const formV=V.g?Math.max(.72,Math.min(1.28,.62*(V.recentGF/Math.max(.8,leagueTeamAvg))+.38*((V.w*3+V.d)/(3*V.g)))):1;
+ let lh=Math.max(.18,L.home*atkH*(1/Math.max(.55,defV))*.95*formH);
+ let la=Math.max(.12,L.away*atkV*(1/Math.max(.55,defH))*.95*formV);
+ lh=Math.min(4.5,lh);la=Math.min(4.5,la);
+ let home=0,draw=0,away=0,best=[0,0,0];
+ for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){
+   let p=poisson(i,lh)*poisson(j,la);
+   if(i>j)home+=p;else if(i<j)away+=p;else draw+=p;
+   if(p>best[0])best=[p,i,j];
+ }
+ const sum=home+draw+away;home/=sum;draw/=sum;away/=sum;
+ const games=H.g+V.g, confidence=Math.max(30,Math.min(95,Math.round(38+Math.min(32,games*3)+Math.min(18,Math.abs(lh-la)*10)+Math.min(7,Math.abs(H.avgGF-V.avgGF)*4))));
+ return {q:z,h:H,a:V,home,draw,away,lh,la,scoreH:best[1],scoreA:best[2],confidence};
+}
+function save(m,p){
+ const h=readHist(),id=S(m.id);if(!id)return;
+ h[id]={...(h[id]||{}),matchId:id,tournamentId:tid(m),homeId:p.q.h,awayId:p.q.a,homeName:tname(p.q.h),awayName:tname(p.q.a),home:p.scoreH,away:p.scoreA,homePct:Math.round(p.home*100),drawPct:Math.round(p.draw*100),awayPct:Math.round(p.away*100),confidence:p.confidence,createdAt:h[id]?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
+ writeHist(h);return h[id]
+}
+function actual(m){
+ let sh=getSheets().find(x=>S(x.matchId)===S(m.id));if(!sh)return null;let s=score(sh);return s
+}
+function rate(pred,real){
+ if(pred.h===real.h&&pred.a===real.a)return 100;
+ const outcome=x=>x.h>x.a?'H':x.h<x.a?'A':'D';
+ const dist=Math.abs(pred.h-real.h)+Math.abs(pred.a-real.a);
+ const close=Math.max(0,1-dist/7);
+ return Math.round((outcome(pred)===outcome(real)?65+35*close:10+20*close))
+}
+function pct(v){return Math.round(v*100)}
+function matchCard(m,p){
+ let z=p.q, H=p.h,V=p.a;
+ return '<div class="prediction-data-driven-card">'+
+ '<div class="pdd-team-row"><div class="pdd-team">'+logo(z.h)+'<b>'+esc(tname(z.h))+'</b></div><span class="pdd-vs">VS</span><div class="pdd-team"><b>'+esc(tname(z.a))+'</b>'+logo(z.a)+'</div></div>'+
+ '<div class="pdd-meta"><span>📅 '+esc(m.date||'—')+'</span><span>🕒 '+esc(m.time||'—')+'</span><span>📊 '+esc(H.g)+' مباراة بيانات</span><span>📊 '+esc(V.g)+' مباراة بيانات</span></div>'+
+ '<div class="pdd-probs"><div class="pdd-prob home">فوز '+esc(tname(z.h))+'<b>'+pct(p.home)+'%</b></div><div class="pdd-prob draw">تعادل<b>'+pct(p.draw)+'%</b></div><div class="pdd-prob away">فوز '+esc(tname(z.a))+'<b>'+pct(p.away)+'%</b></div></div>'+
+ '<div class="pdd-score">🎯 النتيجة الأقرب<strong>'+p.scoreH+' - '+p.scoreA+'</strong></div>'+
+ '<div class="pdd-data"><div>⚽ متوسط التسجيل — '+esc(tname(z.h))+'<b>'+H.avgGF.toFixed(2)+'</b></div><div>🛡️ متوسط الاستقبال — '+esc(tname(z.h))+'<b>'+H.avgGA.toFixed(2)+'</b></div><div>⚽ متوسط التسجيل — '+esc(tname(z.a))+'<b>'+V.avgGF.toFixed(2)+'</b></div><div>🛡️ متوسط الاستقبال — '+esc(tname(z.a))+'<b>'+V.avgGA.toFixed(2)+'</b></div></div>'+
+ '<div class="pdd-confidence">📈 نسبة الثقة بالتوقع: <b>'+p.confidence+'%</b> — محسوبة من حجم البيانات وفارق قوة الفريقين</div></div>'
+}
+function renderHistory(tidSel){
+ const box=document.getElementById('predictionDoneList');if(!box)return;
+ const h=readHist(), arr=matches().filter(m=>(!tidSel||tid(m)===tidSel)&&h[S(m.id)]).map(m=>({m,h:h[S(m.id)],r:actual(m)})).filter(x=>x.r);
+ if(!arr.length){box.innerHTML='<div class="prediction-empty">لا توجد نتائج توقعات سابقة مكتملة بعد. ستظهر هنا تلقائيًا بعد إدخال كشف المباراة.</div>';return}
+ arr.sort((a,b)=>S(b.h.updatedAt||b.h.createdAt).localeCompare(S(a.h.updatedAt||a.h.createdAt)));
+ box.innerHTML=arr.map(x=>{
+   let r=rate({h:Number(x.h.home),a:Number(x.h.away)},x.r), cls=r===100?'exact':r<45?'low':'';
+   return '<div class="prediction-history-card">'+
+    '<div class="prediction-history-head"><strong>🕘 توقع سابق — '+esc(tname(sides(x.m).h))+' × '+esc(tname(sides(x.m).a))+'</strong><span class="prediction-history-badge">'+r+'% تطابق</span></div>'+
+    '<div class="prediction-history-grid"><div><small>التوقع</small><b>'+Number(x.h.home)+' - '+Number(x.h.away)+'</b></div><div><small>النتيجة الفعلية</small><b>'+x.r.h+' - '+x.r.a+'</b></div><div><small>نسبة التطابق</small><b>'+r+'%</b></div></div>'+
+    '<div class="pdd-match-rate '+cls+'">'+(r===100?'🎯 تطابق كامل للنتيجة':r>=70?'👏 توقع قريب جدًا من النتيجة':r>=45?'📊 تطابق جزئي — تم احتساب نتيجة المباراة':'🔎 تطابق منخفض — تم تسجيل النتيجة للمقارنة')+'</div></div>'
+ }).join('')
+}
+function patchCurrentUI(){
+ const sec=document.getElementById('predictionsSection');if(!sec)return;
+ const sel=sec.querySelector('#predictionTournamentV2'),open=sec.querySelector('#predictionOpenList'),sum=sec.querySelector('#predictionSummaryV2'),done=sec.querySelector('#predictionDoneList');
+ if(!sel||!open||!done)return;
+ const t=S(sel.value);if(!t){
+   if(sum)sum.innerHTML='<div class="prediction-data-driven-note">🏆 اختر اسم البطولة لعرض توقعات مختلفة لكل مباراة اعتمادًا على بيانات الفريقين والكشوفات السابقة.</div>';
+   open.innerHTML='';done.innerHTML='';return
+ }
+ const all=matches().filter(m=>tid(m)===t).slice().sort((a,b)=>(S(a.date)+' '+S(a.time)).localeCompare(S(b.date)+' '+S(b.time)));
+ const hist=readHist(), pending=all.filter(m=>!actual(m));
+ const tour=A(DB().tournaments).find(x=>S(x.id)===t);
+ if(sum)sum.innerHTML='<div class="prediction-data-driven-note">🏆 '+esc(tour?.name||'البطولة')+' — التوقع لا يستخدم نسبة ثابتة: يتم حساب قوة كل فريق من أهدافه ونتائجه وفورمته وعدد الكشوفات المدخلة.</div>';
+ const __oc=document.getElementById('predictionOpenCount'); if(__oc)__oc.textContent=String(pending.length);
+ pending.forEach(m=>{let p=predict(m);save(m,p)});
+ open.innerHTML=pending.length?pending.map(m=>matchCard(m,predict(m))).join(''):'<div class="prediction-empty success">✅ لا توجد مباريات جديدة للتوقع؛ ستظهر النتائج السابقة في سجل التوقعات.</div>';
+ renderHistory(t);
+ const doneCount=all.filter(m=>actual(m)&&hist[S(m.id)]).length;
+ const __dc=document.getElementById('predictionDoneCount'); if(__dc)__dc.textContent=String(doneCount);
+}
+function install(){
+ const sec=document.getElementById('predictionsSection');if(!sec)return;
+ let last='';
+ const run=()=>{try{
+   const sel=document.getElementById('predictionTournamentV2'),sig=(sel?.value||'')+'|'+JSON.stringify(matches().map(m=>[m.id,m.tournamentId,m.home,m.away,m.date,m.time]))+'|'+getSheets().map(s=>[s.matchId,s.homeScore,s.awayScore,s.updatedAt]).flat();
+   if(sig!==last){last=sig;patchCurrentUI()}
+ }catch(e){console.warn('prediction data-driven patch',e)}};
+ document.addEventListener('change',e=>{if(e.target?.id==='predictionTournamentV2')setTimeout(run,20)},true);
+ window.addEventListener('storage',e=>{if(/^manar_(sports|match_sheets|prediction)/.test(S(e.key)))setTimeout(run,30)});
+ setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);setInterval(run,3000);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+window.__getPredictionForMatch=function(m){
+ try{let p=predict(m);return {q:p.q,hw:p.home,draw:p.draw,aw:p.aw, hg:p.scoreH,ag:p.scoreA,rate:p.confidence}}catch(e){return null}
+};
+})();
+</script>
+
+
+<style id="prediction-history-vivid-final">
+#predictionsSection .prediction-completed-block{margin-top:18px}
+#predictionsSection .prediction-completed-block .prediction-block-title{
+  background:linear-gradient(135deg,#6c2bd9,#0b82f6,#00a878);color:#fff;border:0;
+  box-shadow:0 8px 22px rgba(41,73,170,.18)
+}
+#predictionsSection .prediction-completed-block .prediction-block-title span{background:rgba(255,255,255,.22);color:#fff;border:1px solid rgba(255,255,255,.35)}
+#predictionDoneList{display:grid;gap:12px;margin-top:10px}
+#predictionDoneList .prediction-history-card,#predictionDoneList .prediction-compare-card{
+  position:relative;overflow:hidden;margin:0;padding:0;border:0;border-radius:20px;
+  background:linear-gradient(145deg,#fff,#f8fbff 48%,#f1fff9);
+  box-shadow:0 10px 28px rgba(20,55,90,.10);border:1px solid #d9e7ef
+}
+#predictionDoneList .prediction-history-card:before,#predictionDoneList .prediction-compare-card:before{
+  content:"";display:block;height:6px;background:linear-gradient(90deg,#ffb300,#ff4d6d,#7c4dff,#00b894,#0984e3)
+}
+#predictionDoneList .prediction-history-head{padding:13px 15px 8px;margin:0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+#predictionDoneList .prediction-history-head strong{font-size:14px;color:#123d57;line-height:1.5}
+#predictionDoneList .prediction-history-badge{
+  flex:none;padding:6px 11px;border-radius:999px;background:linear-gradient(135deg,#00a878,#087f5b);
+  color:#fff;font-size:10px;font-weight:950;box-shadow:0 4px 10px rgba(0,168,120,.2)
+}
+#predictionDoneList .prediction-history-grid,#predictionDoneList .prediction-compare-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px 13px 12px
+}
+#predictionDoneList .prediction-history-grid>div,#predictionDoneList .prediction-compare-grid>div{
+  min-width:0;text-align:center;padding:11px 6px;border-radius:14px;border:1px solid #dce8ef;background:#fff
+}
+#predictionDoneList .prediction-history-grid>div:nth-child(1),#predictionDoneList .prediction-compare-grid>div:nth-child(1){background:linear-gradient(145deg,#f2efff,#fff);border-color:#d9cfff}
+#predictionDoneList .prediction-history-grid>div:nth-child(2),#predictionDoneList .prediction-compare-grid>div:nth-child(2){background:linear-gradient(145deg,#eafff5,#fff);border-color:#bfe8d7}
+#predictionDoneList .prediction-history-grid>div:nth-child(3),#predictionDoneList .prediction-compare-grid>div:nth-child(3){background:linear-gradient(145deg,#fff7df,#fff);border-color:#f0d58a}
+#predictionDoneList .prediction-history-grid small,#predictionDoneList .prediction-compare-grid small{display:block;color:#718096;font-size:10px;font-weight:800}
+#predictionDoneList .prediction-history-grid b,#predictionDoneList .prediction-compare-grid strong{display:block;margin-top:4px;font-size:21px;color:#173d31;font-weight:1000}
+#predictionDoneList .prediction-history-grid>div:nth-child(3) b,#predictionDoneList .prediction-compare-grid>div:nth-child(3) strong{color:#c57a00}
+#predictionDoneList .pdd-match-rate,#predictionDoneList .prediction-compare-note,#predictionDoneList .prediction-history-rate{
+  margin:0 13px 12px;padding:10px 12px;border-radius:13px;text-align:center;font-size:11px;font-weight:950;
+  background:linear-gradient(90deg,#edfaff,#f2fff7);border:1px solid #cfe4ee;color:#155b70
+}
+#predictionDoneList .pdd-match-rate.exact{background:linear-gradient(90deg,#dcfff0,#e5fbff);border-color:#82d9b5;color:#007653}
+#predictionDoneList .pdd-match-rate.low{background:linear-gradient(90deg,#fff0f0,#fff8e9);border-color:#efb2b2;color:#a33d3d}
+#predictionDoneList .prediction-completed-label{margin:0 13px 14px;display:flex;justify-content:center;padding:8px 10px;border-radius:999px;background:#e9fff4;color:#087a4f;font-size:10px;font-weight:950}
+#predictionDoneList .prediction-empty{margin:0}
+@media(max-width:600px){
+  #predictionDoneList .prediction-history-head{align-items:flex-start}
+  #predictionDoneList .prediction-history-head strong{font-size:12px}
+  #predictionDoneList .prediction-history-grid,#predictionDoneList .prediction-compare-grid{gap:5px;padding-inline:9px}
+  #predictionDoneList .prediction-history-grid b,#predictionDoneList .prediction-compare-grid strong{font-size:17px}
+}
+</style>
+
+<style id="stats-vertical-headers-final">
+/* إحصائيات الترتيب: لعب، فاز، تعادل، خسر، له، عليه، النقاط من الأسفل إلى الأعلى */
+#statsBody .standings-mobile-table thead th:nth-child(n+3),
+#statsBody .standings-table thead th:nth-child(n+3){
+  height:82px!important;
+  padding:0 2px!important;
+  position:relative!important;
+  vertical-align:middle!important;
+  white-space:nowrap!important;
+  writing-mode:horizontal-tb!important;
+  transform:none!important;
+}
+#statsBody .standings-mobile-table thead th:nth-child(n+3)>span,
+#statsBody .standings-table thead th:nth-child(n+3)>span,
+#statsBody .standings-mobile-table thead th:nth-child(n+3)>.vertical-header-text,
+#statsBody .standings-table thead th:nth-child(n+3)>.vertical-header-text{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  display:block!important;
+  width:max-content!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  line-height:1!important;
+  font-weight:900!important;
+  transform:translate(-50%,-50%) rotate(-90deg)!important;
+  transform-origin:center center!important;
+  writing-mode:horizontal-tb!important;
+}
+@media(max-width:600px){
+  #statsBody .standings-mobile-table thead th:nth-child(n+3),
+  #statsBody .standings-table thead th:nth-child(n+3){height:78px!important}
+  #statsBody .standings-mobile-table thead th:nth-child(n+3)>span,
+  #statsBody .standings-table thead th:nth-child(n+3)>span,
+  #statsBody .standings-mobile-table thead th:nth-child(n+3)>.vertical-header-text,
+  #statsBody .standings-table thead th:nth-child(n+3)>.vertical-header-text{font-size:9px!important}
+}
+@media(max-width:380px){
+  #statsBody .standings-mobile-table thead th:nth-child(n+3),
+  #statsBody .standings-table thead th:nth-child(n+3){height:72px!important}
+  #statsBody .standings-mobile-table thead th:nth-child(n+3)>span,
+  #statsBody .standings-table thead th:nth-child(n+3)>span,
+  #statsBody .standings-mobile-table thead th:nth-child(n+3)>.vertical-header-text,
+  #statsBody .standings-table thead th:nth-child(n+3)>.vertical-header-text{font-size:8px!important}
+}
+</style>
+
+<style id="stats-rank-numbers-black-final">
+/* أرقام التسلسل في قسم الإحصائيات باللون الأسود */
+#statsBody .stats-ranking-card table tbody td:first-child,
+#statsBody .standings-mobile-table tbody td:first-child,
+#statsBody .standings-table tbody td:first-child{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  font-weight:950!important;
+  text-shadow:none!important;
+}
+</style>
+
+<!-- STATS_VERTICAL_HEADERS_BOTTOM_TO_TOP_FINAL -->
+
+<style id="manar-referee-profile-final-polish">
+#manarRefereeProfileOverlay{z-index:99999!important;padding:16px!important;background:rgba(3,32,45,.72)!important;backdrop-filter:blur(5px)}
+#manarRefereeProfileOverlay .manar-referee-profile{width:min(540px,100%)!important;max-height:90vh!important;overflow:auto!important;background:linear-gradient(145deg,#ffffff,#f4fbff)!important;border:2px solid #bde8f5!important;border-radius:26px!important;padding:16px!important;box-shadow:0 24px 70px rgba(0,0,0,.28)!important}
+#manarRefereeProfileOverlay .manar-referee-profile-head{background:linear-gradient(135deg,#e0f7ff,#eef2ff 55%,#ecfdf5)!important;border:1px solid #c5e8f2!important;border-radius:20px!important;padding:13px!important}
+#manarRefereeProfileOverlay .manar-referee-profile-head h3{font-size:22px!important;color:#063b57!important}
+#manarRefereeProfileOverlay .manar-referee-basic{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;margin-top:12px!important}
+#manarRefereeProfileOverlay .manar-referee-basic>div{padding:13px!important;border-radius:17px!important;border:1px solid #d4e9f0!important;background:#fff!important;text-align:center!important;box-shadow:0 5px 14px rgba(8,79,108,.07)!important}
+#manarRefereeProfileOverlay .manar-referee-basic b{display:block!important;color:#64748b!important;font-size:12px!important;margin-bottom:5px!important}
+#manarRefereeProfileOverlay .manar-referee-basic strong{display:block!important;color:#083b55!important;font-size:18px!important}
+#manarRefereeProfileOverlay .manar-referee-profile-stats{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;margin-top:12px!important}
+#manarRefereeProfileOverlay .manar-referee-stat-box{border-radius:18px!important;padding:14px 10px!important;text-align:center!important;color:#fff!important;box-shadow:0 9px 20px rgba(0,0,0,.10)!important}
+#manarRefereeProfileOverlay .manar-referee-stat-box.matches{background:linear-gradient(135deg,#0284c7,#2563eb)!important}
+#manarRefereeProfileOverlay .manar-referee-stat-box.tours{background:linear-gradient(135deg,#7c3aed,#db2777)!important}
+#manarRefereeProfileOverlay .manar-referee-stat-box b{display:block!important;font-size:30px!important;line-height:1.1!important}
+#manarRefereeProfileOverlay .manar-referee-stat-box span{display:block!important;margin-top:5px!important;font-size:12px!important;font-weight:900!important}
+#manarRefereeProfileOverlay .manar-referee-tours-title{margin-top:14px!important;padding:11px 13px!important;border-radius:16px!important;background:linear-gradient(135deg,#ecfeff,#eff6ff)!important;color:#075985!important;font-size:15px!important;font-weight:1000!important;border:1px solid #ccecf5!important}
+#manarRefereeProfileOverlay .manar-referee-tour-row{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:10px!important;margin-top:8px!important;padding:11px 12px!important;border-radius:14px!important;background:#fff!important;border:1px solid #dceef4!important}
+#manarRefereeProfileOverlay .manar-referee-tour-row .tour-name{font-weight:900!important;color:#164e63!important;min-width:0!important;overflow-wrap:anywhere!important}
+#manarRefereeProfileOverlay .manar-referee-tour-row .tour-count{white-space:nowrap!important;font-weight:1000!important;color:#fff!important;background:linear-gradient(135deg,#10b981,#059669)!important;border-radius:999px!important;padding:6px 10px!important;font-size:11px!important}
+@media(max-width:430px){#manarRefereeProfileOverlay .manar-referee-basic,#manarRefereeProfileOverlay .manar-referee-profile-stats{grid-template-columns:1fr 1fr!important}#manarRefereeProfileOverlay .manar-referee-profile{padding:12px!important;border-radius:21px!important}#manarRefereeProfileOverlay .manar-referee-stat-box b{font-size:26px!important}}
+</style>
+<script id="manar-referee-profile-final-engine">
+(function(){
+  'use strict';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v==null?'':v).trim();
+  const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  function read(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+  function refs(){let r=read('manar_referees_v1');if(!A(r).length)r=A(window.db?.referees);return A(r)}
+  function tournaments(){const out=[],seen=new Set();
+    const src=[];try{if(window.db&&typeof window.db==='object')src.push(window.db)}catch(e){}
+    ['manar_sports_v2','manar_sports_v1','almanar_sports_v1','sports_platform_v1'].forEach(k=>{const x=read(k);if(x&&typeof x==='object')src.push(x)});
+    src.forEach(d=>A(d.tournaments).forEach(t=>{if(!t)return;const id=S(t.id||t.tournamentId),name=S(t.name||t.title||t.tournamentName||t.competitionName);const key=id||('name:'+name);if(key&&!seen.has(key)){seen.add(key);out.push({id,name})}}));return out;
+  }
+  function tname(id,fallback){const sid=S(id), f=S(fallback);const t=tournaments().find(x=>S(x.id)===sid||S(x.name)===sid);return t?.name||f||'بطولة غير محددة'}
+  function sheets(){const out=[],seen=new Set();['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>A(read(k)).forEach(x=>{if(!x)return;const key=S(x.id||x.sheetNumber||x.matchId);if(key&&seen.has(key))return;if(key)seen.add(key);out.push(x)}));return out}
+  function matches(){return A(window.db?.matches)}
+  function refereeData(ref){
+    const rid=S(ref.id),rname=S(ref.name),used=new Set(),tourMap=new Map();
+    function scan(x){if(!x)return;let vals=[];for(let n=1;n<=4;n++)vals.push(x['referee'+n],x['ref'+n],A(x.refereeIds)[n-1]);A(x.referees).forEach(v=>vals.push(v));['referee1GuestName','referee2GuestName','referee3GuestName','referee4GuestName','ref1GuestName','ref2GuestName','ref3GuestName','ref4GuestName'].forEach(k=>vals.push(x[k]));
+      const hit=vals.some(v=>{if(v==null)return false;if(typeof v==='object')v=v.id??v.refereeId??v.name;return S(v)===rid||S(v)===rname});if(!hit)return;
+      const key=S(x.id||x.sheetNumber||x.matchId||('auto_'+Math.random()));if(used.has(key))return;used.add(key);
+      const tid=S(x.tournamentId||x.tourId||x.tournament||x.tournamentIdRef),tn=S(x.tournamentName||x.tourName||x.competitionName||x.tournamentTitle||x.competitionTitle);if(!tid&&!tn)return;
+      const mk=tid||('name:'+tn),old=tourMap.get(mk)||{id:tid,name:tn,count:0};old.count++;tourMap.set(mk,old);
+    }
+    sheets().forEach(scan);matches().forEach(scan);
+    const rows=[...tourMap.values()].map(x=>({name:tname(x.id,x.name),count:x.count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar'));
+    return {rows,total:rows.reduce((n,x)=>n+x.count,0),tournaments:rows.length};
+  }
+  function ensure(){
+    let o=document.getElementById('manarRefereeProfileOverlay');
+    if(o)return o;
+    o=document.createElement('div');o.id='manarRefereeProfileOverlay';o.innerHTML='<div class="manar-referee-profile" role="dialog" aria-modal="true"><div id="manarRefereeProfileBody"></div></div>';
+    o.addEventListener('click',e=>{if(e.target===o)close()});document.body.appendChild(o);return o;
+  }
+  function close(){const o=document.getElementById('manarRefereeProfileOverlay');if(o)o.classList.remove('show')}
+  window.closeManarRefereeProfile=close;
+  window.openManarRefereeProfile=function(id){
+    const ref=refs().find(x=>S(x.id)===S(id));if(!ref)return;const o=ensure(),d=refereeData(ref),age=Number(ref.age||0),body=document.getElementById('manarRefereeProfileBody');if(!body)return;
+    body.innerHTML='<div class="manar-referee-profile-head"><div class="manar-referee-profile-photo">'+(ref.photo?'<img loading="lazy" decoding="async" src="'+esc(ref.photo)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="">':'⚖️')+'</div><div><h3>'+esc(ref.name)+'</h3><small>حكم في رابطة المنار</small></div><button class="manar-referee-profile-close" type="button" onclick="closeManarRefereeProfile()">×</button></div>'+
+      '<div class="manar-referee-basic"><div><b>الاسم</b><strong>'+esc(ref.name)+'</strong></div><div><b>العمر</b><strong>'+(age?age+' سنة':'غير مسجل')+'</strong></div></div>'+
+      '<div class="manar-referee-profile-stats"><div class="manar-referee-stat-box matches"><b>'+d.total+'</b><span>عدد المباريات التي شارك فيها</span></div><div class="manar-referee-stat-box tours"><b>'+d.tournaments+'</b><span>عدد البطولات</span></div></div>'+
+      '<div class="manar-referee-tours-title">🏆 البطولات التي شارك فيها</div>'+(d.rows.length?d.rows.map(x=>'<div class="manar-referee-tour-row"><div class="tour-name">'+esc(x.name)+'</div><div class="tour-count">'+x.count+' مباراة</div></div>').join(''):'<div class="manar-referee-empty-tours">لم يتم تسجيل مباريات لهذا الحكم حتى الآن.</div>');
+    o.classList.add('show');
+  };
+  function bind(){const b=document.getElementById('refereesTableBody');if(!b)return;b.querySelectorAll('.referee-name').forEach(el=>{if(el.dataset.finalProfileBound)return;const card=el.closest('.referee-card');if(!card)return;const edit=card.querySelector('.referee-edit');const m=edit?.getAttribute('onclick')?.match(/editManarReferee\(([^)]+)\)/);if(!m)return;const id=m[1];el.dataset.finalProfileBound='1';el.setAttribute('role','button');el.setAttribute('tabindex','0');el.title='اضغط لعرض بيانات الحكم';el.style.cursor='pointer';el.onclick=()=>window.openManarRefereeProfile(id);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();window.openManarRefereeProfile(id)}}})}
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(bind,200);const b=document.getElementById('refereesTableBody');if(b)new MutationObserver(bind).observe(b,{childList:true,subtree:true})});
+  setTimeout(bind,500);
+})();
+</script>
+
+<style id="manar-performance-optimization">
+/* تحسينات أداء آمنة: لا تغيّر منطق المنصة أو تخطيط الأقسام */
+html{scroll-behavior:auto!important}
+.card,.home-card,.section-card{contain:layout paint;}
+@media (max-width:700px){
+  header,nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+  .card,.home-card,.section-card{box-shadow:0 4px 14px rgba(15,62,46,.07)!important;}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+</style>
+<script id="manar-performance-guard">
+(function(){'use strict';
+  // لا نعيد الرسم المتكرر للأقسام المخفية.
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden) document.documentElement.classList.add('page-hidden');
+    else document.documentElement.classList.remove('page-hidden');
+  },{passive:true});
+})();
+</script>
+
+<script id="sports-pwa-controller">
+(function(){
+  'use strict';
+  const VERSION='2026.09.15.1';
+  let deferredPrompt=null, swRegistration=null;
+  const $=id=>document.getElementById(id);
+  const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone===true ||
+    document.referrer.indexOf('android-app://')===0;
+
+  function status(t, kind){
+    const e=$('installUpdateStatus');
+    if(!e) return;
+    e.textContent=t;
+    e.dataset.state=kind||'';
+  }
+  function help(t){
+    const e=$('installHelpText');
+    if(e) e.innerHTML=t;
+  }
+  function sync(){
+    const b=$('sectionInstallBtn'), u=$('sectionUpdateBtn'), badge=$('appVersionBadge');
+    if(badge) badge.textContent='الإصدار '+VERSION;
+    if(standalone()){
+      if(b){b.hidden=true;b.style.display='none';}
+      if(u){u.hidden=false;u.style.display='';}
+      status('✅ المنصة الرياضية مثبتة على الهاتف.','ok');
+      help('تم تثبيت <b>المنصة الرياضية</b>. ستظهر على الشاشة الرئيسية بأيقونتها الرياضية.');
+      return;
+    }
+    if(u){u.hidden=true;u.style.display='none';}
+    if(b){b.hidden=false;b.style.display='';b.disabled=false;}
+    if(deferredPrompt){
+      status('📲 المنصة جاهزة للتثبيت.','ok');
+      help('اضغط <b>«تثبيت المنصة»</b> وسيظهر طلب تثبيت التطبيق.');
+    }else{
+      status('📲 التثبيت متاح من قائمة المتصفح.','');
+      help('إذا لم يظهر الطلب مباشرة، افتح قائمة <b>⋮</b> في Chrome ثم اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>.');
+    }
+  }
+  async function install(){
+    if(standalone()){sync();return;}
+    if(deferredPrompt){
+      const p=deferredPrompt;
+      deferredPrompt=null;
+      try{
+        await p.prompt();
+        const r=await p.userChoice;
+        if(r && r.outcome==='accepted'){
+          status('✅ تم قبول تثبيت المنصة.','ok');
+          help('انتظر لحظات حتى تظهر <b>أيقونة المنصة الرياضية</b> على شاشة الهاتف.');
+        }else{
+          status('لم يتم التثبيت.','');
+        }
+      }catch(e){
+        status('تعذر فتح نافذة التثبيت.','warn');
+        help('افتح Chrome ثم <b>⋮</b> ← <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>.');
+      }
+      sync();
+      return;
+    }
+    status('📲 افتح قائمة Chrome لإكمال التثبيت.','');
+    help('اضغط <b>⋮</b> أعلى المتصفح ثم اختر <b>تثبيت التطبيق</b>. إذا ظهر خيار <b>إضافة إلى الشاشة الرئيسية</b> اختره أيضًا.');
+  }
+  async function updateApp(){
+    const u=$('sectionUpdateBtn');
+    if(u){u.disabled=true;u.textContent='⏳ جارٍ تحديث المنصة...';}
+    try{
+      if(swRegistration) await swRegistration.update();
+    }catch(e){}
+    const url=new URL(location.href);
+    url.searchParams.set('platformUpdate',VERSION);
+    url.searchParams.set('v',Date.now());
+    location.replace(url.href);
+  }
+  function bind(){
+    const b=$('sectionInstallBtn'), u=$('sectionUpdateBtn');
+    if(b && !b.dataset.pwaBound){b.dataset.pwaBound='1';b.addEventListener('click',install);}
+    if(u && !u.dataset.pwaBound){u.dataset.pwaBound='1';u.addEventListener('click',updateApp);}
+    sync();
+  }
+
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    window.__sportsInstallPrompt=e;
+    sync();
+  });
+  window.addEventListener('appinstalled',()=>{
+    deferredPrompt=null;
+    window.__sportsInstallPrompt=null;
+    sync();
+  });
+
+  window.addEventListener('load',async()=>{
+    if('serviceWorker' in navigator){
+      try{
+        swRegistration=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
+        await navigator.serviceWorker.ready;
+      }catch(e){}
+    }
+    bind();
+    setTimeout(sync,500);
+  });
+  document.addEventListener('DOMContentLoaded',bind);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync();});
+  window.addEventListener('pageshow',sync);
+})();
+</script>
+
+
+<style id="professional-suspended-players-style">
+/* ===== واجهة احترافية للاعبين الموقوفين ===== */
+#suspendedPlayersPanel{
+  background:linear-gradient(145deg,#f7fffc 0%,#eef8f5 48%,#f8fbff 100%)!important;
+  border:1px solid #cfe5dc!important;
+  border-radius:22px!important;
+  box-shadow:0 14px 35px rgba(5,70,48,.10)!important;
+  overflow:hidden!important;
+}
+#suspendedPlayersPanel>.section-title{
+  margin:-12px -12px 16px!important;
+  padding:16px 18px!important;
+  background:linear-gradient(110deg,#064b37,#0a8f62 65%,#16b985)!important;
+  border:0!important;color:#fff!important;
+}
+#suspendedPlayersPanel>.section-title h3{color:#fff!important;font-size:19px!important;margin:0!important}
+#suspendedPlayersPanel>.section-title .badge{
+  background:rgba(255,255,255,.16)!important;color:#fff!important;
+  border:1px solid rgba(255,255,255,.25)!important;
+}
+#suspendedPlayersBody{display:grid;gap:14px}
+.suspension-hero{
+  display:flex;align-items:center;gap:12px;padding:15px;
+  border-radius:18px;background:linear-gradient(135deg,#fff5f5,#fff,#fff8e9);
+  border:1px solid #ffd4d4;box-shadow:0 7px 20px rgba(130,30,30,.07);
+}
+.suspension-hero .hero-icon{
+  width:52px;height:52px;flex:0 0 52px;border-radius:16px;
+  display:grid;place-items:center;font-size:27px;
+  background:linear-gradient(135deg,#ff4d5a,#d6333f);color:#fff;
+  box-shadow:0 7px 16px rgba(214,51,63,.25);
+}
+.suspension-hero strong{display:block;font-size:17px;color:#8e1e29}
+.suspension-hero small{display:block;margin-top:3px;color:#68777c;font-weight:700;font-size:11px}
+.suspension-hero .count{
+  margin-right:auto;min-width:48px;height:42px;padding:0 12px;border-radius:999px;
+  display:grid;place-items:center;background:#fff;color:#c62828;
+  border:2px solid #ffc4c9;font-size:19px;font-weight:900;
+}
+.suspended-player-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.suspended-player-card{
+  position:relative;overflow:hidden;border-radius:18px;background:#fff;
+  border:1px solid #dbe8e3;box-shadow:0 8px 22px rgba(16,61,48,.08);
+  transition:.2s;
+}
+.suspended-player-card:hover{transform:translateY(-2px);box-shadow:0 13px 28px rgba(16,61,48,.13)}
+.suspended-player-card:before{
+  content:"";position:absolute;right:0;top:0;width:6px;height:100%;
+  background:linear-gradient(180deg,#e03131,#ff922b);
+}
+.spc-head{display:flex;align-items:center;gap:11px;padding:14px 15px 11px;background:linear-gradient(135deg,#fff,#f7fbfa)}
+.spc-avatar{
+  width:48px;height:48px;flex:0 0 48px;border-radius:15px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ffebee,#fff3e0);border:1px solid #ffcdd2;font-size:25px;
+}
+.spc-name{min-width:0;flex:1}.spc-name strong{display:block;font-size:16px;color:#183f34;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spc-name small{display:block;margin-top:4px;color:#71817c;font-size:11px}
+.spc-status{font-size:10px;font-weight:900;color:#b42318;background:#fff0f0;border:1px solid #ffc8cc;padding:5px 8px;border-radius:999px}
+.spc-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:4px 15px 15px}
+.spc-item{padding:9px 10px;border-radius:12px;background:#f7faf9;border:1px solid #e5eeea;min-width:0}
+.spc-item label{display:block;font-size:9px;color:#81908b;font-weight:900;margin:0 0 3px}
+.spc-item b{display:block;font-size:11px;color:#274b40;white-space:normal;overflow-wrap:anywhere}
+.spc-item.next{grid-column:1/-1;background:linear-gradient(135deg,#eef8ff,#f8fbff);border-color:#d4e5f3}
+.spc-item.next b{color:#1769aa}
+.suspended-empty{
+  padding:28px 15px;text-align:center;border-radius:18px;background:#fff;
+  border:1px dashed #cfded8;color:#71817c;
+}
+.suspended-empty .empty-icon{font-size:38px;display:block;margin-bottom:7px}
+.suspended-empty strong{display:block;color:#31584a;font-size:15px}
+.suspended-summary{
+  display:flex;gap:8px;flex-wrap:wrap;padding:2px 0;
+}
+.suspended-summary span{
+  flex:1;min-width:130px;padding:9px 11px;border-radius:12px;text-align:center;
+  background:#fff;border:1px solid #dbe8e3;color:#567069;font-size:11px;font-weight:800;
+}
+.suspended-summary b{color:#075f45;font-size:15px;margin-left:3px}
+@media(max-width:700px){
+  .suspended-player-list{grid-template-columns:1fr}
+  .suspension-hero{padding:12px}
+  .suspension-hero strong{font-size:15px}
+  .spc-head{padding:13px}
+  .spc-info{padding:4px 13px 13px}
+}
+</style>
+<script id="professional-suspended-players-render">
+(function(){
+  function esc(v){
+    return typeof window.esc==='function' ? window.esc(v) :
+      String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  }
+  function render(){
+    const box=document.getElementById('suspendedPlayersBody');
+    if(!box || typeof window.suspensionCurrentState!=='function') return;
+    let all=[];
+    try{ all=window.suspensionCurrentState()||[]; }catch(e){ return; }
+    const active=all.filter(x=>x&&x.active);
+    const db=(typeof window.DB==='function'?window.DB():window.db)||{};
+    const teams=Array.isArray(db.teams)?db.teams:[];
+    const tours=Array.isArray(db.tournaments)?db.tournaments:[];
+    const teamName=id=>teams.find(t=>String(t.id)===String(id))?.name||'غير محدد';
+    const tourName=id=>tours.find(t=>String(t.id)===String(id))?.name||'غير محددة';
+    const matchText=m=>{
+      if(!m)return 'بانتظار المباراة القادمة';
+      try{
+        /* لا نستخدم label() هنا لأنها قد تعيد المعرّفات التقنية TM_...؛
+           نستخدم دالة إصلاح أسماء الفرق أولاً، ثم fallback محلي آمن. */
+        if(typeof window.matchLabelForSusp==='function'){
+          const fixed=window.matchLabelForSusp(m);
+          if(fixed && !/\bTM_[A-Za-z0-9_-]+\b/.test(String(fixed))) return fixed;
+        }
+        const teams=Array.isArray(db.teams)?db.teams:[];
+        const resolve=v=>{
+          const raw=v&&typeof v==='object'?(v.id??v.teamId??v.name??v.title??''):v;
+          const r=String(raw??'').trim();
+          const t=teams.find(z=>String(z.id)===r) || teams.find(z=>String(z.name??z.title)===r);
+          return t ? String(t.name??t.title??'') : r;
+        };
+        const h=resolve(m.homeTeamId??m.homeTeam??m.home??m.homeId??m.teamAId??m.homeName)||'الفريق الأول';
+        const a=resolve(m.awayTeamId??m.awayTeam??m.away??m.awayId??m.teamBId??m.awayName)||'الفريق الثاني';
+        const date=String(m.date??m.matchDate??m.scheduledDate??'').trim();
+        const time=String(m.time??m.matchTime??'').trim();
+        let text=h+' × '+a;
+        if(date) text+=' — 📅 '+date;
+        if(time) text+=' — 🕒 '+time;
+        return text;
+      }catch(e){return 'بانتظار المباراة القادمة';}
+    };
+    if(!active.length){
+      box.innerHTML=`<div class="suspended-empty"><span class="empty-icon">🎉</span>
+        <strong>لا يوجد لاعبون موقوفون حاليًا</strong>
+        <div style="margin-top:5px;font-size:11px">ستظهر هنا العقوبات الفعّالة تلقائيًا بعد تسجيلها في كشوفات المباريات.</div>
+      </div>`;
+      return;
+    }
+    const automatic=active.filter(x=>x.automatic).length;
+    const manual=active.length-automatic;
+    const cards=active.map((x,i)=>{
+      const p=x.p||{};
+      const reason=x.reason||x.note||'عقوبة';
+      const next=(x.nextMatches&&x.nextMatches[0])?matchText(x.nextMatches[0]):'بانتظار المباراة القادمة';
+      const canManage=typeof window.hasPermission==='function' ? window.hasPermission('players') : (document.body.classList.contains('admin')||document.body.classList.contains('editor'));
+      const actions=(!x.automatic && canManage) ? `<div class="spc-admin-actions" data-perm="players"><span class="spc-admin-label">🔐 إدارة العقوبة</span><button type="button" class="spc-action spc-edit" onclick="editSuspension('${esc(String(x.id||''))}')">✏️ تعديل</button><button type="button" class="spc-action spc-delete" onclick="deleteSuspension('${esc(String(x.id||''))}')">🗑️ حذف</button></div>` : '';
+      return `<article class="suspended-player-card">
+        <div class="spc-head">
+          <div class="spc-avatar">⛔</div>
+          <div class="spc-name"><strong>${esc(p.name||'لاعب غير معروف')}</strong>
+            <small>لاعب موقوف حاليًا • #${i+1}</small></div>
+          <span class="spc-status">موقوف</span>
+        </div>
+        <div class="spc-info">
+          <div class="spc-item"><label>⚽ الفريق</label><b>${esc(teamName(p.teamId))}</b></div>
+          <div class="spc-item"><label>🏆 البطولة</label><b>${esc(tourName(x.tournamentId))}</b></div>
+          <div class="spc-item"><label>📌 سبب الإيقاف</label><b>${esc(reason)}</b></div>
+          <div class="spc-item"><label>🔢 عدد المباريات</label><b>${esc(String(Math.max(1,Number(x.matches)||1)))} مباراة</b></div>
+          <div class="spc-item next"><label>📅 المباراة الموقوف عنها</label><b>${esc(next)}</b></div>
+        </div>
+        ${actions}
+      </article>`;
+    }).join('');
+    box.innerHTML=`<div class="suspension-hero">
+      <div class="hero-icon">⛔</div><div><strong>قائمة اللاعبين الموقوفين الآن</strong>
+      <small>تُحدّث تلقائيًا من كشوفات المباريات والعقوبات المسجلة</small></div>
+      <div class="count">${active.length}</div>
+    </div>
+    <div class="suspended-summary">
+      <span>🚫 إجمالي الموقوفين <b>${active.length}</b></span>
+      <span>🟨🟥 عقوبات تلقائية <b>${automatic}</b></span>
+      <span>📝 عقوبات إدارية <b>${manual}</b></span>
+    </div>
+    <div class="suspended-player-list">${cards}</div>`;
+  }
+  window.renderSuspendedPlayers=render;
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(render,250);setTimeout(render,1000);});
+  window.addEventListener('storage',()=>setTimeout(render,80));
+})();
+</script>
+
+<style id="suspended-match-name-fix">
+/* إصلاح أسماء الفرق داخل مباراة الإيقاف: عرض أسماء الفرق بدل المعرّفات التقنية */
+.spc-item.next b{display:block;line-height:1.55;word-break:break-word}
+</style>
+<style id="suspended-admin-actions-final">
+.spc-admin-actions{display:flex;align-items:center;justify-content:flex-start;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border:1px solid #d9e9e2;border-radius:14px;background:linear-gradient(135deg,#f8fffc,#f4f9ff)}
+.spc-admin-label{font-size:11px;font-weight:900;color:#49635b;margin-left:auto}
+.spc-action{border:0;border-radius:10px;padding:8px 13px;font-family:inherit;font-weight:900;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.08);transition:.18s transform,.18s opacity}
+.spc-action:active{transform:scale(.97)}
+.spc-edit{background:#2563eb;color:#fff}
+.spc-delete{background:#dc2626;color:#fff}
+body.viewer .spc-admin-actions{display:none!important}
+@media(max-width:600px){.spc-admin-actions{justify-content:center}.spc-admin-label{width:100%;text-align:center;margin:0}.spc-action{flex:1;min-width:120px}}
+</style>
+<script id="suspended-match-name-fix-script">
+(function(){
+  'use strict';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v??'').trim();
+  function db(){
+    try{if(typeof DB==='function'){const d=DB(); if(d&&typeof d==='object') return d;}}catch(e){}
+    try{if(typeof window.db==='object'&&window.db)return window.db;}catch(e){}
+    try{const d=JSON.parse(localStorage.getItem('manar_sports_v2')||'null');if(d&&typeof d==='object')return d;}catch(e){}
+    return {};
+  }
+  function findTeam(raw){
+    if(raw&&typeof raw==='object') raw=raw.id??raw.teamId??raw.name??raw.title??'';
+    const r=S(raw); if(!r)return null;
+    const teams=A(db().teams);
+    return teams.find(t=>S(t.id)===r)
+      ||teams.find(t=>S(t.name??t.title)===r)
+      ||teams.find(t=>S(t.id).toLowerCase()===r.toLowerCase())
+      ||teams.find(t=>S(t.name??t.title).toLowerCase()===r.toLowerCase())
+      ||null;
+  }
+  function side(m,which){
+    const keys=which==='home'
+      ?['homeTeamId','home','homeTeam','homeId','teamAId']
+      :['awayTeamId','away','awayTeam','awayId','teamBId'];
+    for(const k of keys){
+      const v=m?.[k];
+      if(v!==undefined&&v!==null&&S(typeof v==='object'?(v.id??v.teamId??v.name??v.title):v)){
+        const t=findTeam(v);
+        if(t)return S(t.name??t.title??t.id);
+      }
+    }
+    const nameKey=which==='home'?'homeName':'awayName';
+    const t=findTeam(m?.[nameKey]);
+    return t?S(t.name??t.title):S(m?.[nameKey])||'الفريق';
+  }
+  function matchLabelArabic(m){
+    if(!m)return '—';
+    const h=side(m,'home'), a=side(m,'away');
+    const date=S(m.date??m.matchDate??m.scheduledDate);
+    const time=S(m.time??m.matchTime);
+    let text=h+' × '+a;
+    if(date) text+=' — 📅 '+date;
+    if(time) text+=' — 🕒 '+time;
+    return text;
+  }
+  window.matchLabelForSusp=matchLabelArabic;
+  window.__suspendedMatchNameFix=true;
+  function refresh(){
+    try{if(typeof window.renderSuspendedPlayers==='function')window.renderSuspendedPlayers();}catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,80));
+  else setTimeout(refresh,80);
+  window.addEventListener('storage',e=>{if(!e.key||/manar_db|match_sheets/.test(e.key))setTimeout(refresh,80);});
+})();
+</script>
+
+<style id="final-pro-suspended-players-style">
+/* قائمة اللاعبين الموقوفين — تصميم احترافي نهائي */
+#suspendedPlayersPanel{border-radius:22px!important;overflow:hidden!important;background:linear-gradient(145deg,#f8fffc,#f5fbff)!important;border:1px solid #cfe5dc!important;box-shadow:0 12px 32px rgba(8,74,55,.10)!important}
+#suspendedPlayersPanel>.section-title{background:linear-gradient(120deg,#064b37,#07885f 62%,#10b981)!important;color:#fff!important;margin:-12px -12px 16px!important;padding:16px 18px!important;border:0!important}
+#suspendedPlayersPanel>.section-title h3{color:#fff!important;font-weight:950!important}
+#suspendedPlayersBody{display:block!important}
+.suspension-hero{position:relative!important;overflow:hidden!important;min-height:72px!important;padding:16px 18px!important;border:1px solid #ffd0d5!important;border-radius:20px!important;background:linear-gradient(135deg,#fff4f5 0%,#fff 48%,#fff8e8 100%)!important;box-shadow:0 8px 24px rgba(126,31,43,.08)!important}
+.suspension-hero:after{content:"";position:absolute;left:-30px;bottom:-42px;width:120px;height:120px;border-radius:50%;background:rgba(255,146,43,.08);pointer-events:none}
+.suspension-hero .hero-icon{width:56px!important;height:56px!important;border-radius:18px!important;background:linear-gradient(135deg,#ff3b45,#d92335)!important;font-size:28px!important;box-shadow:0 9px 20px rgba(214,51,63,.25)!important}
+.suspension-hero strong{font-size:18px!important;font-weight:950!important}
+.suspension-hero small{font-size:11px!important}
+.suspension-hero .count{min-width:52px!important;height:46px!important;font-size:21px!important;border-color:#ffb9c0!important;box-shadow:0 5px 12px rgba(190,40,50,.08)!important}
+.suspended-summary{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px!important;margin:11px 0!important}
+.suspended-summary span{min-width:0!important;padding:11px 8px!important;border-radius:15px!important;background:#fff!important;box-shadow:0 4px 12px rgba(20,70,55,.05)!important;font-size:11px!important}
+.suspended-summary span:nth-child(1) b{color:#c62828!important}.suspended-summary span:nth-child(2) b{color:#d97706!important}.suspended-summary span:nth-child(3) b{color:#087f5b!important}
+.suspended-player-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:13px!important}
+.suspended-player-card{border:1px solid #d8e8e2!important;border-radius:20px!important;box-shadow:0 8px 24px rgba(16,61,48,.08)!important;background:#fff!important}
+.suspended-player-card:before{width:7px!important;background:linear-gradient(180deg,#e03131,#ff922b,#f59f00)!important}
+.spc-head{padding:15px 16px 12px!important;background:linear-gradient(135deg,#fff,#f4fbf8)!important}
+.spc-avatar{width:54px!important;height:54px!important;flex-basis:54px!important;border-radius:17px!important;background:linear-gradient(135deg,#ffe7e9,#fff2dc)!important;border:1px solid #ffc6cb!important;font-size:27px!important;box-shadow:0 5px 12px rgba(214,51,63,.08)!important}
+.spc-name strong{font-size:17px!important;font-weight:950!important;color:#153f34!important}
+.spc-name small{font-size:10px!important;font-weight:800!important}
+.spc-status{font-size:10px!important;padding:6px 9px!important;background:#fff0f1!important;color:#b42318!important;border-color:#ffc6ca!important}
+.spc-info{gap:8px!important;padding:5px 15px 15px!important}
+.spc-item{padding:10px 11px!important;border-radius:13px!important;background:linear-gradient(145deg,#f8fbfa,#f2f8f6)!important;border-color:#e1ece8!important}
+.spc-item label{font-size:9px!important;color:#71847d!important;margin-bottom:4px!important}
+.spc-item b{font-size:12px!important;font-weight:900!important;color:#244b40!important;line-height:1.45!important}
+.spc-item.next{background:linear-gradient(135deg,#eef8ff,#f7fbff)!important;border-color:#cfe2f2!important;padding:11px 12px!important}
+.spc-item.next b{color:#1769aa!important;font-size:12px!important}
+/* تحويل اسم المباراة إلى بطاقة واضحة: لا تعرض أي معرف TM_... */
+.spc-match{display:flex;flex-direction:column;gap:7px}
+.spc-match-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:7px;text-align:center}
+.spc-match-team{padding:7px 5px;border-radius:10px;background:#fff;font-weight:950;color:#174b68;line-height:1.35;overflow-wrap:anywhere}
+.spc-match-vs{font-size:13px;font-weight:950;color:#d33b45}
+.spc-match-meta{font-size:10px!important;color:#5c7480!important;text-align:center;font-weight:800}
+@media(max-width:700px){.suspended-summary{grid-template-columns:1fr 1fr}.suspended-summary span:first-child{grid-column:1/-1}.suspended-player-list{grid-template-columns:1fr!important}.spc-head{padding:13px 14px!important}.spc-info{padding:5px 13px 13px!important}}
+@media(min-width:701px) and (max-width:900px){.suspended-player-list{grid-template-columns:1fr!important}}
+</style>
+<script id="final-pro-suspended-players">
+(function(){
+'use strict';
+function S(v){return String(v??'').trim()}
+function esc(v){return typeof window.esc==='function'?window.esc(v):S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function DBX(){try{if(typeof DB==='function'){let d=DB();if(d&&typeof d==='object')return d}}catch(e){}try{let d=JSON.parse(localStorage.getItem('manar_sports_v2')||'null');if(d&&typeof d==='object')return d}catch(e){}return {}}
+function arr(v){return Array.isArray(v)?v:[]}
+function findByIdOrName(list,raw){
+  let r=raw&&typeof raw==='object'?(raw.id??raw.teamId??raw.name??raw.title??''):raw;
+  r=S(r);if(!r)return null;
+  return arr(list).find(x=>S(x.id)===r)||arr(list).find(x=>S(x.name??x.title)===r)||null;
+}
+function teamName(db,raw){let t=findByIdOrName(db.teams,raw);return t?S(t.name??t.title):S(raw)||'الفريق'}
+function tourName(db,raw){let t=findByIdOrName(db.tournaments,raw);return t?S(t.name??t.title):S(raw)||'البطولة'}
+function side(db,m,home){
+  const keys=home?['homeTeamId','homeTeam','home','homeId','teamAId','homeName']:['awayTeamId','awayTeam','away','awayId','teamBId','awayName'];
+  for(const k of keys){if(m&&m[k]!==undefined&&m[k]!==null){let t=findByIdOrName(db.teams,m[k]);if(t)return S(t.name??t.title)}}
+  const fallback=home?(m?.homeName):(m?.awayName);return teamName(db,fallback||'الفريق')
+}
+function matchMarkup(db,m){
+  if(!m)return '<span>بانتظار المباراة القادمة</span>';
+  const h=side(db,m,true),a=side(db,m,false),date=S(m.date??m.matchDate??m.scheduledDate),time=S(m.time??m.matchTime);
+  let meta=[date?'📅 '+date:'',time?'🕒 '+time:''].filter(Boolean).join('  •  ');
+  return '<div class="spc-match"><div class="spc-match-teams"><span class="spc-match-team">'+esc(h)+'</span><span class="spc-match-vs">×</span><span class="spc-match-team">'+esc(a)+'</span></div>'+(meta?'<div class="spc-match-meta">'+esc(meta)+'</div>':'')+'</div>';
+}
+function render(){
+  const box=document.getElementById('suspendedPlayersBody');if(!box||typeof window.suspensionCurrentState!=='function')return;
+  let all=[];try{all=arr(window.suspensionCurrentState())}catch(e){return}
+  const active=all.filter(x=>x&&x.active);const db=DBX();
+  if(!active.length){box.innerHTML='<div class="suspended-empty"><span class="empty-icon">🎉</span><strong>لا يوجد لاعبون موقوفون حاليًا</strong><div style="margin-top:5px;font-size:11px">ستظهر هنا العقوبات الفعّالة تلقائيًا بعد تسجيلها في كشوفات المباريات.</div></div>';return}
+  const automatic=active.filter(x=>x.automatic).length,manual=active.length-automatic;
+  const cards=active.map((x,i)=>{const p=x.p||{},reason=x.reason||x.note||'عقوبة';const next=x.nextMatches?.[0];return '<article class="suspended-player-card"><div class="spc-head"><div class="spc-avatar">⛔</div><div class="spc-name"><strong>'+esc(p.name||'لاعب غير معروف')+'</strong><small>لاعب موقوف حاليًا • رقم القائمة '+(i+1)+'</small></div><span class="spc-status">موقوف</span></div><div class="spc-info"><div class="spc-item"><label>⚽ الفريق</label><b>'+esc(teamName(db,p.teamId))+'</b></div><div class="spc-item"><label>🏆 البطولة</label><b>'+esc(tourName(db,x.tournamentId))+'</b></div><div class="spc-item"><label>📌 سبب الإيقاف</label><b>'+esc(reason)+'</b></div><div class="spc-item"><label>🔢 مدة الإيقاف</label><b>'+esc(String(Math.max(1,Number(x.matches)||1)))+' مباراة</b></div><div class="spc-item next"><label>📅 المباراة الموقوف عنها</label><b>'+matchMarkup(db,next)+'</b></div></div></article>'}).join('');
+  box.innerHTML='<div class="suspension-hero"><div class="hero-icon">⛔</div><div><strong>قائمة اللاعبين الموقوفين الآن</strong><small>تُحدّث تلقائيًا من كشوفات المباريات والعقوبات المسجلة</small></div><div class="count">'+active.length+'</div></div><div class="suspended-summary"><span>🚫 إجمالي الموقوفين <b>'+active.length+'</b></span><span>🟨🟥 عقوبات تلقائية <b>'+automatic+'</b></span><span>📝 عقوبات إدارية <b>'+manual+'</b></span></div><div class="suspended-player-list">'+cards+'</div>';
+}
+window.renderSuspendedPlayers=render;
+function later(){setTimeout(render,50);setTimeout(render,300);setTimeout(render,1000)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',later);else later();
+window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|match_sheets/.test(e.key))setTimeout(render,80)});
+})();
+</script>
+<!-- FINAL-PRO-SUSPENDED-PLAYERS -->
+
+<style id="home-icons-final-layout">
+/* تنسيق أيقونات الواجهة الرئيسية - مطابق للتصميم المطلوب على الجوال */
+#home #allSectionsHome{
+  margin-top:18px!important; padding:12px!important; border-radius:24px!important;
+  background:#fff!important; border:1px solid #e4edf0!important;
+  box-shadow:0 8px 24px rgba(20,55,48,.08)!important;
+}
+#home #allSectionsHome .section-title{display:none!important}
+#home #allSectionsHome .all-sections-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:0!important;
+  width:100%!important;
+}
+#home #allSectionsHome .home-section-card{
+  min-width:0!important; min-height:112px!important; height:112px!important;
+  padding:12px 7px!important; margin:0!important;
+  border:1px solid #d4e1e5!important; border-radius:0!important;
+  box-shadow:none!important; transform:none!important;
+  display:flex!important; flex-direction:column!important;
+  align-items:center!important; justify-content:center!important;
+  gap:8px!important; text-align:center!important;
+  color:#111!important; background:#fff!important;
+}
+#home #allSectionsHome .home-section-card:first-child{border-radius:0 18px 0 0!important}
+#home #allSectionsHome .home-section-card:nth-child(3){border-radius:18px 0 0 0!important}
+#home #allSectionsHome .home-section-card:nth-last-child(3){border-radius:0 0 0 18px!important}
+#home #allSectionsHome .home-section-card:last-child{border-radius:0 0 18px 0!important}
+#home #allSectionsHome .home-section-icon{
+  width:56px!important; height:56px!important; min-width:56px!important;
+  border-radius:16px!important; display:flex!important; align-items:center!important; justify-content:center!important;
+  font-size:30px!important; line-height:1!important;
+  border:1px solid rgba(0,0,0,.06)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.9),0 2px 5px rgba(0,0,0,.08)!important;
+}
+#home #allSectionsHome .home-section-icon svg{width:36px!important;height:36px!important}
+#home #allSectionsHome .home-section-title{font-size:14px!important;font-weight:900!important;color:#111!important;line-height:1.25!important}
+/* ألوان البطاقات والأيقونات */
+#home #allSectionsHome .home-section-card:nth-child(1){background:#fff!important}
+#home #allSectionsHome .home-section-card:nth-child(2){background:#fff!important}
+#home #allSectionsHome .home-section-card:nth-child(3){background:#e5f8ef!important}
+#home #allSectionsHome .home-section-card:nth-child(4){background:#fff8cf!important}
+#home #allSectionsHome .home-section-card:nth-child(5){background:#fff!important}
+#home #allSectionsHome .home-section-card:nth-child(6){background:#fff!important}
+#home #allSectionsHome .home-section-card:nth-child(7){background:#fff!important}
+#home #allSectionsHome .home-section-card:nth-child(8){background:#e4f7ef!important}
+#home #allSectionsHome .home-section-card:nth-child(9){background:#e4f1ff!important}
+#home #allSectionsHome .home-section-card:nth-child(10){background:#e1f8f5!important}
+#home #allSectionsHome .home-section-card:nth-child(11){background:#eee7ff!important}
+#home #allSectionsHome .home-section-card:nth-child(12){background:#ffe9d9!important}
+#home #allSectionsHome .home-section-card:nth-child(13){background:#e3f1ed!important}
+#home #allSectionsHome .home-section-card:nth-child(14){background:#ffe8ef!important}
+#home #allSectionsHome .home-section-card:nth-child(15){background:#e2f0ff!important}
+#home #allSectionsHome .home-section-card:nth-child(16){background:#fff!important}
+#home #allSectionsHome .home-section-card:nth-child(17){background:#eaf4f8!important}
+#home #allSectionsHome .home-section-card:nth-child(1) .home-section-icon{background:#eaf4f8!important}
+#home #allSectionsHome .home-section-card:nth-child(2) .home-section-icon{background:#fff0ef!important}
+#home #allSectionsHome .home-section-card:nth-child(3) .home-section-icon{background:#d9f7eb!important}
+#home #allSectionsHome .home-section-card:nth-child(4) .home-section-icon{background:#fff2c7!important}
+#home #allSectionsHome .home-section-card:nth-child(5) .home-section-icon{background:#eaf6ff!important}
+#home #allSectionsHome .home-section-card:nth-child(6) .home-section-icon{background:#eaf6ff!important}
+#home #allSectionsHome .home-section-card:nth-child(7) .home-section-icon{background:#eaf8f6!important}
+#home #allSectionsHome .home-section-card:nth-child(8) .home-section-icon{background:#d9f7eb!important}
+#home #allSectionsHome .home-section-card:nth-child(9) .home-section-icon{background:#dceeff!important}
+#home #allSectionsHome .home-section-card:nth-child(10) .home-section-icon{background:#d8f6f2!important}
+#home #allSectionsHome .home-section-card:nth-child(11) .home-section-icon{background:#e8ddff!important}
+#home #allSectionsHome .home-section-card:nth-child(12) .home-section-icon{background:#ffe0c9!important}
+#home #allSectionsHome .home-section-card:nth-child(13) .home-section-icon{background:#dceee8!important}
+#home #allSectionsHome .home-section-card:nth-child(14) .home-section-icon{background:#ffdce8!important}
+#home #allSectionsHome .home-section-card:nth-child(15) .home-section-icon{background:#dcecff!important}
+#home #allSectionsHome .home-section-card:nth-child(16) .home-section-icon{background:#eef8f5!important}
+#home #allSectionsHome .home-section-card:nth-child(17) .home-section-icon{background:#e4f2f8!important}
+/* زر المزامنة */
+#home #allSectionsHome + *{}
+@media(max-width:600px){
+ #home #allSectionsHome .all-sections-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ #home #allSectionsHome .home-section-card{height:112px!important;min-height:112px!important}
+}
+@media(min-width:601px){
+ #home #allSectionsHome .all-sections-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
+ #home #allSectionsHome .home-section-card{border-radius:16px!important;height:auto!important;min-height:125px!important}
+}
+</style>
+
+<style id="stats-headers-bottom-to-top-real-final">
+/* اتجاه عناوين أعمدة ترتيب الفرق: من الأسفل إلى الأعلى */
+#statsBody .standings-mobile-table thead th:nth-child(n+3),
+#statsBody .standings-table thead th:nth-child(n+3){
+  height:88px !important;
+  min-height:88px !important;
+  padding:0 2px !important;
+  position:relative !important;
+  vertical-align:middle !important;
+  text-align:center !important;
+  overflow:visible !important;
+  white-space:normal !important;
+  writing-mode:horizontal-tb !important;
+  transform:none !important;
+}
+#statsBody .standings-mobile-table thead th:nth-child(n+3) > span,
+#statsBody .standings-table thead th:nth-child(n+3) > span{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  display:block !important;
+  width:max-content !important;
+  height:auto !important;
+  max-width:none !important;
+  max-height:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  white-space:nowrap !important;
+  writing-mode:vertical-rl !important;
+  text-orientation:mixed !important;
+  direction:rtl !important;
+  transform:translate(-50%,-50%) rotate(180deg) !important;
+  transform-origin:center center !important;
+  line-height:1 !important;
+  font-size:11px !important;
+  font-weight:900 !important;
+  overflow:visible !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  color:#fff !important;
+}
+@media(max-width:600px){
+  #statsBody .standings-mobile-table thead th:nth-child(n+3),
+  #statsBody .standings-table thead th:nth-child(n+3){height:84px !important;min-height:84px !important;}
+  #statsBody .standings-mobile-table thead th:nth-child(n+3) > span,
+  #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:10px !important;}
+}
+@media(max-width:380px){
+  #statsBody .standings-mobile-table thead th:nth-child(n+3),
+  #statsBody .standings-table thead th:nth-child(n+3){height:80px !important;min-height:80px !important;}
+  #statsBody .standings-mobile-table thead th:nth-child(n+3) > span,
+  #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:9px !important;}
+}
+</style>
+
+<!-- PWA ICON ROBUST FIX — 2026-09-17 -->
+<style id="pwa-icon-robust-fix">
+#installAppSection .install-big-icon{
+  background:linear-gradient(145deg,#063f2d,#0ca678)!important;
+  border:2px solid rgba(255,255,255,.9)!important;
+  padding:0!important;
+}
+#installAppSection .install-big-icon img{
+  width:100%!important;height:100%!important;
+  object-fit:cover!important;display:block!important;
+  border-radius:inherit!important;
+}
+</style>
+<script id="pwa-icon-error-fallback">
+(function(){
+  function fixIcon(){
+    document.querySelectorAll('#installAppSection .install-big-icon img').forEach(function(img){
+      if(!img.getAttribute('src')) return;
+      img.addEventListener('error',function(){
+        if(this.dataset.fallbackApplied) return;
+        this.dataset.fallbackApplied='1';
+        this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22%3E%3Crect width=%22192%22 height=%22192%22 rx=%2240%22 fill=%22%23063f2d%22/%3E%3Ccircle cx=%2296%22 cy=%2296%22 r=%2270%22 fill=%22%23fff%22/%3E%3Cpath d=%22M96 48l20 15-8 25h-24l-8-25zM55 78l-25 18 10 29 29-3 10-24zm82 0l25 18-10 29-29-3-10-24zM61 126l14 29h42l14-29-20-4H81zm35-64l-18 13 7 22h22l7-22z%22 fill=%22%23063f2d%22/%3E%3C/svg%3E';
+      },{once:true});
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fixIcon,{once:true});
+  else fixIcon();
+})();
+</script>
+
+
+<script id="team-logo-preview-fix">
+(function(){
+  function attachPreview(inputId){
+    const input=document.getElementById(inputId);
+    if(!input || input.dataset.logoPreviewAttached)return;
+    input.dataset.logoPreviewAttached='1';
+
+    const wrap=document.createElement('div');
+    wrap.className='team-logo-upload-preview';
+    wrap.style.display='none';
+    wrap.innerHTML='<img alt="معاينة شعار الفريق"><small>سيتم تصغير الشعار تلقائيًا عند الحفظ.</small>';
+    input.parentNode.appendChild(wrap);
+
+    input.addEventListener('change',function(){
+      const file=input.files&&input.files[0];
+      if(!file){wrap.style.display='none';return;}
+      const reader=new FileReader();
+      reader.onload=function(){
+        const img=wrap.querySelector('img');
+        if(img){img.src=String(reader.result||'');wrap.style.display='flex';}
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function init(){
+    attachPreview('teamLogo');
+    attachPreview('editTeamLogo');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
+
+<script id="ADMIN_WITHDRAWAL_DECISION_FIX">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id), S=v=>String(v??'').trim();
+function setWithdrawnOptions(){
+  const sel=$('ksWithdrawnTeam'), m=window.__manarCurrentMatchForWithdrawal;
+  if(!sel||!m)return;
+  const h=S(m.homeTeamId??m.home??m.homeTeam), a=S(m.awayTeamId??m.away??m.awayTeam);
+  const tn=id=>{
+    try{
+      const d=window.db||{};
+      const t=(d.teams||[]).find(x=>S(x.id)===S(id)||S(x.name)===S(id));
+      return t?.name||S(id)||'الفريق';
+    }catch(e){return S(id)||'الفريق'}
+  };
+  sel.innerHTML='<option value="">اختر الفريق المنسحب</option>'+
+    '<option value="'+h+'">'+tn(h)+'</option>'+
+    '<option value="'+a+'">'+tn(a)+'</option>';
+}
+function applyWithdrawalUI(){
+  const on=!!$('ksAdminDecision')?.checked, wrap=$('ksWithdrawnWrap');
+  if(wrap)wrap.style.display=on?'block':'none';
+  ['ksHomeGoals','ksAwayGoals'].forEach(id=>{
+    const b=$(id);
+    if(b){
+      b.style.opacity=on?'0':'1';
+      b.style.pointerEvents=on?'none':'auto';
+      b.style.display=on?'none':'';
+    }
+  });
+  if(on){
+    const m=window.__manarCurrentMatchForWithdrawal, w=S($('ksWithdrawnTeam')?.value);
+    if(m&&w){
+      const h=S(m.homeTeamId??m.home??m.homeTeam), a=S(m.awayTeamId??m.away??m.awayTeam);
+      if($('ksHomeScore'))$('ksHomeScore').value=w===h?'0':'3';
+      if($('ksAwayScore'))$('ksAwayScore').value=w===a?'0':'3';
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded',function(){
+  const ad=$('ksAdminDecision'), wt=$('ksWithdrawnTeam');
+  ad?.addEventListener('change',applyWithdrawalUI);
+  wt?.addEventListener('change',applyWithdrawalUI);
+  const oldOpen=window.editMatchSheet;
+  if(typeof oldOpen==='function'){
+    window.editMatchSheet=function(id){
+      const r=oldOpen(id);
+      setTimeout(function(){
+        try{
+          const m=(window.db?.matches||[]).find(x=>S(x.id)===S(id));
+          window.__manarCurrentMatchForWithdrawal=m||null;
+          const sh=(JSON.parse(localStorage.getItem('manar_match_sheets_v3')||'[]')||[]).find(x=>S(x.matchId)===S(id));
+          if(ad)ad.checked=!!sh?.administrativeDecision;
+          setWithdrawnOptions();
+          if(wt)wt.value=S(sh?.withdrawnTeamId);
+          applyWithdrawalUI();
+        }catch(e){}
+      },0);
+      return r;
+    };
+  }
+  // Capture the existing open function used by the page by observing the editor match info.
+  const obs=new MutationObserver(function(){
+    const editor=$('ksEditor');
+    if(!editor||editor.style.display==='none')return;
+    const sel=$('ksMatch'), id=S(sel?.value);
+    const m=(window.db?.matches||[]).find(x=>S(x.id)===id);
+    if(m){window.__manarCurrentMatchForWithdrawal=m;setWithdrawnOptions();}
+  });
+  const ed=$('ksEditor'); if(ed)obs.observe(ed,{attributes:true,subtree:true,childList:true});
+});
+})();
+</script>
+</body>
+</html>
+<!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
+<style id="final-match-management-professional">
+#manarMatchEditModal{position:fixed;inset:0;z-index:99999;display:none;align-items:flex-end;justify-content:center;background:rgba(8,32,24,.58);backdrop-filter:blur(5px);padding:12px}
+#manarMatchEditModal.show{display:flex}
+#manarMatchEditModal .mme-box{width:min(560px,100%);max-height:92vh;overflow:auto;background:#fff;border:1px solid #d8e8e1;border-radius:24px 24px 16px 16px;box-shadow:0 24px 70px rgba(0,0,0,.28);direction:rtl}
+#manarMatchEditModal .mme-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;background:linear-gradient(135deg,#075f45,#087f5b);color:#fff}
+#manarMatchEditModal .mme-head h3{margin:0;font-size:17px;font-weight:950}
+#manarMatchEditModal .mme-close{width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:24px;cursor:pointer}
+#manarMatchEditModal .mme-body{padding:16px}
+#manarMatchEditModal .mme-fixture{padding:14px;border:1px solid #dceae4;border-radius:18px;background:linear-gradient(145deg,#f7fcfa,#f5f9ff);text-align:center;margin-bottom:14px}
+#manarMatchEditModal .mme-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;font-weight:950;color:#173d31;font-size:15px}
+#manarMatchEditModal .mme-vs{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#075f45;color:#fff}
+#manarMatchEditModal .mme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#manarMatchEditModal .mme-field{padding:11px;border:1px solid #e0e9e5;border-radius:14px;background:#fbfdfc}
+#manarMatchEditModal label{display:block;font-size:11px;font-weight:900;color:#486158;margin-bottom:6px}
+#manarMatchEditModal input,#manarMatchEditModal select{width:100%;box-sizing:border-box;border:1px solid #cfded7;border-radius:11px;padding:10px;background:#fff;font:inherit;font-size:13px;outline:none}
+#manarMatchEditModal input:focus,#manarMatchEditModal select:focus{border-color:#0b8b65;box-shadow:0 0 0 3px rgba(11,139,101,.10)}
+#manarMatchEditModal .mme-status-note{margin:10px 0;padding:10px 12px;border-radius:12px;background:#eefaf4;border:1px solid #c8e6d6;color:#176044;font-size:11px;font-weight:900}
+#manarMatchEditModal .mme-actions{display:flex;gap:8px;margin-top:14px}
+#manarMatchEditModal .mme-actions button{flex:1;min-height:44px;border:0;border-radius:13px;font-weight:950;cursor:pointer}
+#manarMatchEditModal .mme-save{background:#075f45;color:#fff}.mme-cancel{background:#eef3f1;color:#315148}
+#manarMatchEditModal .mme-score{font-size:17px;font-weight:950;text-align:center}
+@media(max-width:430px){#manarMatchEditModal{padding:0}#manarMatchEditModal .mme-box{max-height:96vh;border-radius:22px 22px 0 0}.mme-grid{grid-template-columns:1fr!important}}
+</style>
+<div id="manarMatchEditModal" aria-hidden="true">
+  <div class="mme-box" role="dialog" aria-modal="true" aria-labelledby="mmeTitle">
+    <div class="mme-head"><h3 id="mmeTitle">✏️ تعديل بيانات المباراة</h3><button type="button" class="mme-close" id="mmeClose">×</button></div>
+    <div class="mme-body">
+      <div class="mme-fixture"><div class="mme-teams"><b id="mmeHome">الفريق الأول</b><span class="mme-vs">VS</span><b id="mmeAway">الفريق الثاني</b></div><div id="mmeSheetNote" class="mme-status-note" style="display:none"></div></div>
+      <div class="mme-grid">
+        <div class="mme-field"><label>📅 تاريخ المباراة</label><input id="mmeDate" type="date"></div>
+        <div class="mme-field"><label>⏰ وقت المباراة</label><input id="mmeTime" type="time"></div>
+        <div class="mme-field"><label>🏟️ الملعب</label><select id="mmeStadium"><option value="ملعب المنار الرئيسي">ملعب المنار الرئيسي</option><option value="ملعب آخر">ملعب آخر</option></select></div>
+        <div class="mme-field" id="mmeOtherWrap" style="display:none"><label>🏟️ اسم الملعب الآخر</label><input id="mmeOther" type="text" placeholder="اكتب اسم الملعب"></div>
+        <div class="mme-field"><label>📌 حالة المباراة</label><select id="mmeStatus"><option value="scheduled">📅 مجدولة</option><option value="finished">✅ منتهية</option></select></div>
+        <div class="mme-field"><label>⚽ نتيجة المباراة</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="mmeHG" class="mme-score" type="number" min="0" inputmode="numeric" placeholder="0"><input id="mmeAG" class="mme-score" type="number" min="0" inputmode="numeric" placeholder="0"></div></div>
+      </div>
+      <div class="mme-actions"><button type="button" class="mme-cancel" id="mmeCancel">إلغاء</button><button type="button" class="mme-save" id="mmeSave">💾 حفظ التعديلات</button></div>
+    </div>
+  </div>
+</div>
+<script id="final-match-management-professional-js">
+(function(){
+'use strict';
+const S=v=>String(v??'').trim();
+const A=v=>Array.isArray(v)?v:[];
+const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function DB(){return (window.db&&typeof window.db==='object')?window.db:{tournaments:[],teams:[],matches:[]};}
+function sheetFor(id){try{const a=typeof window.uniqueMatchSheets==='function'?A(window.uniqueMatchSheets()):[];return a.find(x=>S(x.matchId)===S(id))||null}catch(e){return null}}
+function teamName2(id){const t=A(DB().teams).find(x=>S(x.id)===S(id)||S(x.name)===S(id));return t?.name||S(id)||'فريق';}
+function ids(m){return {h:S(m?.home??m?.homeTeamId??m?.homeTeam),a:S(m?.away??m?.awayTeamId??m?.awayTeam)}}
+function effectiveFinished(m){return !!m&&!!sheetFor(m.id)||['finished','ended','completed','complete','final','منتهية','انتهت','مكتملة'].includes(S(m?.status).toLowerCase());}
+function getMatch(id){return A(DB().matches).find(x=>S(x.id)===S(id))||null}
+const modal=document.getElementById('manarMatchEditModal');
+const close=()=>{if(!modal)return;modal.classList.remove('show');modal.setAttribute('aria-hidden','true');};
+function refreshAll(){
+ try{if(typeof window.renderMatches==='function')window.renderMatches()}catch(e){}
+ try{if(typeof window.renderUpcomingMatches==='function')window.renderUpcomingMatches()}catch(e){}
+ try{if(typeof window.refreshMatchViewTournaments==='function')window.refreshMatchViewTournaments();else if(typeof window.renderMatchView==='function')window.renderMatchView()}catch(e){}
+ try{if(typeof window.renderHome==='function')window.renderHome()}catch(e){}
+}
+window.editMatch=function(id){
+ if(typeof window.hasPermission==='function'&&!window.hasPermission('matches')){alert('تعديل المباريات متاح للمدير أو منحه المدير صلاحية المباريات.');return;}
+ const m=getMatch(id);if(!m){alert('لم يتم العثور على المباراة.');return;}
+ const sh=sheetFor(id), z=ids(m), finished=effectiveFinished(m);
+ document.getElementById('mmeHome').textContent=teamName2(z.h);document.getElementById('mmeAway').textContent=teamName2(z.a);
+ document.getElementById('mmeDate').value=S(m.date);
+ document.getElementById('mmeTime').value=S(m.time);
+ const st=S(m.stadium||'ملعب المنار الرئيسي');
+ const std=document.getElementById('mmeStadium'),oth=document.getElementById('mmeOther'),ow=document.getElementById('mmeOtherWrap');
+ if(st!=='ملعب المنار الرئيسي'&&st!=='ملعب آخر'){std.value='ملعب آخر';oth.value=st;ow.style.display='block'}else{std.value=st||'ملعب المنار الرئيسي';oth.value='';ow.style.display=std.value==='ملعب آخر'?'block':'none'}
+ const status=document.getElementById('mmeStatus');status.value=finished?'finished':(S(m.status)==='scheduled'?'scheduled':'finished');status.disabled=!!sh;
+ const note=document.getElementById('mmeSheetNote');note.style.display=sh?'block':'none';note.textContent=sh?'📋 توجد نسخة كشف محفوظة لهذه المباراة؛ لذلك تعتبر المباراة منتهية تلقائيًا، حتى لو كانت مسجلة سابقًا كمجدولة.':'يمكن تغيير حالة المباراة يدويًا. عند إدخال كشف المباراة ستصبح منتهية تلقائيًا.';
+ const hg=sh?.homeScore??m.hg??m.homeGoals??m.homeScore??0,ag=sh?.awayScore??m.ag??m.awayGoals??m.awayScore??0;
+ document.getElementById('mmeHG').value=Number(hg)||0;document.getElementById('mmeAG').value=Number(ag)||0;
+ const scoreDisabled=!!sh;document.getElementById('mmeHG').disabled=scoreDisabled;document.getElementById('mmeAG').disabled=scoreDisabled;
+ modal.dataset.id=S(id);modal.classList.add('show');modal.setAttribute('aria-hidden','false');
+};
+document.getElementById('mmeStadium')?.addEventListener('change',function(){document.getElementById('mmeOtherWrap').style.display=this.value==='ملعب آخر'?'block':'none'});
+document.getElementById('mmeClose')?.addEventListener('click',close);document.getElementById('mmeCancel')?.addEventListener('click',close);
+modal?.addEventListener('click',e=>{if(e.target===modal)close()});
+document.getElementById('mmeSave')?.addEventListener('click',function(){
+ const id=S(modal.dataset.id),m=getMatch(id);if(!m)return close();
+ const sh=sheetFor(id),date=S(document.getElementById('mmeDate').value),time=S(document.getElementById('mmeTime').value),std=document.getElementById('mmeStadium').value,other=S(document.getElementById('mmeOther').value);
+ if(!date||!time)return alert('يرجى إدخال تاريخ ووقت المباراة.');
+ const stadium=std==='ملعب آخر'?(other||'ملعب آخر'):std;
+ let status=sh?'finished':S(document.getElementById('mmeStatus').value)==='finished'?'finished':'scheduled';
+ let hg=sh?Number(sh.homeScore):Math.max(0,parseInt(document.getElementById('mmeHG').value,10)||0),ag=sh?Number(sh.awayScore):Math.max(0,parseInt(document.getElementById('mmeAG').value,10)||0);
+ m.date=date;m.time=time;m.stadium=stadium;m.status=status;
+ if(!sh){m.hg=hg;m.ag=ag;}
+ if(typeof window.save==='function')window.save();
+ close();refreshAll();
+ alert(sh?'تم تعديل المباراة بنجاح — وتم اعتمادها كمنتهية لوجود كشف.':'تم تعديل المباراة بنجاح');
+});
+})();
+</script>
+<script id="final-sheet-means-finished">
+(function(){
+'use strict';
+const S=v=>String(v??'').trim(),A=v=>Array.isArray(v)?v:[];
+function sheets(){try{return typeof window.uniqueMatchSheets==='function'?A(window.uniqueMatchSheets()):[]}catch(e){return[]}}
+function has(id){return sheets().some(x=>S(x?.matchId)===S(id))}
+function D(){return window.db||{matches:[]}}
+function finished(m){return has(m?.id)||['finished','ended','completed','complete','final','منتهية','انتهت','مكتملة'].includes(S(m?.status).toLowerCase())}
+window.isMatchFinishedEffective=finished;
+function renderViewFinal(){
+ const filter=document.getElementById('matchViewFilter')?.value||'',tid=document.getElementById('matchViewTournament')?.value||'',box=document.getElementById('matchViewList');if(!box||!tid||!filter)return;
+ let rows=A(D().matches).filter(m=>S(m.tournamentId??m.tournament??m.tournamentID)==S(tid));
+ rows=rows.filter(m=>filter==='finished'?finished(m):!finished(m)).sort((a,b)=>{const da=new Date(`${a.date||'2999-12-31'}T${a.time||'23:59'}`).getTime(),db=new Date(`${b.date||'2999-12-31'}T${b.time||'23:59'}`).getTime();return filter==='scheduled'?da-db:db-da});
+ const title=filter==='finished'?'✅ المباريات المنتهية':'📅 المباريات المجدولة';
+ if(!rows.length){box.innerHTML=`<div class="upcoming-empty">لا توجد ${filter==='finished'?'مباريات منتهية':'مباريات مجدولة'} في البطولة المختارة حاليًا.</div>`;return}
+ const tn=id=>{const t=A(D().teams).find(x=>S(x.id)===S(id)||S(x.name)===S(id));return t?.name||S(id)||'فريق'};
+ const list=rows.map(m=>{const sh=sheets().find(x=>S(x.matchId)===S(m.id));const h=Number(sh?.homeScore??m.hg??0)||0,a=Number(sh?.awayScore??m.ag??0)||0;return `<div class="upcoming-match" style="${filter==='finished'?'background:linear-gradient(145deg,#fff,#f7f3ff)':''}"><div class="upcoming-head"><span>🏆 ${esc(tourName(m.tournamentId))}</span><span>${filter==='finished'?'✅ منتهية':'📅 مجدولة'}</span></div><div class="upcoming-teams"><span>${esc(tn(m.home))}</span><span class="vs">${filter==='finished'?`${h} - ${a}`:'VS'}</span><span>${esc(tn(m.away))}</span></div><div class="upcoming-meta"><span>📅 ${esc(m.date||'بدون تاريخ')}</span><span>⏰ ${esc(m.time||'—')}</span><span>🏟️ ${esc(m.stadium||'—')}</span></div><div class="actions" style="margin-top:10px;display:flex;gap:6px;justify-content:center"><button type="button" class="btn primary manager-only" onclick="editMatch('${esc(m.id)}')">✏️ تعديل</button><button type="button" class="btn danger manager-only" onclick="del('matches','${esc(m.id)}')">🗑️ حذف</button></div></div>`}).join('');
+ box.innerHTML=`<div class="section-title"><h2 style="margin:0">${title}</h2><span class="badge">${rows.length} مباراة</span></div><div class="upcoming-grid">${list}</div>`;
+ if(typeof applyPermissions==='function')applyPermissions();
+}
+window.renderMatchView=renderViewFinal;
+window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderViewFinal()};
+})();
+</script>
+
+
+<script id="manar-auto-update-final">
+(function(){
+  'use strict';
+  if(!('serviceWorker' in navigator)) return;
+  var reloading=false;
+  function reloadOnce(){
+    if(reloading) return;
+    reloading=true;
+    var u=new URL(location.href);
+    u.searchParams.set('platformAutoUpdate','1');
+    u.searchParams.set('_v',Date.now());
+    location.replace(u.href);
+  }
+  navigator.serviceWorker.addEventListener('message',function(e){
+    if(e.data && (e.data.type==='MANAR_PLATFORM_UPDATED' || e.data.type==='SKIP_WAITING')) reloadOnce();
+  });
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(!reloading) reloadOnce();
+  });
+  async function checkForUpdate(){
+    try{
+      var reg=await navigator.serviceWorker.getRegistration('./');
+      if(!reg) reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
+      await reg.update();
+      if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+    }catch(e){}
+  }
+  window.addEventListener('load',function(){
+    checkForUpdate();
+    setInterval(checkForUpdate,30000);
+  },{once:true});
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden) checkForUpdate();
+  });
+})();
+</script>
