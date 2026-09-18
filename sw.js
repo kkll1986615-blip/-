@@ -1,40 +1,46 @@
-const CACHE_NAME = 'sports-platform-shell-v2026-09-17';
-const SHELL = ['./', './index.html', './manifest.webmanifest',
-  './icons/icon-192.png', './icons/icon-512.png',
-  './icons/apple-touch-icon.png', './icons/favicon-48.png'];
+const CACHE_NAME = "manar-sports-pwa-2026-09-18-icon2";
+const CORE = [
+  "./",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./icons/favicon-48.png",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/apple-touch-icon.png"
+];
 
-self.addEventListener('install', event => {
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(CORE))
+      .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-    )).then(() => self.clients.claim())
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', event => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+});
 
-  // Never cache Firebase/API requests; keep live data behavior unchanged.
-  const url = new URL(req.url);
-  if (url.hostname.includes('firebaseio.com') ||
-      url.hostname.includes('googleapis.com') ||
-      url.hostname.includes('gstatic.com')) return;
-
-  // Network first; cached shell only as an offline fallback.
+self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
   event.respondWith(
-    fetch(req).then(res => {
-      if (res && res.ok && url.origin === location.origin) {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then(c => c.put(req, copy));
-      }
-      return res;
-    }).catch(() => caches.match(req).then(cached => cached || caches.match('./index.html')))
+    caches.match(event.request).then(cached => {
+      const network = fetch(event.request).then(response => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        }
+        return response;
+      }).catch(() => cached);
+      return cached || network;
+    })
   );
 });

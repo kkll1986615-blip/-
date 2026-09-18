@@ -1,15 +1,14 @@
 {
   "name": "المنصة الرياضية",
   "short_name": "المنصة الرياضية",
-  "description": "المنصة الرياضية لإدارة ومتابعة البطولات والفرق واللاعبين والمباريات والإحصائيات.",
+  "description": "المنصة الرياضية",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
-  "id": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f4f8f6",
+  "background_color": "#ffffff",
   "theme_color": "#075f45",
   "icons": [
     {
