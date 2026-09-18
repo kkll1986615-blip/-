@@ -8678,28 +8678,7 @@ body.admin #predictionsSection{display:block}
 .team-logo-upload-preview img{width:58px;height:58px;border-radius:50%;object-fit:contain;background:#fff;border:2px solid #d7e5df}
 .team-logo-upload-preview small{color:#5f716a}
 </style>
-
-<!-- FINAL SPORTS PWA ICON FIX — supplied program logo -->
-<link rel="manifest" href="./manifest.webmanifest?v=2026.09.18-icon2">
-<link rel="icon" href="./icons/favicon-48.png?v=2026.09.18-icon2" sizes="48x48" type="image/png">
-<link rel="icon" href="./icons/icon-192.png?v=2026.09.18-icon2" sizes="192x192" type="image/png">
-<link rel="icon" href="./icons/icon-512.png?v=2026.09.18-icon2" sizes="512x512" type="image/png">
-<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=2026.09.18-icon2" sizes="180x180">
-<meta name="application-name" content="المنصة الرياضية">
-<meta name="apple-mobile-web-app-title" content="المنصة الرياضية">
-<meta name="theme-color" content="#075f45">
-<script>
-(function(){
-  if (!("serviceWorker" in navigator)) return;
-  window.addEventListener("load", function(){
-    navigator.serviceWorker.register("./sw.js?v=2026.09.18-icon2", {scope:"./"}).then(function(reg){
-      reg.update().catch(function(){});
-      if (reg.waiting) reg.waiting.postMessage({type:"SKIP_WAITING"});
-    }).catch(function(){});
-  }, {once:true});
-})();
-</script>
-
+<meta name="referee-sync-fix" content="2026-09-18-v2">
 </head><body>
 <!-- المنصة الرياضية | تنظيم وصيانة 2026-09-14: إزالة رقع معطلة فقط، مع الحفاظ على البيانات والوظائف الحالية. -->
 <header><div class="brand"><img loading="lazy" decoding="async" alt="شعار المنصة الرياضية" class="brand-logo" src="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'&gt;&lt;circle cx='64' cy='64' r='58' fill='%23ffffff' stroke='%23087f5b' stroke-width='6'/&gt;&lt;path d='M64 34l17 12-7 20H54l-7-20z' fill='%23087f5b'/&gt;&lt;path d='M47 46L28 49l-7 21 17 13 19-17M81 46l19 3 7 21-17 13-19-17M54 66l-7 21 17 12 17-12-7-21' fill='none' stroke='%23087f5b' stroke-width='6' stroke-linejoin='round'/&gt;&lt;/svg&gt;"><div class="brand-text"><h1>🏆 المنصة الرياضية</h1><small>نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.</small></div><div aria-label="الوقت والتاريخ" class="header-clock"><div class="clock-time"><span>◷</span><b id="headerTime">03:55:42 م</b></div><div class="clock-date"><span>▣</span><b id="headerDate">2026-08-14</b></div><div class="clock-day" id="headerDay">الجمعة</div></div><div id="authBar"><span class="role-pill" id="rolePill">👁️ مشاهد</span><button class="login-btn" id="loginBtn" onclick="openLogin()">↪ دخول</button><button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none">خروج</button></div></img></div></header><div id="loginOverlay" onclick="if(event.target===this)closeLogin()"><div class="login-box"><h2>🔐 تسجيل الدخول</h2><p>اختر الحساب وأدخل كلمة المرور للوصول إلى صلاحيات الإدارة.</p><div class="auth-note">المشاهدة متاحة للجميع بدون تسجيل دخول. تسجيل الدخول مطلوب فقط لإدارة البيانات والإعدادات.</div><div class="grid"><div><label>نوع الحساب</label><select id="loginRole"><option value="admin">👑 مدير النظام (Admin)</option><option value="editor">🛠️ صلاحية متوسطة</option></select></div><div><label>اسم المستخدم</label><input autocomplete="username" id="loginUser" placeholder="اسم المستخدم"/></div><div><label>كلمة المرور</label><input autocomplete="current-password" id="loginPass" placeholder="كلمة المرور" type="password"/></div></div><div id="loginError" style="color:#b42318;font-size:13px;margin-top:8px;display:none"></div><div class="actions"><button class="btn" onclick="login()">دخول</button><button class="btn secondary" onclick="closeLogin()">إلغاء</button></div></div></div><div aria-label="الساعة والتاريخ" class="clock-date-box" id="clockDateBox"><div class="clock-date-part"><span class="clock-label">التاريخ</span><div class="digital-date" id="digitalDate">15 / 08 / 2026</div></div><div class="clock-divider"></div><div class="clock-time-part"><span class="clock-label">الوقت</span><div class="digital-clock" id="digitalClock">00:00:00 م</div></div></div><div aria-label="الشريط الإخباري" class="news-ticker" id="homeNewsTicker"><div class="news-ticker-label">📰 الأخبار الرياضية</div><div class="news-ticker-viewport"><div class="news-ticker-track" id="homeNewsTrack"><span class="news-empty">لا توجد أخبار رياضية حالياً</span></div></div></div><nav class="app-sidebar" id="nav"><button aria-label="الواجهة الرئيسية" class="active" data-page="home"><span class="nav-ico">🏠</span><span class="nav-label">الواجهة الرئيسية</span></button><button data-page="tournaments">🏆 <span>البطولات</span></button><button class="nav-item" data-page="teams">⚽ <span>تسجيل الفرق</span></button><button data-page="players">👥 <span>اللاعبون</span></button><button data-page="matches">⚽ <span>المباريات</span></button><button data-page="matchSheetsSection">📋 <span>كشوفات المباريات</span></button><button data-page="predictionsSection">🎯 <span>توقع نتيجة المباراة</span></button><button data-page="stats">📈 <span>الإحصائيات</span></button><button data-page="tournamentArchiveSection">🗄️ <span>أرشيف البطولات</span></button><button data-page="overallRanking" type="button">🏆 <span>التصنيف العام</span></button><button data-page="mediaSection">📰 <span>الإعلام</span></button><button data-page="contactSection">📞 <span>تواصل معنا</span></button><button class="nav-item" data-page="referees">⚖️ <span>حكام رابطة المنار</span></button><button class="admin-only" data-page="settings">👤⚙️ <span>إدارة المستخدمين</span></button><button class="admin-only" data-page="auditLog" data-perm="audit">🧾 <span>سجل المراجعة</span></button><button data-page="headToHeadSection">⚔️ <span>تاريخ المواجهات</span></button><button class="admin-only" data-page="backup">💾 <span>النسخ الاحتياطي</span></button><button data-page="pollsSection">🗳️ <span>استطلاع رأي</span></button><button data-page="installAppSection" id="installProgramNavBtn">📲 <span>تثبيت البرنامج</span></button></nav><main><section class="page" id="installAppSection">
@@ -10614,20 +10593,222 @@ document.addEventListener('DOMContentLoaded',()=>{
   const updateUser=()=>{const name=document.getElementById('navUserName'), role=document.getElementById('navRoleName'); if(!name||!role)return; const r=document.body.classList.contains('admin')?'مدير النظام':document.body.classList.contains('editor')?'مستخدم متوسط':'مشاهد'; name.textContent=r==='مشاهد'?'زائر':(window.currentUser||'مستخدم'); role.textContent=r;};
   updateUser(); window.addEventListener("storage",updateUser);
 });
-</script><script>
-(function(){
-const KEY='manar_referees_v1';
-function data(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
-function save(a){localStorage.setItem(KEY,JSON.stringify(a));if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(KEY)}
+</script><script>const KEY='manar_referees_v1';
+function data(){
+  try{
+    const x=JSON.parse(localStorage.getItem(KEY)||'[]');
+    return Array.isArray(x)?x:[];
+  }catch(e){return[]}
+}
+function save(a){
+  const clean=(Array.isArray(a)?a:[]).map((x,i)=>({
+    id:x?.id!=null?x.id:(Date.now()+i),
+    name:String(x?.name||'').trim(),
+    age:Number(x?.age)||0,
+    photo:x?.photo||''
+  })).filter(x=>x.name);
+  localStorage.setItem(KEY,JSON.stringify(clean));
+  if(typeof window.__manarFirebaseSaveKey==='function'){
+    try{window.__manarFirebaseSaveKey(KEY)}catch(e){console.warn('Firebase referee save skipped',e)}
+  }
+}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let editingRefereeId=null;
-window.addManarReferee=function(){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const n=document.getElementById('refereeName').value.trim(),a=Number(document.getElementById('refereeAge').value),file=document.getElementById('refereePhoto').files[0];if(!n){alert('يرجى إدخال اسم الحكم');return}if(!a||a<1||a>120){alert('يرجى إدخال عمر صحيح');return}const d=data();if(d.some(x=>x.name.trim()===n&&x.id!==editingRefereeId)){alert('هذا الحكم موجود مسبقًا');return}const finish=(photo)=>{if(editingRefereeId){const x=d.find(x=>x.id===editingRefereeId);if(x){x.name=n;x.age=a;if(photo!==null)x.photo=photo}editingRefereeId=null;auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);}else{d.push({id:Date.now(),name:n,age:a,photo:photo||''});auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);}save(d);document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم';renderManarReferees()};if(file){const r=new FileReader();r.onload=()=>finish(r.result);r.readAsDataURL(file)}else finish(null)};
-window.editManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const x=data().find(x=>x.id===id);if(!x)return;editingRefereeId=id;document.getElementById('refereeName').value=x.name;document.getElementById('refereeAge').value=x.age;document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='💾 حفظ التعديل';document.getElementById('refereeName').focus()};
-window.deleteManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}if(confirm('هل تريد حذف الحكم؟')){const removed=data().find(x=>x.id===id);save(data().filter(x=>x.id!==id));auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);if(editingRefereeId===id){editingRefereeId=null;document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم'}renderManarReferees()}};
-window.renderManarReferees=function(){const b=document.getElementById('refereesTableBody');if(!b)return;const d=data().slice().sort((a,b)=>Number(b.age||0)-Number(a.age||0));const c=document.getElementById('refereeCount');if(c)c.textContent=d.length+' حكم';b.innerHTML=d.length?d.map((x,i)=>`<div class="referee-card"><div class="referee-card-top"><div class="referee-number">${i+1}</div><div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div><div class="referee-main"><div class="referee-name">${esc(x.name)}</div><div class="referee-role">حكم في رابطة المنار</div></div></div><div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age}</strong> سنة</span><span class="referee-status">● حكم معتمد</span></div><div class="referee-actions" data-perm="referees"><button type="button" class="referee-edit" onclick="editManarReferee(${x.id})">✏️ تعديل</button><button type="button" class="referee-delete" onclick="deleteManarReferee(${x.id})">🗑️ حذف</button></div></div>`).join(''):'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';if(typeof applyPermissions==='function')applyPermissions()};
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement&&(document.activeElement.id==='refereeName'||document.activeElement.id==='refereeAge'))addManarReferee()});
-document.addEventListener('DOMContentLoaded',renderManarReferees);
-})();
+
+/* استخراج أسماء الحكام من جميع الكشوفات القديمة والجديدة */
+function sheetSources(){
+  const out=[];
+  ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
+    try{
+      const a=JSON.parse(localStorage.getItem(k)||'[]');
+      if(Array.isArray(a))out.push(...a);
+    }catch(e){}
+  });
+  return out;
+}
+function refereeNameFromValue(v, existing){
+  const raw=String(v??'').trim();
+  if(!raw)return '';
+  const x=existing.find(r=>String(r.id)===raw || String(r.name).trim()===raw);
+  return x?.name||raw;
+}
+window.repairRefereeRegistry=async function(allowCloudPush=true){
+  let current=data();
+  const byName=new Map(current.map(r=>[String(r.name||'').trim(),r]));
+  let changed=false;
+
+  /* الكشوفات تحفظ refs كـ IDs أو أسماء؛ نستخدم الاثنين. */
+  for(const sh of sheetSources()){
+    const vals=[];
+    if(Array.isArray(sh?.referees))vals.push(...sh.referees);
+    ['referee1','referee2','referee3','referee4'].forEach(k=>{if(sh?.[k]!=null)vals.push(sh[k])});
+
+    for(const v of vals){
+      const name=refereeNameFromValue(v,current);
+      if(!name)continue;
+      if(!byName.has(name)){
+        const rec={id:'R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),name,age:0,photo:''};
+        current.push(rec);
+        byName.set(name,rec);
+        changed=true;
+      }
+    }
+  }
+
+  if(changed){
+    save(current);
+  }else if(allowCloudPush && current.length && typeof window.__manarFirebaseSaveKey==='function'){
+    try{window.__manarFirebaseSaveKey(KEY)}catch(e){}
+  }
+
+  renderManarReferees();
+  updateRefereeOptionsSafe();
+  return current;
+};
+
+function updateRefereeOptionsSafe(){
+  try{
+    if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions();
+  }catch(e){}
+}
+
+window.addManarReferee=function(){
+  if(typeof hasPermission==='function'&&!hasPermission('referees')){
+    alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+    return;
+  }
+  const nameEl=document.getElementById('refereeName');
+  const ageEl=document.getElementById('refereeAge');
+  const fileEl=document.getElementById('refereePhoto');
+  const n=(nameEl?.value||'').trim();
+  const a=Number(ageEl?.value);
+  const file=fileEl?.files?.[0]||null;
+
+  if(!n)return alert('يرجى إدخال اسم الحكم');
+  if(!a||a<1||a>120)return alert('يرجى إدخال عمر صحيح');
+
+  const d=data();
+  if(d.some(x=>String(x.name||'').trim()===n&&String(x.id)!==String(editingRefereeId))){
+    return alert('هذا الحكم موجود مسبقًا');
+  }
+
+  const finish=(photo)=>{
+    if(editingRefereeId!=null){
+      const x=d.find(x=>String(x.id)===String(editingRefereeId));
+      if(x){
+        x.name=n;x.age=a;
+        if(photo!==null)x.photo=photo;
+      }
+      auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);
+    }else{
+      d.push({id:'R_'+Date.now(),name:n,age:a,photo:photo||''});
+      auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);
+    }
+    editingRefereeId=null;
+    save(d);
+    if(nameEl)nameEl.value='';
+    if(ageEl)ageEl.value='';
+    if(fileEl)fileEl.value='';
+    const btn=document.querySelector('#referees .btn-primary');
+    if(btn)btn.textContent='➕ إضافة الحكم';
+    renderManarReferees();
+    updateRefereeOptionsSafe();
+  };
+
+  if(file){
+    const r=new FileReader();
+    r.onload=()=>finish(r.result);
+    r.onerror=()=>finish(null);
+    r.readAsDataURL(file);
+  }else{
+    finish(null);
+  }
+};
+
+window.editManarReferee=function(id){
+  if(typeof hasPermission==='function'&&!hasPermission('referees')){
+    alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+    return;
+  }
+  const x=data().find(x=>String(x.id)===String(id));
+  if(!x)return;
+  editingRefereeId=id;
+  const n=document.getElementById('refereeName'),a=document.getElementById('refereeAge');
+  if(n)n.value=x.name||'';
+  if(a)a.value=x.age||'';
+  const p=document.getElementById('refereePhoto');if(p)p.value='';
+  const b=document.querySelector('#referees .btn-primary');if(b)b.textContent='💾 حفظ التعديل';
+  n?.focus();
+};
+
+window.deleteManarReferee=function(id){
+  if(typeof hasPermission==='function'&&!hasPermission('referees')){
+    alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+    return;
+  }
+  if(!confirm('هل تريد حذف الحكم؟'))return;
+  const d=data(),removed=d.find(x=>String(x.id)===String(id));
+  save(d.filter(x=>String(x.id)!==String(id)));
+  auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);
+  if(String(editingRefereeId)===String(id)){
+    editingRefereeId=null;
+    const n=document.getElementById('refereeName'),a=document.getElementById('refereeAge'),b=document.querySelector('#referees .btn-primary');
+    if(n)n.value='';if(a)a.value='';if(b)b.textContent='➕ إضافة الحكم';
+  }
+  renderManarReferees();
+  updateRefereeOptionsSafe();
+};
+
+window.renderManarReferees=function(){
+  const b=document.getElementById('refereesTableBody');
+  if(!b)return;
+  const d=data().slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ar'));
+  const c=document.getElementById('refereeCount');
+  if(c)c.textContent=d.length+' حكم';
+
+  b.innerHTML=d.length?d.map((x,i)=>`
+    <div class="referee-card">
+      <div class="referee-card-top">
+        <div class="referee-number">${i+1}</div>
+        <div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div>
+        <div class="referee-main">
+          <div class="referee-name">${esc(x.name)}</div>
+          <div class="referee-role">حكم في رابطة المنار</div>
+        </div>
+      </div>
+      <div class="referee-info">
+        <span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age||'—'}</strong> ${x.age?'سنة':''}</span>
+        <span class="referee-status">● حكم معتمد</span>
+      </div>
+      <div class="referee-actions" data-perm="referees">
+        <button type="button" class="referee-edit" onclick="editManarReferee('${esc(x.id)}')">✏️ تعديل</button>
+        <button type="button" class="referee-delete" onclick="deleteManarReferee('${esc(x.id)}')">🗑️ حذف</button>
+      </div>
+    </div>`).join(''):
+    '<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';
+
+  if(typeof applyPermissions==='function')applyPermissions();
+};
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.activeElement&&
+    (document.activeElement.id==='refereeName'||document.activeElement.id==='refereeAge')){
+    window.addManarReferee();
+  }
+});
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  await window.repairRefereeRegistry(false);
+  renderManarReferees();
+});
+
+/* إذا وصل تحديث الحكام من Firebase، أعد عرضهم وقوائم الكشوفات فورًا. */
+window.addEventListener('storage',e=>{
+  if(e.key===KEY){
+    renderManarReferees();
+    updateRefereeOptionsSafe();
+  }
+});
 </script><script id="ordered-home-sections-js">
 /* فتح الأيقونات مباشرة داخل القسم المطلوب، دون المرور بالواجهة الرئيسية */
 function openHomeSection(id){
@@ -13692,47 +13873,69 @@ function hasLocalData(){try{const m=localValue('manar_sports_v2');return !!(m&&t
 async function initialSync(){
   if(initialDone)return;
   initialDone=true;
-  const hasCloud=SYNC_KEYS.some(k=>initialValues[k]!==null);
-  const localHasData=hasLocalData();
-  const signedIn=canWrite();
 
   /*
-    إصلاح جذري للحفظ:
-    لا يجوز أن تقوم Firebase الفارغة بمسح البيانات المحلية التي أدخلها المدير.
-    إذا كانت هناك بيانات محلية، فهي المصدر الأول. تُرفع للسحابة عند تسجيل
-    الدخول، أما إذا لم يوجد تسجيل دخول فتبقى محفوظة محليًا ولا تُحذف.
+    مزامنة مشتركة وآمنة لكل قسم:
+    - إذا كان المفتاح موجودًا في Firebase فهو المصدر المشترك لكل الأجهزة والمواقع.
+    - إذا لم يكن موجودًا في Firebase وكان موجودًا محليًا، نرفعه عند تسجيل المدير.
+    - وجود بيانات manar_sports_v2 محليًا لا يمنع تنزيل الحكام أو الأخبار أو الكشوفات.
   */
-  if(localHasData){
-    for(const k of SYNC_KEYS){
-      if(localStorage.getItem(k)!==null)dirty.add(k);
-    }
-    if(signedIn && dirty.size){
-      const pending=[...dirty];
-      applyingRemote=true;
+  let pulled=0, pushed=0;
+  const pendingPush=[];
+
+  for(const k of SYNC_KEYS){
+    const cloudExists=initialValues[k]!==null;
+    const localExists=localStorage.getItem(k)!==null;
+
+    if(cloudExists){
       try{
-        await pushKeys(pending);
-      }finally{
-        applyingRemote=false;
+        localStorage.setItem(k,JSON.stringify(initialValues[k]));
+        pulled++;
+      }catch(e){
+        console.warn('تعذر تنزيل المفتاح '+k,e);
       }
-      await pullAll();
-      status('تم حفظ البيانات المحلية ومزامنتها مع السحابة',true);
-    }else{
-      render();
-      status(signedIn?'تم الإبقاء على البيانات المحلية قبل المزامنة':'تم الحفظ محليًا — سجّل دخول Firebase لمزامنتها مع الأجهزة الأخرى',true);
+    }else if(localExists && canWrite()){
+      pendingPush.push(k);
     }
-    return;
   }
 
-  /*
-    لا توجد بيانات محلية: هنا فقط نسمح للسحابة بأن تكون المصدر.
-    البيانات السحابية الموجودة تُسحب، وإن كانت فارغة نبدأ بقاعدة محلية فارغة.
-  */
-  if(hasCloud){
-    await pullAll();
-    status('تمت مزامنة بيانات السحابة',true);
+  if(pendingPush.length){
+    applyingRemote=true;
+    try{
+      await pushKeys(pendingPush);
+      pushed=pendingPush.length;
+    }catch(e){
+      status('تم تنزيل البيانات المشتركة، وتعذر رفع بعض البيانات المحلية: '+(e?.message||e),false);
+    }finally{
+      applyingRemote=false;
+    }
+  }
+
+  dirty.clear();
+
+  try{
+    if(localStorage.getItem('manar_sports_v2')!==null && typeof window.db!=='undefined'){
+      window.db=loadMainDatabase();
+      db=window.db;
+    }
+  }catch(e){
+    console.warn('Database reload after Firebase sync failed:',e);
+  }
+
+  /* إصلاح خاص بالحكام: استرجاع قائمة الحكام من الكشوفات إن كانت قائمة الحكام فارغة. */
+  try{
+    if(typeof window.repairRefereeRegistry==='function'){
+      await window.repairRefereeRegistry(false);
+    }
+  }catch(e){
+    console.warn('Referee registry repair skipped:',e);
+  }
+
+  render();
+  if(pushed){
+    status('تمت مزامنة البيانات: تنزيل '+pulled+' قسمًا ورفع '+pushed+' قسمًا',true);
   }else{
-    render();
-    status('لا توجد بيانات سحابية بعد — قاعدة البيانات جاهزة للحفظ',true);
+    status('تمت مزامنة البيانات المشتركة من Firebase',true);
   }
 }
 async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getDatabase(app);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction};patchStorage();const saved=sessionStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
@@ -13762,6 +13965,28 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
 }
  }catch(e){status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
 start();
+
+<script id="referee-cloud-guard-v1">
+(function(){
+  const KEY='manar_referees_v1';
+  function redraw(){
+    try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}
+    try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
+  }
+
+  /* ضمان أن قائمة الحكام لا تختفي بسبب إعادة الرسم أو وصول بيانات Firebase. */
+  document.addEventListener('DOMContentLoaded',()=>{
+    setTimeout(redraw,150);
+    setTimeout(redraw,800);
+    setTimeout(redraw,1800);
+  });
+
+  /* لا نستبدل قائمة محلية غير فارغة ببيانات فارغة من Firebase. */
+  window.addEventListener('storage',e=>{
+    if(e.key===KEY)redraw();
+  });
+})();
+</script>
 </script>
 <!-- removed dead disabled patch: final-kashofat-stats-repair -->
 
@@ -17862,5 +18087,129 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden) checkForUpdate();
   });
+})();
+</script>
+
+
+<script id="FINAL_REFEREE_NUMERIC_NAME_REPAIR">
+(function(){
+  'use strict';
+  const S=v=>String(v==null?'':v).trim();
+  const A=v=>Array.isArray(v)?v:[];
+  const REF_KEY='manar_referees_v1';
+
+  function readJSON(key){
+    try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}
+  }
+  function isNumericId(v){return /^\d{8,}$/.test(S(v))}
+  function addCandidate(map,id,name){
+    id=S(id); name=S(name);
+    if(!id||!name||isNumericId(name))return;
+    if(!map.has(id))map.set(id,name);
+  }
+
+  function buildNameMap(){
+    const map=new Map();
+
+    const addRefArray=arr=>A(arr).forEach(r=>{
+      if(!r||typeof r!=='object')return;
+      addCandidate(map,r.id??r.refereeId??r.value,r.name??r.refereeName??r.fullName??r.displayName);
+    });
+
+    ['manar_referees_v2','manar_referees','referees'].forEach(k=>addRefArray(readJSON(k)));
+    try{addRefArray(window.db?.referees)}catch(e){}
+
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
+      A(readJSON(k)).forEach(sh=>{
+        if(!sh||typeof sh!=='object')return;
+
+        for(let i=1;i<=4;i++){
+          const id=sh['referee'+i]??sh['ref'+i]??A(sh.refereeIds)[i-1];
+          const guest=sh['referee'+i+'GuestName']??sh['ref'+i+'GuestName'];
+          if(isNumericId(id)&&S(guest))addCandidate(map,id,guest);
+        }
+
+        A(sh.referees).forEach((r,i)=>{
+          if(r&&typeof r==='object'){
+            addCandidate(map,r.id??r.refereeId??r.value,r.name??r.refereeName??r.fullName??r.displayName);
+          }else{
+            const id=S(r);
+            const guest=sh['referee'+(i+1)+'GuestName']??sh['ref'+(i+1)+'GuestName'];
+            if(isNumericId(id)&&S(guest))addCandidate(map,id,guest);
+          }
+        });
+
+        [sh.refereeGuestNames,sh.refereeNames,sh.guestReferees,sh.refereeGuestNameList].forEach(names=>{
+          A(names).forEach((name,i)=>{
+            const id=sh['referee'+(i+1)]??sh['ref'+(i+1)]??A(sh.refereeIds)[i];
+            if(isNumericId(id)&&S(name))addCandidate(map,id,name);
+          });
+        });
+      });
+    });
+    return map;
+  }
+
+  function repairRegistry(){
+    let current=readJSON(REF_KEY);
+    if(!A(current).length){
+      try{current=A(window.db?.referees)}catch(e){current=[]}
+    }
+    if(!A(current).length)return false;
+
+    const nameMap=buildNameMap();
+    let changed=false;
+
+    const fixed=A(current).map(r=>{
+      if(!r||typeof r!=='object')return r;
+      const id=S(r.id??r.refereeId??'');
+      const old=S(r.name??r.refereeName??'');
+      if(isNumericId(old)){
+        const name=nameMap.get(id)||nameMap.get(old);
+        if(name){changed=true;return {...r,name};}
+      }
+      return r;
+    });
+
+    if(!changed)return false;
+
+    try{
+      localStorage.setItem(REF_KEY,JSON.stringify(fixed));
+      if(typeof window.__manarFirebaseSaveKey==='function')
+        Promise.resolve(window.__manarFirebaseSaveKey(REF_KEY)).catch(()=>{});
+    }catch(e){return false}
+
+    try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}
+    try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
+    return true;
+  }
+
+  function installDisplayResolver(){
+    const old=window.manarRefereeDisplayName;
+    window.manarRefereeDisplayName=function(raw){
+      const v=S(raw);
+      if(!v)return '';
+      const map=buildNameMap();
+      if(isNumericId(v)&&map.has(v))return map.get(v);
+      try{
+        if(typeof old==='function'){
+          const x=S(old(raw));
+          if(x)return x;
+        }
+      }catch(e){}
+      return v;
+    };
+  }
+
+  function run(){
+    installDisplayResolver();
+    repairRegistry();
+    try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+
+  [500,1500,3000,6000].forEach(ms=>setTimeout(run,ms));
 })();
 </script>
