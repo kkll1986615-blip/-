@@ -1,0 +1,29 @@
+{
+  "platform": "المنصة الرياضية",
+  "target": "GitHub Pages",
+  "ready": true,
+  "root_files": [
+    ".nojekyll",
+    "404.html",
+    "README-GITHUB-PAGES.txt",
+    "index.html",
+    "manifest.webmanifest",
+    "sw.js"
+  ],
+  "icons": [
+    "apple-touch-icon.png",
+    "favicon-48.png",
+    "icon-128.png",
+    "icon-144.png",
+    "icon-152.png",
+    "icon-192.png",
+    "icon-384.png",
+    "icon-48.png",
+    "icon-512.png",
+    "icon-72.png",
+    "icon-96.png"
+  ],
+  "pwa_manifest": "manifest.webmanifest",
+  "service_worker": "sw.js",
+  "nojekyll": true
+}
