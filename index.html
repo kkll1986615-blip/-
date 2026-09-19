@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48.png" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon.png" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v4-clean-final" name="manar-sync-version"/>
+<meta content="firebase-sync-v5-two-sites-authoritative" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -13894,28 +13894,13 @@ async function initialSync(){
     const localExists=localStorage.getItem(k)!==null;
 
     if(cloudExists){
-      /* إذا كانت قائمة الحكام المحلية موجودة وFirebase يحتوي قائمة فارغة،
-         لا نستبدلها بالفراغ قبل إعطائها فرصة للرفع إلى السحابة. */
-      const isRefereeKey=k==='manar_referees_v1';
-      let preserveLocalReferees=false;
-      if(isRefereeKey && localExists){
-        try{
-          const localRefs=JSON.parse(localStorage.getItem(k)||'[]');
-          const cloudRefs=initialValues[k];
-          preserveLocalReferees=Array.isArray(localRefs)&&localRefs.length>0&&Array.isArray(cloudRefs)&&cloudRefs.length===0;
-          if(preserveLocalReferees){
-            if(canWrite())pendingPush.push(k);
-            else {try{sessionStorage.setItem('manar_referees_pending_cloud_v1','1')}catch(e){}}
-          }
-        }catch(e){}
-      }
-      if(!preserveLocalReferees){
-        try{
-          localStorage.setItem(k,JSON.stringify(initialValues[k]));
-          pulled++;
-        }catch(e){
-          console.warn('تعذر تنزيل المفتاح '+k,e);
-        }
+      /* Firebase هو المصدر الموحد للموقعين: GitHub Pages وNetlify.
+         إذا كانت القيمة موجودة في Firebase، حتى لو كانت []، فهي النسخة المعتمدة. */
+      try{
+        localStorage.setItem(k,JSON.stringify(initialValues[k]));
+        pulled++;
+      }catch(e){
+        console.warn('تعذر تنزيل المفتاح '+k,e);
       }
     }else if(localExists && canWrite()){
       pendingPush.push(k);
@@ -17978,6 +17963,24 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   const ed=$('ksEditor'); if(ed)obs.observe(ed,{attributes:true,subtree:true,childList:true});
 });
+})();
+</script>
+<script id="manar-two-sites-update-guard">
+(function(){
+  try{
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistration('./').then(function(reg){
+        if(reg && reg.update) reg.update();
+      }).catch(function(){});
+    }
+    // منع بقاء نسخة HTML قديمة بعد النشر على GitHub أو Netlify.
+    window.addEventListener('pageshow',function(){
+      try{
+        var v=document.querySelector('meta[name="manar-sync-version"]')?.content||'';
+        if(v) sessionStorage.setItem('manar_html_version',v);
+      }catch(e){}
+    });
+  }catch(e){}
 })();
 </script>
 </body>
