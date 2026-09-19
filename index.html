@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head>
-<meta name="platform-cleanup-build" content="2026-09-19-cleaned"><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -10594,28 +10593,26 @@ document.addEventListener('DOMContentLoaded',()=>{
   const updateUser=()=>{const name=document.getElementById('navUserName'), role=document.getElementById('navRoleName'); if(!name||!role)return; const r=document.body.classList.contains('admin')?'مدير النظام':document.body.classList.contains('editor')?'مستخدم متوسط':'مشاهد'; name.textContent=r==='مشاهد'?'زائر':(window.currentUser||'مستخدم'); role.textContent=r;};
   updateUser(); window.addEventListener("storage",updateUser);
 });
-</script><script>
-(function(){
-const REFEREE_KEY = 'manar_referees_v1';
-function refereeData(){
+</script><script>const KEY='manar_referees_v1';
+function data(){
   try{
-    const x=JSON.parse(localStorage.getItem(REFEREE_KEY)||'[]');
+    const x=JSON.parse(localStorage.getItem(KEY)||'[]');
     return Array.isArray(x)?x:[];
   }catch(e){return[]}
 }
-function saveReferees(a){
+function save(a){
   const clean=(Array.isArray(a)?a:[]).map((x,i)=>({
     id:x?.id!=null?x.id:(Date.now()+i),
     name:String(x?.name||'').trim(),
     age:Number(x?.age)||0,
     photo:x?.photo||''
   })).filter(x=>x.name);
-  localStorage.setItem(REFEREE_KEY,JSON.stringify(clean));
+  localStorage.setItem(KEY,JSON.stringify(clean));
   if(typeof window.__manarFirebaseSaveKey==='function'){
     try{window.__manarFirebaseSaveKey(KEY)}catch(e){console.warn('Firebase referee save skipped',e)}
   }
 }
-function escReferee(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let editingRefereeId=null;
 
 /* استخراج أسماء الحكام من جميع الكشوفات القديمة والجديدة */
@@ -10636,7 +10633,7 @@ function refereeNameFromValue(v, existing){
   return x?.name||raw;
 }
 window.repairRefereeRegistry=async function(allowCloudPush=true){
-  let current=refereeData();
+  let current=data();
   const byName=new Map(current.map(r=>[String(r.name||'').trim(),r]));
   let changed=false;
 
@@ -10659,7 +10656,7 @@ window.repairRefereeRegistry=async function(allowCloudPush=true){
   }
 
   if(changed){
-    saveReferees(current);
+    save(current);
   }else if(allowCloudPush && current.length && typeof window.__manarFirebaseSaveKey==='function'){
     try{window.__manarFirebaseSaveKey(KEY)}catch(e){}
   }
@@ -10690,7 +10687,7 @@ window.addManarReferee=function(){
   if(!n)return alert('يرجى إدخال اسم الحكم');
   if(!a||a<1||a>120)return alert('يرجى إدخال عمر صحيح');
 
-  const d=refereeData();
+  const d=data();
   if(d.some(x=>String(x.name||'').trim()===n&&String(x.id)!==String(editingRefereeId))){
     return alert('هذا الحكم موجود مسبقًا');
   }
@@ -10708,7 +10705,7 @@ window.addManarReferee=function(){
       auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);
     }
     editingRefereeId=null;
-    saveReferees(d);
+    save(d);
     if(nameEl)nameEl.value='';
     if(ageEl)ageEl.value='';
     if(fileEl)fileEl.value='';
@@ -10733,7 +10730,7 @@ window.editManarReferee=function(id){
     alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
     return;
   }
-  const x=refereeData().find(x=>String(x.id)===String(id));
+  const x=data().find(x=>String(x.id)===String(id));
   if(!x)return;
   editingRefereeId=id;
   const n=document.getElementById('refereeName'),a=document.getElementById('refereeAge');
@@ -10750,8 +10747,8 @@ window.deleteManarReferee=function(id){
     return;
   }
   if(!confirm('هل تريد حذف الحكم؟'))return;
-  const d=refereeData(),removed=d.find(x=>String(x.id)===String(id));
-  saveReferees(d.filter(x=>String(x.id)!==String(id)));
+  const d=data(),removed=d.find(x=>String(x.id)===String(id));
+  save(d.filter(x=>String(x.id)!==String(id)));
   auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);
   if(String(editingRefereeId)===String(id)){
     editingRefereeId=null;
@@ -10765,7 +10762,7 @@ window.deleteManarReferee=function(id){
 window.renderManarReferees=function(){
   const b=document.getElementById('refereesTableBody');
   if(!b)return;
-  const d=refereeData().slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ar'));
+  const d=data().slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'ar'));
   const c=document.getElementById('refereeCount');
   if(c)c.textContent=d.length+' حكم';
 
@@ -10773,9 +10770,9 @@ window.renderManarReferees=function(){
     <div class="referee-card">
       <div class="referee-card-top">
         <div class="referee-number">${i+1}</div>
-        <div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${escReferee(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div>
+        <div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div>
         <div class="referee-main">
-          <div class="referee-name">${escReferee(x.name)}</div>
+          <div class="referee-name">${esc(x.name)}</div>
           <div class="referee-role">حكم في رابطة المنار</div>
         </div>
       </div>
@@ -10784,8 +10781,8 @@ window.renderManarReferees=function(){
         <span class="referee-status">● حكم معتمد</span>
       </div>
       <div class="referee-actions" data-perm="referees">
-        <button type="button" class="referee-edit" onclick="editManarReferee('${escReferee(x.id)}')">✏️ تعديل</button>
-        <button type="button" class="referee-delete" onclick="deleteManarReferee('${escReferee(x.id)}')">🗑️ حذف</button>
+        <button type="button" class="referee-edit" onclick="editManarReferee('${esc(x.id)}')">✏️ تعديل</button>
+        <button type="button" class="referee-delete" onclick="deleteManarReferee('${esc(x.id)}')">🗑️ حذف</button>
       </div>
     </div>`).join(''):
     '<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';
@@ -10812,8 +10809,6 @@ window.addEventListener('storage',e=>{
     updateRefereeOptionsSafe();
   }
 });
-
-})();
 </script><script id="ordered-home-sections-js">
 /* فتح الأيقونات مباشرة داخل القسم المطلوب، دون المرور بالواجهة الرئيسية */
 function openHomeSection(id){
@@ -13970,7 +13965,7 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
 }
  }catch(e){status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
 start();
-</script>
+
 <script id="referee-cloud-guard-v1">
 (function(){
   const KEY='manar_referees_v1';
@@ -13991,6 +13986,7 @@ start();
     if(e.key===KEY)redraw();
   });
 })();
+</script>
 </script>
 <!-- removed dead disabled patch: final-kashofat-stats-repair -->
 
@@ -14912,7 +14908,7 @@ function hook(){
  setInterval(()=>{if(document.hidden)return;const ed=$('rsEditor');if(ed&&ed.style.display!=='none')install()},5000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook);else hook();
-})();</script>
+})();
 <script id="FINAL_STATS_NUMERIC_REFEREE_NAME_GUARD">
 (function(){
   'use strict';
@@ -14920,8 +14916,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,120);setTimeout(fix,500);setTimeout(fix,1200);});
   const target=document.getElementById('statsBody');if(target)new MutationObserver(fix).observe(target,{childList:true,subtree:true});
 })();
-</script>
-<script id="FINAL_STATS_REFEREE_CARDS_FIX">
+</script></script><script id="FINAL_STATS_REFEREE_CARDS_FIX">
 (function(){
   'use strict';
   const S=v=>String(v??'');
@@ -18094,3 +18089,157 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
   });
 })();
 </script>
+
+
+<script id="FINAL_REFEREE_NAME_REPAIR">
+(function(){
+  'use strict';
+
+  const KEY = 'manar_referees_v1';
+  const S = v => String(v ?? '').trim();
+  const A = v => Array.isArray(v) ? v : [];
+
+  function readJSON(key){
+    try{
+      const v = JSON.parse(localStorage.getItem(key) || 'null');
+      return v;
+    }catch(e){ return null; }
+  }
+
+  /* يجمع أي مصدر موثوق يحتوي على (المعرّف ← الاسم الحقيقي). */
+  function buildNameMaps(){
+    const byId = new Map();
+    const byName = new Map();
+
+    function addRef(r){
+      if(!r || typeof r !== 'object') return;
+      const name = S(r.name ?? r.refereeName ?? r.displayName ?? r.fullName);
+      const id = S(r.id ?? r.refereeId ?? r.value);
+      if(!name || /^\d+$/.test(name)) return;
+
+      if(id) byId.set(id, name);
+      byName.set(name, name);
+    }
+
+    /* قاعدة الحكام الحالية/القديمة */
+    A(readJSON(KEY)).forEach(addRef);
+    ['manar_referees_v2','manar_referees','referees'].forEach(k => A(readJSON(k)).forEach(addRef));
+
+    try{ A(window.db?.referees).forEach(addRef); }catch(e){}
+
+    /* بعض الكشوفات القديمة تحفظ الاسم في حقول GuestName بينما تحفظ
+       قيمة الحكم نفسها كمعرّف رقمي. نستفيد منها لاستعادة الاسم. */
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
+      A(readJSON(k)).forEach(sh=>{
+        if(!sh || typeof sh !== 'object') return;
+
+        for(let i=1;i<=4;i++){
+          const value = sh['referee'+i] ?? sh['ref'+i];
+          const guest = S(sh['referee'+i+'GuestName'] ?? sh['ref'+i+'GuestName']);
+          if(value != null && guest && !/^\d+$/.test(guest)){
+            const id = typeof value === 'object'
+              ? S(value.id ?? value.refereeId ?? value.value)
+              : S(value);
+            if(id) byId.set(id, guest);
+          }
+        }
+
+        A(sh.referees).forEach((value,idx)=>{
+          if(value && typeof value === 'object'){
+            const id = S(value.id ?? value.refereeId ?? value.value);
+            const name = S(value.name ?? value.refereeName ?? value.displayName);
+            if(id && name && !/^\d+$/.test(name)) byId.set(id,name);
+          }else{
+            const guest = S(sh['referee'+(idx+1)+'GuestName'] ?? sh['ref'+(idx+1)+'GuestName']);
+            if(guest && !/^\d+$/.test(guest)) byId.set(S(value),guest);
+          }
+        });
+      });
+    });
+
+    return {byId, byName};
+  }
+
+  function repair(){
+    let current;
+    try{
+      current = JSON.parse(localStorage.getItem(KEY) || '[]');
+      if(!Array.isArray(current)) current = [];
+    }catch(e){ return false; }
+
+    if(!current.length) return false;
+
+    const maps = buildNameMaps();
+    let changed = false;
+
+    const fixed = current.map(r=>{
+      if(!r || typeof r !== 'object') return r;
+
+      const oldName = S(r.name);
+      if(!oldName || !/^\d+$/.test(oldName)) return r;
+
+      const id = S(r.id);
+      let name = maps.byId.get(id) || maps.byId.get(oldName);
+
+      /* دعم الحالة التي يكون فيها المعرّف مخزنًا كاسم قديم. */
+      if(!name){
+        const n = Number(oldName);
+        if(Number.isFinite(n)){
+          const candidates = [
+            maps.byId.get(String(n)),
+            maps.byId.get(String(Math.trunc(n)))
+          ];
+          name = candidates.find(Boolean);
+        }
+      }
+
+      if(name && name !== oldName){
+        changed = true;
+        return {...r, name};
+      }
+      return r;
+    });
+
+    if(!changed) return false;
+
+    try{
+      localStorage.setItem(KEY, JSON.stringify(fixed));
+
+      /* إذا كانت المزامنة متصلة بحساب المدير، ارفع الإصلاح إلى Firebase. */
+      if(typeof window.__manarFirebaseSaveKey === 'function'){
+        try{ window.__manarFirebaseSaveKey(KEY); }catch(e){}
+      }
+
+      if(typeof window.renderManarReferees === 'function')
+        window.renderManarReferees();
+
+      if(typeof window.updateRefereeOptions === 'function')
+        window.updateRefereeOptions();
+
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  /* نعيد المحاولة لأن Firebase قد يصل بعد تحميل الصفحة. */
+  function run(){
+    repair();
+    setTimeout(repair,300);
+    setTimeout(repair,1000);
+    setTimeout(repair,2500);
+    setTimeout(repair,5000);
+  }
+
+  if(document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded',run,{once:true});
+  else
+    run();
+
+  window.addEventListener('storage',e=>{
+    if(e.key === KEY || /^manar_match_sheets_v[123]$/.test(e.key || ''))
+      setTimeout(repair,100);
+  });
+})();
+</script>
+
