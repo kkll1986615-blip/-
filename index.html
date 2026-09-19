@@ -10607,9 +10607,15 @@ function save(a){
     age:Number(x?.age)||0,
     photo:x?.photo||''
   })).filter(x=>x.name);
+  /* الحفظ المحلي أولًا: لا تضيع بيانات الحكم حتى لو لم يكن Firebase جاهزًا. */
   localStorage.setItem(KEY,JSON.stringify(clean));
+  try{sessionStorage.setItem('manar_referees_pending_cloud_v1','1')}catch(e){}
+
+  /* محاولة فورية للرفع، مع إعادة المحاولة بعد تسجيل دخول Firebase. */
   if(typeof window.__manarFirebaseSaveKey==='function'){
-    try{window.__manarFirebaseSaveKey(KEY)}catch(e){console.warn('Firebase referee save skipped',e)}
+    Promise.resolve(window.__manarFirebaseSaveKey(KEY)).then(ok=>{
+      if(ok){try{sessionStorage.removeItem('manar_referees_pending_cloud_v1')}catch(e){}}
+    }).catch(e=>console.warn('Firebase referee save skipped',e));
   }
 }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -13888,11 +13894,28 @@ async function initialSync(){
     const localExists=localStorage.getItem(k)!==null;
 
     if(cloudExists){
-      try{
-        localStorage.setItem(k,JSON.stringify(initialValues[k]));
-        pulled++;
-      }catch(e){
-        console.warn('تعذر تنزيل المفتاح '+k,e);
+      /* إذا كانت قائمة الحكام المحلية موجودة وFirebase يحتوي قائمة فارغة،
+         لا نستبدلها بالفراغ قبل إعطائها فرصة للرفع إلى السحابة. */
+      const isRefereeKey=k==='manar_referees_v1';
+      let preserveLocalReferees=false;
+      if(isRefereeKey && localExists){
+        try{
+          const localRefs=JSON.parse(localStorage.getItem(k)||'[]');
+          const cloudRefs=initialValues[k];
+          preserveLocalReferees=Array.isArray(localRefs)&&localRefs.length>0&&Array.isArray(cloudRefs)&&cloudRefs.length===0;
+          if(preserveLocalReferees){
+            if(canWrite())pendingPush.push(k);
+            else {try{sessionStorage.setItem('manar_referees_pending_cloud_v1','1')}catch(e){}}
+          }
+        }catch(e){}
+      }
+      if(!preserveLocalReferees){
+        try{
+          localStorage.setItem(k,JSON.stringify(initialValues[k]));
+          pulled++;
+        }catch(e){
+          console.warn('تعذر تنزيل المفتاح '+k,e);
+        }
       }
     }else if(localExists && canWrite()){
       pendingPush.push(k);
@@ -13940,7 +13963,21 @@ async function initialSync(){
 }
 async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getDatabase(app);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction};patchStorage();const saved=sessionStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
  if(!auth.currentUser){signInAnonymously(auth).catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
-  onAuthStateChanged(auth,async user=>{if(user){status('Firebase متصل — '+(user.email||''),true);if(initialDone&&dirty.size){try{const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+(e?.message||e),false)}}else if(initialDone){try{await pullAll()}catch(e){}}}else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
+  onAuthStateChanged(auth,async user=>{if(user){status('Firebase متصل — '+(user.email||''),true);
+    if(initialDone){
+      try{
+        /* رفع بيانات الحكام المؤجلة بعد دخول المدير، ثم تثبيت النسخة السحابية. */
+        let refereePending=false;try{refereePending=sessionStorage.getItem('manar_referees_pending_cloud_v1')==='1'}catch(e){}
+        if(refereePending && user.email){
+          applyingRemote=true;await pushKey('manar_referees_v1');applyingRemote=false;
+          try{sessionStorage.removeItem('manar_referees_pending_cloud_v1')}catch(e){}
+        }
+        if(dirty.size){const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}
+        else if(refereePending){await pullAll()}
+        else {await pullAll()}
+      }catch(e){applyingRemote=false;status('تعذر مزامنة بيانات الحكام: '+(e?.message||e),false)}
+    }
+  }else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
  for(const k of SYNC_KEYS){
   onValue(ref(db,CLOUD_PATH+'/'+k),async snap=>{
     initialValues[k]=snap.exists()?snap.val():null;
@@ -13987,6 +14024,20 @@ start();
   });
 })();
 </script>
+</script>
+<!-- إصلاح حفظ الحكام: إعادة محاولة المزامنة بعد جاهزية Firebase -->
+<script id="referee-save-retry-v2">
+(function(){
+  const KEY='manar_referees_v1';
+  function trySave(){
+    let pending=false;try{pending=sessionStorage.getItem('manar_referees_pending_cloud_v1')==='1'}catch(e){}
+    if(!pending || typeof window.__manarFirebaseSaveKey!=='function')return;
+    Promise.resolve(window.__manarFirebaseSaveKey(KEY)).then(ok=>{
+      if(ok){try{sessionStorage.removeItem('manar_referees_pending_cloud_v1')}catch(e){}}
+    }).catch(()=>{});
+  }
+  [1200,3000,6000,10000,15000].forEach(t=>setTimeout(trySave,t));
+})();
 </script>
 <!-- removed dead disabled patch: final-kashofat-stats-repair -->
 
@@ -18091,155 +18142,87 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
 </script>
 
 
-<script id="FINAL_REFEREE_NAME_REPAIR">
+<script id="FINAL_PLATFORM_RESET_FIX">
 (function(){
   'use strict';
+  const RESET_KEYS=[
+    'manar_sports_v2','manar_sports_v1','almanar_sports_v1','sports_platform_v1',
+    'manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3',
+    'manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1',
+    'manar_media_news_v1','manar_player_management_windows_v1',
+    'manar_player_transfers_v1','manar_contact_settings_v1',
+    'manar_contact_messages_v1','manar_polls_v1'
+  ];
+  const EMPTY_MAIN={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
 
-  const KEY = 'manar_referees_v1';
-  const S = v => String(v ?? '').trim();
-  const A = v => Array.isArray(v) ? v : [];
-
-  function readJSON(key){
-    try{
-      const v = JSON.parse(localStorage.getItem(key) || 'null');
-      return v;
-    }catch(e){ return null; }
-  }
-
-  /* يجمع أي مصدر موثوق يحتوي على (المعرّف ← الاسم الحقيقي). */
-  function buildNameMaps(){
-    const byId = new Map();
-    const byName = new Map();
-
-    function addRef(r){
-      if(!r || typeof r !== 'object') return;
-      const name = S(r.name ?? r.refereeName ?? r.displayName ?? r.fullName);
-      const id = S(r.id ?? r.refereeId ?? r.value);
-      if(!name || /^\d+$/.test(name)) return;
-
-      if(id) byId.set(id, name);
-      byName.set(name, name);
+  function clearLocalPlatformData(){
+    RESET_KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+    const terms=['manar_','almanar_','platform_','sports_','tournaments','teams','players','matches','sheets','referees','suspensions','archives','audit','media','contact'];
+    const remove=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k||k==='manar_users_v3')continue;
+      const low=k.toLowerCase();
+      if(terms.some(t=>low.includes(t))){remove.push(k);continue}
+      try{
+        const x=JSON.parse(localStorage.getItem(k)||'null');
+        if(x&&typeof x==='object'&&(Array.isArray(x.tournaments)||Array.isArray(x.teams)||Array.isArray(x.players)||Array.isArray(x.matches)||Array.isArray(x.officialPlayers)||Array.isArray(x.archives)||Array.isArray(x.suspensions)))remove.push(k);
+      }catch(e){}
     }
-
-    /* قاعدة الحكام الحالية/القديمة */
-    A(readJSON(KEY)).forEach(addRef);
-    ['manar_referees_v2','manar_referees','referees'].forEach(k => A(readJSON(k)).forEach(addRef));
-
-    try{ A(window.db?.referees).forEach(addRef); }catch(e){}
-
-    /* بعض الكشوفات القديمة تحفظ الاسم في حقول GuestName بينما تحفظ
-       قيمة الحكم نفسها كمعرّف رقمي. نستفيد منها لاستعادة الاسم. */
-    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
-      A(readJSON(k)).forEach(sh=>{
-        if(!sh || typeof sh !== 'object') return;
-
-        for(let i=1;i<=4;i++){
-          const value = sh['referee'+i] ?? sh['ref'+i];
-          const guest = S(sh['referee'+i+'GuestName'] ?? sh['ref'+i+'GuestName']);
-          if(value != null && guest && !/^\d+$/.test(guest)){
-            const id = typeof value === 'object'
-              ? S(value.id ?? value.refereeId ?? value.value)
-              : S(value);
-            if(id) byId.set(id, guest);
-          }
-        }
-
-        A(sh.referees).forEach((value,idx)=>{
-          if(value && typeof value === 'object'){
-            const id = S(value.id ?? value.refereeId ?? value.value);
-            const name = S(value.name ?? value.refereeName ?? value.displayName);
-            if(id && name && !/^\d+$/.test(name)) byId.set(id,name);
-          }else{
-            const guest = S(sh['referee'+(idx+1)+'GuestName'] ?? sh['ref'+(idx+1)+'GuestName']);
-            if(guest && !/^\d+$/.test(guest)) byId.set(S(value),guest);
-          }
-        });
-      });
-    });
-
-    return {byId, byName};
+    [...new Set(remove)].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+    localStorage.setItem('manar_sports_v2',JSON.stringify(EMPTY_MAIN));
+    localStorage.setItem('manar_match_sheets_v1','[]');
+    localStorage.setItem('manar_match_sheets_v2','[]');
+    localStorage.setItem('manar_match_sheets_v3','[]');
+    localStorage.setItem('manar_referees_v1','[]');
+    localStorage.setItem('manar_audit_log_v1','[]');
+    localStorage.setItem('manar_tournament_archive_v1','[]');
+    localStorage.setItem('manar_media_news_v1','[]');
+    localStorage.setItem('manar_player_management_windows_v1','{}');
+    localStorage.setItem('manar_player_transfers_v1','[]');
+    localStorage.removeItem('manar_contact_settings_v1');
+    localStorage.removeItem('manar_contact_messages_v1');
+    localStorage.removeItem('manar_polls_v1');
+    localStorage.removeItem('publicSelectedTournamentYear');
+    localStorage.removeItem('publicSelectedTour');
+    try{if(typeof window.db!=='undefined')window.db=JSON.parse(JSON.stringify(EMPTY_MAIN))}catch(e){}
   }
 
-  function repair(){
-    let current;
-    try{
-      current = JSON.parse(localStorage.getItem(KEY) || '[]');
-      if(!Array.isArray(current)) current = [];
-    }catch(e){ return false; }
+  async function cloudReset(){
+    if(typeof window.__manarFirebaseHardReset!=='function')throw new Error('خدمة Firebase غير جاهزة');
+    await window.__manarFirebaseHardReset();
+  }
 
-    if(!current.length) return false;
-
-    const maps = buildNameMaps();
-    let changed = false;
-
-    const fixed = current.map(r=>{
-      if(!r || typeof r !== 'object') return r;
-
-      const oldName = S(r.name);
-      if(!oldName || !/^\d+$/.test(oldName)) return r;
-
-      const id = S(r.id);
-      let name = maps.byId.get(id) || maps.byId.get(oldName);
-
-      /* دعم الحالة التي يكون فيها المعرّف مخزنًا كاسم قديم. */
-      if(!name){
-        const n = Number(oldName);
-        if(Number.isFinite(n)){
-          const candidates = [
-            maps.byId.get(String(n)),
-            maps.byId.get(String(Math.trunc(n)))
-          ];
-          name = candidates.find(Boolean);
-        }
-      }
-
-      if(name && name !== oldName){
-        changed = true;
-        return {...r, name};
-      }
-      return r;
-    });
-
-    if(!changed) return false;
-
-    try{
-      localStorage.setItem(KEY, JSON.stringify(fixed));
-
-      /* إذا كانت المزامنة متصلة بحساب المدير، ارفع الإصلاح إلى Firebase. */
-      if(typeof window.__manarFirebaseSaveKey === 'function'){
-        try{ window.__manarFirebaseSaveKey(KEY); }catch(e){}
-      }
-
-      if(typeof window.renderManarReferees === 'function')
-        window.renderManarReferees();
-
-      if(typeof window.updateRefereeOptions === 'function')
-        window.updateRefereeOptions();
-
-      return true;
-    }catch(e){
-      return false;
+  window.resetPlatformAdminOnly=async function(){
+    if(typeof currentRole!=='undefined'&&currentRole!=='admin'){
+      alert('تصفير المنصة متاح لمدير النظام فقط.');return;
     }
-  }
+    if(!confirm('⚠️ تحذير شديد\n\nسيتم حذف جميع بيانات المنصة من الجهاز ومن قاعدة Firebase المشتركة، مع الإبقاء على حسابات المستخدمين وكلمة مرور المدير.\n\nهل تريد المتابعة؟'))return;
+    const word=prompt('للتأكيد النهائي، اكتب كلمة: تصفير');
+    if(word!=='تصفير'){alert('تم إلغاء العملية. لم يتم حذف أي بيانات.');return}
 
-  /* نعيد المحاولة لأن Firebase قد يصل بعد تحميل الصفحة. */
-  function run(){
-    repair();
-    setTimeout(repair,300);
-    setTimeout(repair,1000);
-    setTimeout(repair,2500);
-    setTimeout(repair,5000);
-  }
+    const btn=document.querySelector('.platform-reset-only');
+    if(btn){btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent='⏳ جارٍ تصفير المنصة...'}
 
-  if(document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded',run,{once:true});
-  else
-    run();
-
-  window.addEventListener('storage',e=>{
-    if(e.key === KEY || /^manar_match_sheets_v[123]$/.test(e.key || ''))
-      setTimeout(repair,100);
-  });
+    try{
+      /* لا نحذف محلياً أولاً: يجب حذف Firebase بنجاح حتى لا تعود البيانات بعد reload. */
+      await cloudReset();
+      clearLocalPlatformData();
+      try{if(typeof rebuildIndexes==='function')rebuildIndexes();if(typeof window.renderAll==='function')window.renderAll()}catch(e){}
+      alert('✅ تم تصفير المنصة بالكامل من الجهاز وFirebase بنجاح.');
+      location.reload();
+    }catch(err){
+      console.error('FINAL PLATFORM RESET:',err);
+      const msg=String(err?.message||err||'');
+      if(/سجّل الدخول إلى Firebase|Firebase غير جاهزة|تسجيل الدخول/i.test(msg)){
+        alert('⚠️ لم يتم حذف أي بيانات.\n\nيجب أولاً تسجيل دخول مدير المنصة إلى Firebase من زر ☁️ المزامنة، ثم الضغط على «تصفير المنصة بالكامل» مرة أخرى.\n\nهذا ضروري حتى لا تعود البيانات القديمة من السحابة.');
+      }else{
+        alert('❌ تعذر تصفير المنصة من Firebase.\n\nلم يتم حذف البيانات حتى لا تفقدها جزئياً.\n\n'+msg);
+      }
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'🧹 تصفير المنصة بالكامل'}
+    }
+  };
 })();
 </script>
 
