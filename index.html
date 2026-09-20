@@ -8681,7 +8681,7 @@ body.admin #predictionsSection{display:block}
 <meta name="referee-sync-fix" content="2026-09-18-v2">
 </head><body>
 <!-- المنصة الرياضية | تنظيم وصيانة 2026-09-14: إزالة رقع معطلة فقط، مع الحفاظ على البيانات والوظائف الحالية. -->
-<header><div class="brand"><img loading="lazy" decoding="async" alt="شعار المنصة الرياضية" class="brand-logo" src="./icons/icon-512.png"><div class="brand-text"><h1>🏆 المنصة الرياضية</h1><small>نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.</small></div><div aria-label="الوقت والتاريخ" class="header-clock"><div class="clock-time"><span>◷</span><b id="headerTime">03:55:42 م</b></div><div class="clock-date"><span>▣</span><b id="headerDate">2026-08-14</b></div><div class="clock-day" id="headerDay">الجمعة</div></div><div id="authBar"><span class="role-pill" id="rolePill">👁️ مشاهد</span><button class="login-btn" id="loginBtn" onclick="openLogin()">↪ دخول</button><button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none">خروج</button></div></img></div></header><div id="loginOverlay" onclick="if(event.target===this)closeLogin()"><div class="login-box"><h2>🔐 تسجيل الدخول</h2><p>اختر الحساب وأدخل كلمة المرور للوصول إلى صلاحيات الإدارة.</p><div class="auth-note">المشاهدة متاحة للجميع بدون تسجيل دخول. تسجيل الدخول مطلوب فقط لإدارة البيانات والإعدادات.</div><div class="grid"><div><label>نوع الحساب</label><select id="loginRole"><option value="admin">👑 مدير النظام (Admin)</option><option value="editor">🛠️ صلاحية متوسطة</option></select></div><div><label>اسم المستخدم</label><input autocomplete="username" id="loginUser" placeholder="اسم المستخدم"/></div><div><label>كلمة المرور</label><input autocomplete="current-password" id="loginPass" placeholder="كلمة المرور" type="password"/></div></div><div id="loginError" style="color:#b42318;font-size:13px;margin-top:8px;display:none"></div><div class="actions"><button class="btn" onclick="login()">دخول</button><button class="btn secondary" onclick="closeLogin()">إلغاء</button></div></div></div><div aria-label="الساعة والتاريخ" class="clock-date-box" id="clockDateBox"><div class="clock-date-part"><span class="clock-label">التاريخ</span><div class="digital-date" id="digitalDate">15 / 08 / 2026</div></div><div class="clock-divider"></div><div class="clock-time-part"><span class="clock-label">الوقت</span><div class="digital-clock" id="digitalClock">00:00:00 م</div></div></div><div aria-label="الشريط الإخباري" class="news-ticker" id="homeNewsTicker"><div class="news-ticker-label">📰 الأخبار الرياضية</div><div class="news-ticker-viewport"><div class="news-ticker-track" id="homeNewsTrack"><span class="news-empty">لا توجد أخبار رياضية حالياً</span></div></div></div><nav class="app-sidebar" id="nav"><button aria-label="الواجهة الرئيسية" class="active" data-page="home"><span class="nav-ico">🏠</span><span class="nav-label">الواجهة الرئيسية</span></button><button data-page="tournaments">🏆 <span>البطولات</span></button><button class="nav-item" data-page="teams">⚽ <span>تسجيل الفرق</span></button><button data-page="players">👥 <span>اللاعبون</span></button><button data-page="matches">⚽ <span>المباريات</span></button><button data-page="matchSheetsSection">📋 <span>كشوفات المباريات</span></button><button data-page="predictionsSection">🎯 <span>توقع نتيجة المباراة</span></button><button data-page="stats">📈 <span>الإحصائيات</span></button><button data-page="tournamentArchiveSection">🗄️ <span>أرشيف البطولات</span></button><button data-page="overallRanking" type="button">🏆 <span>التصنيف العام</span></button><button data-page="mediaSection">📰 <span>الإعلام</span></button><button data-page="contactSection">📞 <span>تواصل معنا</span></button><button class="nav-item" data-page="referees">⚖️ <span>حكام رابطة المنار</span></button><button class="admin-only" data-page="settings">👤⚙️ <span>إدارة المستخدمين</span></button><button class="admin-only" data-page="auditLog" data-perm="audit">🧾 <span>سجل المراجعة</span></button><button data-page="headToHeadSection">⚔️ <span>تاريخ المواجهات</span></button><button class="admin-only" data-page="backup">💾 <span>النسخ الاحتياطي</span></button><button data-page="pollsSection">🗳️ <span>استطلاع رأي</span></button><button data-page="installAppSection" id="installProgramNavBtn">📲 <span>تثبيت البرنامج</span></button></nav><main><section class="page" id="installAppSection">
+<header><div class="brand"><img loading="lazy" decoding="async" alt="شعار المنصة الرياضية" class="brand-logo" src="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'&gt;&lt;circle cx='64' cy='64' r='58' fill='%23ffffff' stroke='%23087f5b' stroke-width='6'/&gt;&lt;path d='M64 34l17 12-7 20H54l-7-20z' fill='%23087f5b'/&gt;&lt;path d='M47 46L28 49l-7 21 17 13 19-17M81 46l19 3 7 21-17 13-19-17M54 66l-7 21 17 12 17-12-7-21' fill='none' stroke='%23087f5b' stroke-width='6' stroke-linejoin='round'/&gt;&lt;/svg&gt;"><div class="brand-text"><h1>🏆 المنصة الرياضية</h1><small>نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.</small></div><div aria-label="الوقت والتاريخ" class="header-clock"><div class="clock-time"><span>◷</span><b id="headerTime">03:55:42 م</b></div><div class="clock-date"><span>▣</span><b id="headerDate">2026-08-14</b></div><div class="clock-day" id="headerDay">الجمعة</div></div><div id="authBar"><span class="role-pill" id="rolePill">👁️ مشاهد</span><button class="login-btn" id="loginBtn" onclick="openLogin()">↪ دخول</button><button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none">خروج</button></div></img></div></header><div id="loginOverlay" onclick="if(event.target===this)closeLogin()"><div class="login-box"><h2>🔐 تسجيل الدخول</h2><p>اختر الحساب وأدخل كلمة المرور للوصول إلى صلاحيات الإدارة.</p><div class="auth-note">المشاهدة متاحة للجميع بدون تسجيل دخول. تسجيل الدخول مطلوب فقط لإدارة البيانات والإعدادات.</div><div class="grid"><div><label>نوع الحساب</label><select id="loginRole"><option value="admin">👑 مدير النظام (Admin)</option><option value="editor">🛠️ صلاحية متوسطة</option></select></div><div><label>اسم المستخدم</label><input autocomplete="username" id="loginUser" placeholder="اسم المستخدم"/></div><div><label>كلمة المرور</label><input autocomplete="current-password" id="loginPass" placeholder="كلمة المرور" type="password"/></div></div><div id="loginError" style="color:#b42318;font-size:13px;margin-top:8px;display:none"></div><div class="actions"><button class="btn" onclick="login()">دخول</button><button class="btn secondary" onclick="closeLogin()">إلغاء</button></div></div></div><div aria-label="الساعة والتاريخ" class="clock-date-box" id="clockDateBox"><div class="clock-date-part"><span class="clock-label">التاريخ</span><div class="digital-date" id="digitalDate">15 / 08 / 2026</div></div><div class="clock-divider"></div><div class="clock-time-part"><span class="clock-label">الوقت</span><div class="digital-clock" id="digitalClock">00:00:00 م</div></div></div><div aria-label="الشريط الإخباري" class="news-ticker" id="homeNewsTicker"><div class="news-ticker-label">📰 الأخبار الرياضية</div><div class="news-ticker-viewport"><div class="news-ticker-track" id="homeNewsTrack"><span class="news-empty">لا توجد أخبار رياضية حالياً</span></div></div></div><nav class="app-sidebar" id="nav"><button aria-label="الواجهة الرئيسية" class="active" data-page="home"><span class="nav-ico">🏠</span><span class="nav-label">الواجهة الرئيسية</span></button><button data-page="tournaments">🏆 <span>البطولات</span></button><button class="nav-item" data-page="teams">⚽ <span>تسجيل الفرق</span></button><button data-page="players">👥 <span>اللاعبون</span></button><button data-page="matches">⚽ <span>المباريات</span></button><button data-page="matchSheetsSection">📋 <span>كشوفات المباريات</span></button><button data-page="predictionsSection">🎯 <span>توقع نتيجة المباراة</span></button><button data-page="stats">📈 <span>الإحصائيات</span></button><button data-page="tournamentArchiveSection">🗄️ <span>أرشيف البطولات</span></button><button data-page="overallRanking" type="button">🏆 <span>التصنيف العام</span></button><button data-page="mediaSection">📰 <span>الإعلام</span></button><button data-page="contactSection">📞 <span>تواصل معنا</span></button><button class="nav-item" data-page="referees">⚖️ <span>حكام رابطة المنار</span></button><button class="admin-only" data-page="settings">👤⚙️ <span>إدارة المستخدمين</span></button><button class="admin-only" data-page="auditLog" data-perm="audit">🧾 <span>سجل المراجعة</span></button><button data-page="headToHeadSection">⚔️ <span>تاريخ المواجهات</span></button><button class="admin-only" data-page="backup">💾 <span>النسخ الاحتياطي</span></button><button data-page="pollsSection">🗳️ <span>استطلاع رأي</span></button><button data-page="installAppSection" id="installProgramNavBtn">📲 <span>تثبيت البرنامج</span></button></nav><main><section class="page" id="installAppSection">
 <div class="card install-section-card">
   <div class="section-title"><div><h2>📲 تثبيت البرنامج</h2><small>ثبّت المنصة الرياضية على هاتفك للوصول إليها بسرعة مثل التطبيق.</small></div><span class="badge" id="appVersionBadge">الإصدار الحالي</span></div>
   <div class="install-sports-hero">
@@ -9067,9 +9067,9 @@ function save(){
 
     /* الحفظ المحلي مستقل عن Firebase ولا يفشل بسببه. */
     if(typeof window.__manarFirebaseSaveKey==='function'){
-      Promise.resolve(window.__manarFirebaseSaveKey(KEY)).then(ok=>{
-        if(!ok) console.warn('Firebase save queued locally or skipped: المدير غير مسجل في Firebase');
-      }).catch(firebaseErr=>console.warn('Firebase save skipped:',firebaseErr));
+      try{window.__manarFirebaseSaveKey(KEY)}catch(firebaseErr){
+        console.warn('Firebase save skipped:',firebaseErr);
+      }
     }
 
     // تم الحفظ المحلي بنجاح؛ أي خطأ في إعادة الرسم لا يجب أن يظهر للمستخدم كفشل في الحفظ.
@@ -10459,79 +10459,116 @@ function renderAll(){
 }
 function downloadBackup(){if(!hasPermission('backup'))return alert('لا تملك صلاحية النسخ الاحتياطي.');let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='بطولات_المنار_نسخة_احتياطية.json';a.click();URL.revokeObjectURL(a.href)}
 function restoreBackup(e){if(!hasPermission('backup'))return alert('لا تملك صلاحية النسخ الاحتياطي.');let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.tournaments||!x.teams||!x.players||!x.matches)throw 0;if(!Array.isArray(x.officialPlayers))x.officialPlayers=[];if(!Array.isArray(x.archives))x.archives=[];db=x;save();alert('تمت استعادة البيانات بنجاح')}catch{alert('ملف النسخة الاحتياطية غير صالح')}};r.readAsText(f)}
-async function clearAll(){
-  if(!hasPermission('delete'))return alert('لا تملك صلاحية الحذف.');
-  if(!confirm('سيتم حذف جميع البطولات والفرق واللاعبين والمباريات. هل أنت متأكد؟'))return;
-  try{
-    if(typeof window.__manarFirebaseHardReset!=='function')throw new Error('خدمة Firebase غير جاهزة');
-    /* احذف السحابة أولًا. إذا لم يكن حساب المدير مسجلًا في Firebase نتوقف ولا نمسح النسخة المحلية. */
-    await window.__manarFirebaseHardReset();
-    db={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
-    window.db=db;
-    localStorage.setItem(KEY,JSON.stringify(db));
-    ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1','manar_media_news_v1','manar_player_management_windows_v1','manar_player_transfers_v1'].forEach(k=>localStorage.setItem(k,'[]'));
-    __manarDataVersion++;
-    try{rebuildIndexes()}catch(e){}
-    try{renderAll()}catch(e){}
-    alert('✅ تم حذف جميع البيانات من Firebase ومن هذا الجهاز.');
-  }catch(e){
-    console.error('Cloud clearAll error:',e);
-    alert('❌ لم يتم حذف البيانات. سجّل الدخول إلى Firebase بحساب المدير ثم أعد المحاولة.\n\n'+(e?.message||e));
-  }
-}
+function clearAll(){if(!hasPermission('delete'))return alert('لا تملك صلاحية الحذف.');if(confirm('سيتم حذف جميع البطولات والفرق واللاعبين والمباريات. هل أنت متأكد؟')){db={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[]};window.db=db;save()}}
 async function resetPlatformAdminOnly(){
   if(currentRole!=='admin'){
     alert('تصفير المنصة متاح لمدير النظام فقط.');
     return;
   }
-  if(typeof window.__manarFirebaseHardReset!=='function'){
-    alert('❌ خدمة Firebase غير جاهزة. أعد تحميل الصفحة ثم حاول مرة أخرى.');
-    return;
-  }
-  const first=confirm('⚠️ تحذير شديد\n\nسيتم حذف جميع البيانات الرياضية من Firebase ومن هذا الجهاز: البطولات والفرق واللاعبين والمباريات والكشوفات والحكام والأخبار والأرشيف وسجل المراجعة.\n\nسيتم الإبقاء على حسابات المستخدمين وكلمة مرور المدير.\n\nهل تريد المتابعة؟');
+
+  const first=confirm('⚠️ تحذير شديد\n\nسيتم حذف جميع البيانات الرياضية من هذا الجهاز: البطولات والفرق واللاعبين والمباريات والكشوفات والحكام والأخبار والأرشيف وسجل المراجعة.\n\nسيتم الإبقاء على حسابات المستخدمين وكلمة مرور المدير.\n\nهل تريد المتابعة؟');
   if(!first)return;
+
   const second=prompt('للتأكيد النهائي، اكتب كلمة: تصفير');
   if(second!=='تصفير'){
     alert('تم إلغاء العملية. لم يتم حذف أي بيانات.');
     return;
   }
-  try{
-    /* الأهم: نحذف Firebase أولًا. إذا فشل الحذف لا نلمس النسخة المحلية. */
-    await window.__manarFirebaseHardReset();
 
+  try{
+    /*
+      الإصلاح الأساسي:
+      النسخة القديمة كانت تحذف بعض المفاتيح ثم تعيد تحميل الصفحة،
+      بينما loadMainDatabase() يبحث أيضًا في بقية localStorage ويعيد
+      البيانات القديمة منها. لذلك يجب حذف كل مفاتيح بيانات المنصة،
+      ثم كتابة قاعدة فارغة صراحةً في المفتاح الرئيسي قبل إعادة التحميل.
+    */
     const keepKeys=new Set(['manar_users_v3']);
-    const appTerms=['manar_','almanar_','platform_','sports_','tournaments','teams','players','matches','sheets','referees','warnings','suspensions','news','archives','audit','media','contact','backup','firebase'];
+
+    const appTerms=[
+      'manar_','almanar_','platform_','sports_',
+      'tournaments','teams','players','matches','sheets',
+      'referees','warnings','suspensions','news','archives',
+      'audit','media','contact','backup','firebase'
+    ];
+
     const keysToDelete=[];
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
-      if(!k||keepKeys.has(k))continue;
+      if(!k || keepKeys.has(k))continue;
+
       const low=k.toLowerCase();
       let isAppKey=appTerms.some(term=>low.includes(term.toLowerCase()));
+
+      /*
+        أيضًا احذف أي سجل JSON قديم يحتوي على بنية قاعدة المنصة،
+        حتى لو كان محفوظًا تحت اسم غير معروف.
+      */
       if(!isAppKey){
         try{
-          const x=JSON.parse(localStorage.getItem(k));
-          if(x&&typeof x==='object'&&(Array.isArray(x.tournaments)||Array.isArray(x.teams)||Array.isArray(x.players)||Array.isArray(x.matches)||Array.isArray(x.officialPlayers)||Array.isArray(x.archives)||Array.isArray(x.suspensions)))isAppKey=true;
+          const raw=localStorage.getItem(k);
+          const x=JSON.parse(raw);
+          if(x && typeof x==='object' &&
+             (Array.isArray(x.tournaments) || Array.isArray(x.teams) ||
+              Array.isArray(x.players) || Array.isArray(x.matches) ||
+              Array.isArray(x.officialPlayers) || Array.isArray(x.archives) ||
+              Array.isArray(x.suspensions))){
+            isAppKey=true;
+          }
         }catch(e){}
       }
+
       if(isAppKey)keysToDelete.push(k);
     }
-    keysToDelete.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
-    const emptyDb={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
-    localStorage.setItem('manar_sports_v2',JSON.stringify(emptyDb));
-    ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1','manar_media_news_v1','manar_player_management_windows_v1','manar_player_transfers_v1'].forEach(k=>localStorage.setItem(k,'[]'));
+
+    keysToDelete.forEach(k=>localStorage.removeItem(k));
+
+    /* تصفير كل مخازن البيانات المعروفة صراحةً */
+    const emptyDb={
+      tournaments:[],
+      teams:[],
+      players:[],
+      matches:[],
+      officialPlayers:[],
+      archives:[],
+      suspensions:[]
+    };
+
+    [
+      'manar_sports_v2',
+      'manar_sports_v1',
+      'almanar_sports_v1',
+      'sports_platform_v1'
+    ].forEach(k=>localStorage.setItem(k,JSON.stringify(emptyDb)));
+
+    localStorage.setItem('manar_match_sheets_v1','[]');
+    localStorage.setItem('manar_match_sheets_v2','[]');
+    localStorage.setItem('manar_referees_v1','[]');
+    localStorage.setItem('manar_audit_log_v1','[]');
+    localStorage.setItem('manar_tournament_archive_v1','[]');
+    localStorage.setItem('manar_media_news_v1','[]');
+    localStorage.setItem('manar_player_management_windows_v1','{}');
+    localStorage.setItem('manar_player_transfers_v1','[]');
     localStorage.removeItem('manar_contact_settings_v1');
     localStorage.removeItem('publicSelectedTournamentYear');
     localStorage.removeItem('publicSelectedTour');
+
+    /* اجعل المتغير الحالي فارغًا أيضًا */
     db=JSON.parse(JSON.stringify(emptyDb));
     window.db=db;
-    try{rebuildIndexes()}catch(e){}
-    alert('✅ تم تصفير المنصة بالكامل في Firebase وهذا الجهاز. سيتم إعادة تحميل المنصة.');
+    if(typeof rebuildIndexes==='function')rebuildIndexes();
+
+    /* حذف البيانات من Firebase أيضًا؛ وإلا فإن onValue/pullAll يعيد النسخة القديمة بعد إعادة التحميل. */
+    if(typeof window.__manarFirebaseHardReset==='function'){try{await window.__manarFirebaseHardReset();}catch(e){console.error('Firebase hard reset:',e);}}
+    /* لا نستخدم save() هنا حتى لا يعيد تسجيل بيانات قديمة */
+    alert('✅ تم تصفير جميع بيانات المنصة بنجاح على الجهاز والسحابة. سيتم إعادة تحميل المنصة الآن.');
     location.reload();
   }catch(err){
     console.error('Platform reset error:',err);
-    alert('❌ لم يتم التصفير. لم تُحذف بيانات الجهاز لأن حذف Firebase لم ينجح.\n\n'+(err?.message||err));
+    alert('❌ تعذر تصفير المنصة بالكامل. لم يتم إكمال العملية.');
   }
 }
+
 (function(){function adminOnly(){if(typeof currentRole!=='undefined'&&currentRole==='admin')return true;alert('🛠️ صيانة المنصة متاحة لمدير النظام فقط.');return false}function status(t,c){const e=document.getElementById('maintenanceStatus');if(e){e.textContent=t;e.style.background=c==='error'?'#fdecec':c==='warn'?'#fff6dd':'#eaf7ee';e.style.color=c==='error'?'#a11f1f':c==='warn'?'#806000':'#176b38'}}function report(a){const e=document.getElementById('maintenanceReport');if(e)e.innerHTML=a.map(x=>`<div style="padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><b>${x[0]}</b> ${x[1]}</div>`).join('')}function backup(){const d={savedAt:new Date().toISOString(),database:typeof db!=='undefined'?db:null};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='نسخة_قبل_الصيانة_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}window.platformMaintenanceCheck=function(){if(!adminOnly())return;if(typeof db==='undefined'||!db){status('❌ قاعدة البيانات غير متاحة.','error');return}const r=[],issues=[];['tournaments','teams','players','matches','officialPlayers','archives','suspensions'].forEach(k=>{if(!Array.isArray(db[k])){issues.push(k);r.push(['⚠️',k+' يحتاج إلى إصلاح.'])}else r.push(['✅',k+' سليم — '+db[k].length+' سجل.'])});const ts=new Set((db.tournaments||[]).map(x=>String(x.id))),te=new Set((db.teams||[]).map(x=>String(x.id)));const bt=(db.teams||[]).filter(x=>x.tournamentId&&!ts.has(String(x.tournamentId))).length,bp=(db.players||[]).filter(x=>x.teamId&&!te.has(String(x.teamId))).length;if(bt){issues.push('team-links');r.push(['⚠️','يوجد '+bt+' فريق مرتبط ببطولة غير موجودة.'])}else r.push(['✅','روابط الفرق سليمة.']);if(bp){issues.push('player-links');r.push(['⚠️','يوجد '+bp+' لاعب مرتبط بفريق غير موجود.'])}else r.push(['✅','روابط اللاعبين سليمة.']);report(r);status(issues.length?'⚠️ اكتمل الفحص — توجد '+issues.length+' ملاحظة.':'✅ اكتمل الفحص — لا توجد مشاكل واضحة.',issues.length?'warn':'ok')};window.platformMaintenanceRepair=function(){if(!adminOnly())return;if(!confirm('سيتم إنشاء نسخة احتياطية ثم إصلاح بنية البيانات وإعادة بناء الفهارس. هل تريد المتابعة؟'))return;try{backup();if(typeof db==='undefined'||!db)throw new Error('قاعدة البيانات غير متاحة');const d={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};Object.keys(d).forEach(k=>{if(!Array.isArray(db[k]))db[k]=[];db[k]=db[k].filter(x=>x&&typeof x==='object')});db.matches.forEach(m=>{if(!Array.isArray(m.cards))m.cards=[];if(m.home==null)m.home='';if(m.away==null)m.away=''});window.db=db;if(typeof rebuildIndexes==='function')rebuildIndexes();localStorage.setItem(KEY,JSON.stringify(db));if(typeof auditAdd==='function')auditAdd('صيانة','النظام','تم تنفيذ إصلاح تلقائي بواسطة مدير النظام.');status('✅ تمت الصيانة بنجاح.','ok');report([['💾','تم إنشاء نسخة احتياطية قبل الإصلاح.'],['🔧','تم إصلاح الحقول الأساسية وتنظيف السجلات غير الصالحة فقط.'],['🗂️','تمت إعادة بناء الفهارس.'],['✅','تم حفظ قاعدة البيانات.']]);if(typeof renderAll==='function')renderAll()}catch(e){status('❌ فشلت عملية الصيانة.','error');report([['❌','لم يتم حذف البيانات. النسخة الاحتياطية التي أُنشئت قبل العملية متاحة لديك.']])}};window.platformMaintenanceReload=function(){if(!adminOnly())return;if(confirm('هل تريد إعادة تشغيل المنصة الآن؟'))location.reload()}})();
 rebuildIndexes();authInit();nav();updateHomeNewsTicker('home');initPermissionOptions();renderAll();
 try{
@@ -10563,23 +10600,16 @@ function data(){
     return Array.isArray(x)?x:[];
   }catch(e){return[]}
 }
-function saveRefereeRegistry(a){
+function save(a){
   const clean=(Array.isArray(a)?a:[]).map((x,i)=>({
     id:x?.id!=null?x.id:(Date.now()+i),
     name:String(x?.name||'').trim(),
     age:Number(x?.age)||0,
-    photo:x?.photo||'',
-    updatedAt:Number(x?.updatedAt)||Date.now()
+    photo:x?.photo||''
   })).filter(x=>x.name);
-  /* الحفظ المحلي أولًا: لا تضيع بيانات الحكم حتى لو لم يكن Firebase جاهزًا. */
   localStorage.setItem(KEY,JSON.stringify(clean));
-  try{sessionStorage.setItem('manar_referees_pending_cloud_v1','1')}catch(e){}
-
-  /* محاولة فورية للرفع، مع إعادة المحاولة بعد تسجيل دخول Firebase. */
   if(typeof window.__manarFirebaseSaveKey==='function'){
-    Promise.resolve(window.__manarFirebaseSaveKey(KEY)).then(ok=>{
-      if(ok){try{sessionStorage.removeItem('manar_referees_pending_cloud_v1')}catch(e){}}
-    }).catch(e=>console.warn('Firebase referee save skipped',e));
+    try{window.__manarFirebaseSaveKey(KEY)}catch(e){console.warn('Firebase referee save skipped',e)}
   }
 }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -10626,7 +10656,7 @@ window.repairRefereeRegistry=async function(allowCloudPush=true){
   }
 
   if(changed){
-    saveRefereeRegistry(current);
+    save(current);
   }else if(allowCloudPush && current.length && typeof window.__manarFirebaseSaveKey==='function'){
     try{window.__manarFirebaseSaveKey(KEY)}catch(e){}
   }
@@ -10666,16 +10696,16 @@ window.addManarReferee=function(){
     if(editingRefereeId!=null){
       const x=d.find(x=>String(x.id)===String(editingRefereeId));
       if(x){
-        x.name=n;x.age=a;x.updatedAt=Date.now();
+        x.name=n;x.age=a;
         if(photo!==null)x.photo=photo;
       }
       auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);
     }else{
-      d.push({id:'R_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name:n,age:a,photo:photo||'',updatedAt:Date.now()});
+      d.push({id:'R_'+Date.now(),name:n,age:a,photo:photo||''});
       auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);
     }
     editingRefereeId=null;
-    saveRefereeRegistry(d);
+    save(d);
     if(nameEl)nameEl.value='';
     if(ageEl)ageEl.value='';
     if(fileEl)fileEl.value='';
@@ -10718,7 +10748,7 @@ window.deleteManarReferee=function(id){
   }
   if(!confirm('هل تريد حذف الحكم؟'))return;
   const d=data(),removed=d.find(x=>String(x.id)===String(id));
-  saveRefereeRegistry(d.filter(x=>String(x.id)!==String(id)));
+  save(d.filter(x=>String(x.id)!==String(id)));
   auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);
   if(String(editingRefereeId)===String(id)){
     editingRefereeId=null;
@@ -13563,52 +13593,8 @@ function teamPlayers(id){return players().filter(p=>S(p.teamId??p.team??p.teamID
 function finished(m){const st=S(m?.status).toLowerCase();if(['finished','ended','completed','complete','منتهية','منتهيه','انتهت'].includes(st))return true;const d=S(m?.date||m?.matchDate),tm=S(m?.time||'00:00');let dt=null;let x=d.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);if(x)dt=new Date(+x[1],+x[2]-1,+x[3],+(tm.split(':')[0]||0),+(tm.split(':')[1]||0));return !!dt&&!Number.isNaN(dt.getTime())&&Date.now()-dt.getTime()>=2*60*60*1000}
 function findSheet(id){return rows().find(s=>S(s.matchId)===S(id))||null}
 function nextNo(){return rows().reduce((n,s)=>Math.max(n,Number(s.sheetNumber)||0),0)+1}
-function refs(){
-  const out=[];
-  const add=(x)=>{
-    if(!x)return;
-    const name=S(x?.name??x?.refereeName??x?.fullName).trim();
-    if(!name)return;
-    const id=S(x?.id??x?.refereeId??name).trim()||name;
-    if(!out.some(y=>y.id===id||y.name===name))out.push({id,name});
-  };
-  try{A(JSON.parse(localStorage.getItem('manar_referees_v1')||'[]')).forEach(add)}catch(e){}
-  try{A(window.db?.referees).forEach(add)}catch(e){}
-  /* دعم النسخ القديمة التي كانت تخزن الحكم داخل كشف المباراة */
-  try{
-    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
-      A(JSON.parse(localStorage.getItem(k)||'[]')).forEach(sh=>{
-        [sh?.referee1,sh?.referee2,sh?.referee3,sh?.referee4,...A(sh?.referees)].forEach(v=>{
-          if(v&&typeof v==='object') add(v);
-          else if(S(v).trim()){
-            const val=S(v).trim();
-            add({id:val,name:val});
-          }
-        });
-      });
-    });
-  }catch(e){}
-  return out;
-}
-function fillRefs(saved){
-  const list=refs();
-  for(let i=1;i<=4;i++){
-    const el=$('ksRef'+i);
-    if(!el)continue;
-    const old=S(saved?.['referee'+i]??saved?.referees?.[i-1]).trim();
-    el.innerHTML='<option value="">'+(i===4?'اختر الحكم الرابع (اختياري)':'اختر الحكم '+i)+'</option>'+list.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>').join('');
-    /* إذا كان الحكم محفوظًا باسمه أو بمعرّف قديم، لا نفقده من الكشف. */
-    let match=[...el.options].find(o=>S(o.value)===old);
-    if(!match && old){
-      const rr=list.find(r=>S(r.name)===old||S(r.id)===old);
-      if(rr){el.value=rr.id;match=el.options[el.selectedIndex];}
-      else {
-        const o=document.createElement('option');o.value=old;o.textContent=old;el.appendChild(o);el.value=old;
-      }
-    }
-  }
-  updateRefereeOptions();
-}
+function refs(){let r=[];try{r=JSON.parse(localStorage.getItem('manar_referees_v1')||'[]')}catch(e){}const out=[];A(r).forEach(x=>{const name=S(x?.name??x?.refereeName??x?.fullName);if(name&&!out.some(y=>y.name===name))out.push({id:S(x?.id??name),name})});return out}
+function fillRefs(saved){for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)continue;const old=S(saved?.['referee'+i]??saved?.referees?.[i-1]);el.innerHTML='<option value="">'+(i===4?'اختر الحكم الرابع (اختياري)':'اختر الحكم '+i)+'</option>'+refs().map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>').join('');if([...el.options].some(o=>o.value===old))el.value=old;} updateRefereeOptions()}
 function updateRefereeOptions(){const chosen=new Set();for(let i=1;i<=4;i++){const v=S($('ksRef'+i)?.value);if(v)chosen.add(v)}for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)continue;const own=S(el.value);[...el.options].forEach(o=>{if(!o.value)return;o.disabled=chosen.has(o.value)&&o.value!==own})}}
 function validateReferees(){const vals=[1,2,3,4].map(i=>S($('ksRef'+i)?.value)).filter(Boolean);return new Set(vals).size===vals.length}
 function fillTours(){const s=$('ksTournament');if(!s)return;const old=s.value;s.innerHTML='<option value="">اختر البطولة</option>'+tours().map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name||t.title||'بطولة')+'</option>').join('');if([...s.options].some(o=>o.value===old))s.value=old}
@@ -13621,7 +13607,7 @@ function renderCards(){const b=$('ksCards');if(!b)return;b.innerHTML=cards.lengt
 function renderGoals(saved){if($('ksAdminDecision')?.checked){$('ksHomeGoals').innerHTML='';$('ksAwayGoals').innerHTML='';return;}const m=matches().find((x,i)=>mid(x,i)===active),hg=Number($('ksHomeScore').value)||0,ag=Number($('ksAwayScore').value)||0;const make=(box,side,n,vals,tid)=>{const b=$(box);b.innerHTML='';const ps=teamPlayers(tid);for(let i=0;i<n;i++){const row=document.createElement('div');row.className='ks-scorer';row.innerHTML='<span>'+(i+1)+'</span><select><option value="">اختر مسجل الهدف</option>'+ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('')+'</select>';b.appendChild(row);if(vals?.[i])row.querySelector('select').value=S(vals[i])}};make('ksHomeGoals','home',hg,saved?.homeScorers,teamId(m,'home'));make('ksAwayGoals','away',ag,saved?.awayScorers,teamId(m,'away'))}
 function open(id){if(!canManage())return alert('التعديل متاح للمدير أو من يملك صلاحية كشوفات المباريات.');const m=matches().find((x,i)=>mid(x,i)===S(id));if(!m)return alert('لم يتم العثور على المباراة.');active=S(id);const sh=findSheet(id);editing=!!sh;cards=A(sh?.cards).map(c=>({...c}));$('ksEditorTitle').textContent=sh?'✏️ تعديل كشف المباراة':'📝 إنشاء كشف المباراة';$('ksNumber').textContent='رقم الكشف: '+(sh?.sheetNumber||nextNo());$('ksEditor').style.display='block';$('ksMatchInfo').innerHTML=esc(tName(teamId(m,'home')))+' <b> '+Number(sh?.homeScore??m.hg??m.homeGoals??0)+' — '+Number(sh?.awayScore??m.ag??m.awayGoals??0)+' </b> '+esc(tName(teamId(m,'away')))+'<div class="ks-meta">📅 '+esc(m.date||'—')+' &nbsp; ⏰ '+esc(m.time||'—')+'</div>';$('ksHomeLabel').textContent=tName(teamId(m,'home'));$('ksAwayLabel').textContent=tName(teamId(m,'away'));$('ksHomeGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'home'));$('ksAwayGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'away'));$('ksHomeScore').value=sh?.homeScore??m.hg??m.homeGoals??0;$('ksAwayScore').value=sh?.awayScore??m.ag??m.awayGoals??0;renderGoals(sh);$('ksBestPlayer').innerHTML='<option value="">اختر اللاعب من الفريقين</option>'+[...teamPlayers(teamId(m,'home')),...teamPlayers(teamId(m,'away'))].map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+' — '+esc(tName(p.teamId))+'</option>').join('');$('ksBestPlayer').value=S(sh?.bestPlayerId||'');fillRefs(sh);$('ksSupervisor').value=S(sh?.supervisor);$('ksPenYes').value=Number(sh?.penalties||0)>0?'yes':'no';$('ksPenalties').value=Number(sh?.penalties||0);renderTeams(m,sh);renderCards();$('ksStatus').classList.remove('show');$('ksEditor').scrollIntoView({behavior:'smooth',block:'start'})}
 async function imageData(){const f=$('ksImage')?.files?.[0];if(!f)return '';return await new Promise(res=>{const r=new FileReader();r.onload=()=>res(S(r.result));r.onerror=()=>res('');r.readAsDataURL(f)})}
-async function saveMatchSheet(){if(!canManage())return alert('لا تملك صلاحية إدارة كشوفات المباريات.');if(!active)return alert('اختر المباراة أولاً.');const m=matches().find((x,i)=>mid(x,i)===active);
+async function save(){if(!canManage())return alert('لا تملك صلاحية إدارة كشوفات المباريات.');if(!active)return alert('اختر المباراة أولاً.');const m=matches().find((x,i)=>mid(x,i)===active);
 /* منع تكرار مواجهة نفس الفريقين داخل دور المجموعات. يسمح بالتعديل على الكشف نفسه،
    ويمنع إنشاء كشف ثانٍ لنفس الزوج في نفس البطولة والمجموعة حتى لو تبدل الملعب (home/away). */
 if(m){
@@ -13807,186 +13793,200 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 <script id="firebase-realtime-sync-final" type="module">
 import {initializeApp,getApps} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
-import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,signInAnonymously,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
-import {getDatabase,ref,set,get,onValue} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js';
+import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,signInAnonymously} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
+import {getDatabase,ref,set,get,onValue,runTransaction} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js';
 
 const FIREBASE_CONFIG={apiKey:'AIzaSyBl8ETnvRg4w-7BTleNROgmzSaqtPbUWRE',authDomain:'almanar-sports.firebaseapp.com',databaseURL:'https://almanar-sports-default-rtdb.firebaseio.com',projectId:'almanar-sports',storageBucket:'almanar-sports.firebasestorage.app',messagingSenderId:'933674233471',appId:'1:933674233471:web:6dbcd5517687aa9a47194a'};
 const CLOUD_PATH='manar_platform';
-const SYNC_KEYS=['manar_sports_v2','manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1','manar_media_news_v1','manar_player_management_windows_v1','manar_player_transfers_v1','manar_contact_settings_v1','manar_contact_messages_v1','manar_polls_v1'];
-let app,auth,firebaseDb,applyingRemote=false,started=false,subscriptions=[];
-let retryTimer=null;
-const dirty=new Set();
+/* كل مفاتيح بيانات المنصة المشتركة. لا تتم مزامنة كلمات مرور المستخدمين أو إعدادات الجهاز الخاصة. */
+const SYNC_KEYS=[
+ 'manar_sports_v2',
+ 'manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3',
+ 'manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1',
+ 'manar_media_news_v1','manar_player_management_windows_v1','manar_player_transfers_v1',
+ 'manar_contact_settings_v1','manar_contact_messages_v1','manar_polls_v1'
+];
+let app,auth,db,applyingRemote=false,initialReady=0,initialDone=false,started=false;
+const initialValues={},dirty=new Set();
+let renderTimer=null;
+function scheduleRender(){clearTimeout(renderTimer);renderTimer=setTimeout(()=>{renderTimer=null;render()},60)}
 const $=id=>document.getElementById(id);
 function status(msg,ok=true){const e=$('firebaseSyncStatus');if(e)e.textContent='الحالة: '+msg;const b=$('firebaseSyncFab');if(b){b.classList.toggle('offline',!ok);b.classList.toggle('error',!ok);b.textContent=ok?'☁️ متصل':'☁️ غير متصل'}}
+function render(){
+  try{if(typeof window.renderAll==='function')window.renderAll()}catch(e){}
+  try{if(typeof window.refreshMediaNews==='function')window.refreshMediaNews()}catch(e){}
+  try{if(typeof window.loadContactSettings==='function')window.loadContactSettings()}catch(e){}
+  try{if(typeof window.refreshPredictionSection==='function')window.refreshPredictionSection()}catch(e){}
+  try{if(typeof window.refreshPublicMatchSheets==='function')window.refreshPublicMatchSheets()}catch(e){}
+  try{if(typeof window.fillTournamentSelectorsNow==='function')window.fillTournamentSelectorsNow()}catch(e){}
+}
+function openModal(){$('firebaseSyncModal').style.display='flex'}
+function closeModal(){$('firebaseSyncModal').style.display='none'}
+$('firebaseSyncFab')?.addEventListener('click',openModal);$('fsClose')?.addEventListener('click',closeModal);$('firebaseSyncModal')?.addEventListener('click',e=>{if(e.target.id==='firebaseSyncModal')closeModal()});
+function localManagerRole(){try{const role=sessionStorage.getItem('manar_auth_v2')||'';return role==='admin'||role==='editor'}catch(e){return false}}
+function canWrite(){return !!auth?.currentUser && !auth.currentUser.isAnonymous}
 function localValue(key){try{const raw=localStorage.getItem(key);return raw===null?null:JSON.parse(raw)}catch(e){return null}}
-function canWrite(){return !!auth?.currentUser&&!auth.currentUser.isAnonymous}
-function render(){try{window.renderAll?.()}catch(e){} try{window.refreshMediaNews?.()}catch(e){} try{window.loadContactSettings?.()}catch(e){} try{window.refreshPredictionSection?.()}catch(e){} try{window.refreshPublicMatchSheets?.()}catch(e){} try{window.fillTournamentSelectorsNow?.()}catch(e){}}
-function reloadMain(){try{if(typeof window.db!=='undefined')window.db=loadMainDatabase()}catch(e){}}
-function unsubscribeRealtime(){subscriptions.forEach(u=>{try{u()}catch(e){}});subscriptions=[]}
-async function pushKey(key){if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولاً');await set(ref(firebaseDb,CLOUD_PATH+'/'+key),localValue(key));dirty.delete(key)}
-async function pushAll(){if(!canWrite()){status('لرفع البيانات يجب تسجيل الدخول بحساب Firebase المصرح له',false);return}try{applyingRemote=true;status('جارٍ رفع بيانات هذا الجهاز...',true);for(const k of SYNC_KEYS)await pushKey(k);status('تم رفع جميع البيانات إلى السحابة',true)}catch(e){status('فشل الرفع: '+(e?.message||e),false)}finally{applyingRemote=false}}
-async function pullAll(){
-  if(!firebaseDb){status('Firebase غير جاهزة',false);return}
+async function pushKey(key){if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');await set(ref(db,CLOUD_PATH+'/'+key),localValue(key));dirty.delete(key)}
+async function pushKeys(keys){for(const k of keys)await pushKey(k)}
+async function pushAll(){if(!canWrite()){status('القراءة متاحة، لكن مزامنة التعديلات تحتاج تسجيل دخول Firebase',false);return}try{applyingRemote=true;status('جارٍ حفظ التعديلات في السحابة...',true);await pushKeys(SYNC_KEYS);status('تمت مزامنة جميع بيانات المنصة',true)}catch(e){status('فشل المزامنة: '+(e?.message||e),false)}finally{applyingRemote=false}}
+window.__manarFirebaseDeleteTournament=async function(tid){
+  if(!canWrite()) throw new Error('سجّل الدخول إلى Firebase أولًا'); applyingRemote=true;
   try{
-    applyingRemote=true;let n=0;
-    for(const k of SYNC_KEYS){
-      const snap=await get(ref(firebaseDb,CLOUD_PATH+'/'+k));
-      /* إصلاح خاص بسجل الحكام: دمج المحلي والسحابي بدل استبدال أسماء الحكام
-         بنسخة سحابية قديمة أثناء فتح الصفحة. */
-      if(snap.exists()){
-        if(k==='manar_referees_v1'){
-          let remote=Array.isArray(snap.val())?snap.val():[];
-          let local=localValue(k); local=Array.isArray(local)?local:[];
-          const merged=new Map();
-          remote.forEach(x=>{if(x&&x.name)merged.set(String(x.id||('N_'+String(x.name).trim())),x)});
-          local.forEach(x=>{
-            if(!x||!x.name)return;
-            const id=String(x.id||('N_'+String(x.name).trim()));
-            const old=merged.get(id);
-            /* النسخة المحلية ذات البيانات الكاملة لها الأولوية عند التعارض. */
-            merged.set(id, old ? {...old,...x, name:String(x.name).trim()} : x);
-          });
-          const result=[...merged.values()].filter(x=>String(x.name||'').trim());
-          localStorage.setItem(k,JSON.stringify(result));
-          if(canWrite()) await set(ref(firebaseDb,CLOUD_PATH+'/'+k),result);
-        }else{
-          localStorage.setItem(k,JSON.stringify(snap.val()));
-        }
-        n++;
-      }
-    }
-    dirty.clear();reloadMain();render();status('تم استقبال '+n+' قسمًا من Firebase',true);
-  }catch(e){status('فشل استقبال بيانات Firebase: '+(e?.message||e),false)}finally{applyingRemote=false}
-}
-function subscribeRealtime(){
-  unsubscribeRealtime();
-  if(!firebaseDb)return;
+    const main=localValue('manar_sports_v2')||{tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
+    const teamIds=new Set((main.teams||[]).filter(t=>String(t.tournamentId)===String(tid)).map(t=>String(t.id)));
+    const clean={...main,
+      tournaments:(main.tournaments||[]).filter(x=>String(x.id)!==String(tid)),
+      teams:(main.teams||[]).filter(x=>String(x.tournamentId)!==String(tid)),
+      players:(main.players||[]).filter(p=>!teamIds.has(String(p.teamId))),
+      officialPlayers:(main.officialPlayers||[]).filter(p=>!teamIds.has(String(p.teamId))),
+      matches:(main.matches||[]).filter(m=>String(m.tournamentId)!==String(tid)),
+      archives:(main.archives||[]).filter(a=>String(a?.tournament?.id||a?.original?.id||'')!==String(tid))};
+    localStorage.setItem('manar_sports_v2',JSON.stringify(clean));
+    for(const k of ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3']){let a=localValue(k);if(!Array.isArray(a))a=[];localStorage.setItem(k,JSON.stringify(a.filter(x=>String(x?.tournamentId||'')!==String(tid))))}
+    let ar=localValue('manar_tournament_archive_v1');if(!Array.isArray(ar))ar=[];localStorage.setItem('manar_tournament_archive_v1',JSON.stringify(ar.filter(x=>String(x?.tournament?.id||x?.original?.id||'')!==String(tid))));
+    await set(ref(db,CLOUD_PATH+'/manar_sports_v2'),clean);
+    for(const k of ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_tournament_archive_v1'])await set(ref(db,CLOUD_PATH+'/'+k),localValue(k));
+  }finally{applyingRemote=false}
+};
+window.__manarFirebaseHardReset=async function(){
+  if(!canWrite()) throw new Error('سجّل الدخول إلى Firebase أولًا'); applyingRemote=true;
+  try{for(const k of SYNC_KEYS)await set(ref(db,CLOUD_PATH+'/'+k),null);dirty.clear();}
+  finally{applyingRemote=false}
+};
+async function pullAll(){try{applyingRemote=true;let n=0;for(const k of SYNC_KEYS){const snap=await get(ref(db,CLOUD_PATH+'/'+k));if(snap.exists()){localStorage.setItem(k,JSON.stringify(snap.val()));n++}else{localStorage.removeItem(k)}}dirty.clear();
+/* مهم: بعد تنزيل بيانات Firebase يجب إعادة تحميل متغير db نفسه؛ وإلا تبقى قوائم الاختيار مرتبطة بالبيانات القديمة الفارغة. */
+try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
+render();status('تمت مزامنة '+n+' قسمًا من السحابة',true)}catch(e){status('فشل تنزيل بيانات السحابة: '+(e?.message||e),false)}finally{applyingRemote=false}}
+$('fsLogin')?.addEventListener('click',async()=>{const email=$('fsAuthEmail').value.trim(),pass=$('fsAuthPassword').value;if(!email||!pass){alert('أدخل بريد Firebase وكلمة المرور.');return}try{await signInWithEmailAndPassword(auth,email,pass);sessionStorage.setItem('manar_firebase_email',email);$('fsAuthPassword').value='';status('تم تسجيل الدخول إلى Firebase — جاري تأكيد المزامنة',true)}catch(e){status('فشل تسجيل الدخول: '+(e?.message||e),false);alert('تعذر تسجيل الدخول إلى Firebase. تأكد من البريد وكلمة المرور وتفعيل Email/Password في Firebase Authentication.')}});
+$('fsLogout')?.addEventListener('click',async()=>{try{await signOut(auth);sessionStorage.removeItem('manar_firebase_email');status('تم الخروج — القراءة ما زالت متاحة',true)}catch(e){status('فشل تسجيل الخروج',false)}});
+$('fsPush')?.addEventListener('click',pushAll);$('fsPull')?.addEventListener('click',pullAll);
+function patchStorage(){if(window.__manarFirebasePatched)return;window.__manarFirebasePatched=true;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){const k=String(key),result=original.call(this,key,value);if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote){dirty.add(k);try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}if(canWrite()){clearTimeout(window.__manarFirebasePushTimer);window.__manarFirebasePushTimer=clearTimeout(window.__manarFirebasePushTimer); window.__manarFirebasePushTimer=setTimeout(()=>{ const pending=[...dirty]; applyingRemote=true; pushKeys(pending).then(()=>status('تم تحديث السحابة فورًا',true)).catch(e=>status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false)).finally(()=>{applyingRemote=false;}); },80)}}return result}}
+window.__manarFirebaseSaveKey=async function(key){
+  if(!SYNC_KEYS.includes(key))return false;
+  dirty.add(key);
+  if(!canWrite())return false;
+  try{applyingRemote=true;await pushKey(key);status('تم حفظ التعديل في السحابة',true);return true}
+  catch(e){status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false);return false}
+  finally{applyingRemote=false}
+};
+function hasLocalData(){try{const m=localValue('manar_sports_v2');return !!(m&&typeof m==='object'&&((m.tournaments||[]).length||(m.teams||[]).length||(m.players||[]).length||(m.matches||[]).length||(m.archives||[]).length||(m.officialPlayers||[]).length||(m.suspensions||[]).length))}catch(e){return false}}
+async function initialSync(){
+  if(initialDone)return;
+  initialDone=true;
+
+  /*
+    مزامنة مشتركة وآمنة لكل قسم:
+    - إذا كان المفتاح موجودًا في Firebase فهو المصدر المشترك لكل الأجهزة والمواقع.
+    - إذا لم يكن موجودًا في Firebase وكان موجودًا محليًا، نرفعه عند تسجيل المدير.
+    - وجود بيانات manar_sports_v2 محليًا لا يمنع تنزيل الحكام أو الأخبار أو الكشوفات.
+  */
+  let pulled=0, pushed=0;
+  const pendingPush=[];
+
   for(const k of SYNC_KEYS){
-    const unsub=onValue(ref(firebaseDb,CLOUD_PATH+'/'+k),snap=>{
-      if(applyingRemote)return;
+    const cloudExists=initialValues[k]!==null;
+    const localExists=localStorage.getItem(k)!==null;
+
+    if(cloudExists){
       try{
-        if(snap.exists()){
-          if(k==='manar_referees_v1'){
-            let remote=Array.isArray(snap.val())?snap.val():[];
-            let local=localValue(k); local=Array.isArray(local)?local:[];
-            const merged=new Map();
-            remote.forEach(x=>{if(x&&x.name)merged.set(String(x.id||('N_'+String(x.name).trim())),x)});
-            local.forEach(x=>{
-              if(!x||!x.name)return;
-              const id=String(x.id||('N_'+String(x.name).trim()));
-              const old=merged.get(id);
-              merged.set(id, old ? {...old,...x, name:String(x.name).trim()} : x);
-            });
-            const result=[...merged.values()].filter(x=>String(x.name||'').trim());
-            localStorage.setItem(k,JSON.stringify(result));
-            if(canWrite() && result.length) set(ref(firebaseDb,CLOUD_PATH+'/'+k),result).catch(()=>{});
-          }else{
-            localStorage.setItem(k,JSON.stringify(snap.val()));
-          }
-          dirty.delete(k);
-          if(k==='manar_sports_v2')reloadMain();
-          if(k==='manar_referees_v1'){
-            try{window.renderManarReferees?.();window.updateRefereeOptions?.()}catch(e){}
-          }
-          render();
-          status('وصل تحديث جديد من Firebase',true);
-        }
-      }catch(e){status('تعذر تطبيق تحديث Firebase: '+(e?.message||e),false)}
-    },err=>{
-      status('خطأ استقبال Firebase: '+(err?.message||err),false);
-      clearTimeout(retryTimer);
-      retryTimer=setTimeout(()=>{retryTimer=null;subscribeRealtime()},5000);
-    });
-    subscriptions.push(unsub);
-  }
-}
-$('firebaseSyncFab')?.addEventListener('click',()=>{$('firebaseSyncModal').style.display='flex'});
-$('fsClose')?.addEventListener('click',()=>{$('firebaseSyncModal').style.display='none'});
-$('firebaseSyncModal')?.addEventListener('click',e=>{if(e.target.id==='firebaseSyncModal')$('firebaseSyncModal').style.display='none'});
-$('fsLogin')?.addEventListener('click',async()=>{
-  const email=$('fsAuthEmail').value.trim(),pass=$('fsAuthPassword').value;
-  if(!email||!pass)return alert('أدخل بريد Firebase وكلمة المرور.');
-  try{await signInWithEmailAndPassword(auth,email,pass);sessionStorage.setItem('manar_firebase_email',email);$('fsAuthPassword').value='';status('تم تسجيل الدخول — جارٍ استقبال بيانات Firebase',true);await pullAll();}
-  catch(e){status('فشل تسجيل الدخول: '+(e?.message||e),false);alert('تعذر تسجيل الدخول إلى Firebase: '+(e?.message||e));}
-});
-$('fsLogout')?.addEventListener('click',async()=>{try{await signOut(auth);sessionStorage.removeItem('manar_firebase_email');status('تم تسجيل الخروج — القراءة تعتمد على صلاحيات Firebase',true)}catch(e){status('فشل تسجيل الخروج',false)}});
-$('fsPush')?.addEventListener('click',pushAll);
-$('fsPull')?.addEventListener('click',pullAll);
-function patchStorage(){
-  if(window.__manarFirebasePatched)return;window.__manarFirebasePatched=true;
-  const original=Storage.prototype.setItem;
-  Storage.prototype.setItem=function(key,value){
-    const k=String(key),result=original.call(this,key,value);
-    if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote){
-      dirty.add(k);
-      if(canWrite()){
-        clearTimeout(window.__manarFirebasePushTimer);
-        window.__manarFirebasePushTimer=setTimeout(async()=>{
-          const pending=[...dirty];if(!pending.length)return;
-          try{applyingRemote=true;for(const x of pending)await pushKey(x);status('تم إرسال التعديل إلى Firebase',true)}catch(e){status('تم الحفظ محليًا لكن تعذر الإرسال: '+(e?.message||e),false)}finally{applyingRemote=false}}
-        ,250);
+        localStorage.setItem(k,JSON.stringify(initialValues[k]));
+        pulled++;
+      }catch(e){
+        console.warn('تعذر تنزيل المفتاح '+k,e);
       }
+    }else if(localExists && canWrite()){
+      pendingPush.push(k);
     }
-    return result;
+  }
+
+  if(pendingPush.length){
+    applyingRemote=true;
+    try{
+      await pushKeys(pendingPush);
+      pushed=pendingPush.length;
+    }catch(e){
+      status('تم تنزيل البيانات المشتركة، وتعذر رفع بعض البيانات المحلية: '+(e?.message||e),false);
+    }finally{
+      applyingRemote=false;
+    }
+  }
+
+  dirty.clear();
+
+  try{
+    if(localStorage.getItem('manar_sports_v2')!==null && typeof window.db!=='undefined'){
+      window.db=loadMainDatabase();
+      db=window.db;
+    }
+  }catch(e){
+    console.warn('Database reload after Firebase sync failed:',e);
+  }
+
+  /* إصلاح خاص بالحكام: استرجاع قائمة الحكام من الكشوفات إن كانت قائمة الحكام فارغة. */
+  try{
+    if(typeof window.repairRefereeRegistry==='function'){
+      await window.repairRefereeRegistry(false);
+    }
+  }catch(e){
+    console.warn('Referee registry repair skipped:',e);
+  }
+
+  render();
+  if(pushed){
+    status('تمت مزامنة البيانات: تنزيل '+pulled+' قسمًا ورفع '+pushed+' قسمًا',true);
+  }else{
+    status('تمت مزامنة البيانات المشتركة من Firebase',true);
   }
 }
-window.__manarFirebaseSaveKey=async function(key){if(!SYNC_KEYS.includes(key))return false;if(!canWrite())return false;try{applyingRemote=true;await pushKey(key);status('تم حفظ التعديل في Firebase',true);return true}catch(e){status('تعذر إرسال التعديل: '+(e?.message||e),false);return false}finally{applyingRemote=false}};
-window.__manarFirebaseHealth=()=>({initialized:!!firebaseDb,signedIn:!!auth?.currentUser,anonymous:!!auth?.currentUser?.isAnonymous,email:auth?.currentUser?.email||'',subscriptions:subscriptions.length});
-async function start(){
-  if(started)return;started=true;
-  try{
-    app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
-    auth=getAuth(app);await setPersistence(auth,browserLocalPersistence);firebaseDb=getDatabase(app);
-    window.__manarPollFirebase={auth,db:firebaseDb,ref,set,get,onValue};patchStorage();
-    const saved=sessionStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
-    onAuthStateChanged(auth,async user=>{
-      if(user){
-        status(user.isAnonymous?'Firebase متصل للقراءة':'Firebase متصل بحساب المدير',true);
-        subscribeRealtime();
-        try{await pullAll()}catch(e){}
-      }else{
-        subscribeRealtime();
-        status('متصل بقاعدة Firebase — في انتظار تسجيل الدخول للكتابة',true);
-      }
-    });
-    /* نحاول حسابًا مجهولًا للقراءة إذا كان مفعّلًا؛ وإذا كان غير مفعّل تبقى القراءة العامة فعالة حسب قواعد RTDB. */
-    if(!auth.currentUser)signInAnonymously(auth).catch(()=>{});
-  }catch(e){status('تعذر تشغيل Firebase: '+(e?.message||e),false)}
+async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getDatabase(app);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction};patchStorage();const saved=sessionStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
+ if(!auth.currentUser){signInAnonymously(auth).catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
+  onAuthStateChanged(auth,async user=>{if(user){status('Firebase متصل — '+(user.email||''),true);if(initialDone&&dirty.size){try{const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+(e?.message||e),false)}}else if(initialDone){try{await pullAll()}catch(e){}}}else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
+ for(const k of SYNC_KEYS){
+  onValue(ref(db,CLOUD_PATH+'/'+k),async snap=>{
+    initialValues[k]=snap.exists()?snap.val():null;
+    initialReady++;
+    if(initialReady===SYNC_KEYS.length){
+      await initialSync();
+    }else if(initialDone&&!applyingRemote){
+      applyingRemote=true;
+      try{
+        /* نعالج الإضافة/التعديل وكذلك الحذف من السحابة. */
+        if(snap.exists()) localStorage.setItem(k,JSON.stringify(snap.val()));
+        else localStorage.removeItem(k);
+        dirty.delete(k);
+        if(k==='manar_sports_v2'){
+          try{db=loadMainDatabase();window.db=db;__manarDataVersion++}catch(e){console.warn('Database reload after realtime update failed:',e)}
+        }
+        scheduleRender();
+        status(snap.exists()?'وصل تحديث جديد من السحابة':'تم حذف التحديث من السحابة',true);
+      }finally{applyingRemote=false}
+    }
+  },err=>status('خطأ قراءة Firebase: '+(err?.message||err),false))
 }
+ }catch(e){status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
 start();
-window.addEventListener('online',()=>{try{pullAll()}catch(e){}});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)try{pullAll()}catch(e){}});
-</script>
-</script>
-<script id="referee-receive-final-fix">
-(function(){
-  const refresh=()=>{
-    try{
-      if(typeof window.fillRefs==='function'){
-        const editor=document.getElementById('ksEditor');
-        if(editor && editor.style.display!=='none') window.fillRefs(window.__manarCurrentSheetForRefereeFix||null);
-      }
-      if(typeof window.updateRefereeOptions==='function') window.updateRefereeOptions();
-    }catch(e){}
-  };
-  window.refreshRefereeSelectors=refresh;
-  window.addEventListener('storage',e=>{if(e.key==='manar_referees_v1')setTimeout(refresh,30)});
-  document.addEventListener('DOMContentLoaded',()=>{setTimeout(refresh,500);setTimeout(refresh,1500)});
-})();
-</script>
-<!-- إصلاح حفظ الحكام: إعادة محاولة المزامنة بعد جاهزية Firebase -->
-<script id="referee-save-retry-v2">
+
+<script id="referee-cloud-guard-v1">
 (function(){
   const KEY='manar_referees_v1';
-  function trySave(){
-    let pending=false;try{pending=sessionStorage.getItem('manar_referees_pending_cloud_v1')==='1'}catch(e){}
-    if(!pending || typeof window.__manarFirebaseSaveKey!=='function')return;
-    Promise.resolve(window.__manarFirebaseSaveKey(KEY)).then(ok=>{
-      if(ok){try{sessionStorage.removeItem('manar_referees_pending_cloud_v1')}catch(e){}}
-    }).catch(()=>{});
+  function redraw(){
+    try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}
+    try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
   }
-  [1200,3000,6000,10000,15000].forEach(t=>setTimeout(trySave,t));
+
+  /* ضمان أن قائمة الحكام لا تختفي بسبب إعادة الرسم أو وصول بيانات Firebase. */
+  document.addEventListener('DOMContentLoaded',()=>{
+    setTimeout(redraw,150);
+    setTimeout(redraw,800);
+    setTimeout(redraw,1800);
+  });
+
+  /* لا نستبدل قائمة محلية غير فارغة ببيانات فارغة من Firebase. */
+  window.addEventListener('storage',e=>{
+    if(e.key===KEY)redraw();
+  });
 })();
+</script>
 </script>
 <!-- removed dead disabled patch: final-kashofat-stats-repair -->
 
@@ -14909,14 +14909,14 @@ function hook(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook);else hook();
 })();
-</script><script id="FINAL_STATS_NUMERIC_REFEREE_NAME_GUARD">
+<script id="FINAL_STATS_NUMERIC_REFEREE_NAME_GUARD">
 (function(){
   'use strict';
   function fix(){try{if(typeof window.manarRefereeDisplayName!=='function')return;document.querySelectorAll('#statsBody table tbody tr').forEach(function(tr){const cells=tr.querySelectorAll('td');if(cells.length<3)return;const text=(cells[1]?.textContent||'').trim();if(!/^\d+$/.test(text))return;const resolved=window.manarRefereeDisplayName(text);if(resolved&&resolved!==text)cells[1].textContent=resolved;});}catch(e){}}
   document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,120);setTimeout(fix,500);setTimeout(fix,1200);});
   const target=document.getElementById('statsBody');if(target)new MutationObserver(fix).observe(target,{childList:true,subtree:true});
 })();
-</script><script id="FINAL_STATS_REFEREE_CARDS_FIX">
+</script></script><script id="FINAL_STATS_REFEREE_CARDS_FIX">
 (function(){
   'use strict';
   const S=v=>String(v??'');
@@ -16932,7 +16932,7 @@ function predict(m){
  const games=H.g+V.g, confidence=Math.max(30,Math.min(95,Math.round(38+Math.min(32,games*3)+Math.min(18,Math.abs(lh-la)*10)+Math.min(7,Math.abs(H.avgGF-V.avgGF)*4))));
  return {q:z,h:H,a:V,home,draw,away,lh,la,scoreH:best[1],scoreA:best[2],confidence};
 }
-function savePrediction(m,p){
+function save(m,p){
  const h=readHist(),id=S(m.id);if(!id)return;
  h[id]={...(h[id]||{}),matchId:id,tournamentId:tid(m),homeId:p.q.h,awayId:p.q.a,homeName:tname(p.q.h),awayName:tname(p.q.a),home:p.scoreH,away:p.scoreA,homePct:Math.round(p.home*100),drawPct:Math.round(p.draw*100),awayPct:Math.round(p.away*100),confidence:p.confidence,createdAt:h[id]?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
  writeHist(h);return h[id]
@@ -16984,7 +16984,7 @@ function patchCurrentUI(){
  const tour=A(DB().tournaments).find(x=>S(x.id)===t);
  if(sum)sum.innerHTML='<div class="prediction-data-driven-note">🏆 '+esc(tour?.name||'البطولة')+' — التوقع لا يستخدم نسبة ثابتة: يتم حساب قوة كل فريق من أهدافه ونتائجه وفورمته وعدد الكشوفات المدخلة.</div>';
  const __oc=document.getElementById('predictionOpenCount'); if(__oc)__oc.textContent=String(pending.length);
- pending.forEach(m=>{let p=predict(m);savePrediction(m,p)});
+ pending.forEach(m=>{let p=predict(m);save(m,p)});
  open.innerHTML=pending.length?pending.map(m=>matchCard(m,predict(m))).join(''):'<div class="prediction-empty success">✅ لا توجد مباريات جديدة للتوقع؛ ستظهر النتائج السابقة في سجل التوقعات.</div>';
  renderHistory(t);
  const doneCount=all.filter(m=>actual(m)&&hist[S(m.id)]).length;
@@ -17929,246 +17929,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 })();
 </script>
-
-<!-- FINAL REFEREES REGISTRY FIX v2026-09-20 -->
-<script id="final-referees-registry-fix">
-(function(){
-  'use strict';
-  const KEY='manar_referees_v1';
-  const S=v=>String(v??'').trim();
-  const A=v=>Array.isArray(v)?v:[];
-  const esc2=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-  function permission(){
-    try{return typeof window.hasPermission==='function' ? !!window.hasPermission('referees') :
-      (document.body.classList.contains('admin')||document.body.classList.contains('editor'))}catch(e){return false}
-  }
-
-  function sources(){
-    const out=[];
-    try{ A(window.db?.referees).forEach(x=>out.push(x)); }catch(e){}
-    ['manar_referees_v1','manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
-      try{ A(JSON.parse(localStorage.getItem(k)||'[]')).forEach(x=>out.push(x)); }catch(e){}
-    });
-    return out;
-  }
-
-  function candidateName(value, seen){
-    const v=S(value);
-    if(!v) return '';
-    const list=sources();
-    for(const x of list){
-      if(!x || typeof x!=='object') continue;
-      const id=S(x.id??x.refereeId??x.referee_id);
-      const name=S(x.name??x.refereeName??x.displayName);
-      if(name && ((id && id===v) || name===v)) return name;
-    }
-    return '';
-  }
-
-  function normalize(x, fallbackId){
-    x=(x&&typeof x==='object')?x:{id:x};
-    const id=S(x.id??x.refereeId??x.referee_id) || ('R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8));
-    let name=S(x.name??x.refereeName??x.displayName);
-    if(!name || /^\d+$/.test(name)) name=candidateName(name || id);
-    if(!name) name=S(x.name??x.refereeName??x.displayName);
-    return {
-      id:id,
-      name:name,
-      age:Number(x.age)||0,
-      photo:S(x.photo||''),
-      updatedAt:Number(x.updatedAt)||Date.now()
-    };
-  }
-
-  function readLocal(){
-    try{
-      const a=JSON.parse(localStorage.getItem(KEY)||'[]');
-      return A(a).map(x=>normalize(x)).filter(x=>x.name);
-    }catch(e){return []}
-  }
-
-  function semanticKey(x){
-    const n=S(x?.name);
-    if(n && !/^\d+$/.test(n)) return 'N:'+n.replace(/\s+/g,' ').toLowerCase();
-    return 'I:'+S(x?.id);
-  }
-
-  function mergeLists(local,remote){
-    const map=new Map();
-    A(remote).map(normalize).filter(x=>x.name).forEach(x=>map.set(semanticKey(x),x));
-    A(local).map(normalize).filter(x=>x.name).forEach(x=>{
-      const k=semanticKey(x), old=map.get(k);
-      map.set(k, old ? {...old,...x, name:(S(x.name)&&!/^\d+$/.test(S(x.name)))?S(x.name):S(old.name)} : x);
-    });
-    return [...map.values()].filter(x=>S(x.name));
-  }
-
-  window.data=function(){return readLocal()};
-
-  window.saveRefereeRegistry=function(list){
-    const clean=mergeLists([],A(list)).map(normalize).filter(x=>x.name);
-    localStorage.setItem(KEY,JSON.stringify(clean));
-    try{sessionStorage.setItem('manar_referees_pending_cloud_v1','1')}catch(e){}
-    if(typeof window.__manarFirebaseSaveKey==='function'){
-      Promise.resolve(window.__manarFirebaseSaveKey(KEY)).then(ok=>{
-        if(ok)try{sessionStorage.removeItem('manar_referees_pending_cloud_v1')}catch(e){}
-      }).catch(()=>{});
-    }
-    return clean;
-  };
-
-  function compressImage(file,done){
-    if(!file){done(null);return}
-    const reader=new FileReader();
-    reader.onerror=()=>done(null);
-    reader.onload=()=>{
-      const img=new Image();
-      img.onerror=()=>done(reader.result);
-      img.onload=()=>{
-        try{
-          const max=700, scale=Math.min(1,max/Math.max(img.width,img.height));
-          const c=document.createElement('canvas');
-          c.width=Math.max(1,Math.round(img.width*scale));
-          c.height=Math.max(1,Math.round(img.height*scale));
-          const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);
-          done(c.toDataURL('image/jpeg',0.82));
-        }catch(e){done(reader.result)}
-      };
-      img.src=reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  window.renderManarReferees=function(){
-    const box=document.getElementById('refereesTableBody'); if(!box)return;
-    const list=readLocal().sort((a,b)=>S(a.name).localeCompare(S(b.name),'ar'));
-    const count=document.getElementById('refereeCount'); if(count)count.textContent=list.length+' حكم';
-    box.innerHTML=list.length ? list.map((x,i)=>`
-      <div class="referee-card">
-        <div class="referee-card-top">
-          <div class="referee-number">${i+1}</div>
-          <div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${esc2(x.photo)}" alt="صورة ${esc2(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div>
-          <div class="referee-main"><div class="referee-name">${esc2(x.name)}</div><div class="referee-role">حكم في رابطة المنار</div></div>
-        </div>
-        <div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age||'—'}</strong> ${x.age?'سنة':''}</span><span class="referee-status">● حكم معتمد</span></div>
-        <div class="referee-actions" data-perm="referees">
-          <button type="button" class="referee-edit" onclick="editManarReferee('${esc2(x.id)}')">✏️ تعديل</button>
-          <button type="button" class="referee-delete" onclick="deleteManarReferee('${esc2(x.id)}')">🗑️ حذف</button>
-        </div>
-      </div>`).join('') :
-      '<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';
-    try{if(typeof window.applyPermissions==='function')window.applyPermissions()}catch(e){}
-  };
-
-  window.addManarReferee=function(){
-    if(!permission()){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}
-    const nEl=document.getElementById('refereeName'), aEl=document.getElementById('refereeAge'), pEl=document.getElementById('refereePhoto');
-    const n=S(nEl?.value), age=Number(aEl?.value), file=pEl?.files?.[0]||null;
-    if(!n)return alert('يرجى إدخال اسم الحكم');
-    if(!age||age<1||age>120)return alert('يرجى إدخال عمر صحيح');
-    let list=readLocal();
-    const editing=window.__manarEditingRefereeId!=null?S(window.__manarEditingRefereeId):'';
-    if(list.some(x=>S(x.name)===n && S(x.id)!==editing))return alert('هذا الحكم موجود مسبقًا');
-
-    const finish=photo=>{
-      if(editing){
-        const x=list.find(z=>S(z.id)===editing);
-        if(!x)return alert('تعذر العثور على الحكم المطلوب تعديله');
-        x.name=n;x.age=age;x.updatedAt=Date.now();if(photo!==null)x.photo=photo;
-        try{if(typeof window.auditAdd==='function')window.auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`)}catch(e){}
-      }else{
-        list.push({id:'R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),name:n,age:age,photo:photo||'',updatedAt:Date.now()});
-        try{if(typeof window.auditAdd==='function')window.auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`)}catch(e){}
-      }
-      window.__manarEditingRefereeId=null;
-      window.saveRefereeRegistry(list);
-      if(nEl)nEl.value='';if(aEl)aEl.value='';if(pEl)pEl.value='';
-      const btn=document.querySelector('#referees .btn-primary');if(btn)btn.textContent='➕ إضافة الحكم';
-      window.renderManarReferees();window.updateRefereeOptionsSafe?.();
-    };
-    compressImage(file,finish);
-  };
-
-  window.editManarReferee=function(id){
-    if(!permission()){alert('إدارة حكام رابطة المنار متاحة للمدير أو لمن منحه الصلاحية.');return}
-    const x=readLocal().find(z=>S(z.id)===S(id));
-    if(!x)return alert('الحكم غير موجود');
-    window.__manarEditingRefereeId=S(id);
-    const n=document.getElementById('refereeName'),a=document.getElementById('refereeAge');
-    if(n)n.value=x.name||'';if(a)a.value=x.age||'';
-    const p=document.getElementById('refereePhoto');if(p)p.value='';
-    const b=document.querySelector('#referees .btn-primary');if(b)b.textContent='💾 حفظ التعديل';
-    n?.focus();
-  };
-
-  window.deleteManarReferee=function(id){
-    if(!permission()){alert('إدارة حكام رابطة المنار متاحة للمدير أو لمن منحه الصلاحية.');return}
-    const list=readLocal(),x=list.find(z=>S(z.id)===S(id));if(!x)return;
-    if(!confirm('هل تريد حذف الحكم؟'))return;
-    window.saveRefereeRegistry(list.filter(z=>S(z.id)!==S(id)));
-    try{if(typeof window.auditAdd==='function')window.auditAdd('حذف','referees',`تم حذف الحكم «${x.name}».`)}catch(e){}
-    if(S(window.__manarEditingRefereeId)===S(id))window.__manarEditingRefereeId=null;
-    window.renderManarReferees();window.updateRefereeOptionsSafe?.();
-  };
-
-  window.repairRefereeRegistry=async function(){
-    const local=readLocal(), candidates=sources();
-    const merged=mergeLists(local,candidates);
-    window.saveRefereeRegistry(merged);
-    window.renderManarReferees();
-    window.updateRefereeOptionsSafe?.();
-    return merged;
-  };
-
-  window.updateRefereeOptionsSafe=function(){
-    try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
-  };
-
-  function refereeOptions(){
-    const list=readLocal();
-    return list.map(x=>`<option value="${esc2(x.id)}">${esc2(x.name)}</option>`).join('');
-  }
-
-  window.fillRefs=function(saved){
-    for(let i=1;i<=4;i++){
-      const el=document.getElementById('ksRef'+i);if(!el)continue;
-      const old=S(saved?.['referee'+i]??saved?.referees?.[i-1]);
-      el.innerHTML='<option value="">'+(i===4?'اختر الحكم الرابع (اختياري)':'اختر الحكم '+i)+'</option>'+refereeOptions();
-      const list=readLocal(), found=list.find(x=>S(x.id)===old||S(x.name)===old);
-      if(found)el.value=found.id;
-      else if(old){
-        const resolved=candidateName(old);
-        if(resolved){const rr=list.find(x=>S(x.name)===resolved);if(rr)el.value=rr.id;}
-      }
-    }
-    try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
-  };
-
-  function repairNow(){
-    try{window.repairRefereeRegistry()}catch(e){}
-    try{window.renderManarReferees()}catch(e){}
-    try{window.fillRefs?.(window.__manarCurrentSheetForRefereeFix||null)}catch(e){}
-  }
-
-  document.addEventListener('DOMContentLoaded',()=>{
-    setTimeout(repairNow,300);
-    setTimeout(repairNow,1500);
-    setTimeout(repairNow,4000);
-  });
-
-  /* إعادة الإصلاح بعد وصول بيانات Firebase، حتى لا تعود السجلات القديمة. */
-  const oldHealth=window.__manarFirebaseHealth;
-  const timer=setInterval(()=>{
-    try{
-      const h=window.__manarFirebaseHealth?.();
-      if(h?.initialized){clearInterval(timer);setTimeout(repairNow,700);}
-    }catch(e){}
-  },1000);
-  setTimeout(()=>clearInterval(timer),20000);
-})();
-</script>
-
 </body>
 </html>
 <!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
@@ -18329,92 +18089,3 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
   });
 })();
 </script>
-
-
-<script id="FINAL_PLATFORM_RESET_FIX">
-(function(){
-  'use strict';
-  const RESET_KEYS=[
-    'manar_sports_v2','manar_sports_v1','almanar_sports_v1','sports_platform_v1',
-    'manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3',
-    'manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1',
-    'manar_media_news_v1','manar_player_management_windows_v1',
-    'manar_player_transfers_v1','manar_contact_settings_v1',
-    'manar_contact_messages_v1','manar_polls_v1'
-  ];
-  const EMPTY_MAIN={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
-
-  function clearLocalPlatformData(){
-    RESET_KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
-    const terms=['manar_','almanar_','platform_','sports_','tournaments','teams','players','matches','sheets','referees','suspensions','archives','audit','media','contact'];
-    const remove=[];
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i);
-      if(!k||k==='manar_users_v3')continue;
-      const low=k.toLowerCase();
-      if(terms.some(t=>low.includes(t))){remove.push(k);continue}
-      try{
-        const x=JSON.parse(localStorage.getItem(k)||'null');
-        if(x&&typeof x==='object'&&(Array.isArray(x.tournaments)||Array.isArray(x.teams)||Array.isArray(x.players)||Array.isArray(x.matches)||Array.isArray(x.officialPlayers)||Array.isArray(x.archives)||Array.isArray(x.suspensions)))remove.push(k);
-      }catch(e){}
-    }
-    [...new Set(remove)].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
-    localStorage.setItem('manar_sports_v2',JSON.stringify(EMPTY_MAIN));
-    localStorage.setItem('manar_sports_v1',JSON.stringify(EMPTY_MAIN));
-    localStorage.setItem('almanar_sports_v1',JSON.stringify(EMPTY_MAIN));
-    localStorage.setItem('sports_platform_v1',JSON.stringify(EMPTY_MAIN));
-    localStorage.setItem('manar_match_sheets_v1','[]');
-    localStorage.setItem('manar_match_sheets_v2','[]');
-    localStorage.setItem('manar_match_sheets_v3','[]');
-    localStorage.setItem('manar_referees_v1','[]');
-    localStorage.setItem('manar_audit_log_v1','[]');
-    localStorage.setItem('manar_tournament_archive_v1','[]');
-    localStorage.setItem('manar_media_news_v1','[]');
-    localStorage.setItem('manar_player_management_windows_v1','{}');
-    localStorage.setItem('manar_player_transfers_v1','[]');
-    localStorage.removeItem('manar_contact_settings_v1');
-    localStorage.removeItem('manar_contact_messages_v1');
-    localStorage.removeItem('manar_polls_v1');
-    localStorage.removeItem('publicSelectedTournamentYear');
-    localStorage.removeItem('publicSelectedTour');
-    try{if(typeof window.db!=='undefined')window.db=JSON.parse(JSON.stringify(EMPTY_MAIN))}catch(e){}
-  }
-
-  async function cloudReset(){
-    if(typeof window.__manarFirebaseHardReset!=='function')throw new Error('خدمة Firebase غير جاهزة');
-    await window.__manarFirebaseHardReset();
-  }
-
-  window.resetPlatformAdminOnly=async function(){
-    if(typeof currentRole!=='undefined'&&currentRole!=='admin'){
-      alert('تصفير المنصة متاح لمدير النظام فقط.');return;
-    }
-    if(!confirm('⚠️ تحذير شديد\n\nسيتم حذف جميع بيانات المنصة من الجهاز ومن قاعدة Firebase المشتركة، مع الإبقاء على حسابات المستخدمين وكلمة مرور المدير.\n\nهل تريد المتابعة؟'))return;
-    const word=prompt('للتأكيد النهائي، اكتب كلمة: تصفير');
-    if(word!=='تصفير'){alert('تم إلغاء العملية. لم يتم حذف أي بيانات.');return}
-
-    const btn=document.querySelector('.platform-reset-only');
-    if(btn){btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent='⏳ جارٍ تصفير المنصة...'}
-
-    try{
-      /* لا نحذف محلياً أولاً: يجب حذف Firebase بنجاح حتى لا تعود البيانات بعد reload. */
-      await cloudReset();
-      clearLocalPlatformData();
-      try{if(typeof rebuildIndexes==='function')rebuildIndexes();if(typeof window.renderAll==='function')window.renderAll()}catch(e){}
-      alert('✅ تم تصفير المنصة بالكامل من الجهاز وFirebase بنجاح.');
-      location.reload();
-    }catch(err){
-      console.error('FINAL PLATFORM RESET:',err);
-      const msg=String(err?.message||err||'');
-      if(/سجّل الدخول إلى Firebase|Firebase غير جاهزة|تسجيل الدخول/i.test(msg)){
-        alert('⚠️ لم يتم حذف أي بيانات.\n\nيجب أولاً تسجيل دخول مدير المنصة إلى Firebase من زر ☁️ المزامنة، ثم الضغط على «تصفير المنصة بالكامل» مرة أخرى.\n\nهذا ضروري حتى لا تعود البيانات القديمة من السحابة.');
-      }else{
-        alert('❌ تعذر تصفير المنصة من Firebase.\n\nلم يتم حذف البيانات حتى لا تفقدها جزئياً.\n\n'+msg);
-      }
-    }finally{
-      if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||'🧹 تصفير المنصة بالكامل'}
-    }
-  };
-})();
-</script>
-
