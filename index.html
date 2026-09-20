@@ -17818,7 +17818,6 @@ document.addEventListener('DOMContentLoaded',()=>{patchRender();setTimeout(()=>{
 </script>
 
 </body>
-</html>
 <!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
 <style id="final-match-management-professional">
 #manarMatchEditModal{position:fixed;inset:0;z-index:99999;display:none;align-items:flex-end;justify-content:center;background:rgba(8,32,24,.58);backdrop-filter:blur(5px);padding:12px}
@@ -18360,3 +18359,111 @@ window.__manarFinalStableVersion='2026-09-20.2';
 })();
 </script>
 
+
+<script id="MANAR_REFEREE_NUMERIC_NAMES_FINAL_2026_09_20_B">
+(function(){
+  'use strict';
+  if(window.__manarRefereeNumericFinal)return;
+  window.__manarRefereeNumericFinal=true;
+  const S=v=>String(v==null?'':v).trim();
+  const A=v=>Array.isArray(v)?v:[];
+  const numeric=v=>/^\d+$/.test(S(v));
+  function parse(k){try{const x=JSON.parse(localStorage.getItem(k)||'null');return x}catch(e){return null}}
+  function refereeList(){
+    const out=[],seen=new Set();
+    const add=(x,idHint)=>{
+      if(x==null)return;
+      if(typeof x==='string'||typeof x==='number'){
+        const id=S(idHint??x); const name=(!numeric(x)||id!==S(x))?S(x):'';
+        if(name){const key=id+'|'+name;if(!seen.has(key)){seen.add(key);out.push({id,name})}}
+        return;
+      }
+      const id=S(x.id??x.refereeId??x.uid??x.value??idHint);
+      const name=S(x.name??x.refereeName??x.fullName??x.displayName);
+      if(!name)return;
+      const key=(id||'name:'+name)+'|'+name;
+      if(!seen.has(key)){seen.add(key);out.push({id,name})}
+    };
+    ['manar_referees_v1','manar_referees_v2','manar_referees','referees'].forEach(k=>{
+      const x=parse(k);
+      if(Array.isArray(x))x.forEach((v,i)=>add(v,i+1));
+      else if(x&&typeof x==='object')Object.entries(x).forEach(([id,v])=>add(v,id));
+    });
+    try{
+      if(Array.isArray(window.db?.referees))window.db.referees.forEach((v,i)=>add(v,i+1));
+      else if(window.db?.referees&&typeof window.db.referees==='object')Object.entries(window.db.referees).forEach(([id,v])=>add(v,id));
+    }catch(e){}
+    return out;
+  }
+  function pairsFromSheets(){
+    const p=new Map();
+    const add=(id,name)=>{id=S(id);name=S(name);if(id&&name&&!numeric(name))p.set(id,name)};
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
+      const a=parse(k);A(a).forEach(sh=>{
+        for(let i=1;i<=4;i++){
+          add(sh?.['referee'+i],sh?.['referee'+i+'Name']??sh?.['ref'+i+'Name']??sh?.['referee'+i+'GuestName']??sh?.['ref'+i+'GuestName']);
+          add(sh?.['referee'+i+'Id'],sh?.['referee'+i+'Name']??sh?.['ref'+i+'Name']??sh?.['referee'+i+'GuestName']??sh?.['ref'+i+'GuestName']);
+        }
+        const ids=A(sh?.refereeIds), names=A(sh?.refereeNames);
+        ids.forEach((v,i)=>add(typeof v==='object'?(v.id??v.refereeId??v.value):v,names[i]??(typeof v==='object'?(v.name??v.refereeName):'')));
+        A(sh?.referees).forEach(v=>{if(v&&typeof v==='object')add(v.id??v.refereeId??v.value,v.name??v.refereeName??v.displayName)});
+      });
+    });
+    return p;
+  }
+  function resolve(v){
+    if(v&&typeof v==='object'){
+      const n=S(v.name??v.refereeName??v.fullName??v.displayName);
+      if(n&&!numeric(n))return n;
+      v=v.id??v.refereeId??v.uid??v.value??'';
+    }
+    const x=S(v);if(!x)return '';
+    const list=refereeList();
+    let r=list.find(q=>S(q.id)===x);
+    if(r)return r.name;
+    r=list.find(q=>S(q.name)===x);if(r)return r.name;
+    const pair=pairsFromSheets().get(x);if(pair)return pair;
+    if(numeric(x)){
+      const n=Number(x);
+      // بعض النسخ القديمة كانت تحفظ رقم ترتيب الحكم بدل معرفه.
+      if(n>=1&&n<=list.length)return list[n-1].name;
+      if(n<list.length)return list[n]?.name||'';
+    }
+    return x;
+  }
+  window.manarRefereeDisplayName=resolve;
+
+  function fixText(el){
+    if(!el)return;
+    const raw=S(el.textContent);if(!raw)return;
+    if(/^[\d\s,،]+$/.test(raw)){
+      const parts=raw.split(/[،,]/).map(s=>S(s)).filter(Boolean);
+      const names=parts.map(resolve);
+      if(names.some((n,i)=>n&&n!==parts[i]))el.textContent=names.join('، ');
+    }
+  }
+  function fixAll(){
+    // أسماء الحكام في الجداول والبطاقات والكشوفات والإحصائيات.
+    document.querySelectorAll('#statsBody td,.referee-name,.pub-referee,.pub-line,.public-summary-details > div,.ks-saved .pub-line').forEach(el=>{
+      const t=S(el.textContent);
+      if(/الحكام/.test(t)){const tail=t.split('الحكام:').slice(1).join('الحكام:').trim();if(tail){const ps=tail.split(/[،,]/).map(S).filter(Boolean),ns=ps.map(resolve);if(ns.some((n,i)=>n&&n!==ps[i]))el.innerHTML='⚖️ <b>الحكام:</b> '+ns.map(n=>{const d=document.createElement('span');d.textContent=n;return d.innerHTML}).join('، ');}}
+      else if(numeric(t))fixText(el);
+    });
+  }
+  function refreshStats(){try{if(typeof window.renderStats==='function')window.renderStats()}catch(e){}setTimeout(fixAll,30)}
+  function refreshReferees(){try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}setTimeout(fixAll,30)}
+  function schedule(){[100,500,1500,3000,6000].forEach(ms=>setTimeout(fixAll,ms))}
+  document.addEventListener('DOMContentLoaded',schedule,{once:true});
+  window.addEventListener('storage',schedule);
+  window.addEventListener('manar:firebase-sync-complete',schedule);
+  // إعادة العرض عند فتح صفحة الإحصائيات/الحكام فقط، دون مراقبة كامل الصفحة.
+  document.addEventListener('click',e=>{
+    const b=e.target.closest?.('[data-page]');
+    if(!b)return;
+    const p=S(b.getAttribute('data-page'));
+    if(p==='stats')setTimeout(refreshStats,80);
+    if(p==='referees')setTimeout(refreshReferees,80);
+    schedule();
+  });
+})();
+</script>
