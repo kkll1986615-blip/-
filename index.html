@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link rel="icon" type="image/png" sizes="48x48" href="./icons/favicon-48.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
-<meta content="#063f2d" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="المنصة الرياضية" name="apple-mobile-web-app-title"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-512.png" rel="icon" sizes="512x512" type="image/png"/><meta content="المنصة الرياضية" name="application-name"/>
+<meta content="#063f2d" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="المنصة الرياضية" name="apple-mobile-web-app-title"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-512.png" rel="icon" sizes="512x512" type="image/png"/><meta content="المنصة الرياضية" name="application-name"/><meta name="pwa-icon-fix" content="2026-09-17"/>
 
 <meta content="#075f45" name="theme-color"/>
 
@@ -8673,29 +8673,10 @@ body.admin #predictionsSection{display:block}
 }
 </style>
 
-<style id="referee-photo-upload-final-fix">
-#referees .referee-photo-input{
-  width:100%!important;
-  min-height:48px!important;
-  padding:10px!important;
-  border:2px dashed #9fc8b7!important;
-  border-radius:12px!important;
-  background:#f7fcfa!important;
-  cursor:pointer!important;
-}
-#referees .referee-photo-wrap{
-  width:78px!important;height:78px!important;min-width:78px!important;
-  border-radius:16px!important;overflow:hidden!important;
-  display:flex!important;align-items:center!important;justify-content:center!important;
-  background:#eef7f3!important;border:2px solid #cde4d9!important;
-}
-#referees .referee-photo{
-  width:100%!important;height:100%!important;
-  object-fit:cover!important;display:block!important;
-}
-@media(max-width:600px){
-  #referees .referee-photo-wrap{width:70px!important;height:70px!important;min-width:70px!important}
-}
+<style id="team-logo-save-fix">
+.team-logo-upload-preview{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px 10px;border:1px dashed #cbdad3;border-radius:10px;background:#f7fbf9}
+.team-logo-upload-preview img{width:58px;height:58px;border-radius:50%;object-fit:contain;background:#fff;border:2px solid #d7e5df}
+.team-logo-upload-preview small{color:#5f716a}
 </style>
 </head><body>
 <!-- المنصة الرياضية | تنظيم وصيانة 2026-09-14: إزالة رقع معطلة فقط، مع الحفاظ على البيانات والوظائف الحالية. -->
@@ -8703,7 +8684,8 @@ body.admin #predictionsSection{display:block}
 <div class="card install-section-card">
   <div class="section-title"><div><h2>📲 تثبيت البرنامج</h2><small>ثبّت المنصة الرياضية على هاتفك للوصول إليها بسرعة مثل التطبيق.</small></div><span class="badge" id="appVersionBadge">الإصدار الحالي</span></div>
   <div class="install-sports-hero">
-    <div class="install-big-icon" aria-hidden="true"><img loading="lazy" decoding="async" src="icons/icon-192.png" alt="أيقونة المنصة الرياضية"></div>
+    <div class="install-big-icon" aria-hidden="true"><img loading="eager" decoding="async" src="./icons/icon-192.png?v=20260917" alt="أيقونة المنصة الرياضية"
+             onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22%3E%3Crect width=%22192%22 height=%22192%22 rx=%2240%22 fill=%22%23063f2d%22/%3E%3Ccircle cx=%2296%22 cy=%2296%22 r=%2270%22 fill=%22%23fff%22/%3E%3Cpath d=%22M96 48l20 15-8 25h-24l-8-25zM55 78l-25 18 10 29 29-3 10-24zm82 0l25 18-10 29-29-3-10-24zM61 126l14 29h42l14-29-20-4H81zm35-64l-18 13 7 22h22l7-22z%22 fill=%22%23063f2d%22/%3E%3C/svg%3E';"></div>
     <div><h3>المنصة الرياضية</h3><p>تثبيت سريع وآمن على الهاتف، مع ظهور خيار التحديث عند صدور نسخة جديدة.</p></div>
   </div>
   <div class="install-update-status" id="installUpdateStatus">جارٍ فحص حالة التثبيت والتحديث...</div>
@@ -8736,7 +8718,7 @@ body.admin #predictionsSection{display:block}
 </div><div class="actions"><button class="btn" onclick="addMatch()">💾 حفظ المباراة</button></div></div><div class="card match-view-selector-card"><div class="section-title"><div><h2>📋 عرض المباريات</h2><small>اختر البطولة أولاً، ثم اختر نوع المباريات التي تريد عرضها.</small></div><span class="badge">👁️ متاح للجميع</span></div><div class="grid match-view-selectors"><div><label>🏆 اسم البطولة</label><select id="matchViewTournament" onchange="refreshMatchViewStatus()"><option value="">— اختر البطولة —</option></select></div><div><label>📌 نوع المباريات</label><select disabled="" id="matchViewFilter" onchange="renderMatchView()"><option value="">— اختر نوع المباريات —</option><option value="scheduled">📅 المباريات المجدولة</option><option value="finished">✅ المباريات المنتهية</option></select></div></div><div class="match-view-help" id="matchViewHelp">🏆 اختر اسم البطولة لعرض خيارات المباريات.</div></div><div class="card"><div id="matchViewList"><div class="upcoming-empty">🏆 اختر اسم البطولة أولاً.</div></div></div><div id="upcomingMatches" style="display:none"></div><div id="matchList" style="display:none"></div></section><section class="page" id="overallRanking"><div class="card overall-ranking-new"><div class="section-title"><div><h2>🏆 التصنيف العام</h2><small>ترتيب نتائج الفرق في جميع البطولات الرسمية في المنار</small></div><span class="badge">جميع البطولات الرسمية</span></div><div class="notice overall-ranking-note">
       يتم جمع نتائج المباريات المنتهية للفرق المسجلة في البطولات الرسمية وعرضها في جدول واحد.
     </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card"><h2>إحصائيات البطولة</h2><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings"><div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>تغيير كلمة مرور حساب المدير وإدارة إعدادات الدخول.</small></div><span class="badge">Admin فقط</span></div><div class="card settings-card" data-perm="settings"><h2>🔐 تغيير كلمة مرور مدير النظام</h2><div class="notice">يمكن لمدير النظام تغيير كلمة المرور بعد تسجيل الدخول. يتم حفظ كلمة المرور الجديدة على هذا الجهاز.</div><div class="grid"><div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div><div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div><div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div></div><div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div><div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ كلمة المرور الجديدة</button></div></div><div class="card settings-card" data-perm="settings"><div class="section-title"><h2>👥 إدارة المستخدمين والصلاحيات</h2><span class="badge">مدير النظام</span></div><div class="notice">إدارة الحسابات والصلاحيات بشكل منظم. الزائر يبقى مشاهدًا دون تسجيل دخول.</div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">👤 الحسابات الحالية</h3><span class="badge">الحسابات</span></div><div class="table-wrap" id="managedUsersList"></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">➕ إنشاء حساب جديد</h3><span class="badge">الخطوة 1</span></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input id="newManagedUser" placeholder="مثال: مسؤول المباريات"/></div><div><label>كلمة المرور</label><input id="newManagedPass" placeholder="كلمة مرور الحساب" type="password"/></div></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">🔐 الصلاحيات</h3><span class="badge">الخطوة 2</span></div><div class="permission-tools"><button class="btn secondary" onclick="setAllManagedPermissions(true)" type="button">☑️ تحديد الكل</button><button class="btn secondary" onclick="setAllManagedPermissions(false)" type="button">☐ إلغاء الكل</button></div><div class="permission-grid" id="userPermissions"></div></div><div class="actions"><button class="btn btn-primary" onclick="addManagedUser()">➕ إنشاء الحساب بالصلاحيات المحددة</button></div><div class="card settings-card platform-reset-card" data-platform-reset="admin-only"><div class="section-title"><h2>⚠️ تصفير المنصة</h2><span class="badge">المدير فقط</span></div><div class="platform-reset-warning">
-    هذا الإجراء يحذف بيانات المنصة الرياضية المخزنة على هذا الجهاز، بما في ذلك البطولات والفرق واللاعبين والمباريات والكشوفات والحكام والأرشيف والأخبار وسجل المراجعة. <b>لا يتم حذف حسابات المستخدمين أو كلمة مرور المدير.</b></div><div class="actions"><button class="btn danger platform-reset-only" onclick="resetPlatformAdminOnly()" type="button">🧹 تصفير المنصة بالكامل</button></div></div></div></section><section class="page" data-perm="audit" id="auditLog"><div class="card audit-card"><div class="section-title"><h2>🧾 سجل المراجعة</h2><span class="badge">للمدير أو من يخوله</span></div><div class="viewer-note">🔐 هذا السجل لا يظهر إلا للمدير أو للحساب الذي منحه المدير صلاحية «سجل المراجعة». يتم تسجيل الإضافات والتعديلات والحذف وإدارة الحسابات.</div><div class="audit-toolbar"><div><label>تصفية القسم</label><select id="auditSectionFilter"><option value="">كل الأقسام</option></select></div><div><label>تصفية العملية</label><select id="auditActionFilter"><option value="">كل العمليات</option><option value="إضافة">إضافة</option><option value="تعديل">تعديل</option><option value="حذف">حذف</option><option value="إدارة الحسابات">إدارة الحسابات</option><option value="تسجيل الدخول">تسجيل الدخول</option><option value="تسجيل الخروج">تسجيل الخروج</option></select></div><div class="audit-search"><label>بحث</label><input id="auditSearch" placeholder="ابحث باسم المستخدم أو التفاصيل"/></div><div class="actions audit-actions"><button class="btn secondary" onclick="renderAuditLog()">🔄 تحديث</button><button class="btn danger admin-only" onclick="clearAuditLog()">🗑️ مسح السجل</button></div></div><div class="table-wrap" id="auditLogList"></div></div></section><div class="card admin-only" id="platformMaintenanceBox" style="margin-top:16px"><div class="section-title"><h2>🛠️ صيانة المنصة</h2><span class="badge">المدير فقط</span></div><div class="notice">فحص وإصلاح مشاكل بيانات المنصة بعد النشر أو التحديث. يتم إنشاء نسخة احتياطية قبل الإصلاح.</div><div class="actions" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn blue" onclick="platformMaintenanceCheck()" type="button">🔍 فحص المنصة</button><button class="btn" onclick="platformMaintenanceRepair()" type="button">🔧 إصلاح تلقائي</button><button class="btn secondary" onclick="platformMaintenanceReload()" type="button">🔄 إعادة تشغيل</button></div><div id="maintenanceStatus" style="margin-top:12px;padding:12px;border-radius:12px;background:#f4f6f8;font-weight:800">جاهز للفحص.</div><div id="maintenanceReport" style="margin-top:10px;display:grid;gap:8px"></div></div><section class="page" id="backup"><div class="card"><h2>حفظ واستعادة البيانات</h2><div class="notice">البيانات تحفظ تلقائيًا على الجهاز. استخدم النسخ الاحتياطي قبل حذف المتصفح أو تغيير الهاتف.</div><div class="actions"><button class="btn blue admin-only" onclick="downloadBackup()">⬇️ تصدير نسخة احتياطية</button><label class="btn secondary admin-only" style="display:inline-block">⬆️ استعادة نسخة<input accept=".json" onchange="restoreBackup(event)" style="display:none" type="file"/></label><button class="btn danger admin-only" onclick="clearAll()">حذف جميع البيانات</button></div></div></section><section class="page" id="matchSheetsSection"><div class="card ks-root"><div class="section-title"><h2>📋 كشوفات المباريات</h2><span class="badge">سجل رسمي للمباراة</span></div><div class="ks-note">🔐 الإدخال والتعديل والحذف للمدير أو من يملك صلاحية «كشوفات المباريات». الزوار يشاهدون ملخصات الكشوفات فقط.</div><div class="ks-toolbar"><div><label>🏆 البطولة</label><select id="ksTournament"><option value="">اختر البطولة</option></select></div><div><label>⚽ المباراة</label><select disabled="" id="ksMatch"><option value="">اختر البطولة أولاً</option></select></div><button class="btn blue" id="ksNew" type="button">➕ إنشاء كشف</button></div><div class="ks-list" id="ksPending"></div><div class="ks-editor" id="ksEditor" style="display:none"><div class="ks-editor-head"><div><b id="ksEditorTitle">📝 إنشاء كشف مباراة</b><small id="ksNumber">رقم الكشف: تلقائي</small></div><button class="btn secondary" id="ksClose" type="button">إغلاق</button></div><div class="ks-match-info" id="ksMatchInfo"></div><div class="ks-step"><h3>1️⃣ نتيجة المباراة</h3><div class="ks-score"><div><label id="ksHomeLabel">الفريق الأول</label><input id="ksHomeScore" inputmode="numeric" min="0" type="number"/></div><strong>×</strong><div><label id="ksAwayLabel">الفريق الثاني</label><input id="ksAwayScore" inputmode="numeric" min="0" type="number"/></div></div></div><div class="ks-step"><h3>2️⃣ مسجلو الأهداف</h3><div class="ks-two"><div><b id="ksHomeGoalsTitle">الفريق الأول</b><div class="ks-dynamic" id="ksHomeGoals"></div></div><div><b id="ksAwayGoalsTitle">الفريق الثاني</b><div class="ks-dynamic" id="ksAwayGoals"></div></div></div><small>تظهر خانات المسجلين حسب عدد الأهداف، ولا يتم تسجيل الدقيقة أو الشوط.</small></div><div class="ks-step"><h3>3️⃣ الإنذارات والبطاقات</h3><div class="ks-card-entry"><select id="ksCardTeam"><option value="">اختر الفريق</option></select><select disabled="" id="ksCardPlayer"><option value="">اختر اللاعب</option></select><select id="ksCardType"><option value="yellow">🟨 صفراء</option><option value="red">🟥 حمراء</option></select><button class="btn warn" id="ksAddCard" type="button">إضافة البطاقة</button></div><div class="ks-events" id="ksCards"></div></div><div class="ks-step"><h3>4️⃣ أفضل لاعب</h3><div class="ks-grid"><div><label>أفضل لاعب *</label><select id="ksBestPlayer"><option value="">اختر اللاعب</option></select></div></div></div><div class="ks-step"><h3>5️⃣ الحكام والمشرف</h3><div class="ks-grid"><div><label>الحكم الأول *</label><select id="ksRef1"></select></div><div><label>الحكم الثاني *</label><select id="ksRef2"></select></div><div><label>الحكم الثالث *</label><select id="ksRef3"></select></div><div><label>الحكم الرابع</label><select id="ksRef4"></select></div><div><label>مشرف المباراة</label><input id="ksSupervisor" placeholder="اسم المشرف"/></div></div></div><div class="ks-step"><h3>6️⃣ ضربات الجزاء</h3><div class="ks-grid"><div><label>هل توجد ضربات جزاء؟</label><select id="ksPenYes"><option value="no">لا</option><option value="yes">نعم</option></select></div><div><label>العدد</label><input id="ksPenalties" min="0" type="number" value="0"/></div></div></div><div class="ks-step"><h3>7️⃣ صورة الكشف <small>(اختياري)</small></h3><input accept="image/*" id="ksImage" type="file"/><div id="ksImagePreview"></div></div><div class="ks-actions"><button class="btn primary" id="ksSave" type="button">💾 حفظ الكشف</button><button class="btn secondary" id="ksCancel" type="button">إلغاء</button></div><div class="ks-status" id="ksStatus"></div></div><div class="ks-public"><div class="section-title"><h3>📋 الكشوفات المدخلة</h3><span class="badge">المشاهدة للجميع</span></div><div id="ksReportsList"></div></div></div></section><section class="page" id="contactUs" style="display:none"><div class="section-page-title"><h2>📞 تواصل معنا</h2><span class="badge">نحن هنا لخدمتكم</span></div><div class="card"><div class="section-title"><h2>💬 تواصل معنا</h2><small>يسعدنا استقبال استفساراتكم وملاحظاتكم</small></div><div class="grid"><div class="card" style="margin:0"><h3>📞 الهاتف</h3><p>يمكنك إضافة رقم الهاتف هنا.</p></div><div class="card" style="margin:0"><h3>📱 واتساب</h3><p>يمكنك إضافة رقم الواتساب هنا.</p></div><div class="card" style="margin:0"><h3>📧 البريد الإلكتروني</h3><p>يمكنك إضافة البريد الإلكتروني هنا.</p></div><div class="card" style="margin:0"><h3>📍 العنوان</h3><p>يمكنك إضافة عنوان المنصة هنا.</p></div></div></div></section></main><section class="page" id="headToHeadSection">
+    هذا الإجراء يحذف بيانات المنصة الرياضية المخزنة على هذا الجهاز، بما في ذلك البطولات والفرق واللاعبين والمباريات والكشوفات والحكام والأرشيف والأخبار وسجل المراجعة. <b>لا يتم حذف حسابات المستخدمين أو كلمة مرور المدير.</b></div><div class="actions"><button class="btn danger platform-reset-only" onclick="resetPlatformAdminOnly()" type="button">🧹 تصفير المنصة بالكامل</button></div></div></div></section><section class="page" data-perm="audit" id="auditLog"><div class="card audit-card"><div class="section-title"><h2>🧾 سجل المراجعة</h2><span class="badge">للمدير أو من يخوله</span></div><div class="viewer-note">🔐 هذا السجل لا يظهر إلا للمدير أو للحساب الذي منحه المدير صلاحية «سجل المراجعة». يتم تسجيل الإضافات والتعديلات والحذف وإدارة الحسابات.</div><div class="audit-toolbar"><div><label>تصفية القسم</label><select id="auditSectionFilter"><option value="">كل الأقسام</option></select></div><div><label>تصفية العملية</label><select id="auditActionFilter"><option value="">كل العمليات</option><option value="إضافة">إضافة</option><option value="تعديل">تعديل</option><option value="حذف">حذف</option><option value="إدارة الحسابات">إدارة الحسابات</option><option value="تسجيل الدخول">تسجيل الدخول</option><option value="تسجيل الخروج">تسجيل الخروج</option></select></div><div class="audit-search"><label>بحث</label><input id="auditSearch" placeholder="ابحث باسم المستخدم أو التفاصيل"/></div><div class="actions audit-actions"><button class="btn secondary" onclick="renderAuditLog()">🔄 تحديث</button><button class="btn danger admin-only" onclick="clearAuditLog()">🗑️ مسح السجل</button></div></div><div class="table-wrap" id="auditLogList"></div></div></section><div class="card admin-only" id="platformMaintenanceBox" style="margin-top:16px"><div class="section-title"><h2>🛠️ صيانة المنصة</h2><span class="badge">المدير فقط</span></div><div class="notice">فحص وإصلاح مشاكل بيانات المنصة بعد النشر أو التحديث. يتم إنشاء نسخة احتياطية قبل الإصلاح.</div><div class="actions" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn blue" onclick="platformMaintenanceCheck()" type="button">🔍 فحص المنصة</button><button class="btn" onclick="platformMaintenanceRepair()" type="button">🔧 إصلاح تلقائي</button><button class="btn secondary" onclick="platformMaintenanceReload()" type="button">🔄 إعادة تشغيل</button></div><div id="maintenanceStatus" style="margin-top:12px;padding:12px;border-radius:12px;background:#f4f6f8;font-weight:800">جاهز للفحص.</div><div id="maintenanceReport" style="margin-top:10px;display:grid;gap:8px"></div></div><section class="page" id="backup"><div class="card"><h2>حفظ واستعادة البيانات</h2><div class="notice">البيانات تحفظ تلقائيًا على الجهاز. استخدم النسخ الاحتياطي قبل حذف المتصفح أو تغيير الهاتف.</div><div class="actions"><button class="btn blue admin-only" onclick="downloadBackup()">⬇️ تصدير نسخة احتياطية</button><label class="btn secondary admin-only" style="display:inline-block">⬆️ استعادة نسخة<input accept=".json" onchange="restoreBackup(event)" style="display:none" type="file"/></label><button class="btn danger admin-only" onclick="clearAll()">حذف جميع البيانات</button></div></div></section><section class="page" id="matchSheetsSection"><div class="card ks-root"><div class="section-title"><h2>📋 كشوفات المباريات</h2><span class="badge">سجل رسمي للمباراة</span></div><div class="ks-note">🔐 الإدخال والتعديل والحذف للمدير أو من يملك صلاحية «كشوفات المباريات». الزوار يشاهدون ملخصات الكشوفات فقط.</div><div class="ks-toolbar"><div><label>🏆 البطولة</label><select id="ksTournament"><option value="">اختر البطولة</option></select></div><div><label>⚽ المباراة</label><select disabled="" id="ksMatch"><option value="">اختر البطولة أولاً</option></select></div><button class="btn blue" id="ksNew" type="button">➕ إنشاء كشف</button></div><div class="ks-list" id="ksPending"></div><div class="ks-editor" id="ksEditor" style="display:none"><div class="ks-editor-head"><div><b id="ksEditorTitle">📝 إنشاء كشف مباراة</b><small id="ksNumber">رقم الكشف: تلقائي</small></div><button class="btn secondary" id="ksClose" type="button">إغلاق</button></div><div class="ks-match-info" id="ksMatchInfo"></div><div class="ks-step"><h3>1️⃣ نتيجة المباراة</h3><div class="ks-score"><div><label id="ksHomeLabel">الفريق الأول</label><input id="ksHomeScore" inputmode="numeric" min="0" type="number"/></div><strong>×</strong><div><label id="ksAwayLabel">الفريق الثاني</label><input id="ksAwayScore" inputmode="numeric" min="0" type="number"/></div></div><div class="ks-admin-decision" style="margin-top:14px;padding:14px;border:2px solid #f0b429;border-radius:14px;background:#fffaf0"><label style="display:flex;align-items:center;gap:9px;font-weight:900;color:#8a5a00"><input id="ksAdminDecision" type="checkbox" style="width:20px;height:20px"/> ⚖️ قرار إداري — انسحاب فريق</label><div id="ksWithdrawnWrap" style="display:none;margin-top:10px"><label>الفريق المنسحب</label><select id="ksWithdrawnTeam"><option value="">اختر الفريق المنسحب</option></select><small style="display:block;margin-top:6px;color:#765">عند تفعيل القرار الإداري تُعتمد النتيجة تلقائيًا 3-0 للفريق غير المنسحب، ولا تُسجل الأهداف لأي لاعب.</small></div></div></div><div class="ks-step"><h3>2️⃣ مسجلو الأهداف</h3><div class="ks-two"><div><b id="ksHomeGoalsTitle">الفريق الأول</b><div class="ks-dynamic" id="ksHomeGoals"></div></div><div><b id="ksAwayGoalsTitle">الفريق الثاني</b><div class="ks-dynamic" id="ksAwayGoals"></div></div></div><small>تظهر خانات المسجلين حسب عدد الأهداف، ولا يتم تسجيل الدقيقة أو الشوط.</small></div><div class="ks-step"><h3>3️⃣ الإنذارات والبطاقات</h3><div class="ks-card-entry"><select id="ksCardTeam"><option value="">اختر الفريق</option></select><select disabled="" id="ksCardPlayer"><option value="">اختر اللاعب</option></select><select id="ksCardType"><option value="yellow">🟨 صفراء</option><option value="red">🟥 حمراء</option></select><button class="btn warn" id="ksAddCard" type="button">إضافة البطاقة</button></div><div class="ks-events" id="ksCards"></div></div><div class="ks-step"><h3>4️⃣ أفضل لاعب</h3><div class="ks-grid"><div><label>أفضل لاعب *</label><select id="ksBestPlayer"><option value="">اختر اللاعب</option></select></div></div></div><div class="ks-step"><h3>5️⃣ الحكام والمشرف</h3><div class="ks-grid"><div><label>الحكم الأول *</label><select id="ksRef1"></select></div><div><label>الحكم الثاني *</label><select id="ksRef2"></select></div><div><label>الحكم الثالث *</label><select id="ksRef3"></select></div><div><label>الحكم الرابع</label><select id="ksRef4"></select></div><div><label>مشرف المباراة</label><input id="ksSupervisor" placeholder="اسم المشرف"/></div></div></div><div class="ks-step"><h3>6️⃣ ضربات الجزاء</h3><div class="ks-grid"><div><label>هل توجد ضربات جزاء؟</label><select id="ksPenYes"><option value="no">لا</option><option value="yes">نعم</option></select></div><div><label>العدد</label><input id="ksPenalties" min="0" type="number" value="0"/></div></div></div><div class="ks-step"><h3>7️⃣ صورة الكشف <small>(اختياري)</small></h3><input accept="image/*" id="ksImage" type="file"/><div id="ksImagePreview"></div></div><div class="ks-actions"><button class="btn primary" id="ksSave" type="button">💾 حفظ الكشف</button><button class="btn secondary" id="ksCancel" type="button">إلغاء</button></div><div class="ks-status" id="ksStatus"></div></div><div class="ks-public"><div class="section-title"><h3>📋 الكشوفات المدخلة</h3><span class="badge">المشاهدة للجميع</span></div><div id="ksReportsList"></div></div></div></section><section class="page" id="contactUs" style="display:none"><div class="section-page-title"><h2>📞 تواصل معنا</h2><span class="badge">نحن هنا لخدمتكم</span></div><div class="card"><div class="section-title"><h2>💬 تواصل معنا</h2><small>يسعدنا استقبال استفساراتكم وملاحظاتكم</small></div><div class="grid"><div class="card" style="margin:0"><h3>📞 الهاتف</h3><p>يمكنك إضافة رقم الهاتف هنا.</p></div><div class="card" style="margin:0"><h3>📱 واتساب</h3><p>يمكنك إضافة رقم الواتساب هنا.</p></div><div class="card" style="margin:0"><h3>📧 البريد الإلكتروني</h3><p>يمكنك إضافة البريد الإلكتروني هنا.</p></div><div class="card" style="margin:0"><h3>📍 العنوان</h3><p>يمكنك إضافة عنوان المنصة هنا.</p></div></div></div></section></main><section class="page" id="headToHeadSection">
   <div class="section-page-title"><h2>⚔️ تاريخ المواجهات</h2><span class="badge">جميع البطولات المسجلة</span></div>
   <div class="card h2h-card">
     <div class="section-title">
@@ -8941,8 +8923,31 @@ if(!Array.isArray(db.suspensions))db.suspensions=[];
 
 /* ==================== سجل المراجعة ==================== */
 const AUDIT_KEY='manar_audit_log_v1';
-function getAuditLog(){try{const x=JSON.parse(localStorage.getItem(AUDIT_KEY)||'[]');return Array.isArray(x)?x:[]}catch(e){return[]}}
-function saveAuditLog(a){localStorage.setItem(AUDIT_KEY,JSON.stringify(a.slice(0,1000)))}
+function getAuditLog(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(AUDIT_KEY)||'[]');
+    if(!Array.isArray(raw))return[];
+    /* حذف تلقائي لأي سجل مراجعة مضى على إنشائه أكثر من 7 أيام. */
+    const cutoff=Date.now()-(7*24*60*60*1000);
+    const fresh=raw.filter(x=>{
+      const t=Date.parse(x?.time||'');
+      return !Number.isFinite(t) || t>=cutoff;
+    });
+    /* حفظ القائمة المنقحة حتى لا تبقى السجلات القديمة في التخزين. */
+    if(fresh.length!==raw.length){
+      try{localStorage.setItem(AUDIT_KEY,JSON.stringify(fresh.slice(0,1000)));}catch(e){}
+    }
+    return fresh;
+  }catch(e){return[]}
+}
+function saveAuditLog(a){
+  const cutoff=Date.now()-(7*24*60*60*1000);
+  const fresh=(Array.isArray(a)?a:[]).filter(x=>{
+    const t=Date.parse(x?.time||'');
+    return !Number.isFinite(t) || t>=cutoff;
+  });
+  localStorage.setItem(AUDIT_KEY,JSON.stringify(fresh.slice(0,1000)));
+}
 function auditNow(){return new Date().toISOString()}
 function auditLabel(role){if(role==='admin')return 'مدير النظام';if(role==='editor')return 'مستخدم متوسط';if(role==='viewer')return 'زائر';return USERS[role]?.user||'مستخدم';}
 function auditAdd(action,section,details){
@@ -8987,6 +8992,9 @@ function renderAuditLog(){
 }
 function formatAuditDate(v){try{const d=new Date(v);return d.toLocaleString('ar-IQ',{hour12:true,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){return v||'—'}}
 function clearAuditLog(){if(currentRole!=='admin')return alert('مسح سجل المراجعة متاح للمدير فقط.');if(!confirm('هل تريد مسح سجل المراجعة بالكامل؟'))return;localStorage.removeItem(AUDIT_KEY);renderAuditLog();}
+/* تشغيل التنظيف تلقائيًا عند فتح المنصة، دون تدخل المستخدم. */
+try{getAuditLog();}catch(e){}
+
 function setupAuditFilters(){['auditSectionFilter','auditActionFilter','auditSearch'].forEach(id=>{const e=document.getElementById(id);if(e&&!e.dataset.auditBound){e.dataset.auditBound='1';e.addEventListener('input',renderAuditLog);e.addEventListener('change',renderAuditLog)}});}
 
 /* مراجع صريحة لعناصر الصفحة - لتعمل بشكل صحيح على Android وChrome وWebView */
@@ -9074,34 +9082,85 @@ function save(){
     return false;
   }
 }
-function readLogo(file){return new Promise((resolve,reject)=>{
-  if(!file){resolve('');return;}
-  if(!String(file.type||'').startsWith('image/')){reject(new Error('الملف المختار ليس صورة'));return;}
-  const r=new FileReader(); r.onerror=reject;
-  r.onload=()=>{
-    const src=String(r.result||''); const img=new Image();
-    img.onload=()=>{
-      try{
-        /* تصغير الشعارات بقوة حتى لا تمتلئ مساحة localStorage وتفشل عملية الحفظ. */
-        const MAX=180;
-        const scale=Math.min(1,MAX/Math.max(img.naturalWidth||img.width||1,img.naturalHeight||img.height||1));
-        const w=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
-        const h=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
-        const c=document.createElement('canvas'); c.width=w; c.height=h;
-        const ctx=c.getContext('2d'); ctx.clearRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
-        let out=c.toDataURL('image/webp',0.68);
-        if(!out||out.length>90000) out=c.toDataURL('image/jpeg',0.65);
-        if(out&&out.length>120000){
-          const c2=document.createElement('canvas'); c2.width=120;c2.height=120;
-          const x=c2.getContext('2d');x.drawImage(img,0,0,120,120);out=c2.toDataURL('image/jpeg',0.58);
+function readLogo(file){
+  return new Promise((resolve,reject)=>{
+    if(!file){resolve('');return;}
+
+    /* قبول ملفات الصور حتى لو كان نوع MIME ناقصًا أو غير موثوق به. */
+    const name=String(file.name||'').toLowerCase();
+    const looksLikeImage=String(file.type||'').toLowerCase().startsWith('image/') ||
+      /\.(jpg|jpeg|png|webp|gif|bmp|avif|heic|heif)$/i.test(name);
+    if(!looksLikeImage){
+      reject(new Error('اختر ملف صورة صالحًا'));
+      return;
+    }
+
+    const r=new FileReader();
+    r.onerror=()=>reject(new Error('تعذر قراءة ملف الصورة'));
+    r.onload=()=>{
+      const src=String(r.result||'');
+      if(!src){reject(new Error('ملف الصورة فارغ'));return;}
+
+      const img=new Image();
+      img.onload=()=>{
+        try{
+          const ow=img.naturalWidth||img.width||1;
+          const oh=img.naturalHeight||img.height||1;
+
+          /* حجم موحد للشعار مع ضغط قوي حتى يبقى الحفظ مستقرًا على الهاتف. */
+          const MAX=180;
+          const scale=Math.min(1,MAX/Math.max(ow,oh));
+          const w=Math.max(1,Math.round(ow*scale));
+          const h=Math.max(1,Math.round(oh*scale));
+
+          const c=document.createElement('canvas');
+          c.width=w;c.height=h;
+          const ctx=c.getContext('2d',{alpha:true});
+          if(!ctx)throw new Error('Canvas غير متاح');
+
+          ctx.clearRect(0,0,w,h);
+          ctx.imageSmoothingEnabled=true;
+          ctx.imageSmoothingQuality='high';
+          ctx.drawImage(img,0,0,w,h);
+
+          /* WebP أولاً، ثم JPEG كحل احتياطي للمتصفحات القديمة. */
+          let out=c.toDataURL('image/webp',0.62);
+          if(!out || !out.startsWith('data:image/')) out='';
+          if(!out || out.length>85000){
+            const jpeg=document.createElement('canvas');
+            jpeg.width=w;jpeg.height=h;
+            const jx=jpeg.getContext('2d');
+            jx.fillStyle='#ffffff';
+            jx.fillRect(0,0,w,h);
+            jx.drawImage(img,0,0,w,h);
+            out=jpeg.toDataURL('image/jpeg',0.58);
+          }
+
+          /* حد أمان نهائي: الشعار لا يتجاوز تقريبًا 60KB إن أمكن. */
+          if(out.length>65000){
+            const c2=document.createElement('canvas');
+            const s=Math.min(140/Math.max(ow,oh),1);
+            c2.width=Math.max(1,Math.round(ow*s));
+            c2.height=Math.max(1,Math.round(oh*s));
+            const x=c2.getContext('2d');
+            x.fillStyle='#ffffff';
+            x.fillRect(0,0,c2.width,c2.height);
+            x.drawImage(img,0,0,c2.width,c2.height);
+            out=c2.toDataURL('image/jpeg',0.52);
+          }
+
+          if(!out || out.length<50)throw new Error('تعذر تحويل الصورة');
+          resolve(out);
+        }catch(e){
+          reject(e);
         }
-        resolve(out||src);
-      }catch(e){resolve(src);}
+      };
+      img.onerror=()=>reject(new Error('الصورة غير قابلة للقراءة أو غير مدعومة من المتصفح'));
+      img.src=src;
     };
-    img.onerror=()=>resolve(src); img.src=src;
-  };
-  r.readAsDataURL(file);
-})}
+    r.readAsDataURL(file);
+  });
+}
 async function optimizeStoredTeamLogos(){
   try{
     const teams=Array.isArray(db?.teams)?db.teams:[];
@@ -9449,11 +9508,29 @@ async function updateTeam(){
   t.president=document.getElementById('editTeamPresident').value.trim();
   t.coach=document.getElementById('editTeamCoach').value.trim();
   const lf=document.getElementById('editTeamLogo');
-  if(lf&&lf.files&&lf.files[0]){
-    try{t.logo=await readLogo(lf.files[0]);}catch(e){return alert('تعذر قراءة شعار الفريق: '+(e?.message||e));}
+  const selectedLogo=lf&&lf.files&&lf.files[0]?lf.files[0]:null;
+
+  /* إذا اختار المستخدم شعارًا جديدًا، يجب تحويله وتصغيره قبل تعديل السجل. */
+  if(selectedLogo){
+    try{
+      const compressedLogo=await readLogo(selectedLogo);
+      if(!compressedLogo || !compressedLogo.startsWith('data:image/')){
+        return alert('تعذر تجهيز شعار الفريق للحفظ.');
+      }
+      t.logo=compressedLogo;
+    }catch(e){
+      return alert('تعذر قراءة شعار الفريق: '+(e?.message||e));
+    }
   }
-  /* ضغط الشعارات القديمة قبل الحفظ لمنع امتلاء localStorage. */
+
+  /* ضغط أي شعارات قديمة كبيرة قبل كتابة قاعدة البيانات. */
   await optimizeStoredTeamLogos();
+
+  /* تأكيد وجود الشعار الجديد داخل سجل الفريق قبل الحفظ. */
+  if(selectedLogo && (!t.logo || !String(t.logo).startsWith('data:image/'))){
+    return alert('لم يتم تجهيز شعار الفريق للحفظ.');
+  }
+
   if(!save())return;
   refreshTeamEditTourFilter();
   const tourSel=document.getElementById('editTeamTourFilter');if(tourSel)tourSel.value=t.tournamentId||'';
@@ -10522,106 +10599,7 @@ function data(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){
 function save(a){localStorage.setItem(KEY,JSON.stringify(a));if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(KEY)}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let editingRefereeId=null;
-
-/* صور حكام الرابطة: قبول الصور من مختلف الصيغ التي يدعمها المتصفح
-   ثم تحويلها تلقائيًا إلى JPEG صغير قبل الحفظ حتى لا تمتلئ مساحة التخزين. */
-window.compressRefereeImage=function(file){
-  return new Promise((resolve,reject)=>{
-    if(!file){resolve('');return;}
-    const type=String(file.type||'').toLowerCase();
-    const name=String(file.name||'').toLowerCase();
-    const isImage=type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|bmp|svg|avif|heic|heif)$/i.test(name);
-    if(!isImage){reject(new Error('يرجى اختيار ملف صورة صالح'));return;}
-
-    const reader=new FileReader();
-    reader.onerror=()=>reject(new Error('تعذر قراءة الصورة'));
-    reader.onload=()=>{
-      const src=String(reader.result||'');
-      const img=new Image();
-      img.onload=()=>{
-        try{
-          const naturalW=img.naturalWidth||img.width||1;
-          const naturalH=img.naturalHeight||img.height||1;
-          const MAX=420;
-          const scale=Math.min(1,MAX/Math.max(naturalW,naturalH));
-          const w=Math.max(1,Math.round(naturalW*scale));
-          const h=Math.max(1,Math.round(naturalH*scale));
-          const canvas=document.createElement('canvas');
-          canvas.width=w; canvas.height=h;
-          const ctx=canvas.getContext('2d',{alpha:false});
-          if(!ctx)throw new Error('تعذر تجهيز الصورة');
-          ctx.fillStyle='#fff';
-          ctx.fillRect(0,0,w,h);
-          ctx.drawImage(img,0,0,w,h);
-          const compressed=canvas.toDataURL('image/jpeg',0.72);
-          if(!compressed || compressed.length<20)throw new Error('تعذر ضغط الصورة');
-          resolve(compressed);
-        }catch(e){
-          /* إذا تعذر الضغط، نحتفظ بالصورة الأصلية بدل رفض تسجيل الحكم. */
-          resolve(src);
-        }
-      };
-      img.onerror=()=>{
-        /* بعض الصيغ الحديثة قد لا يدعمها Image في المتصفح؛ لا نرفض التسجيل. */
-        resolve(src);
-      };
-      img.src=src;
-    };
-    reader.readAsDataURL(file);
-  });
-};
-
-window.addManarReferee=function(){
-  if(typeof hasPermission==='function'&&!hasPermission('referees')){
-    alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return;
-  }
-  const n=document.getElementById('refereeName').value.trim();
-  const a=Number(document.getElementById('refereeAge').value);
-  const file=document.getElementById('refereePhoto').files[0];
-  if(!n){alert('يرجى إدخال اسم الحكم');return}
-  if(!a||a<1||a>120){alert('يرجى إدخال عمر صحيح');return}
-
-  const d=data();
-  if(d.some(x=>String(x.name||'').trim()===n&&x.id!==editingRefereeId)){
-    alert('هذا الحكم موجود مسبقًا');return;
-  }
-
-  const finish=(photo)=>{
-    if(editingRefereeId){
-      const x=d.find(x=>x.id===editingRefereeId);
-      if(x){
-        x.name=n;x.age=a;
-        if(photo!==null)x.photo=photo;
-      }
-      editingRefereeId=null;
-      auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);
-    }else{
-      d.push({id:Date.now(),name:n,age:a,photo:photo||''});
-      auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);
-    }
-    save(d);
-    document.getElementById('refereeName').value='';
-    document.getElementById('refereeAge').value='';
-    document.getElementById('refereePhoto').value='';
-    document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم';
-    renderManarReferees();
-  };
-
-  if(file){
-    const btn=document.querySelector('#referees .btn-primary');
-    const oldText=btn?.textContent||'➕ إضافة الحكم';
-    if(btn){btn.disabled=true;btn.textContent='⏳ جارٍ تصغير الصورة...'}
-    compressRefereeImage(file).then(photo=>{
-      finish(photo);
-    }).catch(err=>{
-      alert(err?.message||'تعذر معالجة الصورة');
-    }).finally(()=>{
-      if(btn){btn.disabled=false;if(editingRefereeId)btn.textContent='💾 حفظ التعديل';else btn.textContent=oldText}
-    });
-  }else{
-    finish(null);
-  }
-};
+window.addManarReferee=function(){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const n=document.getElementById('refereeName').value.trim(),a=Number(document.getElementById('refereeAge').value),file=document.getElementById('refereePhoto').files[0];if(!n){alert('يرجى إدخال اسم الحكم');return}if(!a||a<1||a>120){alert('يرجى إدخال عمر صحيح');return}const d=data();if(d.some(x=>x.name.trim()===n&&x.id!==editingRefereeId)){alert('هذا الحكم موجود مسبقًا');return}const finish=(photo)=>{if(editingRefereeId){const x=d.find(x=>x.id===editingRefereeId);if(x){x.name=n;x.age=a;if(photo!==null)x.photo=photo}editingRefereeId=null;auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);}else{d.push({id:Date.now(),name:n,age:a,photo:photo||''});auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);}save(d);document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم';renderManarReferees()};if(file){const r=new FileReader();r.onload=()=>finish(r.result);r.readAsDataURL(file)}else finish(null)};
 window.editManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const x=data().find(x=>x.id===id);if(!x)return;editingRefereeId=id;document.getElementById('refereeName').value=x.name;document.getElementById('refereeAge').value=x.age;document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='💾 حفظ التعديل';document.getElementById('refereeName').focus()};
 window.deleteManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}if(confirm('هل تريد حذف الحكم؟')){const removed=data().find(x=>x.id===id);save(data().filter(x=>x.id!==id));auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);if(editingRefereeId===id){editingRefereeId=null;document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم'}renderManarReferees()}};
 window.renderManarReferees=function(){const b=document.getElementById('refereesTableBody');if(!b)return;const d=data().slice().sort((a,b)=>Number(b.age||0)-Number(a.age||0));const c=document.getElementById('refereeCount');if(c)c.textContent=d.length+' حكم';b.innerHTML=d.length?d.map((x,i)=>`<div class="referee-card"><div class="referee-card-top"><div class="referee-number">${i+1}</div><div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div><div class="referee-main"><div class="referee-name">${esc(x.name)}</div><div class="referee-role">حكم في رابطة المنار</div></div></div><div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age}</strong> سنة</span><span class="referee-status">● حكم معتمد</span></div><div class="referee-actions" data-perm="referees"><button type="button" class="referee-edit" onclick="editManarReferee(${x.id})">✏️ تعديل</button><button type="button" class="referee-delete" onclick="deleteManarReferee(${x.id})">🗑️ حذف</button></div></div>`).join(''):'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';if(typeof applyPermissions==='function')applyPermissions()};
@@ -13417,13 +13395,13 @@ function fillRefs(saved){for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)cont
 function updateRefereeOptions(){const chosen=new Set();for(let i=1;i<=4;i++){const v=S($('ksRef'+i)?.value);if(v)chosen.add(v)}for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)continue;const own=S(el.value);[...el.options].forEach(o=>{if(!o.value)return;o.disabled=chosen.has(o.value)&&o.value!==own})}}
 function validateReferees(){const vals=[1,2,3,4].map(i=>S($('ksRef'+i)?.value)).filter(Boolean);return new Set(vals).size===vals.length}
 function fillTours(){const s=$('ksTournament');if(!s)return;const old=s.value;s.innerHTML='<option value="">اختر البطولة</option>'+tours().map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name||t.title||'بطولة')+'</option>').join('');if([...s.options].some(o=>o.value===old))s.value=old}
-function fillMatches(){const s=$('ksMatch'),tid=S($('ksTournament')?.value);if(!s)return;s.innerHTML='<option value="">اختر مباراة منتهية</option>';s.disabled=!tid;if(!tid)return;const savedIds=new Set(rows().map(x=>S(x.matchId)));matches().forEach((m,i)=>{if(!finished(m)||tourId(m)!==tid||savedIds.has(mid(m,i)))return;const o=document.createElement('option');o.value=mid(m,i);o.textContent=tName(teamId(m,'home'))+' '+Number(m.hg??m.homeGoals??m.homeScore??0)+' - '+Number(m.ag??m.awayGoals??m.awayScore??0)+' '+tName(teamId(m,'away'))+' — '+S(m.date||'');s.appendChild(o)})}
-function renderPending(){const b=$('ksPending'),tid=S($('ksTournament')?.value);if(!b)return;if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض المباريات المنتهية التي تحتاج إلى كشف.</div>';return}const saved=new Set(rows().map(s=>S(s.matchId)));const list=matches().map((m,i)=>({m,i})).filter(x=>finished(x.m)&&tourId(x.m)===tid&&!saved.has(mid(x.m,x.i)));if(!list.length){b.innerHTML='<div class="ks-empty">✅ لا توجد مباريات منتهية بانتظار إنشاء كشف.</div>';return}b.innerHTML=list.map(x=>'<div class="ks-match-card"><div class="ks-match-title">'+esc(tName(teamId(x.m,'home')))+' <b>'+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' — '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+'</b> '+esc(tName(teamId(x.m,'away')))+'</div><div class="ks-meta"><span>📅 '+esc(x.m.date||'—')+'</span><span>⏰ '+esc(x.m.time||'—')+'</span><span>🏟️ '+esc(x.m.stadium||'—')+'</span></div>'+(canManage()?'<button class="btn blue" type="button" data-ks-open="'+esc(mid(x.m,x.i))+'">➕ إنشاء الكشف</button>':'')+'</div>').join('')}
+function fillMatches(){const s=$('ksMatch'),tid=S($('ksTournament')?.value);if(!s)return;s.innerHTML='<option value="">اختر مباراة لم يتم إدخال كشف لها</option>';s.disabled=!tid;if(!tid)return;const savedIds=new Set(rows().map(x=>S(x.matchId)));matches().forEach((m,i)=>{if(tourId(m)!==tid||savedIds.has(mid(m,i)))return;const o=document.createElement('option');o.value=mid(m,i);const status=finished(m)?'منتهية':'قادمة';o.textContent=tName(teamId(m,'home'))+' '+Number(m.hg??m.homeGoals??m.homeScore??0)+' - '+Number(m.ag??m.awayGoals??m.awayScore??0)+' '+tName(teamId(m,'away'))+' — '+S(m.date||'')+' ('+status+')';s.appendChild(o)})}
+function renderPending(){const b=$('ksPending'),tid=S($('ksTournament')?.value);if(!b)return;if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض المباريات التي لم يُدخل لها كشف.</div>';return}const saved=new Set(rows().map(s=>S(s.matchId)));const list=matches().map((m,i)=>({m,i})).filter(x=>tourId(x.m)===tid&&!saved.has(mid(x.m,x.i)));if(!list.length){b.innerHTML='<div class="ks-empty">✅ لا توجد مباريات بانتظار إنشاء كشف.</div>';return}b.innerHTML=list.map(x=>'<div class="ks-match-card"><div class="ks-match-title">'+esc(tName(teamId(x.m,'home')))+' <b>'+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' — '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+'</b> '+esc(tName(teamId(x.m,'away')))+'</div><div class="ks-meta"><span>📅 '+esc(x.m.date||'—')+'</span><span>⏰ '+esc(x.m.time||'—')+'</span><span>🏟️ '+esc(x.m.stadium||'—')+'</span><span>📌 '+(finished(x.m)?'منتهية':'قادمة')+'</span></div>'+(canManage()?'<button class="btn blue" type="button" data-ks-open="'+esc(mid(x.m,x.i))+'">➕ إنشاء الكشف</button>':'')+'</div>').join('')}
 let active='',cards=[],editing=false;
 function renderTeams(m,saved){const h=teamId(m,'home'),a=teamId(m,'away'),sel=$('ksCardTeam');sel.innerHTML='<option value="">اختر الفريق</option>'+[[h,tName(h)],[a,tName(a)]].map(x=>'<option value="'+esc(x[0])+'">'+esc(x[1])+'</option>').join('');sel.value=S(saved?.cards?.[0]?.teamId||'');renderPlayers()}
 function renderPlayers(){const tid=S($('ksCardTeam')?.value),sel=$('ksCardPlayer');if(!sel)return;sel.innerHTML='<option value="">اختر اللاعب</option>'+teamPlayers(tid).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('');sel.disabled=!tid}
 function renderCards(){const b=$('ksCards');if(!b)return;b.innerHTML=cards.length?cards.map((c,i)=>'<div class="ks-event"><span>'+(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(tName(c.teamId)||c.teamName)+'</span><button type="button" data-ks-del="'+i+'">حذف</button></div>').join(''):'<div class="ks-empty">لا توجد بطاقات مسجلة.</div>'}
-function renderGoals(saved){const m=matches().find((x,i)=>mid(x,i)===active),hg=Number($('ksHomeScore').value)||0,ag=Number($('ksAwayScore').value)||0;const make=(box,side,n,vals,tid)=>{const b=$(box);b.innerHTML='';const ps=teamPlayers(tid);for(let i=0;i<n;i++){const row=document.createElement('div');row.className='ks-scorer';row.innerHTML='<span>'+(i+1)+'</span><select><option value="">اختر مسجل الهدف</option>'+ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('')+'</select>';b.appendChild(row);if(vals?.[i])row.querySelector('select').value=S(vals[i])}};make('ksHomeGoals','home',hg,saved?.homeScorers,teamId(m,'home'));make('ksAwayGoals','away',ag,saved?.awayScorers,teamId(m,'away'))}
+function renderGoals(saved){if($('ksAdminDecision')?.checked){$('ksHomeGoals').innerHTML='';$('ksAwayGoals').innerHTML='';return;}const m=matches().find((x,i)=>mid(x,i)===active),hg=Number($('ksHomeScore').value)||0,ag=Number($('ksAwayScore').value)||0;const make=(box,side,n,vals,tid)=>{const b=$(box);b.innerHTML='';const ps=teamPlayers(tid);for(let i=0;i<n;i++){const row=document.createElement('div');row.className='ks-scorer';row.innerHTML='<span>'+(i+1)+'</span><select><option value="">اختر مسجل الهدف</option>'+ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('')+'</select>';b.appendChild(row);if(vals?.[i])row.querySelector('select').value=S(vals[i])}};make('ksHomeGoals','home',hg,saved?.homeScorers,teamId(m,'home'));make('ksAwayGoals','away',ag,saved?.awayScorers,teamId(m,'away'))}
 function open(id){if(!canManage())return alert('التعديل متاح للمدير أو من يملك صلاحية كشوفات المباريات.');const m=matches().find((x,i)=>mid(x,i)===S(id));if(!m)return alert('لم يتم العثور على المباراة.');active=S(id);const sh=findSheet(id);editing=!!sh;cards=A(sh?.cards).map(c=>({...c}));$('ksEditorTitle').textContent=sh?'✏️ تعديل كشف المباراة':'📝 إنشاء كشف المباراة';$('ksNumber').textContent='رقم الكشف: '+(sh?.sheetNumber||nextNo());$('ksEditor').style.display='block';$('ksMatchInfo').innerHTML=esc(tName(teamId(m,'home')))+' <b> '+Number(sh?.homeScore??m.hg??m.homeGoals??0)+' — '+Number(sh?.awayScore??m.ag??m.awayGoals??0)+' </b> '+esc(tName(teamId(m,'away')))+'<div class="ks-meta">📅 '+esc(m.date||'—')+' &nbsp; ⏰ '+esc(m.time||'—')+'</div>';$('ksHomeLabel').textContent=tName(teamId(m,'home'));$('ksAwayLabel').textContent=tName(teamId(m,'away'));$('ksHomeGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'home'));$('ksAwayGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'away'));$('ksHomeScore').value=sh?.homeScore??m.hg??m.homeGoals??0;$('ksAwayScore').value=sh?.awayScore??m.ag??m.awayGoals??0;renderGoals(sh);$('ksBestPlayer').innerHTML='<option value="">اختر اللاعب من الفريقين</option>'+[...teamPlayers(teamId(m,'home')),...teamPlayers(teamId(m,'away'))].map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+' — '+esc(tName(p.teamId))+'</option>').join('');$('ksBestPlayer').value=S(sh?.bestPlayerId||'');fillRefs(sh);$('ksSupervisor').value=S(sh?.supervisor);$('ksPenYes').value=Number(sh?.penalties||0)>0?'yes':'no';$('ksPenalties').value=Number(sh?.penalties||0);renderTeams(m,sh);renderCards();$('ksStatus').classList.remove('show');$('ksEditor').scrollIntoView({behavior:'smooth',block:'start'})}
 async function imageData(){const f=$('ksImage')?.files?.[0];if(!f)return '';return await new Promise(res=>{const r=new FileReader();r.onload=()=>res(S(r.result));r.onerror=()=>res('');r.readAsDataURL(f)})}
 async function save(){if(!canManage())return alert('لا تملك صلاحية إدارة كشوفات المباريات.');if(!active)return alert('اختر المباراة أولاً.');const m=matches().find((x,i)=>mid(x,i)===active);
@@ -13462,7 +13440,7 @@ if(m){
     }
   }
 }
-const hg=Math.max(0,Number($('ksHomeScore').value)||0),ag=Math.max(0,Number($('ksAwayScore').value)||0);const hs=[...$('ksHomeGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean),as=[...$('ksAwayGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean);if(hs.length!==hg||as.length!==ag)return alert('يجب اختيار لاعب لكل هدف مسجل.');if(!$('ksRef1').value||!$('ksRef2').value||!$('ksRef3').value)return alert('يجب اختيار الحكام الأول والثاني والثالث.');if(!validateReferees())return alert('لا يجوز تكرار الحكم نفسه في كشف المباراة. اختر حكامًا مختلفين.');if(!$('ksBestPlayer').value)return alert('اختر أفضل لاعب في المباراة.');if(cards.some(c=>!c.playerId||!c.teamId||!c.type))return alert('يوجد إنذار غير مكتمل.');const redThenYellow=cards.find(c=>c.type==='yellow'&&cards.some(d=>S(d.playerId)===S(c.playerId)&&d.type==='red'));if(redThenYellow)return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');const duplicateCard=cards.find((c,i)=>cards.some((d,j)=>i!==j&&S(c.playerId)===S(d.playerId)&&S(c.type)===S(d.type)));if(duplicateCard)return alert(duplicateCard.type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');const totalGoals=hg+ag;const penalties=$('ksPenYes').value==='yes'?Math.max(0,Number($('ksPenalties').value)||0):0;if(penalties>totalGoals)return alert('عدد ركلات الجزاء لا يجوز أن يتجاوز مجموع أهداف الفريقين ('+totalGoals+').');const old=findSheet(active),now=new Date().toISOString(),img=await imageData(),sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId:S($('ksBestPlayer').value),bestPlayerName:pName($('ksBestPlayer').value),cards:cards.map(c=>({playerId:S(c.playerId),playerName:S(c.playerName||pName(c.playerId)),teamId:S(c.teamId),teamName:S(c.teamName||tName(c.teamId)),type:c.type==='red'?'red':'yellow'})),referees:[1,2,3,4].map(i=>S($('ksRef'+i).value)).filter(Boolean),referee1:S($('ksRef1').value),referee2:S($('ksRef2').value),referee3:S($('ksRef3').value),referee4:S($('ksRef4').value),supervisor:S($('ksSupervisor').value).trim(),penalties:$('ksPenYes').value==='yes'?Math.min(Math.max(0,Number($('ksPenalties').value)||0),hg+ag):0,images:img?[img]:(old?.images||[]),createdAt:old?.createdAt||now,updatedAt:now};const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);showStatus('تم الحفظ بنجاح');fillMatches();renderPending();renderSaved();close()}
+const adminDecision=!!$('ksAdminDecision')?.checked;let hg=Math.max(0,Number($('ksHomeScore').value)||0),ag=Math.max(0,Number($('ksAwayScore').value)||0);let hs=[...$('ksHomeGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean),as=[...$('ksAwayGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean);if(adminDecision){const withdrawn=S($('ksWithdrawnTeam')?.value),homeId=S(teamId(m,'home')),awayId=S(teamId(m,'away'));if(!withdrawn)return alert('اختر الفريق المنسحب أولاً.');if(withdrawn!==homeId&&withdrawn!==awayId)return alert('الفريق المنسحب غير مطابق لفريقي المباراة.');hg=withdrawn===homeId?0:3;ag=withdrawn===awayId?0:3;hs=[];as=[];$('ksHomeScore').value=hg;$('ksAwayScore').value=ag;}else if(hs.length!==hg||as.length!==ag)return alert('يجب اختيار لاعب لكل هدف مسجل.');if(!$('ksRef1').value||!$('ksRef2').value||!$('ksRef3').value)return alert('يجب اختيار الحكام الأول والثاني والثالث.');if(!validateReferees())return alert('لا يجوز تكرار الحكم نفسه في كشف المباراة. اختر حكامًا مختلفين.');if(!adminDecision&&!$('ksBestPlayer').value)return alert('اختر أفضل لاعب في المباراة.');if(cards.some(c=>!c.playerId||!c.teamId||!c.type))return alert('يوجد إنذار غير مكتمل.');const redThenYellow=cards.find(c=>c.type==='yellow'&&cards.some(d=>S(d.playerId)===S(c.playerId)&&d.type==='red'));if(redThenYellow)return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');const duplicateCard=cards.find((c,i)=>cards.some((d,j)=>i!==j&&S(c.playerId)===S(d.playerId)&&S(c.type)===S(d.type)));if(duplicateCard)return alert(duplicateCard.type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');const totalGoals=hg+ag;const penalties=$('ksPenYes').value==='yes'?Math.max(0,Number($('ksPenalties').value)||0):0;if(penalties>totalGoals)return alert('عدد ركلات الجزاء لا يجوز أن يتجاوز مجموع أهداف الفريقين ('+totalGoals+').');const old=findSheet(active),now=new Date().toISOString(),img=await imageData(),sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,administrativeDecision:adminDecision,withdrawnTeamId:adminDecision?S($('ksWithdrawnTeam').value):'',withdrawalReason:adminDecision?'انسحاب الفريق — قرار إداري':'',homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId:S($('ksBestPlayer').value),bestPlayerName:pName($('ksBestPlayer').value),cards:cards.map(c=>({playerId:S(c.playerId),playerName:S(c.playerName||pName(c.playerId)),teamId:S(c.teamId),teamName:S(c.teamName||tName(c.teamId)),type:c.type==='red'?'red':'yellow'})),referees:[1,2,3,4].map(i=>S($('ksRef'+i).value)).filter(Boolean),referee1:S($('ksRef1').value),referee2:S($('ksRef2').value),referee3:S($('ksRef3').value),referee4:S($('ksRef4').value),supervisor:S($('ksSupervisor').value).trim(),penalties:$('ksPenYes').value==='yes'?Math.min(Math.max(0,Number($('ksPenalties').value)||0),hg+ag):0,images:img?[img]:(old?.images||[]),createdAt:old?.createdAt||now,updatedAt:now};const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);showStatus('تم الحفظ بنجاح');fillMatches();renderPending();renderSaved();close()}
 function showStatus(msg){const e=$('ksStatus');if(e){e.textContent='✅ '+msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500)}}
 function close(){active='';cards=[];editing=false;$('ksEditor').style.display='none';const b=$('ksNew');if(b)b.textContent='➕ إنشاء كشف'}
 function renderSaved(){
@@ -13501,8 +13479,29 @@ $('ksNew')?.addEventListener('click',()=>{
   }
   if(!id)return alert('اختر المباراة أولاً.');
   open(id);
+  setTimeout(function(){
+    try{
+      const mm=matches().find((x,i)=>mid(x,i)===S(id));
+      window.__manarCurrentMatchForWithdrawal=mm||null;
+      const sel=$('ksWithdrawnTeam'),ad=$('ksAdminDecision');
+      if(sel&&mm){
+        const h=S(teamId(mm,'home')),a=S(teamId(mm,'away'));
+        sel.innerHTML='<option value="">اختر الفريق المنسحب</option><option value="'+esc(h)+'">'+esc(tName(h))+'</option><option value="'+esc(a)+'">'+esc(tName(a))+'</option>';
+        const old=findSheet(id);
+        if(ad)ad.checked=!!old?.administrativeDecision;
+        if(old?.withdrawnTeamId)sel.value=S(old.withdrawnTeamId);
+        const on=!!ad?.checked;
+        $('ksWithdrawnWrap').style.display=on?'block':'none';
+        if(on&&sel.value){
+          $('ksHomeScore').value=sel.value===h?'0':'3';
+          $('ksAwayScore').value=sel.value===a?'0':'3';
+          renderGoals(findSheet(active));
+        }
+      }
+    }catch(e){console.error(e)}
+  },0);
   const b=$('ksNew');if(b)b.textContent='✖️ إخفاء الخانات';
-});$('ksCardTeam')?.addEventListener('change',renderPlayers);$('ksAddCard')?.addEventListener('click',()=>{const tid=S($('ksCardTeam').value),pid=S($('ksCardPlayer').value),p=pObj(pid),type=S($('ksCardType').value)==='red'?'red':'yellow';if(!tid||!p)return alert('اختر الفريق واللاعب.');if(!active)return alert('اختر المباراة أولاً.');const m=matches().find((x,i)=>mid(x,i)===active);if(!m||![teamId(m,'home'),teamId(m,'away')].map(S).includes(tid))return alert('اللاعب يجب أن يكون من أحد فريقي المباراة.');if(type==='yellow'&&cards.some(c=>S(c.playerId)===pid&&S(c.type)==='red'))return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');if(cards.some(c=>S(c.playerId)===pid&&S(c.type)===type))return alert(type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');cards.push({playerId:pid,playerName:p.name,teamId:tid,teamName:tName(tid),type});renderCards();$('ksCardPlayer').value=''});$('ksHomeScore')?.addEventListener('input',()=>renderGoals(findSheet(active)));$('ksAwayScore')?.addEventListener('input',()=>renderGoals(findSheet(active)));$('ksSave')?.addEventListener('click',save);$('ksClose')?.addEventListener('click',close);$('ksCancel')?.addEventListener('click',close);document.addEventListener('click',e=>{const o=e.target.closest('[data-ks-open]');if(o)open(o.dataset.ksOpen);const ed=e.target.closest('[data-ks-edit]');if(ed)open(ed.dataset.ksEdit);const d=e.target.closest('[data-ks-delete]');if(d){if(!canManage())return alert('الحذف غير متاح.');const id=d.dataset.ksDelete;if(confirm('هل تريد حذف هذا الكشف نهائيًا؟')){write(rows().filter(s=>S(s.matchId)!==S(id)));fillMatches();renderPending();renderSaved();renderMatchView();if(typeof renderMatches==='function')renderMatches()}}const dc=e.target.closest('[data-ks-del]');if(dc){cards.splice(Number(dc.dataset.ksDel),1);renderCards()}});window.refreshMatchSheets=()=>{fillTours();fillMatches();renderPending();renderSaved()};window.startNewMatchSheet=()=>{const id=$('ksMatch')?.value;if(id)open(id);else alert('اختر المباراة أولاً.')};window.editMatchSheet=open;window.deleteMatchSheet=id=>{if(confirm('حذف الكشف نهائيًا؟')){write(rows().filter(s=>S(s.matchId)!==S(id)));fillMatches();renderPending();renderSaved();if(typeof renderMatchView==='function')renderMatchView();if(typeof renderMatches==='function')renderMatches()}}}
+});$('ksCardTeam')?.addEventListener('change',renderPlayers);$('ksAddCard')?.addEventListener('click',()=>{const tid=S($('ksCardTeam').value),pid=S($('ksCardPlayer').value),p=pObj(pid),type=S($('ksCardType').value)==='red'?'red':'yellow';if(!tid||!p)return alert('اختر الفريق واللاعب.');if(!active)return alert('اختر المباراة أولاً.');const m=matches().find((x,i)=>mid(x,i)===active);if(!m||![teamId(m,'home'),teamId(m,'away')].map(S).includes(tid))return alert('اللاعب يجب أن يكون من أحد فريقي المباراة.');if(type==='yellow'&&cards.some(c=>S(c.playerId)===pid&&S(c.type)==='red'))return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');if(cards.some(c=>S(c.playerId)===pid&&S(c.type)===type))return alert(type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');cards.push({playerId:pid,playerName:p.name,teamId:tid,teamName:tName(tid),type});renderCards();$('ksCardPlayer').value=''});$('ksHomeScore')?.addEventListener('input',()=>renderGoals(findSheet(active)));$('ksAwayScore')?.addEventListener('input',()=>renderGoals(findSheet(active)));$('ksAdminDecision')?.addEventListener('change',()=>{const on=$('ksAdminDecision').checked;$('ksWithdrawnWrap').style.display=on?'block':'none';if(on){const m=matches().find((x,i)=>mid(x,i)===active);const h=S(teamId(m,'home')),a=S(teamId(m,'away'));$('ksWithdrawnTeam').innerHTML='<option value="">اختر الفريق المنسحب</option><option value="'+esc(h)+'">'+esc(tName(h))+'</option><option value="'+esc(a)+'">'+esc(tName(a))+'</option>';}});$('ksWithdrawnTeam')?.addEventListener('change',()=>{if(!$('ksAdminDecision').checked)return;const m=matches().find((x,i)=>mid(x,i)===active);const w=S($('ksWithdrawnTeam').value),h=S(teamId(m,'home')),a=S(teamId(m,'away'));$('ksHomeScore').value=w===h?'0':'3';$('ksAwayScore').value=w===a?'0':'3';$('ksHomeGoals').innerHTML='';$('ksAwayGoals').innerHTML='';});$('ksSave')?.addEventListener('click',save);$('ksClose')?.addEventListener('click',close);$('ksCancel')?.addEventListener('click',close);document.addEventListener('click',e=>{const o=e.target.closest('[data-ks-open]');if(o)open(o.dataset.ksOpen);const ed=e.target.closest('[data-ks-edit]');if(ed)open(ed.dataset.ksEdit);const d=e.target.closest('[data-ks-delete]');if(d){if(!canManage())return alert('الحذف غير متاح.');const id=d.dataset.ksDelete;if(confirm('هل تريد حذف هذا الكشف نهائيًا؟')){write(rows().filter(s=>S(s.matchId)!==S(id)));fillMatches();renderPending();renderSaved();renderMatchView();if(typeof renderMatches==='function')renderMatches()}}const dc=e.target.closest('[data-ks-del]');if(dc){cards.splice(Number(dc.dataset.ksDel),1);renderCards()}});window.refreshMatchSheets=()=>{fillTours();fillMatches();renderPending();renderSaved()};window.startNewMatchSheet=()=>{const id=$('ksMatch')?.value;if(id)open(id);else alert('اختر المباراة أولاً.')};window.editMatchSheet=open;window.deleteMatchSheet=id=>{if(confirm('حذف الكشف نهائيًا؟')){write(rows().filter(s=>S(s.matchId)!==S(id)));fillMatches();renderPending();renderSaved();if(typeof renderMatchView==='function')renderMatchView();if(typeof renderMatches==='function')renderMatches()}}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script><script id="tournament-selector-active-fix">
@@ -17544,6 +17543,145 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
   #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:9px !important;}
 }
 </style>
+
+<!-- PWA ICON ROBUST FIX — 2026-09-17 -->
+<style id="pwa-icon-robust-fix">
+#installAppSection .install-big-icon{
+  background:linear-gradient(145deg,#063f2d,#0ca678)!important;
+  border:2px solid rgba(255,255,255,.9)!important;
+  padding:0!important;
+}
+#installAppSection .install-big-icon img{
+  width:100%!important;height:100%!important;
+  object-fit:cover!important;display:block!important;
+  border-radius:inherit!important;
+}
+</style>
+<script id="pwa-icon-error-fallback">
+(function(){
+  function fixIcon(){
+    document.querySelectorAll('#installAppSection .install-big-icon img').forEach(function(img){
+      if(!img.getAttribute('src')) return;
+      img.addEventListener('error',function(){
+        if(this.dataset.fallbackApplied) return;
+        this.dataset.fallbackApplied='1';
+        this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22%3E%3Crect width=%22192%22 height=%22192%22 rx=%2240%22 fill=%22%23063f2d%22/%3E%3Ccircle cx=%2296%22 cy=%2296%22 r=%2270%22 fill=%22%23fff%22/%3E%3Cpath d=%22M96 48l20 15-8 25h-24l-8-25zM55 78l-25 18 10 29 29-3 10-24zm82 0l25 18-10 29-29-3-10-24zM61 126l14 29h42l14-29-20-4H81zm35-64l-18 13 7 22h22l7-22z%22 fill=%22%23063f2d%22/%3E%3C/svg%3E';
+      },{once:true});
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fixIcon,{once:true});
+  else fixIcon();
+})();
+</script>
+
+
+<script id="team-logo-preview-fix">
+(function(){
+  function attachPreview(inputId){
+    const input=document.getElementById(inputId);
+    if(!input || input.dataset.logoPreviewAttached)return;
+    input.dataset.logoPreviewAttached='1';
+
+    const wrap=document.createElement('div');
+    wrap.className='team-logo-upload-preview';
+    wrap.style.display='none';
+    wrap.innerHTML='<img alt="معاينة شعار الفريق"><small>سيتم تصغير الشعار تلقائيًا عند الحفظ.</small>';
+    input.parentNode.appendChild(wrap);
+
+    input.addEventListener('change',function(){
+      const file=input.files&&input.files[0];
+      if(!file){wrap.style.display='none';return;}
+      const reader=new FileReader();
+      reader.onload=function(){
+        const img=wrap.querySelector('img');
+        if(img){img.src=String(reader.result||'');wrap.style.display='flex';}
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function init(){
+    attachPreview('teamLogo');
+    attachPreview('editTeamLogo');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
+
+<script id="ADMIN_WITHDRAWAL_DECISION_FIX">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id), S=v=>String(v??'').trim();
+function setWithdrawnOptions(){
+  const sel=$('ksWithdrawnTeam'), m=window.__manarCurrentMatchForWithdrawal;
+  if(!sel||!m)return;
+  const h=S(m.homeTeamId??m.home??m.homeTeam), a=S(m.awayTeamId??m.away??m.awayTeam);
+  const tn=id=>{
+    try{
+      const d=window.db||{};
+      const t=(d.teams||[]).find(x=>S(x.id)===S(id)||S(x.name)===S(id));
+      return t?.name||S(id)||'الفريق';
+    }catch(e){return S(id)||'الفريق'}
+  };
+  sel.innerHTML='<option value="">اختر الفريق المنسحب</option>'+
+    '<option value="'+h+'">'+tn(h)+'</option>'+
+    '<option value="'+a+'">'+tn(a)+'</option>';
+}
+function applyWithdrawalUI(){
+  const on=!!$('ksAdminDecision')?.checked, wrap=$('ksWithdrawnWrap');
+  if(wrap)wrap.style.display=on?'block':'none';
+  ['ksHomeGoals','ksAwayGoals'].forEach(id=>{
+    const b=$(id);
+    if(b){
+      b.style.opacity=on?'0':'1';
+      b.style.pointerEvents=on?'none':'auto';
+      b.style.display=on?'none':'';
+    }
+  });
+  if(on){
+    const m=window.__manarCurrentMatchForWithdrawal, w=S($('ksWithdrawnTeam')?.value);
+    if(m&&w){
+      const h=S(m.homeTeamId??m.home??m.homeTeam), a=S(m.awayTeamId??m.away??m.awayTeam);
+      if($('ksHomeScore'))$('ksHomeScore').value=w===h?'0':'3';
+      if($('ksAwayScore'))$('ksAwayScore').value=w===a?'0':'3';
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded',function(){
+  const ad=$('ksAdminDecision'), wt=$('ksWithdrawnTeam');
+  ad?.addEventListener('change',applyWithdrawalUI);
+  wt?.addEventListener('change',applyWithdrawalUI);
+  const oldOpen=window.editMatchSheet;
+  if(typeof oldOpen==='function'){
+    window.editMatchSheet=function(id){
+      const r=oldOpen(id);
+      setTimeout(function(){
+        try{
+          const m=(window.db?.matches||[]).find(x=>S(x.id)===S(id));
+          window.__manarCurrentMatchForWithdrawal=m||null;
+          const sh=(JSON.parse(localStorage.getItem('manar_match_sheets_v3')||'[]')||[]).find(x=>S(x.matchId)===S(id));
+          if(ad)ad.checked=!!sh?.administrativeDecision;
+          setWithdrawnOptions();
+          if(wt)wt.value=S(sh?.withdrawnTeamId);
+          applyWithdrawalUI();
+        }catch(e){}
+      },0);
+      return r;
+    };
+  }
+  // Capture the existing open function used by the page by observing the editor match info.
+  const obs=new MutationObserver(function(){
+    const editor=$('ksEditor');
+    if(!editor||editor.style.display==='none')return;
+    const sel=$('ksMatch'), id=S(sel?.value);
+    const m=(window.db?.matches||[]).find(x=>S(x.id)===id);
+    if(m){window.__manarCurrentMatchForWithdrawal=m;setWithdrawnOptions();}
+  });
+  const ed=$('ksEditor'); if(ed)obs.observe(ed,{attributes:true,subtree:true,childList:true});
+});
+})();
+</script>
 </body>
 </html>
 <!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
@@ -17664,5 +17802,43 @@ function renderViewFinal(){
 }
 window.renderMatchView=renderViewFinal;
 window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderViewFinal()};
+})();
+</script>
+
+
+<script id="manar-auto-update-final">
+(function(){
+  'use strict';
+  if(!('serviceWorker' in navigator)) return;
+  var reloading=false;
+  function reloadOnce(){
+    if(reloading) return;
+    reloading=true;
+    var u=new URL(location.href);
+    u.searchParams.set('platformAutoUpdate','1');
+    u.searchParams.set('_v',Date.now());
+    location.replace(u.href);
+  }
+  navigator.serviceWorker.addEventListener('message',function(e){
+    if(e.data && (e.data.type==='MANAR_PLATFORM_UPDATED' || e.data.type==='SKIP_WAITING')) reloadOnce();
+  });
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(!reloading) reloadOnce();
+  });
+  async function checkForUpdate(){
+    try{
+      var reg=await navigator.serviceWorker.getRegistration('./');
+      if(!reg) reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
+      await reg.update();
+      if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+    }catch(e){}
+  }
+  window.addEventListener('load',function(){
+    checkForUpdate();
+    setInterval(checkForUpdate,30000);
+  },{once:true});
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden) checkForUpdate();
+  });
 })();
 </script>
