@@ -18181,6 +18181,127 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+<style id="referee-profile-card-style">
+#manarRefereeProfileOverlay{position:fixed;inset:0;background:rgba(0,0,0,.48);backdrop-filter:blur(4px);z-index:99999;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+#manarRefereeProfileOverlay.show{display:flex}
+#manarRefereeProfileCard{width:min(420px,100%);background:linear-gradient(180deg,#ffffff,#f5fbf8);border:1px solid #cfe7dc;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;direction:rtl;position:relative}
+.mrp-head{background:linear-gradient(135deg,#075f45,#0aa77a);color:#fff;padding:18px 18px 20px;text-align:center;position:relative}
+.mrp-close{position:absolute;left:12px;top:10px;width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:25px;font-weight:900;cursor:pointer}
+.mrp-photo{width:92px;height:92px;border-radius:50%;object-fit:cover;border:4px solid #fff;background:#eef7f3;display:block;margin:0 auto 10px;box-shadow:0 5px 18px rgba(0,0,0,.18)}
+.mrp-placeholder{display:flex;align-items:center;justify-content:center;font-size:42px;color:#075f45}
+.mrp-name{font-size:22px;font-weight:950;margin-top:4px}
+.mrp-role{font-size:12px;font-weight:800;opacity:.9;margin-top:4px}
+.mrp-body{padding:18px}
+.mrp-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mrp-stat{background:#fff;border:1px solid #dcece5;border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,.04)}
+.mrp-stat-icon{font-size:22px;display:block;margin-bottom:5px}
+.mrp-stat-label{display:block;color:#527066;font-size:12px;font-weight:850}
+.mrp-stat-value{display:block;color:#075f45;font-size:24px;font-weight:950;margin-top:3px}
+.mrp-age{margin-top:10px;background:#eef8f3;border-radius:14px;padding:11px;text-align:center;color:#174f3e;font-weight:900}
+.mrp-note{margin-top:12px;font-size:11px;color:#6c8179;text-align:center;font-weight:700}
+.referee-name{cursor:pointer;text-decoration:underline;text-decoration-color:rgba(7,95,69,.25);text-underline-offset:4px}
+.referee-name:hover{color:#075f45}
+</style>
+<div id="manarRefereeProfileOverlay" aria-hidden="true">
+  <div id="manarRefereeProfileCard" role="dialog" aria-modal="true" aria-labelledby="mrpName">
+    <div class="mrp-head">
+      <button type="button" class="mrp-close" id="mrpClose" aria-label="إغلاق">×</button>
+      <div id="mrpPhotoBox"></div>
+      <div class="mrp-name" id="mrpName">اسم الحكم</div>
+      <div class="mrp-role">⚖️ حكم في رابطة المنار</div>
+    </div>
+    <div class="mrp-body">
+      <div class="mrp-age" id="mrpAge">🎂 العمر: —</div>
+      <div class="mrp-stats" style="margin-top:10px">
+        <div class="mrp-stat"><span class="mrp-stat-icon">🧑‍⚖️</span><span class="mrp-stat-label">عدد المباريات التي أدارها</span><span class="mrp-stat-value" id="mrpMatches">0</span></div>
+        <div class="mrp-stat"><span class="mrp-stat-icon">🏆</span><span class="mrp-stat-label">عدد البطولات</span><span class="mrp-stat-value" id="mrpTournaments">0</span></div>
+      </div>
+      <div class="mrp-note">يتم احتساب الإحصائيات من كشوفات المباريات المسجلة في المنصة.</div>
+    </div>
+  </div>
+</div>
+<script id="referee-profile-card-js">
+(function(){
+  'use strict';
+  const S=v=>String(v??'').trim(), A=v=>Array.isArray(v)?v:[];
+  const esc2=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function refereeList(){
+    try{return typeof window.data==='function'?A(window.data()):A(JSON.parse(localStorage.getItem('manar_referees_v1')||'[]'))}catch(e){return[]}
+  }
+  function sheets(){
+    const out=[]; const seen=new Set();
+    const add=x=>{if(!x||typeof x!=='object')return; const id=S(x.matchId||x.id); const key=id||JSON.stringify(x); if(seen.has(key))return; seen.add(key); out.push(x)};
+    try{if(typeof window.uniqueMatchSheets==='function')A(window.uniqueMatchSheets()).forEach(add)}catch(e){}
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{try{A(JSON.parse(localStorage.getItem(k)||'[]')).forEach(add)}catch(e){}});
+    return out;
+  }
+  function matches(){try{return A(window.db?.matches)}catch(e){return[]}}
+  function tournaments(){try{return A(window.db?.tournaments)}catch(e){return[]}}
+  function namesFor(v){
+    if(v&&typeof v==='object')return [S(v.id),S(v.name),S(v.refereeId),S(v.refereeName)].filter(Boolean);
+    return [S(v)].filter(Boolean);
+  }
+  function refereeMatches(ref){
+    const ids=new Set(namesFor(ref).map(S).filter(Boolean));
+    const names=new Set([S(ref.name)].filter(Boolean));
+    const result=[]; const seen=new Set();
+    sheets().forEach(sh=>{
+      const vals=[];
+      ['referee1','referee2','referee3','referee4','ref1','ref2','ref3','ref4'].forEach(k=>{if(sh?.[k]!=null)vals.push(sh[k])});
+      A(sh?.referees).forEach(v=>vals.push(v));
+      let hit=false;
+      vals.forEach(v=>{
+        const ns=namesFor(v);
+        if(ns.some(x=>ids.has(x)||names.has(x)))hit=true;
+      });
+      if(!hit)return;
+      const mid=S(sh.matchId);
+      const key=mid||S(sh.id)||JSON.stringify(sh);
+      if(seen.has(key))return; seen.add(key); result.push(sh);
+    });
+    return result;
+  }
+  function tournamentIdFor(sh){
+    const direct=S(sh?.tournamentId||sh?.tournamentID||sh?.competitionId);
+    if(direct)return direct;
+    const m=matches().find(x=>S(x.id)===S(sh?.matchId));
+    return S(m?.tournamentId||m?.tournamentID||m?.competitionId);
+  }
+  function tournamentName(id,sh){
+    const t=tournaments().find(x=>S(x.id)===S(id)||S(x.name)===S(id));
+    return t?.name||S(sh?.tournamentName)||'البطولة';
+  }
+  function openProfile(id){
+    const ref=refereeList().find(x=>S(x.id)===S(id)||S(x.name)===S(id));
+    if(!ref)return;
+    const administered=refereeMatches(ref);
+    const tids=new Set(); administered.forEach(sh=>{const tid=tournamentIdFor(sh);if(tid)tids.add(tid)});
+    const ov=document.getElementById('manarRefereeProfileOverlay'); if(!ov)return;
+    const photo=document.getElementById('mrpPhotoBox');
+    photo.innerHTML=ref.photo?'<img class="mrp-photo" src="'+esc2(ref.photo)+'" alt="صورة '+esc2(ref.name)+'">':'<div class="mrp-photo mrp-placeholder">⚖️</div>';
+    document.getElementById('mrpName').textContent=S(ref.name)||'اسم الحكم';
+    document.getElementById('mrpAge').textContent='🎂 العمر: '+(ref.age?ref.age+' سنة':'غير مسجل');
+    document.getElementById('mrpMatches').textContent=administered.length;
+    document.getElementById('mrpTournaments').textContent=tids.size;
+    ov.classList.add('show'); ov.setAttribute('aria-hidden','false');
+  }
+  function closeProfile(){const ov=document.getElementById('manarRefereeProfileOverlay');if(ov){ov.classList.remove('show');ov.setAttribute('aria-hidden','true')}}
+  window.showManarRefereeProfile=openProfile;
+  document.addEventListener('click',function(e){
+    const n=e.target.closest&&e.target.closest('.referee-name[data-referee-id]');
+    if(n){e.preventDefault();e.stopPropagation();openProfile(n.getAttribute('data-referee-id'));return}
+    if(e.target.id==='mrpClose'||e.target.id==='manarRefereeProfileOverlay')closeProfile();
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeProfile()});
+  function patchCards(){document.querySelectorAll('#refereesTableBody .referee-name').forEach(el=>{if(!el.dataset.refereeId){const card=el.closest('.referee-card');const edit=card?.querySelector('.referee-edit');const m=edit?.getAttribute('onclick')?.match(/editManarReferee\(['"]([^'"]+)/);if(m)el.dataset.refereeId=m[1];}el.setAttribute('role','button');el.setAttribute('tabindex','0')})}
+  const oldRender=window.renderManarReferees;
+  if(typeof oldRender==='function'){
+    window.renderManarReferees=function(){oldRender.apply(this,arguments);setTimeout(patchCards,0)};
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(patchCards,100));
+})();
+</script>
 </body>
 </html>
 <!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
