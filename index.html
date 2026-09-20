@@ -18830,3 +18830,276 @@ setInterval(()=>{
 .referee-edit{background:#e8f3ff;color:#155ca8}.referee-delete{background:#ffe7e7;color:#b42318}
 @media(max-width:430px){.referee-card-top{grid-template-columns:30px 52px 1fr}.referee-photo-wrap{width:52px;height:52px}.referee-name{font-size:14px}}
 </style>
+
+<!-- FINAL REFEREE PROFILE FIX 2026-09-20 -->
+<style id="final-referee-profile-fix-20260920">
+#manarRefereeProfileOverlay.final-referee-overlay{
+  position:fixed!important;inset:0!important;z-index:2147483647!important;
+  display:none!important;align-items:center!important;justify-content:center!important;
+  padding:14px!important;background:rgba(0,25,18,.72)!important;
+  backdrop-filter:blur(5px)!important;direction:rtl!important;
+}
+#manarRefereeProfileOverlay.final-referee-overlay.show{
+  display:flex!important;
+}
+#manarRefereeProfileOverlay.final-referee-overlay .final-referee-card{
+  width:min(520px,100%)!important;max-height:92vh!important;overflow:auto!important;
+  background:#fff!important;border-radius:24px!important;
+  box-shadow:0 25px 80px rgba(0,0,0,.35)!important;
+  border:2px solid #d7eee5!important;padding:0!important;
+}
+.final-referee-head{
+  position:relative!important;text-align:center!important;color:#fff!important;
+  padding:22px 16px 18px!important;
+  background:linear-gradient(135deg,#075f45,#0ca678)!important;
+}
+.final-referee-close{
+  position:absolute!important;left:10px!important;top:10px!important;
+  width:38px!important;height:38px!important;border:0!important;border-radius:50%!important;
+  background:#ffffff25!important;color:#fff!important;font-size:25px!important;
+}
+.final-referee-photo{
+  width:92px!important;height:92px!important;border-radius:50%!important;
+  object-fit:cover!important;display:flex!important;align-items:center!important;
+  justify-content:center!important;margin:0 auto 9px!important;
+  background:#eef8f3!important;border:4px solid #fff!important;font-size:42px!important;
+}
+.final-referee-name{font-size:23px!important;font-weight:900!important}
+.final-referee-role{font-size:12px!important;opacity:.9!important;margin-top:4px!important}
+.final-referee-body{padding:16px!important}
+.final-referee-basic,.final-referee-stats{
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;
+}
+.final-referee-basic>div,.final-referee-stat{
+  border:1px solid #dceae4!important;border-radius:15px!important;
+  padding:13px 9px!important;text-align:center!important;background:#fbfdfc!important;
+}
+.final-referee-basic b,.final-referee-stat span{
+  display:block!important;font-size:12px!important;color:#64766f!important;font-weight:800!important;
+}
+.final-referee-basic strong{display:block!important;font-size:18px!important;color:#075f45!important;margin-top:5px!important}
+.final-referee-stat{color:#fff!important;border:0!important}
+.final-referee-stat.matches{background:linear-gradient(135deg,#1971c2,#228be6)!important}
+.final-referee-stat.tours{background:linear-gradient(135deg,#7048e8,#b02a9b)!important}
+.final-referee-stat b{display:block!important;font-size:30px!important;line-height:1.1!important;margin-bottom:5px!important}
+.final-referee-section-title{
+  margin-top:13px!important;padding:11px!important;border-radius:13px!important;
+  background:#eef8f3!important;color:#075f45!important;font-weight:900!important;
+}
+.final-referee-tour{
+  display:flex!important;justify-content:space-between!important;gap:8px!important;
+  align-items:center!important;padding:10px!important;margin-top:7px!important;
+  border:1px solid #e0ebe6!important;border-radius:12px!important;background:#fff!important;
+}
+.final-referee-tour b{overflow-wrap:anywhere!important}
+.final-referee-tour span{white-space:nowrap!important;background:#087f5b!important;color:#fff!important;
+  border-radius:999px!important;padding:5px 9px!important;font-size:11px!important}
+@media(max-width:430px){
+  #manarRefereeProfileOverlay.final-referee-overlay{padding:8px!important}
+  .final-referee-card{max-height:95vh!important}
+  .final-referee-basic,.final-referee-stats{grid-template-columns:1fr 1fr!important}
+}
+</style>
+<script id="final-referee-profile-fix-20260920">
+(function(){
+  'use strict';
+  const S=v=>String(v??'').trim();
+  const A=v=>Array.isArray(v)?v:[];
+  const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+  function arrFromStorage(key){
+    try{return A(JSON.parse(localStorage.getItem(key)||'[]'))}catch(e){return[]}
+  }
+  function refs(){
+    const out=[],seen=new Set();
+    function add(a){
+      A(a).forEach(r=>{
+        if(!r||typeof r!=='object')return;
+        const id=S(r.id||r.refereeId||r.value),name=S(r.name||r.refereeName||r.displayName);
+        if(!name&&!id)return;
+        const key=id||'name:'+name;
+        if(seen.has(key))return;seen.add(key);
+        out.push({...r,id:id||r.id,name:name||id});
+      });
+    }
+    add(arrFromStorage('manar_referees_v1'));
+    add(window.db?.referees);
+    add(arrFromStorage('manar_referees_v2'));
+    add(arrFromStorage('manar_referees'));
+    add(arrFromStorage('referees'));
+    return out;
+  }
+  function sheets(){
+    const out=[],seen=new Set();
+    function add(a){
+      A(a).forEach(x=>{
+        if(!x||typeof x!=='object')return;
+        const key=S(x.id||x.sheetNumber||x.matchId)||JSON.stringify(x);
+        if(seen.has(key))return;seen.add(key);out.push(x);
+      });
+    }
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>add(arrFromStorage(k)));
+    try{if(typeof window.uniqueMatchSheets==='function')add(window.uniqueMatchSheets())}catch(e){}
+    return out;
+  }
+  function matches(){return A(window.db?.matches)}
+  function tournaments(){return A(window.db?.tournaments)}
+
+  function valueNames(v){
+    if(v&&typeof v==='object'){
+      return [v.id,v.refereeId,v.value,v.name,v.refereeName,v.displayName].map(S).filter(Boolean);
+    }
+    return [S(v)].filter(Boolean);
+  }
+
+  function refereePlayedMatches(ref){
+    const ids=new Set(valueNames(ref)), names=new Set([S(ref.name)]);
+    const result=[],seen=new Set();
+
+    sheets().forEach(sh=>{
+      const vals=[];
+      for(let i=1;i<=4;i++){
+        vals.push(sh['referee'+i],sh['ref'+i],
+                  sh['referee'+i+'Id'],sh['ref'+i+'Id'],
+                  sh['referee'+i+'Name'],sh['ref'+i+'Name'],
+                  sh['referee'+i+'GuestName'],sh['ref'+i+'GuestName']);
+      }
+      A(sh.refereeIds).forEach(v=>vals.push(v));
+      A(sh.referees).forEach(v=>vals.push(v));
+      const hit=vals.some(v=>valueNames(v).some(x=>ids.has(x)||names.has(x)));
+      if(!hit)return;
+      const key=S(sh.matchId||sh.id||sh.sheetNumber)||JSON.stringify(sh);
+      if(seen.has(key))return;seen.add(key);result.push(sh);
+    });
+
+    matches().forEach(m=>{
+      const vals=[];
+      for(let i=1;i<=4;i++){
+        vals.push(m['referee'+i],m['ref'+i],m['referee'+i+'Id'],m['ref'+i+'Name']);
+      }
+      A(m.refereeIds).forEach(v=>vals.push(v));
+      A(m.referees).forEach(v=>vals.push(v));
+      if(!vals.some(v=>valueNames(v).some(x=>ids.has(x)||names.has(x))))return;
+      const key=S(m.id);
+      if(!key||seen.has(key))return;seen.add(key);result.push(m);
+    });
+    return result;
+  }
+
+  function tournamentInfo(item){
+    let id=S(item.tournamentId||item.tournamentID||item.tourId||item.competitionId||item.competitionID);
+    let name=S(item.tournamentName||item.tourName||item.competitionName||item.tournamentTitle||item.competitionTitle);
+    if(!id&&item.matchId){
+      const m=matches().find(x=>S(x.id)===S(item.matchId));
+      if(m){
+        id=S(m.tournamentId||m.tournamentID||m.tourId||m.competitionId);
+        name=S(m.tournamentName||m.tourName||m.competitionName);
+      }
+    }
+    if(id){
+      const t=tournaments().find(x=>S(x.id)===id||S(x.name)===id);
+      if(t)name=S(t.name||t.title)||name;
+    }
+    return {id,name:name||'بطولة غير محددة'};
+  }
+
+  function ensureOverlay(){
+    let ov=document.getElementById('manarRefereeProfileOverlay');
+    if(!ov){
+      ov=document.createElement('div');
+      ov.id='manarRefereeProfileOverlay';
+      document.body.appendChild(ov);
+    }
+    ov.classList.add('final-referee-overlay');
+    if(!ov.querySelector('.final-referee-card')){
+      ov.innerHTML='<div class="final-referee-card" role="dialog" aria-modal="true">'+
+        '<div id="finalRefereeProfileContent"></div></div>';
+      ov.addEventListener('click',function(e){if(e.target===ov)closeProfile()});
+    }
+    return ov;
+  }
+
+  function closeProfile(){
+    const ov=document.getElementById('manarRefereeProfileOverlay');
+    if(ov){ov.classList.remove('show');ov.setAttribute('aria-hidden','true')}
+  }
+  window.closeManarRefereeProfile=closeProfile;
+
+  window.openManarRefereeProfile=function(id){
+    const ref=refs().find(x=>S(x.id)===S(id)||S(x.name)===S(id));
+    if(!ref)return;
+    const played=refereePlayedMatches(ref);
+    const map=new Map();
+    played.forEach(x=>{
+      const ti=tournamentInfo(x),key=ti.id||'name:'+ti.name;
+      const old=map.get(key)||{name:ti.name,count:0};
+      old.count++;map.set(key,old);
+    });
+    const rows=[...map.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar'));
+    const ov=ensureOverlay(),body=ov.querySelector('#finalRefereeProfileContent');
+    const photo=ref.photo?
+      '<img class="final-referee-photo" src="'+esc(ref.photo)+'" alt="صورة الحكم">':
+      '<div class="final-referee-photo">⚖️</div>';
+    body.innerHTML=
+      '<div class="final-referee-head">'+photo+
+      '<button class="final-referee-close" type="button" aria-label="إغلاق">×</button>'+
+      '<div class="final-referee-name">'+esc(ref.name)+'</div>'+
+      '<div class="final-referee-role">⚖️ حكم في رابطة المنار</div></div>'+
+      '<div class="final-referee-body">'+
+      '<div class="final-referee-basic">'+
+      '<div><b>اسم الحكم</b><strong>'+esc(ref.name)+'</strong></div>'+
+      '<div><b>العمر</b><strong>'+(ref.age?esc(ref.age)+' سنة':'غير مسجل')+'</strong></div></div>'+
+      '<div class="final-referee-stats" style="margin-top:10px">'+
+      '<div class="final-referee-stat matches"><b>'+played.length+'</b><span>عدد المباريات التي أدارها</span></div>'+
+      '<div class="final-referee-stat tours"><b>'+rows.length+'</b><span>عدد البطولات</span></div></div>'+
+      '<div class="final-referee-section-title">🏆 البطولات التي شارك فيها</div>'+
+      (rows.length?rows.map(x=>'<div class="final-referee-tour"><b>'+esc(x.name)+'</b><span>'+x.count+' مباراة</span></div>').join(''):
+       '<div class="final-referee-tour"><b>لا توجد مباريات مسجلة لهذا الحكم</b></div>')+
+      '</div>';
+    body.querySelector('.final-referee-close').onclick=closeProfile;
+    ov.classList.add('show');ov.setAttribute('aria-hidden','false');
+  };
+
+  function bindNames(){
+    const box=document.getElementById('refereesTableBody');
+    if(!box)return;
+    const list=refs();
+    box.querySelectorAll('.referee-name').forEach(el=>{
+      const card=el.closest('.referee-card');
+      let id=el.getAttribute('data-referee-id');
+      if(!id){
+        const btn=card?.querySelector('.referee-edit');
+        const m=btn?.getAttribute('onclick')?.match(/editManarReferee\(['"]([^'"]+)['"]\)/);
+        if(m)id=m[1];
+      }
+      if(!id){
+        const name=S(el.textContent);
+        id=list.find(x=>S(x.name)===name)?.id||'';
+      }
+      if(id){
+        el.setAttribute('data-referee-id',id);
+        el.setAttribute('role','button');
+        el.setAttribute('tabindex','0');
+        el.style.cursor='pointer';
+        el.onclick=function(e){e.preventDefault();e.stopPropagation();window.openManarRefereeProfile(id)};
+        el.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();window.openManarRefereeProfile(id)}};
+      }
+    });
+  }
+
+  function install(){
+    ensureOverlay();
+    bindNames();
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    install();
+    setTimeout(install,300);
+    setTimeout(install,1000);
+    setTimeout(install,2500);
+  });
+  const box=document.getElementById('refereesTableBody');
+  if(box)new MutationObserver(bindNames).observe(box,{childList:true,subtree:true});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeProfile()});
+})();
+</script>
+
