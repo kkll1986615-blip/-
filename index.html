@@ -17773,3 +17773,120 @@ window.renderMatchView=renderViewFinal;
 window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderViewFinal()};
 })();
 </script>
+
+
+<script id="FINAL_REFEREE_NAME_RECOVERY_FIX">
+(function(){
+  'use strict';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v==null?'':v).trim();
+  const isNum=v=>/^\d{6,}$/.test(S(v));
+  function json(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+  function sources(){
+    const out=[];
+    try{if(window.db&&typeof window.db==='object')out.push(window.db)}catch(e){}
+    ['manar_referees_v1','manar_referees_v2','manar_referees','referees'].forEach(k=>{const x=json(k);if(Array.isArray(x))out.push({referees:x})});
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{const x=json(k);if(Array.isArray(x))out.push({matchSheets:x})});
+    return out;
+  }
+  function collectRefs(){
+    const out=[],seen=new Set();
+    sources().forEach(src=>A(src.referees).forEach(r=>{
+      if(!r||typeof r!=='object')return;
+      const id=S(r.id??r.refereeId??r.value??r.uid);
+      const name=S(r.name??r.refereeName??r.fullName??r.displayName);
+      if(!id&&!name)return;
+      const key=id||('name:'+name);
+      if(seen.has(key))return;
+      seen.add(key);out.push({id,name,age:r.age,photo:r.photo});
+    }));
+    return out;
+  }
+  function collectNamePairs(){
+    const pairs=[];
+    function scan(x){
+      if(!x||typeof x!=='object')return;
+      for(let n=1;n<=4;n++){
+        const id=S(x['referee'+n]??x['ref'+n]);
+        const name=S(x['referee'+n+'GuestName']??x['ref'+n+'GuestName']??x['referee'+n+'Name']??x['ref'+n+'Name']);
+        if(id&&name&&!isNum(name))pairs.push([id,name]);
+      }
+      A(x.refereeIds).forEach((v,i)=>{const id=typeof v==='object'?S(v.id??v.refereeId):S(v);const name=S(A(x.refereeNames)[i]??(typeof v==='object'?(v.name??v.refereeName):''));if(id&&name&&!isNum(name))pairs.push([id,name])});
+      A(x.referees).forEach(v=>{if(typeof v==='object'){const id=S(v.id??v.refereeId),name=S(v.name??v.refereeName??v.displayName);if(id&&name&&!isNum(name))pairs.push([id,name])}});
+    }
+    sources().forEach(src=>{A(src.matchSheets).forEach(scan);A(src.matches).forEach(scan)});
+    return pairs;
+  }
+  function resolve(raw){
+    if(raw&&typeof raw==='object'){
+      const direct=S(raw.name??raw.refereeName??raw.displayName);
+      if(direct&&!isNum(direct))return direct;
+      raw=raw.id??raw.refereeId??raw.value??'';
+    }
+    const v=S(raw);if(!v)return '';
+    const refs=collectRefs();
+    const byId=refs.find(r=>S(r.id)===v);
+    if(byId&&byId.name&&!isNum(byId.name))return byId.name;
+    const pair=collectNamePairs().find(x=>S(x[0])===v);
+    if(pair)return pair[1];
+    const byName=refs.find(r=>S(r.name)===v);
+    if(byName&&!isNum(byName.name))return byName.name;
+    return v;
+  }
+  window.manarRefereeDisplayName=resolve;
+
+  function normalizeArray(arr){
+    return A(arr).map(r=>{
+      if(!r||typeof r!=='object')return r;
+      const name=resolve(r.name??r.refereeName??r.displayName??r.id);
+      return name&&name!==S(r.name)?Object.assign({},r,{name}):r;
+    });
+  }
+  function patchDirectory(){
+    const box=document.getElementById('refereesTableBody');
+    if(!box)return;
+    box.querySelectorAll('.referee-name').forEach(el=>{
+      const v=S(el.textContent);const n=resolve(v);if(n&&n!==v)el.textContent=n;
+    });
+    box.querySelectorAll('.referee-main .referee-role').forEach(()=>{});
+  }
+  function patchProfile(){
+    const body=document.getElementById('manarRefereeProfileBody');
+    if(!body)return;
+    const h=body.querySelector('.manar-referee-profile-head h3');
+    if(h){const n=resolve(h.textContent);if(n)h.textContent=n;}
+    const strongs=body.querySelectorAll('.manar-referee-basic strong');
+    strongs.forEach(el=>{const n=resolve(el.textContent);if(n&&!isNum(el.textContent))return;if(n)el.textContent=n});
+  }
+  function patchStats(){
+    document.querySelectorAll('#statsBody td,#statsBody .referee-name').forEach(el=>{
+      const v=S(el.textContent);if(!isNum(v))return;const n=resolve(v);if(n&&n!==v)el.textContent=n;
+    });
+  }
+  function patchSheets(){
+    document.querySelectorAll('.pub-line').forEach(el=>{
+      if(!/الحكام/.test(el.textContent||''))return;
+      const html=el.innerHTML;
+      const text=el.textContent||'';
+      const tail=text.split('الحكام:').slice(1).join('الحكام:').trim();
+      if(!tail)return;
+      const names=tail.split(/[،,]/).map(x=>resolve(x.trim())).filter(Boolean);
+      if(names.length)el.innerHTML='⚖️ <b>الحكام:</b> '+names.map(x=>{const d=document.createElement('div');d.textContent=x;return d.innerHTML}).join('، ');
+    });
+  }
+  function refresh(){patchDirectory();patchProfile();patchStats();patchSheets();}
+  const oldRender=window.renderManarReferees;
+  if(typeof oldRender==='function'&&!oldRender.__nameRecovery){
+    window.renderManarReferees=function(){const r=oldRender.apply(this,arguments);setTimeout(refresh,0);setTimeout(refresh,400);return r};
+    window.renderManarReferees.__nameRecovery=true;
+  }
+  const oldOpen=window.openManarRefereeProfile;
+  if(typeof oldOpen==='function'&&!oldOpen.__nameRecovery){
+    window.openManarRefereeProfile=function(id){const r=oldOpen.apply(this,arguments);setTimeout(patchProfile,0);setTimeout(patchProfile,250);return r};
+    window.openManarRefereeProfile.__nameRecovery=true;
+  }
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(refresh,300);setTimeout(refresh,1200);});
+  const obs=new MutationObserver(()=>{if(!document.hidden)refresh()});
+  document.addEventListener('DOMContentLoaded',()=>obs.observe(document.body,{childList:true,subtree:true}));
+})();
+</script>
