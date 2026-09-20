@@ -10652,9 +10652,57 @@ let editingRefereeId=null;
 window.addManarReferee=function(){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const n=document.getElementById('refereeName').value.trim(),a=Number(document.getElementById('refereeAge').value),file=document.getElementById('refereePhoto').files[0];if(!n){alert('يرجى إدخال اسم الحكم');return}if(!a||a<1||a>120){alert('يرجى إدخال عمر صحيح');return}const d=data();if(d.some(x=>x.name.trim()===n&&x.id!==editingRefereeId)){alert('هذا الحكم موجود مسبقًا');return}const finish=(photo)=>{if(editingRefereeId){const x=d.find(x=>x.id===editingRefereeId);if(x){x.name=n;x.age=a;if(photo!==null)x.photo=photo}editingRefereeId=null;auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);}else{d.push({id:Date.now(),name:n,age:a,photo:photo||''});auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);}save(d);document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم';renderManarReferees()};if(file){const r=new FileReader();r.onload=()=>finish(r.result);r.readAsDataURL(file)}else finish(null)};
 window.editManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const x=data().find(x=>x.id===id);if(!x)return;editingRefereeId=id;document.getElementById('refereeName').value=x.name;document.getElementById('refereeAge').value=x.age;document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='💾 حفظ التعديل';document.getElementById('refereeName').focus()};
 window.deleteManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}if(confirm('هل تريد حذف الحكم؟')){const removed=data().find(x=>x.id===id);save(data().filter(x=>x.id!==id));auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);if(editingRefereeId===id){editingRefereeId=null;document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم'}renderManarReferees()}};
-window.renderManarReferees=function(){const b=document.getElementById('refereesTableBody');if(!b)return;const d=data().slice().sort((a,b)=>Number(b.age||0)-Number(a.age||0));const c=document.getElementById('refereeCount');if(c)c.textContent=d.length+' حكم';b.innerHTML=d.length?d.map((x,i)=>`<div class="referee-card"><div class="referee-card-top"><div class="referee-number">${i+1}</div><div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div><div class="referee-main"><div class="referee-name">${esc(x.name)}</div><div class="referee-role">حكم في رابطة المنار</div></div></div><div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age}</strong> سنة</span><span class="referee-status">● حكم معتمد</span></div><div class="referee-actions" data-perm="referees"><button type="button" class="referee-edit" onclick="editManarReferee(${x.id})">✏️ تعديل</button><button type="button" class="referee-delete" onclick="deleteManarReferee(${x.id})">🗑️ حذف</button></div></div>`).join(''):'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';if(typeof applyPermissions==='function')applyPermissions()};
+window.renderManarReferees=function(){
+  const b=document.getElementById('refereesTableBody'); if(!b)return;
+  const d=data().slice().sort((a,b)=>Number(b.age||0)-Number(a.age||0));
+  const c=document.getElementById('refereeCount'); if(c)c.textContent=d.length+' حكم';
+  const displayName=(x)=>{
+    const direct=String(x?.name??'').trim();
+    if(direct && !/^\\d+$/.test(direct)) return direct;
+    const id=String(x?.id??direct).trim();
+    const linked=d.find(r=>String(r?.id??'')===id && String(r?.name??'').trim() && !/^\\d+$/.test(String(r.name).trim()));
+    if(linked)return String(linked.name).trim();
+    try{
+      if(typeof window.manarRefereeDisplayName==='function'){
+        const n=String(window.manarRefereeDisplayName(x?.id??direct)||'').trim();
+        if(n && !/^\\d+$/.test(n))return n;
+      }
+    }catch(e){}
+    return direct || 'حكم';
+  };
+  b.innerHTML=d.length?d.map((x,i)=>{
+    const n=displayName(x);
+    return `<div class="referee-card"><div class="referee-card-top"><div class="referee-number">${i+1}</div><div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(n)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div><div class="referee-main"><div class="referee-name">${esc(n)}</div><div class="referee-role">حكم في رابطة المنار</div></div></div><div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age}</strong> سنة</span><span class="referee-status">● حكم معتمد</span></div><div class="referee-actions" data-perm="referees"><button type="button" class="referee-edit" onclick="editManarReferee('${String(x.id??'').replace(/'/g,"\\'")}')">✏️ تعديل</button><button type="button" class="referee-delete" onclick="deleteManarReferee('${String(x.id??'').replace(/'/g,"\\'")}')">🗑️ حذف</button></div></div>`;
+  }).join(''):'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';
+  if(typeof applyPermissions==='function')applyPermissions();
+};
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement&&(document.activeElement.id==='refereeName'||document.activeElement.id==='refereeAge'))addManarReferee()});
 document.addEventListener('DOMContentLoaded',renderManarReferees);
+})();
+</script><script id="referee-name-compatibility-fix">
+(function(){
+  function S(v){return String(v==null?'':v).trim();}
+  function getRefs(){
+    try{
+      const a=JSON.parse(localStorage.getItem('manar_referees_v1')||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return [];}
+  }
+  window.manarRefereeDisplayName=function(raw){
+    const refs=getRefs();
+    if(raw && typeof raw==='object'){
+      const direct=S(raw.name||raw.refereeName||raw.displayName||raw.fullName);
+      if(direct && !/^\d+$/.test(direct)) return direct;
+      raw=raw.id??raw.refereeId??raw.refereeID??raw.value??'';
+    }
+    const v=S(raw);
+    if(!v)return '';
+    const byId=refs.find(r=>S(r&&r.id)===v);
+    if(byId && S(byId.name) && !/^\d+$/.test(S(byId.name)))return S(byId.name);
+    const byName=refs.find(r=>S(r&&r.name)===v);
+    if(byName)return S(byName.name);
+    return /^\d+$/.test(v)?'حكم رقم '+v:v;
+  };
 })();
 </script><script id="ordered-home-sections-js">
 /* فتح الأيقونات مباشرة داخل القسم المطلوب، دون المرور بالواجهة الرئيسية */
@@ -12376,12 +12424,28 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     try{registeredReferees=A(JSON.parse(localStorage.getItem('manar_referees_v1')||'[]')).filter(r=>r&&S(r.name).trim());}catch(e){registeredReferees=[];}
     const refereeNameByValue=(raw)=>{
       if(raw===undefined||raw===null)return '';
-      if(typeof raw==='object'){if(S(raw.name||raw.refereeName).trim())return S(raw.name||raw.refereeName).trim();raw=raw.id??raw.refereeId??'';}
+      if(Array.isArray(raw)) return raw.map(refereeNameByValue).filter(Boolean).join('، ');
+      if(typeof raw==='object'){
+        const direct=S(raw.name||raw.refereeName||raw.displayName||raw.fullName).trim();
+        if(direct && !/^\\d+$/.test(direct)) return direct;
+        raw=raw.id??raw.refereeId??raw.refereeID??raw.value??raw.key??'';
+      }
       const v=S(raw).trim(); if(!v)return '';
-      const byId=registeredReferees.find(r=>S(r.id)===v); if(byId)return S(byId.name).trim();
-      const byName=registeredReferees.find(r=>S(r.name).trim()===v); if(byName)return S(byName.name).trim();
-      try{if(typeof window.manarRefereeDisplayName==='function'){const resolved=S(window.manarRefereeDisplayName(raw));if(resolved&&resolved!==v)return resolved;}}catch(e){}
-      return v;
+      const byId=registeredReferees.find(r=>S(r?.id)===v); if(byId && S(byId.name).trim())return S(byId.name).trim();
+      const byName=registeredReferees.find(r=>S(r?.name).trim()===v); if(byName)return S(byName.name).trim();
+      const dbRefs=A(dbx().referees);
+      const dbById=dbRefs.find(r=>S(r?.id)===v);
+      if(dbById){
+        const n=S(dbById.name||dbById.refereeName||dbById.displayName).trim();
+        if(n)return n;
+      }
+      try{
+        if(typeof window.manarRefereeDisplayName==='function'){
+          const resolved=S(window.manarRefereeDisplayName(raw)).trim();
+          if(resolved && resolved!==v && !/^\\d+$/.test(resolved)) return resolved;
+        }
+      }catch(e){}
+      return /^\\d+$/.test(v) ? 'حكم رقم '+v : v;
     };
 
     rel.forEach(({m,sh})=>{
