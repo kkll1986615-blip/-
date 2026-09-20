@@ -8625,53 +8625,6 @@ body.admin #predictionsSection{display:block}
   }
 }
 </style>
-
-<style id="stats-standing-headers-bottom-to-top-final">
-/* عناوين أعمدة الإحصائيات: من الأسفل إلى الأعلى */
-#statsBody .standings-mobile-table thead th.standings-vertical-th,
-#statsBody .standings-mobile-table thead th:nth-child(n+3){
-  height:105px!important;
-  min-height:105px!important;
-  padding:0!important;
-  position:relative!important;
-  writing-mode:horizontal-tb!important;
-  transform:none!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  vertical-align:middle!important;
-}
-#statsBody .standings-mobile-table thead th.standings-vertical-th>span,
-#statsBody .standings-mobile-table thead th:nth-child(n+3)>span{
-  position:absolute!important;
-  left:50%!important;
-  top:50%!important;
-  display:block!important;
-  width:max-content!important;
-  height:auto!important;
-  writing-mode:horizontal-tb!important;
-  text-orientation:mixed!important;
-  white-space:nowrap!important;
-  transform:translate(-50%,-50%) rotate(-90deg)!important;
-  transform-origin:center center!important;
-  line-height:1!important;
-  font-weight:900!important;
-  color:#fff!important;
-}
-@media(max-width:600px){
-  #statsBody .standings-mobile-table thead th.standings-vertical-th,
-  #statsBody .standings-mobile-table thead th:nth-child(n+3){
-    height:96px!important;
-    min-height:96px!important;
-  }
-}
-@media(max-width:380px){
-  #statsBody .standings-mobile-table thead th.standings-vertical-th,
-  #statsBody .standings-mobile-table thead th:nth-child(n+3){
-    height:90px!important;
-    min-height:90px!important;
-  }
-}
-</style>
 </head><body>
 <!-- المنصة الرياضية | تنظيم وصيانة 2026-09-14: إزالة رقع معطلة فقط، مع الحفاظ على البيانات والوظائف الحالية. -->
 <header><div class="brand"><img loading="lazy" decoding="async" alt="شعار المنصة الرياضية" class="brand-logo" src="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'&gt;&lt;circle cx='64' cy='64' r='58' fill='%23ffffff' stroke='%23087f5b' stroke-width='6'/&gt;&lt;path d='M64 34l17 12-7 20H54l-7-20z' fill='%23087f5b'/&gt;&lt;path d='M47 46L28 49l-7 21 17 13 19-17M81 46l19 3 7 21-17 13-19-17M54 66l-7 21 17 12 17-12-7-21' fill='none' stroke='%23087f5b' stroke-width='6' stroke-linejoin='round'/&gt;&lt;/svg&gt;"><div class="brand-text"><h1>🏆 المنصة الرياضية</h1><small>نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.</small></div><div aria-label="الوقت والتاريخ" class="header-clock"><div class="clock-time"><span>◷</span><b id="headerTime">03:55:42 م</b></div><div class="clock-date"><span>▣</span><b id="headerDate">2026-08-14</b></div><div class="clock-day" id="headerDay">الجمعة</div></div><div id="authBar"><span class="role-pill" id="rolePill">👁️ مشاهد</span><button class="login-btn" id="loginBtn" onclick="openLogin()">↪ دخول</button><button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none">خروج</button></div></img></div></header><div id="loginOverlay" onclick="if(event.target===this)closeLogin()"><div class="login-box"><h2>🔐 تسجيل الدخول</h2><p>اختر الحساب وأدخل كلمة المرور للوصول إلى صلاحيات الإدارة.</p><div class="auth-note">المشاهدة متاحة للجميع بدون تسجيل دخول. تسجيل الدخول مطلوب فقط لإدارة البيانات والإعدادات.</div><div class="grid"><div><label>نوع الحساب</label><select id="loginRole"><option value="admin">👑 مدير النظام (Admin)</option><option value="editor">🛠️ صلاحية متوسطة</option></select></div><div><label>اسم المستخدم</label><input autocomplete="username" id="loginUser" placeholder="اسم المستخدم"/></div><div><label>كلمة المرور</label><input autocomplete="current-password" id="loginPass" placeholder="كلمة المرور" type="password"/></div></div><div id="loginError" style="color:#b42318;font-size:13px;margin-top:8px;display:none"></div><div class="actions"><button class="btn" onclick="login()">دخول</button><button class="btn secondary" onclick="closeLogin()">إلغاء</button></div></div></div><div aria-label="الساعة والتاريخ" class="clock-date-box" id="clockDateBox"><div class="clock-date-part"><span class="clock-label">التاريخ</span><div class="digital-date" id="digitalDate">15 / 08 / 2026</div></div><div class="clock-divider"></div><div class="clock-time-part"><span class="clock-label">الوقت</span><div class="digital-clock" id="digitalClock">00:00:00 م</div></div></div><div aria-label="الشريط الإخباري" class="news-ticker" id="homeNewsTicker"><div class="news-ticker-label">📰 الأخبار الرياضية</div><div class="news-ticker-viewport"><div class="news-ticker-track" id="homeNewsTrack"><span class="news-empty">لا توجد أخبار رياضية حالياً</span></div></div></div><nav class="app-sidebar" id="nav"><button aria-label="الواجهة الرئيسية" class="active" data-page="home"><span class="nav-ico">🏠</span><span class="nav-label">الواجهة الرئيسية</span></button><button data-page="tournaments">🏆 <span>البطولات</span></button><button class="nav-item" data-page="teams">⚽ <span>تسجيل الفرق</span></button><button data-page="players">👥 <span>اللاعبون</span></button><button data-page="matches">⚽ <span>المباريات</span></button><button data-page="matchSheetsSection">📋 <span>كشوفات المباريات</span></button><button data-page="predictionsSection">🎯 <span>توقع نتيجة المباراة</span></button><button data-page="stats">📈 <span>الإحصائيات</span></button><button data-page="tournamentArchiveSection">🗄️ <span>أرشيف البطولات</span></button><button data-page="overallRanking" type="button">🏆 <span>التصنيف العام</span></button><button data-page="mediaSection">📰 <span>الإعلام</span></button><button data-page="contactSection">📞 <span>تواصل معنا</span></button><button class="nav-item" data-page="referees">⚖️ <span>حكام رابطة المنار</span></button><button class="admin-only" data-page="settings">👤⚙️ <span>إدارة المستخدمين</span></button><button class="admin-only" data-page="auditLog" data-perm="audit">🧾 <span>سجل المراجعة</span></button><button data-page="headToHeadSection">⚔️ <span>تاريخ المواجهات</span></button><button class="admin-only" data-page="backup">💾 <span>النسخ الاحتياطي</span></button><button data-page="pollsSection">🗳️ <span>استطلاع رأي</span></button><button data-page="installAppSection" id="installProgramNavBtn">📲 <span>تثبيت البرنامج</span></button></nav><main><section class="page" id="installAppSection">
@@ -12073,7 +12026,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
   function addTable(title,icon,headers,rows,empty){
     const isStandings=String(title).includes('ترتيب الفرق') || String(title).includes('جدول ترتيب المجموعة');
     const tableClass=isStandings?' standings-mobile-table':'';
-    const headHtml=headers.map((h,i)=>`<th>${esc(h)}</th>`).join('');
+    const headHtml=headers.map((h,i)=>`<th class="${isStandings&&i>=2?'standings-vertical-th':''}">${isStandings&&i>=2?`<span>${h}</span>`:h}</th>`).join('');
     return `<div class="card stats-ranking-card${isStandings?' standings-card':''}"><div class="section-title"><h3 style="margin:0">${icon} ${title}</h3></div>${rows.length?`<div class="table-wrap"><table class="${tableClass}"><thead><tr>${headHtml}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`:`<div class="empty">${empty||'لا توجد بيانات كافية من الكشوفات.'}</div>`}</div>`;
   }
   window.toggleTournamentKnockoutStage=function(tid){
@@ -12185,12 +12138,6 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       if(byId)return S(byId.name).trim();
       const byName=registeredReferees.find(r=>S(r.name).trim()===v);
       if(byName)return S(byName.name).trim();
-      try{
-        if(typeof window.manarRefereeDisplayName==='function'){
-          const resolved=S(window.manarRefereeDisplayName(raw));
-          if(resolved && resolved!==v)return resolved;
-        }
-      }catch(e){}
       return v;
     };
     const addReferee=(raw)=>{
@@ -12308,10 +12255,10 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     });
 
     const standing=Object.values(tm).filter(x=>x.p>0).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
-    const topScorers=Object.entries(scorers).map(([id,n])=>({p:player(id),n})).filter(x=>x.p).sort((a,b)=>b.n-a.n||a.p.name.localeCompare(b.p.name,'ar')).slice(0,5);
+    const topScorers=Object.entries(scorers).map(([id,n])=>({p:player(id),n})).filter(x=>x.p).sort((a,b)=>b.n-a.n||a.p.name.localeCompare(b.p.name,'ar')).slice(0,3);
     const attack=standing.slice().sort((a,b)=>b.gf-a.gf||b.pts-a.pts).slice(0,3);
     const defense=standing.slice().sort((a,b)=>a.ga-b.ga||b.gd-a.gd).slice(0,3);
-    const refereeRows=Object.entries(refs).map(([name,n])=>({name,n})).sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar')).slice(0,12);
+    const refereeRows=Object.entries(refs).map(([name,n])=>({name,n})).sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar')).slice(0,10);
 
     /* الأكثر: كل الفرق التي لديها بطاقات.
        الأقل: جميع فرق البطولة، بما فيها الفرق ذات (0) إنذارات. */
@@ -12327,11 +12274,11 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     box.innerHTML=`
       ${isGroupTournament(tourObj) ? `<div class="stats-stage-control"><div><b>🏆 مرحلة البطولة:</b> ${tourObj.stage==='knockout'?'خروج المغلوب':'المجموعات'}</div><div class="stats-stage-note">${tourObj.stage==='knockout'?'تم الانتقال إلى مرحلة خروج المغلوب. تبقى بيانات المجموعات محفوظة.':'بعد انتهاء مرحلة المجموعات يمكن الانتقال إلى خروج المغلوب.'}</div>${currentRole!=='viewer' ? `<button type="button" class="btn primary" onclick="toggleTournamentKnockoutStage('${esc(tid)}')">${tourObj.stage==='knockout'?'↩️ العودة إلى المجموعات':'🏁 بدء خروج المغلوب'}</button>`:''}</div>` : ''}
       <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">🏟️</span><b>${totalTournamentMatches}</b><span>عدد المباريات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalFinished}</b><span>الكشوفات المدخلة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>عدد الأهداف المسجلة في البطولة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>عدد ركلات الجزاء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>عدد البطاقات الصفراء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>عدد البطاقات الحمراء</span></div></div>
-      ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=Object.values(tm).filter(x=>{const tt=teamObjForStats(x.id);return Number(tt?.groupNumber||0)===gi;}).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق / المجموعة','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد مباريات مكتملة لهذه البطولة.')}
-      ${addTable(`الهدافين في ${name} — أكثر 5`,'⚽',['#','اللاعب','الفريق','الأهداف'],topScorers.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.n}</b></td></tr>`),'لا توجد أهداف مسجلة في الكشوفات.')}
+      ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=Object.values(tm).filter(x=>{const tt=teamObjForStats(x.id);return Number(tt?.groupNumber||0)===gi;}).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق / المجموعة','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)} <span class="badge">المجموعة ${letter}</span></td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد مباريات مكتملة لهذه البطولة.')}
+      ${addTable(`الهدافين في ${name} — أكثر 3`,'⚽',['#','اللاعب','الفريق','الأهداف'],topScorers.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.n}</b></td></tr>`),'لا توجد أهداف مسجلة في الكشوفات.')}
       ${addTable(`أقوى خط هجوم في ${name} — أقوى 3`,'🔥',['#','الفريق','الأهداف المسجلة'],attack.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.gf}</b></td></tr>`),'لا توجد بيانات هجومية كافية.')}
       ${addTable(`أقوى خط دفاع في ${name} — أقوى 3`,'🛡️',['#','الفريق','الأهداف المستقبلة'],defense.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.ga}</b></td></tr>`),'لا توجد بيانات دفاعية كافية.')}
-      ${addTable(`أكثر الحكام مشاركة في ${name} — أكثر 12`,'⚖️',['#','الحكم','المشاركات'],refereeRows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.n}</b></td></tr>`),'لا توجد مشاركات حكام مسجلة في كشوفات المباريات.')}
+      ${addTable(`أكثر الحكام مشاركة في ${name} — أكثر 10`,'⚖️',['#','الحكم','المشاركات'],refereeRows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.n}</b></td></tr>`),'لا توجد مشاركات حكام مسجلة في كشوفات المباريات.')}
       ${addTable(`أكثر الفرق حصولًا على الإنذارات في ${name} — أكثر 3`,'🟨',['#','الفريق','إجمالي البطاقات','صفراء','حمراء'],mostCards.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.total}</b></td><td>${x.y}</td><td>${x.r}</td></tr>`),'لا توجد بطاقات مسجلة في كشوفات المباريات.')}
       ${addTable(`أقل الفرق حصولًا على الإنذارات في ${name} — أقل 3`,'🟢',['#','الفريق','إجمالي البطاقات','صفراء','حمراء'],leastCards.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.total}</b></td><td>${x.y}</td><td>${x.r}</td></tr>`),'لا توجد فرق مسجلة في هذه البطولة.')}
       ${addTable(`أكثر لاعب حصولًا على أفضل لاعب في ${name}`,'⭐',['#','اللاعب','الفريق','مرات أفضل لاعب'],topBest.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.n}</b></td></tr>`),'لا توجد اختيارات لأفضل لاعب مسجلة.')}
@@ -16049,119 +15996,6 @@ const oldGo=window.goPage;if(typeof oldGo==='function'&&!oldGo.__pollWrapped){wi
 @media(max-width:600px){
   #home #allSectionsHome .all-sections-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px!important;}
 }
-
-<style id="stats-ranking-headers-visible-final">
-/* قسم الإحصائيات: عناوين جداول ترتيب الفرق تظهر بوضوح وبشكل أفقي */
-#statsBody .stats-ranking-card .standings-mobile-table thead th,
-#statsBody .stats-ranking-card:first-of-type table thead th,
-#statsBody .stats-group-ranking-card .standings-mobile-table thead th{
-  height:46px!important;
-  min-height:46px!important;
-  padding:9px 4px!important;
-  writing-mode:horizontal-tb!important;
-  transform:none!important;
-  white-space:normal!important;
-  overflow:visible!important;
-  text-overflow:clip!important;
-  vertical-align:middle!important;
-  text-align:center!important;
-  color:#173f33!important;
-  background:linear-gradient(135deg,#dff8ee,#eaf4ff)!important;
-  font-size:12px!important;
-  line-height:1.2!important;
-  font-weight:900!important;
-}
-#statsBody .stats-ranking-card .standings-mobile-table thead th>span,
-#statsBody .stats-ranking-card:first-of-type table thead th>span,
-#statsBody .stats-group-ranking-card .standings-mobile-table thead th>span{
-  display:inline!important;
-  position:static!important;
-  writing-mode:horizontal-tb!important;
-  transform:none!important;
-  white-space:normal!important;
-  color:#173f33!important;
-  font-size:inherit!important;
-}
-@media(max-width:600px){
-  #statsBody .stats-ranking-card .standings-mobile-table thead th,
-  #statsBody .stats-ranking-card:first-of-type table thead th,
-  #statsBody .stats-group-ranking-card .standings-mobile-table thead th{
-    height:42px!important;
-    min-height:42px!important;
-    padding:7px 2px!important;
-    font-size:10px!important;
-  }
-}
-</style>
-
-<style id="stats-ranking-headers-hard-fix">
-/* إصلاح نهائي: عناوين أعمدة ترتيب الفرق نص عادي واضح، بدون تدوير أو إخفاء */
-#statsBody .standings-mobile-table thead{
-  display:table-header-group!important;
-}
-#statsBody .standings-mobile-table thead tr{
-  display:table-row!important;
-}
-#statsBody .standings-mobile-table thead th,
-#statsBody .standings-mobile-table thead th.standings-vertical-th,
-#statsBody .standings-mobile-table thead th:nth-child(n+3){
-  display:table-cell!important;
-  position:static!important;
-  height:52px!important;
-  min-height:52px!important;
-  padding:6px 2px!important;
-  writing-mode:horizontal-tb!important;
-  text-orientation:mixed!important;
-  transform:none!important;
-  white-space:normal!important;
-  overflow:visible!important;
-  text-overflow:clip!important;
-  visibility:visible!important;
-  opacity:1!important;
-  color:#ffffff!important;
-  background:linear-gradient(135deg,#1877d2,#5b45d9)!important;
-  font-size:11px!important;
-  line-height:1.15!important;
-  font-weight:900!important;
-  text-align:center!important;
-  vertical-align:middle!important;
-}
-#statsBody .standings-mobile-table thead th span,
-#statsBody .standings-mobile-table thead th.standings-vertical-th>span{
-  display:inline!important;
-  position:static!important;
-  width:auto!important;
-  height:auto!important;
-  max-height:none!important;
-  writing-mode:horizontal-tb!important;
-  text-orientation:mixed!important;
-  transform:none!important;
-  white-space:normal!important;
-  overflow:visible!important;
-  color:inherit!important;
-  font-size:inherit!important;
-  line-height:inherit!important;
-}
-@media(max-width:600px){
-  #statsBody .standings-mobile-table thead th,
-  #statsBody .standings-mobile-table thead th.standings-vertical-th,
-  #statsBody .standings-mobile-table thead th:nth-child(n+3){
-    height:50px!important;
-    min-height:50px!important;
-    padding:5px 1px!important;
-    font-size:10px!important;
-  }
-}
-@media(max-width:380px){
-  #statsBody .standings-mobile-table thead th,
-  #statsBody .standings-mobile-table thead th.standings-vertical-th,
-  #statsBody .standings-mobile-table thead th:nth-child(n+3){
-    height:46px!important;
-    min-height:46px!important;
-    font-size:9px!important;
-  }
-}
-</style>
 </head><body>
       <div class="cover"><div style="font-size:55px">🏆</div><h1>المنصة الرياضية</h1><h2>الأرشيف الرسمي للبطولة</h2><div class="line"></div><h2>${esc(t.name||'بطولة بدون اسم')}</h2><div class="meta"><div><b>الموسم:</b> ${esc(t.season||'—')}</div><div><b>الفئة:</b> ${esc(t.age||t.category||'—')}</div><div><b>النظام:</b> ${esc(t.type||t.system||'—')}</div><div><b>البطل:</b> ${esc(champion)}</div><div><b>البداية:</b> ${esc(t.startDate||'—')}</div><div><b>النهاية:</b> ${esc(t.endDate||'—')}</div></div><div class="footer">تاريخ إنشاء التقرير: ${esc(safeDate(new Date()))}</div></div>
       <div class="section"><h2>📊 الملخص والإحصائيات</h2><div class="stats"><div class="stat"><b>${championshipStats.teams}</b>الفرق</div><div class="stat"><b>${championshipStats.players}</b>اللاعبون</div><div class="stat"><b>${championshipStats.matches}</b>المباريات</div><div class="stat"><b>${championshipStats.goals}</b>الأهداف</div><div class="stat"><b>${championshipStats.yellow}</b>البطاقات الصفراء</div><div class="stat"><b>${championshipStats.red}</b>البطاقات الحمراء</div><div class="stat"><b>${championshipStats.penalties}</b>ركلات الجزاء</div></div><div class="note">هذا التقرير يعتمد على البيانات الموجودة في أرشيف البطولة وكشوفات المباريات المحفوظة في المنصة. أي بيان غير مسجل يظهر على أنه «غير محدد» أو «لا توجد بيانات».</div></div>
@@ -17366,61 +17200,6 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
 @media(min-width:601px){
  #home #allSectionsHome .all-sections-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
  #home #allSectionsHome .home-section-card{border-radius:16px!important;height:auto!important;min-height:125px!important}
-}
-</style>
-
-<style id="stats-headers-bottom-to-top-real-final">
-/* اتجاه عناوين أعمدة ترتيب الفرق: من الأسفل إلى الأعلى */
-#statsBody .standings-mobile-table thead th:nth-child(n+3),
-#statsBody .standings-table thead th:nth-child(n+3){
-  height:88px !important;
-  min-height:88px !important;
-  padding:0 2px !important;
-  position:relative !important;
-  vertical-align:middle !important;
-  text-align:center !important;
-  overflow:visible !important;
-  white-space:normal !important;
-  writing-mode:horizontal-tb !important;
-  transform:none !important;
-}
-#statsBody .standings-mobile-table thead th:nth-child(n+3) > span,
-#statsBody .standings-table thead th:nth-child(n+3) > span{
-  position:absolute !important;
-  left:50% !important;
-  top:50% !important;
-  display:block !important;
-  width:max-content !important;
-  height:auto !important;
-  max-width:none !important;
-  max-height:none !important;
-  margin:0 !important;
-  padding:0 !important;
-  white-space:nowrap !important;
-  writing-mode:vertical-rl !important;
-  text-orientation:mixed !important;
-  direction:rtl !important;
-  transform:translate(-50%,-50%) rotate(180deg) !important;
-  transform-origin:center center !important;
-  line-height:1 !important;
-  font-size:11px !important;
-  font-weight:900 !important;
-  overflow:visible !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  color:#fff !important;
-}
-@media(max-width:600px){
-  #statsBody .standings-mobile-table thead th:nth-child(n+3),
-  #statsBody .standings-table thead th:nth-child(n+3){height:84px !important;min-height:84px !important;}
-  #statsBody .standings-mobile-table thead th:nth-child(n+3) > span,
-  #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:10px !important;}
-}
-@media(max-width:380px){
-  #statsBody .standings-mobile-table thead th:nth-child(n+3),
-  #statsBody .standings-table thead th:nth-child(n+3){height:80px !important;min-height:80px !important;}
-  #statsBody .standings-mobile-table thead th:nth-child(n+3) > span,
-  #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:9px !important;}
 }
 </style>
 </body>
