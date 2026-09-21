@@ -8756,7 +8756,7 @@ if(!USERS||typeof USERS!=='object'||!USERS.admin||!USERS.editor){
 }
 Object.values(USERS).forEach(u=>{if(!Array.isArray(u.permissions))u.permissions=[]});
 let currentRole='viewer', currentUser='';
-function setRole(role){currentRole=role||'viewer';currentUser=role&&USERS[role]?USERS[role].user:'';document.body.classList.remove('viewer','editor','admin','custom');document.body.classList.add(currentRole==='viewer'?'viewer':currentRole==='admin'?'admin':currentRole==='editor'?'editor':'custom');let u=USERS[currentRole];$('rolePill').textContent=u?u.label:'👁️ مشاهد';$('loginBtn').style.display=u?'none':'inline-block';$('logoutBtn').style.display=u?'inline-block':'none';applyPermissions();updateRefereeAdminForm();}
+function setRole(role){currentRole=role||'viewer';currentUser=role&&USERS[role]?USERS[role].user:'';document.body.classList.remove('viewer','editor','admin','custom');document.body.classList.add(currentRole==='viewer'?'viewer':currentRole==='admin'?'admin':currentRole==='editor'?'editor':'custom');let u=USERS[currentRole];$('rolePill').textContent=u?u.label:'👁️ مشاهد';$('loginBtn').style.display=u?'none':'inline-block';$('logoutBtn').style.display=u?'inline-block':'none';applyPermissions();updateRefereeAdminForm();if(currentRole==='admin'){setTimeout(()=>{renderUsers();},0);}}
 function hasPermission(permission){if(currentRole==='admin')return true;if(currentRole==='viewer')return false;return !!(USERS[currentRole]?.permissions||[]).includes(permission)}
 window.hasPermission=hasPermission;
 function applyPermissions(){
@@ -8776,11 +8776,11 @@ function updateRefereeAdminForm(){
   const f=document.getElementById('adminOnlyRefereeForm');
   if(f) f.style.display=(currentRole==='admin')?'':'none';
 }
-function authInit(){let r=sessionStorage.getItem(AUTH_KEY);setRole(USERS[r]?r:'viewer');refreshLoginUsers();}
+function authInit(){let r=sessionStorage.getItem(AUTH_KEY);setRole(USERS[r]?r:'viewer');refreshLoginUsers();if(r==='admin')setTimeout(()=>renderUsers(),0);}
 function updatePasswordStrength(){let v=$('newAdminPass').value||'',score=0;if(v.length>=6)score++;if(v.length>=10)score++;if(/[A-Z]/.test(v))score++;if(/[0-9]/.test(v))score++;if(/[^A-Za-z0-9]/.test(v))score++;let bar=$('passwordStrengthBar');bar.style.width=(score*20)+'%';bar.style.background=score<=1?'#e03131':score<=3?'#f59f00':'#12b886';}
 function changeAdminPassword(){if(currentRole!=='admin'){openLogin();return}let old=$('oldAdminPass').value,newPass=$('newAdminPass').value,confirmPass=$('confirmAdminPass').value,msg=$('passwordMessage');msg.style.display='block';if(old!==USERS.admin.pass){msg.style.color='#b42318';msg.textContent='كلمة المرور الحالية غير صحيحة.';return}if(newPass.length<6){msg.style.color='#b42318';msg.textContent='يجب أن تكون كلمة المرور الجديدة 6 أحرف/أرقام على الأقل.';return}if(newPass!==confirmPass){msg.style.color='#b42318';msg.textContent='تأكيد كلمة المرور غير مطابق.';return}USERS.admin.pass=newPass;localStorage.setItem(USERS_KEY,JSON.stringify(USERS));auditAdd('تعديل','settings','تم تغيير كلمة مرور مدير النظام.');$('oldAdminPass').value='';$('newAdminPass').value='';$('confirmAdminPass').value='';updatePasswordStrength();msg.style.color='#087f5b';msg.textContent='تم تغيير كلمة مرور مدير النظام بنجاح.';}
 function saveUsers(){
-localStorage.setItem(USERS_KEY,JSON.stringify(USERS));refreshLoginUsers();renderUsers();}
+localStorage.setItem(USERS_KEY,JSON.stringify(USERS));refreshLoginUsers();if(currentRole==='admin')renderUsers();if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(USERS_KEY).catch(()=>{});}
 function addManagedUser(){if(currentRole!=='admin'){openLogin();return}let u=$('newManagedUser').value.trim(),p=$('newManagedPass').value,role='u_'+Date.now().toString(36);if(!u||!p)return alert('أدخل اسم المستخدم وكلمة المرور');if(Object.values(USERS).some(x=>x.user===u))return alert('اسم المستخدم موجود مسبقًا');let permissions=[...document.querySelectorAll('#userPermissions input:checked')].map(x=>x.value);USERS[role]={user:u,pass:p,label:'👤 '+u,cls:'custom',permissions};$('newManagedUser').value='';$('newManagedPass').value='';document.querySelectorAll('#userPermissions input').forEach(x=>x.checked=false);saveUsers();auditUserChange('إدارة الحسابات',`تم إنشاء حساب «${u}» ومنحه الصلاحيات المحددة: ${(permissions||[]).map(x=>PERMISSIONS[x]||x).join('، ')||'بدون صلاحيات إدارة'}.`);alert('تم إنشاء الحساب ومنحه الصلاحيات المحددة.');}
 function deleteManagedUser(role){if(currentRole!=='admin')return;if(role==='admin'||role==='editor')return alert('لا يمكن حذف الحسابات الأساسية.');const deletedUser=USERS[role]?.user||role;delete USERS[role];saveUsers();auditUserChange('إدارة الحسابات',`تم حذف حساب «${deletedUser}».`);}
 function initPermissionOptions(){let box=$('userPermissions');if(!box)return;const order=['tournaments','matches','teams','players','matchSheets','stats','referees','media','tournamentArchive','audit','backup','settings','delete'];box.innerHTML=order.filter(k=>PERMISSIONS[k]).map(k=>`<label><input type="checkbox" value="${k}"><span>${esc(PERMISSIONS[k])}</span></label>`).join('')}
@@ -8809,7 +8809,11 @@ function renderUsers(){
     const action=k==='editor'?'<span class="badge">حساب أساسي</span>':`<button class="btn danger" onclick="deleteManagedUser(\'${k}\')">حذف</button>`;
     return `<div class="managed-user-card"><div class="managed-user-avatar">${esc((u.user||'مستخدم').slice(0,1).toUpperCase())}</div><div class="managed-user-main"><div class="managed-user-name">${esc(u.user||'مستخدم')}</div><div class="managed-user-role">${esc(u.label||'مستخدم')}</div>${credentials}<div class="managed-user-perms">${perms}</div><div class="managed-user-footer"><span>الحالة: <b>نشط</b></span>${action}</div></div></div>`;
   }).join('');
-  box.innerHTML=adminCard+(cards||'<div class="empty">لا توجد حسابات إضافية</div>');
+  box.innerHTML=adminCard+(cards||'<div class="empty">لا توجد حسابات إضافية. يمكنك إنشاء حساب جديد من الأسفل.</div>');
+  if(isAdmin){
+    box.style.display='grid';
+    box.style.gap='12px';
+  }
 }
 
 const KEY='manar_sports_v2';
@@ -13865,6 +13869,7 @@ const FIREBASE_CONFIG={apiKey:'AIzaSyBl8ETnvRg4w-7BTleNROgmzSaqtPbUWRE',authDoma
 const CLOUD_PATH='manar_platform';
 /* كل مفاتيح بيانات المنصة المشتركة. لا تتم مزامنة كلمات مرور المستخدمين أو إعدادات الجهاز الخاصة. */
 const SYNC_KEYS=[
+ 'manar_users_v3',
  'manar_sports_v2',
  'manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3',
  'manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1',
@@ -13927,7 +13932,20 @@ window.__manarFirebaseResetSection=async function(section){
 async function pullAll(){try{applyingRemote=true;let n=0;for(const k of SYNC_KEYS){const snap=await get(ref(db,CLOUD_PATH+'/'+k));if(snap.exists()){localStorage.setItem(k,JSON.stringify(snap.val()));n++}else{localStorage.removeItem(k)}}dirty.clear();
 /* مهم: بعد تنزيل بيانات Firebase يجب إعادة تحميل متغير db نفسه؛ وإلا تبقى قوائم الاختيار مرتبطة بالبيانات القديمة الفارغة. */
 try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
-render();status('تمت مزامنة '+n+' قسمًا من السحابة',true)}catch(e){status('فشل تنزيل بيانات السحابة: '+(e?.message||e),false)}finally{applyingRemote=false}}
+/* مهم جدًا: تحديث USERS من localStorage بعد تنزيل الحسابات من Firebase.
+   بدون ذلك تبقى القائمة المعروضة هي النسخة القديمة التي كانت عند فتح الصفحة. */
+try{
+  const cloudUsers=JSON.parse(localStorage.getItem(USERS_KEY)||'null');
+  if(cloudUsers && typeof cloudUsers==='object' && Object.keys(cloudUsers).length){
+    USERS=cloudUsers;
+    Object.values(USERS).forEach(u=>{if(!Array.isArray(u.permissions))u.permissions=[]});
+    refreshLoginUsers();
+    if(currentRole==='admin')renderUsers();
+  }
+}catch(e){console.warn('User accounts reload after Firebase pull failed:',e)}
+render();
+if(currentRole==='admin')setTimeout(renderUsers,50);
+status('تمت مزامنة '+n+' قسمًا من السحابة',true)}catch(e){status('فشل تنزيل بيانات السحابة: '+(e?.message||e),false)}finally{applyingRemote=false}}
 $('fsLogin')?.addEventListener('click',async()=>{const email=$('fsAuthEmail').value.trim(),pass=$('fsAuthPassword').value;if(!email||!pass){alert('أدخل بريد Firebase وكلمة المرور.');return}try{await signInWithEmailAndPassword(auth,email,pass);sessionStorage.setItem('manar_firebase_email',email);$('fsAuthPassword').value='';status('تم تسجيل الدخول إلى Firebase — جاري تأكيد المزامنة',true)}catch(e){status('فشل تسجيل الدخول: '+(e?.message||e),false);alert('تعذر تسجيل الدخول إلى Firebase. تأكد من البريد وكلمة المرور وتفعيل Email/Password في Firebase Authentication.')}});
 $('fsLogout')?.addEventListener('click',async()=>{try{await signOut(auth);sessionStorage.removeItem('manar_firebase_email');status('تم الخروج — القراءة ما زالت متاحة',true)}catch(e){status('فشل تسجيل الخروج',false)}});
 $('fsPush')?.addEventListener('click',pushAll);$('fsPull')?.addEventListener('click',pullAll);
@@ -14027,6 +14045,17 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
         dirty.delete(k);
         if(k==='manar_sports_v2'){
           try{db=loadMainDatabase();window.db=db;__manarDataVersion++}catch(e){console.warn('Database reload after realtime update failed:',e)}
+        }
+        if(k===USERS_KEY){
+          try{
+            const cloudUsers=snap.exists()?snap.val():null;
+            if(cloudUsers && typeof cloudUsers==='object'){
+              USERS=cloudUsers;
+              Object.values(USERS).forEach(u=>{if(!Array.isArray(u.permissions))u.permissions=[]});
+              refreshLoginUsers();
+              if(currentRole==='admin')renderUsers();
+            }
+          }catch(e){console.warn('Realtime user accounts update failed:',e)}
         }
         scheduleRender();
         status(snap.exists()?'وصل تحديث جديد من السحابة':'تم حذف التحديث من السحابة',true);
