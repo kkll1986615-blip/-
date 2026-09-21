@@ -14700,12 +14700,18 @@ const esc=v=>S(v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"
 const DB=()=>window.db||{tournaments:[],teams:[],players:[],matches:[]};
 function raw(k){try{return A(JSON.parse(localStorage.getItem(k)||'[]'))}catch(e){return[]}}
 function allSheets(){
- const out=[],seen=new Set();
- try{
-  const live=typeof window.uniqueMatchSheets==='function'?A(window.uniqueMatchSheets()):[];
-  live.forEach(x=>{if(x&&x.matchId!=null&&!seen.has(S(x.matchId))){seen.add(S(x.matchId));out.push(x)}});
- }catch(e){}
- ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>raw(k).forEach(x=>{if(x&&x.matchId!=null&&!seen.has(S(x.matchId))){seen.add(S(x.matchId));out.push(x)}}));
+ const out=[],byMatch=new Map();
+ // اقرأ الكشوفات مباشرة من التخزين، ولا تستدعِ أي محرك عرض آخر.
+ ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>{
+   raw(k).forEach(x=>{
+     if(!x||x.matchId==null)return;
+     const id=S(x.matchId), prev=byMatch.get(id);
+     const xt=Date.parse(x.updatedAt||x.createdAt||0)||0;
+     const pt=prev ? (Date.parse(prev.updatedAt||prev.createdAt||0)||0) : -1;
+     if(!prev || xt>=pt) byMatch.set(id,x);
+   });
+ });
+ byMatch.forEach(x=>out.push(x));
  return out;
 }
 function objId(v){return v&&typeof v==='object'?S(v.id??v.playerId??v.value):S(v)}
@@ -14735,16 +14741,19 @@ function renderPlayerStatsDirect(){
  put(h=>h.includes('أفضل لاعب')||h.includes('أكثر لاعب'),'⭐ أكثر اللاعبين حصولًا على أفضل لاعب — من الكشوفات',bestRows,'لا توجد اختيارات لأفضل لاعب مسجلة في كشوفات هذه البطولة.');
 }
 function renderSheetsDirect(){
+ try{
  const box=document.getElementById('ksReportsList'),sel=document.getElementById('ksTournament');if(!box||!sel)return;const tid=S(sel.value);if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';return}
  const list=allSheets().filter(sh=>belongs(sh,tid));
  if(!list.length){box.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';return}
  const can=(()=>{try{return (typeof window.hasPermission==='function'&&window.hasPermission('matchSheets'))||document.body.classList.contains('admin')||document.body.classList.contains('editor')}catch(e){return document.body.classList.contains('admin')||document.body.classList.contains('editor')}})();
- box.innerHTML=list.map(sh=>{const m=A(DB().matches).find(x=>S(x.id)===S(sh.matchId))||{};const h=tname(sh.homeTeamId??m.home??m.homeTeamId),a=tname(sh.awayTeamId??m.away??m.awayTeamId);const hg=Number(sh.homeScore??m.hg??m.homeScore??0)||0,ag=Number(sh.awayScore??m.ag??m.awayScore??0)||0;let gs=entries(sh.homeScorers).concat(entries(sh.awayScorers));if(!gs.length)gs=entries(sh.goalScorers);const goals=gs.length?gs.map(x=>'⚽ '+esc(player(x)?.name||objName(x)||S(x))).join('، '):'لا توجد أهداف مسجلة';const cards=A(sh.cards);const ct=cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات';const bp=player(bestValue(sh));const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary"><div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ '+esc(m.time||sh.time||'—')+'</div><div class="pub-line">⚽ <b>مسجلو الأهداف:</b> '+goals+'</div><div class="pub-line">🟨🟥 <b>البطاقات:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>'}).join('');
+ box.innerHTML=list.map(sh=>{const m=A(DB().matches).find(x=>S(x.id)===S(sh.matchId))||{};const h=tname(sh.homeTeamId??m.home??m.homeTeamId),a=tname(sh.awayTeamId??m.away??m.awayTeamId);const hg=Number(sh.homeScore??m.hg??m.homeScore??0)||0,ag=Number(sh.awayScore??m.ag??m.awayScore??0)||0;let gs=entries(sh.homeScorers).concat(entries(sh.awayScorers));if(!gs.length)gs=entries(sh.goalScorers);const goals=gs.length?gs.map(x=>'⚽ '+esc(player(x)?.name||objName(x)||S(x))).join('، '):'لا توجد أهداف مسجلة';const cards=A(sh.cards);const ct=cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات';const bp=player(bestValue(sh));const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary"><div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ '+esc(m.time||sh.time||'—')+'</div><div class="pub-line">⚽ <b>مسجلو الأهداف:</b> '+goals+'</div><div class="pub-line">🟨🟥 <b>البطاقات:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>'}).join(''); } catch(e){ console.error('renderSheetsDirect',e); box.innerHTML='<div class="ks-empty">⚠️ تعذر عرض الكشوفات. تم منع توقف المنصة.</div>'; }
 }
+
 window.renderPlayerStatsDirect=renderPlayerStatsDirect;window.renderPublicSheetsFixed=renderSheetsDirect;
 function refresh(){setTimeout(()=>{try{renderPlayerStatsDirect()}catch(e){};try{renderSheetsDirect()}catch(e){}},80)}
 document.addEventListener('DOMContentLoaded',()=>{refresh();setTimeout(refresh,700);setTimeout(refresh,1800)});
-const oldRS=window.renderStats;window.renderStats=function(){if(typeof oldRS==='function')try{oldRS()}catch(e){}setTimeout(renderPlayerStatsDirect,120)};
+/* FIX: لا نغلف renderStats هنا؛ النسخة السابقة كانت قد تسبب إعادة استدعاء متداخلة وتجميد قسم الكشوفات. */
+window.__matchSheetsStatsDirectPatch=true;
 ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>window.addEventListener('storage',e=>{if(e.key===k)refresh()}));
 /* تم إيقاف إعادة الرسم الدوري للكشوفات. */
 })();
