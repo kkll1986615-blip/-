@@ -18890,3 +18890,277 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
   });
 })();
 </script>
+<!-- FINAL PATCH 2026-09-21: MATCH-SHEETS ROLLBACK + REFEREE-NAME RESOLUTION -->
+<script id="final-match-sheets-rollback-and-referee-names">
+/* FINAL REPAIR — Match Sheets stale-cloud rollback + numeric referee IDs */
+(function(){
+  'use strict';
+  const SHEET_KEYS=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
+  const REF_KEY='manar_referees_v1';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v==null?'':v).trim();
+  const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+  function parseJSON(raw,fallback){try{const x=JSON.parse(raw);return x==null?fallback:x}catch(e){return fallback}}
+  function sheetTime(x){
+    const t=S(x?.updatedAt||x?.createdAt);
+    const n=Date.parse(t);
+    return Number.isFinite(n)?n:0;
+  }
+  function sheetMatchId(x){return S(x?.matchId??x?.id??'')}
+  function loadSheets(key){return A(parseJSON(localStorage.getItem(key)||'[]',[])).filter(x=>x&&typeof x==='object'&&sheetMatchId(x));}
+
+  const DELETE_KEY='manar_match_sheet_tombstones_v1';
+  function tombstones(){return parseJSON(localStorage.getItem(DELETE_KEY)||'{}',{})||{}}
+
+  /*
+   * عند وصول Snapshot قديمة من Firebase لا نسمح لها باستبدال كشف أحدث موجود على الجهاز.
+   * تتم المقارنة لكل مباراة بدل مقارنة المصفوفة كاملة.
+   * كما لا نسمح لنسخة سحابية أقدم بإعادة كشف حُذف محليًا.
+   */
+  function mergeSheets(current,incoming){
+    const tomb=tombstones();
+    /* اللقطة الفارغة قد تكون حذفًا حقيقيًا. نحميها مؤقتًا فقط خلال لحظة الحفظ المحلية حتى لا تسبق عملية الرفع إلى Firebase. */
+    if(!incoming.length && current.length && Date.now() < Number(window.__manarLocalSheetEditUntil||0)) return current.slice();
+    const map=new Map();
+    A(current).forEach(x=>{const id=sheetMatchId(x);if(id)map.set(id,x)});
+    A(incoming).forEach(x=>{
+      const id=sheetMatchId(x);if(!id)return;
+      if(Number(tomb[id]||0) >= sheetTime(x)) return;
+      const old=map.get(id);
+      if(!old){map.set(id,x);return}
+      const nt=sheetTime(x),ot=sheetTime(old);
+      if(nt>ot) map.set(id,x);
+      else if(nt===ot){
+        /* عند غياب التوقيت أو تساويه، حافظ على السجل المحلي الموجود بدل إرجاع نسخة أقدم. */
+        const ni=JSON.stringify(x),oi=JSON.stringify(old);
+        if(!oi && ni)map.set(id,x);
+      }
+    });
+    return [...map.values()];
+  }
+
+  function installStorageGuard(){
+    if(!window.Storage||!Storage.prototype)return;
+    if(Storage.prototype.__manarSheetRollbackGuard)return;
+    const previous=Storage.prototype.setItem;
+    function guarded(key,value){
+      const k=S(key);
+      if(this===localStorage && SHEET_KEYS.includes(k)){
+        try{
+          const incoming=A(JSON.parse(String(value||'[]')));
+          const current=loadSheets(k);
+          const merged=mergeSheets(current,incoming);
+          const mergedJSON=JSON.stringify(merged);
+          /* إذا كانت اللقطة الواردة قديمة، لا تكتبها كما هي. */
+          const incomingById=new Map(incoming.map(x=>[sheetMatchId(x),x]));
+          let changed=false;
+          merged.forEach(x=>{
+            const id=sheetMatchId(x), inc=incomingById.get(id), cur=current.find(c=>sheetMatchId(c)===id);
+            if(cur && inc && JSON.stringify(cur)!==JSON.stringify(inc)){
+              if(sheetTime(cur)>=sheetTime(inc)) changed=true;
+            }
+          });
+          if(changed || mergedJSON!==JSON.stringify(incoming)){
+            return previous.call(this,k,mergedJSON);
+          }
+        }catch(e){}
+      }
+      return previous.call(this,key,value);
+    }
+    guarded.__manarSheetRollbackGuard=true;
+    guarded.__manarOriginalStorageSetItem=previous;
+    Storage.prototype.setItem=guarded;
+    Storage.prototype.__manarSheetRollbackGuard=true;
+    const previousRemove=Storage.prototype.removeItem;
+    function guardedRemove(key){
+      const k=S(key);
+      if(this===localStorage && SHEET_KEYS.includes(k)){
+        try{
+          const hasRows=loadSheets(k).length>0;
+          const protectedNow=Date.now() < Number(window.__manarLocalSheetEditUntil||0);
+          if(hasRows && protectedNow)return;
+        }catch(e){}
+      }
+      return previousRemove.call(this,key);
+    }
+    guardedRemove.__manarSheetRollbackGuard=true;
+    Storage.prototype.removeItem=guardedRemove;
+  }
+
+  /* المزامنة الحالية تكرر استدعاء setItem بعد تحميل الصفحة؛ نعيد تركيب الحارس بعده أيضًا. */
+  function bootGuard(){
+    try{installStorageGuard()}catch(e){}
+  }
+  bootGuard();
+  document.addEventListener('DOMContentLoaded',bootGuard,{once:true});
+  setTimeout(bootGuard,300);
+  setTimeout(bootGuard,1000);
+  setTimeout(bootGuard,2500);
+
+  /* اجعل أي تغيير محلي للكشف محميًا حتى لا تسمح لقطة سحابية متأخرة بإرجاعه. */
+  function markLocalSheetEdit(){
+    try{
+      window.__manarLocalSheetEditUntil=Date.now()+10000;
+      const id=S(document.getElementById('ksMatch')?.value||'');
+      if(id){const t=tombstones();if(t[id]){delete t[id];localStorage.setItem(DELETE_KEY,JSON.stringify(t));}}
+    }catch(e){}
+  }
+  function bindSaveIntent(){
+    const b=document.getElementById('ksSave');
+    if(b&&!b.dataset.rollbackGuardBound){
+      b.dataset.rollbackGuardBound='1';
+      b.addEventListener('click',markLocalSheetEdit,true);
+    }
+  }
+  document.addEventListener('DOMContentLoaded',bindSaveIntent,{once:true});
+  setTimeout(bindSaveIntent,500);
+
+  /* عند حذف كشف، أنشئ tombstone محليًا حتى لا تعيده Firebase من Snapshot قديمة. */
+  function addTombstone(id){
+    if(!id)return;
+    const t=tombstones();t[S(id)]=Date.now();
+    try{localStorage.setItem(DELETE_KEY,JSON.stringify(t))}catch(e){}
+  }
+  document.addEventListener('click',function(e){
+    const d=e.target.closest&&e.target.closest('[data-ks-delete]');
+    if(d){addTombstone(d.getAttribute('data-ks-delete'));return;}
+    const old=e.target.closest&&e.target.closest('[data-ks-del]');
+    if(old){const el=old.closest('[data-ks-delete]');if(el)addTombstone(el.getAttribute('data-ks-delete'));}
+  },true);
+
+  /*
+   * حل معرفات الحكام:
+   * - id مباشر
+   * - الاسم نفسه
+   * - رقم 0-based أو 1-based من النسخ القديمة
+   * - كائن يحتوي على name/refereeName/id
+   */
+  function normalizeRefs(raw){
+    let arr=[];
+    if(Array.isArray(raw)) arr=raw.map((v,i)=>({v,i}));
+    else if(raw&&typeof raw==='object') arr=Object.entries(raw).map(([id,v],i)=>({v,id,i}));
+    return arr.map(o=>{
+      const v=o.v;
+      if(typeof v==='string'||typeof v==='number'){
+        const value=S(v);
+        return {id:S(o.id)||('R_'+o.i),name:value,age:0,photo:''};
+      }
+      const x=v&&typeof v==='object'?v:{};
+      return {
+        id:S(x.id??x.refereeId??o.id)||('R_'+o.i),
+        name:S(x.name??x.refereeName??x.displayName??x.fullName??x.title),
+        age:Number(x.age??x.refereeAge)||0,
+        photo:S(x.photo??x.image??x.photoUrl)
+      };
+    }).filter(x=>x.name);
+  }
+  function allRefSources(){
+    const out=[];
+    const push=x=>normalizeRefs(x).forEach(r=>out.push(r));
+    push(parseJSON(localStorage.getItem(REF_KEY)||'[]',[]));
+    try{push(window.db?.referees)}catch(e){}
+    ['manar_referees_v2','manar_referees','referees','refereeList','refereesList'].forEach(k=>push(parseJSON(localStorage.getItem(k)||'[]',[])));
+    return out;
+  }
+  function refereeList(){
+    const src=allRefSources(),out=[],byId=new Map(),byName=new Map();
+    src.forEach(r=>{
+      const name=S(r.name);if(!name)return;
+      const id=S(r.id);
+      const found=(id&&byId.get(id))||byName.get(name);
+      if(found){
+        if(/^\d+$/.test(S(found.name)) && !/^\d+$/.test(name)) found.name=name;
+        if(!found.age&&r.age)found.age=r.age;
+        if(!found.photo&&r.photo)found.photo=r.photo;
+        return;
+      }
+      const n={id:id||('R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),name,age:r.age||0,photo:r.photo||''};
+      out.push(n);if(id)byId.set(id,n);byName.set(name,n);
+    });
+    return out;
+  }
+  function resolveReferee(raw){
+    if(raw&&typeof raw==='object') raw=raw.id??raw.refereeId??raw.name??raw.refereeName??raw.displayName??raw.value??'';
+    const v=S(raw);if(!v)return '';
+    const list=refereeList();
+    let r=list.find(x=>S(x.id)===v||S(x.name)===v);
+    if(r)return r.name;
+    if(/^\d+$/.test(v)){
+      const n=Number(v);
+      r=list[n]||list[n-1];
+      if(r)return r.name;
+    }
+    return v;
+  }
+  window.manarRefereeDisplayName=resolveReferee;
+
+  function fixRefereeSelects(){
+    for(let i=1;i<=4;i++){
+      const s=document.getElementById('ksRef'+i);if(!s)continue;
+      [...s.options].forEach(o=>{
+        const resolved=resolveReferee(o.value||o.textContent);
+        if(resolved&&/^\d+$/.test(S(o.textContent))){
+          o.textContent=resolved;
+        }
+      });
+      if(s.value){
+        const resolved=resolveReferee(s.value);
+        const opt=[...s.options].find(o=>S(o.value)===S(s.value));
+        if(opt&&resolved)opt.textContent=resolved;
+      }
+    }
+  }
+  function fixRefereeDisplays(root){
+    const base=root||document;
+    base.querySelectorAll('.pub-referee').forEach(el=>{
+      const original=S(el.textContent).replace(/^⚖️/,'').trim();
+      const resolved=resolveReferee(original);
+      if(resolved && resolved!==original)el.textContent='⚖️ '+resolved;
+    });
+    base.querySelectorAll('#refereesTableBody .referee-name').forEach(el=>{
+      const original=S(el.textContent);
+      const resolved=resolveReferee(original);
+      if(resolved && resolved!==original)el.textContent=resolved;
+    });
+    base.querySelectorAll('.pub-line').forEach(el=>{
+      if(!/الحكام/.test(el.textContent||''))return;
+      el.innerHTML=el.innerHTML.replace(/(<b>الحكام:<\/b>\s*)([^<]+)/g,function(_,label,raw){
+        const text=S(raw);
+        const converted=text.split(/([،,])/).map(part=>/^\s*\d+\s*$/.test(part)?resolveReferee(part.trim()):part).join('');
+        return label+esc(converted);
+      });
+    });
+  }
+  function fixAllRefereeDisplays(){
+    try{fixRefereeSelects()}catch(e){}
+    try{fixRefereeDisplays(document)}catch(e){}
+    try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    fixAllRefereeDisplays();
+    setTimeout(fixAllRefereeDisplays,250);
+    setTimeout(fixAllRefereeDisplays,1000);
+    setTimeout(fixAllRefereeDisplays,2500);
+    const box=document.getElementById('matchSheetsSection');
+    if(box){
+      const mo=new MutationObserver(()=>fixAllRefereeDisplays());
+      mo.observe(box,{childList:true,subtree:true});
+    }
+    const refsBox=document.getElementById('refereesTableBody');
+    if(refsBox){
+      const mo2=new MutationObserver(()=>fixAllRefereeDisplays());
+      mo2.observe(refsBox,{childList:true,subtree:true});
+    }
+  },{once:true});
+
+  /* ضمان أن فتح الكشف المحرر يثبت النص الصحيح بعد إعادة بناء الخيارات. */
+  document.addEventListener('click',function(e){
+    if(e.target.closest&&e.target.closest('[data-ks-edit],[data-ks-open],#ksNew')){
+      setTimeout(fixAllRefereeDisplays,80);
+      setTimeout(fixAllRefereeDisplays,350);
+    }
+  },true);
+})();
+
+</script>
