@@ -8828,94 +8828,19 @@ async function addManagedUser(){if(currentRole!=='admin'){openLogin();return}let
 function deleteManagedUser(role){if(currentRole!=='admin')return;if(role==='admin'||role==='editor')return alert('لا يمكن حذف الحسابات الأساسية.');const deletedUser=USERS[role]?.user||role;delete USERS[role];saveUsers();auditUserChange('إدارة الحسابات',`تم حذف حساب «${deletedUser}».`);}
 function initPermissionOptions(){let box=$('userPermissions');if(!box)return;const order=['tournaments','matches','teams','players','matchSheets','stats','referees','media','tournamentArchive','audit','backup','settings','delete'];box.innerHTML=order.filter(k=>PERMISSIONS[k]).map(k=>`<label><input type="checkbox" value="${k}"><span>${esc(PERMISSIONS[k])}</span></label>`).join('')}
 function setAllManagedPermissions(value){document.querySelectorAll('#userPermissions input[type="checkbox"]').forEach(x=>x.checked=!!value)}
-function renderUsers(){let box=$('managedUsersList');if(!box)return;if(currentRole!=='admin'){box.innerHTML='<div class="empty">🔐 قائمة الحسابات تظهر لمدير النظام فقط.</div>';return}let rows=Object.entries(USERS).map(([k,u])=>{const actions=k==='admin'?'<span class="badge">الحساب الرئيسي</span>':(k==='editor'?'<span class="badge">حساب أساسي</span>':'<button class="btn danger" onclick="deleteManagedUser(\''+k+'\')">حذف</button>');return `<tr><td>${esc(u.user)}</td><td>${esc(u.label||'مستخدم')}</td><td>${(u.permissions||[]).map(x=>`<span class="badge">${esc(PERMISSIONS[x]||x)}</span>`).join(' ')||'بدون صلاحيات إدارة'}</td><td>${actions}</td></tr>`}).join('');box.innerHTML=rows?`<table><tr><th>اسم المستخدم</th><th>نوع الحساب</th><th>الصلاحيات</th><th>إجراء</th></tr>${rows}</table>`:'<div class="empty">لا توجد حسابات</div>';}
-
-
-const KEY='manar_sports_v2';
-const LEGACY_MAIN_KEY='manar_match_sheets_v1';
-function loadMainDatabase(){
-  const empty={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
-  const keys=[KEY,'manar_sports_v2','manar_sports_v1','almanar_sports_v1','sports_platform_v1'];
-  const candidates=[];
-  const seenKeys=new Set();
-
-  function addCandidate(k,x){
-    if(!x || typeof x!=='object')return;
-    const data={
-      tournaments:Array.isArray(x.tournaments)?x.tournaments:[],
-      teams:Array.isArray(x.teams)?x.teams:[],
-      players:Array.isArray(x.players)?x.players:[],
-      matches:Array.isArray(x.matches)?x.matches:[],
-      officialPlayers:Array.isArray(x.officialPlayers)?x.officialPlayers:[],
-      archives:Array.isArray(x.archives)?x.archives:[],
-      suspensions:Array.isArray(x.suspensions)?x.suspensions:[]
-    };
-    if(!data.tournaments.length&&!data.teams.length&&!data.players.length&&!data.matches.length&&!data.archives.length&&!data.officialPlayers.length&&!data.suspensions.length)return;
-    const score=data.tournaments.length*1000000+data.teams.length*10000+data.players.length*100+data.matches.length+data.officialPlayers.length*10+data.archives.length*5+data.suspensions.length;
-    candidates.push({key:k,data,score});
-  }
-
-  // أولاً: المفاتيح المعروفة.
-  for(const k of keys){
-    try{
-      const raw=localStorage.getItem(k);
-      if(!raw)continue;
-      const x=JSON.parse(raw);
-      addCandidate(k,x);
-      seenKeys.add(k);
-    }catch(e){}
-  }
-
-  // ثانيًا: فحص جميع سجلات localStorage، لأن بعض النسخ القديمة
-  // كانت تحفظ البطولات تحت اسم مختلف.
-  try{
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i);
-      if(!k||seenKeys.has(k))continue;
-      let x=null;
-      try{x=JSON.parse(localStorage.getItem(k)||'null')}catch(e){continue}
-      if(Array.isArray(x)){
-        if(x.some(v=>v&&typeof v==='object'&&('name' in v)&&('id' in v))){
-          if(/tour|بطول/i.test(k)) addCandidate(k,{tournaments:x});
-          else if(/team|فريق/i.test(k)) addCandidate(k,{teams:x});
-        }
-      }else if(x&&typeof x==='object'){
-        addCandidate(k,x);
-      }
-    }
-  }catch(e){}
-
-  if(!candidates.length)return empty;
-  candidates.sort((a,b)=>b.score-a.score);
-  const best=candidates[0].data;
-
-  const merged={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
-  const seen={tournaments:new Set(),teams:new Set(),players:new Set(),matches:new Set(),officialPlayers:new Set(),archives:new Set(),suspensions:new Set()};
-
-  // نأخذ البيانات من القاعدة الأقوى، ثم نضيف أي سجلات ناقصة من القواعد الأخرى.
-  for(const c of candidates){
-    for(const type of Object.keys(merged)){
-      for(const item of (c.data[type]||[])){
-        if(!item||typeof item!=='object')continue;
-        const id=item.id!=null?String(item.id):JSON.stringify(item);
-        if(!seen[type].has(id)){
-          seen[type].add(id);
-          merged[type].push(item);
-        }
-      }
-    }
-  }
-
-  // إذا كانت قاعدة أفضل واضحة، أعطها الأولوية، مع الاحتفاظ بالسجلات المضافة من النسخ القديمة.
-  return {
-    tournaments:merged.tournaments.length?merged.tournaments:best.tournaments,
-    teams:merged.teams.length?merged.teams:best.teams,
-    players:merged.players.length?merged.players:best.players,
-    matches:merged.matches.length?merged.matches:best.matches,
-    officialPlayers:merged.officialPlayers.length?merged.officialPlayers:best.officialPlayers,
-    archives:merged.archives.length?merged.archives:best.archives,
-    suspensions:merged.suspensions.length?merged.suspensions:best.suspensions
-  };
+function renderUsers(){
+ let box=$('managedUsersList');if(!box)return;
+ if(currentRole!=='admin'){box.innerHTML='<div class="empty users-private-note">🔐 قائمة الحسابات تظهر لمدير النظام فقط.</div>';return}
+ const entries=Object.entries(USERS);
+ if(!entries.length){box.innerHTML='<div class="empty">لا توجد حسابات مضافة.</div>';return}
+ const initials=u=>String(u?.user||'؟').trim().slice(0,2).toUpperCase();
+ const roleText=(k,u)=>k==='admin'?'مدير النظام':(k==='editor'?'صلاحية متوسطة':(u?.label||'حساب مستخدم'));
+ const roleClass=k=>k==='admin'?'user-admin':(k==='editor'?'user-editor':'user-custom');
+ box.innerHTML=`<div class="users-summary"><div><b>${entries.length}</b><span>إجمالي الحسابات</span></div><div><b>${entries.filter(([k])=>k!=='admin').length}</b><span>حسابات بصلاحيات</span></div><div><b>🔒</b><span>عرض المدير فقط</span></div></div><div class="users-cards">${entries.map(([k,u])=>{
+ const perms=Array.isArray(u?.permissions)?u.permissions:[]; const isAdmin=k==='admin'; const isEditor=k==='editor';
+ const actions=isAdmin?'<span class="user-protected">🔒 محمي</span>':`<button class="btn danger user-delete-btn" type="button" onclick="deleteManagedUser('${k}')">🗑️ حذف الحساب</button>`;
+ return `<article class="user-account-card ${roleClass(k)}"><div class="user-card-head"><div class="user-avatar">${esc(initials(u))}</div><div class="user-main-info"><strong>${esc(u?.user||k)}</strong><span>${esc(roleText(k,u))}</span></div><span class="user-status">● نشط</span></div><div class="user-card-meta"><span>👤 ${isAdmin?'الحساب الرئيسي':isEditor?'حساب أساسي':'حساب مخصص'}</span><span>🔐 ${isAdmin?'كامل الصلاحيات':perms.length+' صلاحية'}</span></div><div class="user-permissions">${isAdmin?'<span class="permission-chip all">✓ جميع الصلاحيات</span>':(perms.length?perms.map(x=>`<span class="permission-chip">${esc(PERMISSIONS[x]||x)}</span>`).join(''):'<span class="permission-chip muted">بدون صلاحيات إدارة</span>')}</div><div class="user-card-actions">${actions}</div></article>`;
+ }).join('')}</div>`;
 }
 let db=loadMainDatabase();
 /*
@@ -12686,12 +12611,12 @@ document.addEventListener('change',e=>{if(e.target?.id==='predictionTournament')
 </script>
 <script type="module" id="manar-firebase-sync-v2">
 import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js';
 const DEFAULT_FIREBASE_CONFIG={apiKey:"AIzaSyBl8ETnvRg4w-7BTleNROgmzSaqtPbUWRE",authDomain:"almanar-sports.firebaseapp.com",databaseURL:"https://almanar-sports-default-rtdb.firebaseio.com",projectId:"almanar-sports",storageBucket:"almanar-sports.firebasestorage.app",messagingSenderId:"933674233471",appId:"1:933674233471:web:6dbcd5517687aa9a47194a"};
 const CFG_KEY='manar_firebase_config_v1', USERS_CLOUD_PATH='manar_platform/users';
 const SYNC_KEYS=['manar_sports_v2','manar_match_sheets_v2','manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1','manar_media_news_v1','manar_player_management_windows_v1','manar_player_transfers_v1','manar_contact_settings_v1'];
-let cloudDB=null,cloudAuth=null,cloudUnsubs=[],remoteApplying=false,reloadTimer=null;
+let cloudDB=null,cloudAuth=null,cloudUnsubs=[],remoteApplying=false,reloadTimer=null,anonymousLoginPromise=null;
 function status(t){try{const e=document.getElementById('firebaseSyncStatus');if(e)e.textContent='الحالة: '+t}catch(e){}}
 function cfg(){try{const x=JSON.parse(localStorage.getItem(CFG_KEY)||'null');return x&&x.apiKey&&x.databaseURL&&x.projectId&&x.appId?x:DEFAULT_FIREBASE_CONFIG}catch(e){return DEFAULT_FIREBASE_CONFIG}}
 async function hashPassword(password,saltBytes){const salt=saltBytes||crypto.getRandomValues(new Uint8Array(16));const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},key,256);return{salt:Array.from(salt).map(x=>x.toString(16).padStart(2,'0')).join(''),hash:Array.from(new Uint8Array(bits),x=>x.toString(16).padStart(2,'0')).join(''),algo:'PBKDF2-SHA256-120000'}}
@@ -12702,9 +12627,24 @@ function scheduleReload(){/* احتياطي قديم: لا تعاد الصفحة
 let firstCloudLoad=true;
 let renderTimer=null;
 function queueRemoteRender(){clearTimeout(renderTimer);renderTimer=setTimeout(()=>{try{if(typeof rebuildIndexes==='function')rebuildIndexes();if(typeof renderAll==='function')renderAll();if(typeof renderManarReferees==='function')renderManarReferees();}catch(e){console.warn('Remote render:',e)}},80)}
+async function ensureCloudAuth(){
+  if(!cloudAuth)return null;
+  if(cloudAuth.currentUser)return cloudAuth.currentUser;
+  if(anonymousLoginPromise)return anonymousLoginPromise;
+  anonymousLoginPromise=signInAnonymously(cloudAuth).then(c=>{
+    status('متصل — دخول تلقائي للمزامنة');
+    return c.user;
+  }).catch(e=>{
+    status('قراءة المزامنة فقط — فعّل Anonymous في Firebase');
+    console.warn('Anonymous Firebase sign-in:',e);
+    return null;
+  }).finally(()=>{anonymousLoginPromise=null});
+  return anonymousLoginPromise;
+}
 async function start(){
   const app=getApps().length?getApps()[0]:initializeApp(cfg());
   cloudAuth=getAuth(app); cloudDB=getDatabase(app);
+  await ensureCloudAuth();
   cloudUnsubs.forEach(u=>{try{u()}catch(e){}}); cloudUnsubs=[];
   let loaded=0;
   for(const key of SYNC_KEYS){
@@ -12740,11 +12680,14 @@ async function start(){
   await migrateUsers();
 }
 window.__manarFirebaseSaveKey=async key=>{
-  if(!cloudDB||!cloudAuth?.currentUser)return false;
   try{
+    if(!cloudDB)return false;
+    await ensureCloudAuth();
+    if(!cloudAuth?.currentUser)return false;
     const v=JSON.parse(localStorage.getItem(key)||'null');
     if(v===null)return false;
     await set(ref(cloudDB,'manar_platform/'+key),v);
+    status('متصل — تم حفظ التحديث تلقائيًا');
     return true;
   }catch(e){status('فشل حفظ المزامنة: '+e.message);console.error('Firebase save',key,e);return false}
 };
@@ -12754,12 +12697,35 @@ window.__manarFirebaseSaveUsers=async()=>{
   catch(e){status('فشل مزامنة الحسابات: '+e.message);console.error('Firebase users save',e);return false}
 };
 window.__manarFirebaseHardReset=async()=>{if(!cloudDB||!cloudAuth?.currentUser)return;remoteApplying=true;try{for(const key of SYNC_KEYS)await set(ref(cloudDB,'manar_platform/'+key),null);await set(ref(cloudDB,USERS_CLOUD_PATH),null)}finally{remoteApplying=false}};
-window.openCloudSync=async()=>{if(typeof currentRole!=='undefined'&&currentRole!=='admin')return;try{if(!cloudDB)await start();alert(cloudAuth?.currentUser?'✅ Firebase متصل والحساب السحابي مسجل.':'ℹ️ Firebase متصل للقراءة. الرفع يحتاج تسجيل دخول Firebase.')}catch(e){alert('❌ تعذر الاتصال بـ Firebase: '+e.message)}};
+window.openCloudSync=async()=>{try{if(!cloudDB)await start();await ensureCloudAuth();alert(cloudAuth?.currentUser?'✅ المزامنة التلقائية مفعلة على هذا الجهاز.':'ℹ️ المزامنة تعمل للقراءة حتى يتم تفعيل Anonymous Authentication في Firebase.')}catch(e){alert('❌ تعذر الاتصال بـ Firebase: '+e.message)}};
 window.firebaseSignIn=async()=>{if(typeof currentRole!=='undefined'&&currentRole!=='admin')return;try{if(!cloudDB)await start();const email=prompt('بريد Firebase للمدير:','');if(!email)return;const password=prompt('كلمة مرور Firebase:');if(!password)return;await signInWithEmailAndPassword(cloudAuth,email,password);let ok=0;for(const k of SYNC_KEYS)if(await window.__manarFirebaseSaveKey(k))ok++;await window.__manarFirebaseSaveUsers();status('✅ Firebase متصل — تمت مزامنة '+ok+'/'+SYNC_KEYS.length);alert('✅ تم تسجيل الدخول والمزامنة بنجاح. تم رفع بيانات الجهاز إلى السحابة ('+ok+'/'+SYNC_KEYS.length+').')}catch(e){status('❌ خطأ المزامنة: '+(e.message||e));alert('❌ تعذر تسجيل الدخول أو المزامنة: '+(e.message||e))}};
 window.firebaseSignOut=async()=>{if(cloudAuth)await signOut(cloudAuth)};
-window.pushLocalToCloud=async()=>{if(typeof currentRole!=='undefined'&&currentRole!=='admin')return;if(!cloudAuth?.currentUser)return alert('سجّل دخول Firebase أولاً.');try{let ok=0;for(const k of SYNC_KEYS)if(await window.__manarFirebaseSaveKey(k))ok++;await window.__manarFirebaseSaveUsers();alert('✅ تم رفع البيانات والحسابات إلى السحابة ('+ok+'/'+SYNC_KEYS.length+').')}catch(e){alert('❌ فشل الرفع: '+e.message)}};
+window.pushLocalToCloud=async()=>{if(typeof currentRole!=='undefined'&&currentRole!=='admin')return;try{if(!cloudDB)await start();await ensureCloudAuth();if(!cloudAuth?.currentUser)return alert('فعّل Anonymous Authentication في Firebase أولاً.');let ok=0;for(const k of SYNC_KEYS)if(await window.__manarFirebaseSaveKey(k))ok++;await window.__manarFirebaseSaveUsers();alert('✅ تم رفع البيانات إلى السحابة ('+ok+'/'+SYNC_KEYS.length+').')}catch(e){alert('❌ فشل الرفع: '+e.message)}};
 window.pullCloudToLocal=async()=>{if(typeof currentRole!=='undefined'&&currentRole!=='admin')return;if(!cloudDB)await start();try{remoteApplying=true;for(const k of SYNC_KEYS){const s=await get(ref(cloudDB,'manar_platform/'+k));if(s.exists())localStorage.setItem(k,JSON.stringify(s.val()))}const u=await get(ref(cloudDB,USERS_CLOUD_PATH));if(u.exists())localStorage.setItem('manar_users_v3',JSON.stringify(u.val()));location.reload()}catch(e){alert('❌ فشل التنزيل: '+e.message)}finally{remoteApplying=false}};
 window.addEventListener('load',()=>start().catch(e=>status('غير متصل — '+e.message)));
+window.addEventListener('online',()=>{if(cloudDB)start().catch(()=>{})});
 </script>
 
 </body></html>
+<style>
+/* إدارة الحسابات — واجهة احترافية ومناسبة للموبايل */
+#managedUsersList{width:100%;box-sizing:border-box}
+.users-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.users-summary>div{min-height:66px;padding:10px;border:1px solid #dce9e3;border-radius:14px;background:linear-gradient(145deg,#ffffff,#f5faf7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;box-shadow:0 5px 14px rgba(0,70,45,.06)}
+.users-summary b{font-size:20px;line-height:1;color:#075b43}.users-summary span{font-size:10px;font-weight:800;color:#667a72;text-align:center}
+.users-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.user-account-card{position:relative;overflow:hidden;border:1px solid #d9e6e0;border-radius:17px;background:#fff;box-shadow:0 7px 20px rgba(0,65,45,.07);padding:13px;transition:transform .15s,box-shadow .15s}
+.user-account-card:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,65,45,.1)}
+.user-account-card:before{content:"";position:absolute;top:0;right:0;left:0;height:4px;background:#0b7657}
+.user-account-card.user-admin:before{background:#c89400}.user-account-card.user-editor:before{background:#2878c8}.user-account-card.user-custom:before{background:#0b7657}
+.user-card-head{display:flex;align-items:center;gap:10px;margin-bottom:11px;padding-top:2px}
+.user-avatar{width:43px;height:43px;flex:0 0 43px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#075b43,#0a8a64);color:#fff;font-weight:900;font-size:14px;box-shadow:0 5px 12px rgba(0,91,67,.18)}
+.user-admin .user-avatar{background:linear-gradient(135deg,#8a6800,#c89400)}.user-editor .user-avatar{background:linear-gradient(135deg,#245f99,#3287d0)}
+.user-main-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}.user-main-info strong{font-size:14px;color:#173d31;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-main-info span{font-size:10px;color:#72827c;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-status{font-size:9px;color:#087f5b;background:#e9f8f1;border:1px solid #cdebdc;padding:5px 7px;border-radius:999px;font-weight:900;white-space:nowrap}.user-status::first-letter{font-size:8px}
+.user-card-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.user-card-meta span{font-size:9px;font-weight:800;color:#63756e;background:#f4f8f6;border:1px solid #e4ece8;border-radius:8px;padding:5px 7px}
+.user-permissions{display:flex;flex-wrap:wrap;gap:5px;min-height:31px;align-content:flex-start;margin-bottom:12px}.permission-chip{font-size:9px;font-weight:800;color:#075b43;background:#edf8f3;border:1px solid #d3ebdf;border-radius:999px;padding:5px 7px}.permission-chip.all{background:#fff7dc;color:#7b5a00;border-color:#f1df9b}.permission-chip.muted{color:#7c8985;background:#f5f6f6;border-color:#e5e8e7}
+.user-card-actions{display:flex;justify-content:flex-end;align-items:center;border-top:1px solid #edf1ef;padding-top:10px;min-height:35px}.user-delete-btn{font-size:10px!important;padding:7px 10px!important;border-radius:9px!important}.user-protected{font-size:10px;font-weight:900;color:#7b5a00;background:#fff8df;border:1px solid #f0dfa8;border-radius:9px;padding:7px 10px}
+.users-private-note{border:1px dashed #d8e3df;border-radius:13px;background:#f7faf8;padding:14px}
+@media(max-width:700px){.users-cards{grid-template-columns:1fr}.users-summary{gap:7px}.users-summary>div{min-height:60px;padding:8px}.users-summary b{font-size:18px}.user-account-card{padding:12px}.user-main-info strong{font-size:13px}}
+</style>
