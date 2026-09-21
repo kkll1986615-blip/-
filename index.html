@@ -13712,7 +13712,17 @@ if(m){
     }
   }
 }
-const adminDecision=!!$('ksAdminDecision')?.checked;let hg=Math.max(0,Number($('ksHomeScore').value)||0),ag=Math.max(0,Number($('ksAwayScore').value)||0);let hs=[...$('ksHomeGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean),as=[...$('ksAwayGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean);if(adminDecision){const withdrawn=S($('ksWithdrawnTeam')?.value),homeId=S(teamId(m,'home')),awayId=S(teamId(m,'away'));if(!withdrawn)return alert('اختر الفريق المنسحب أولاً.');if(withdrawn!==homeId&&withdrawn!==awayId)return alert('الفريق المنسحب غير مطابق لفريقي المباراة.');hg=withdrawn===homeId?0:3;ag=withdrawn===awayId?0:3;hs=[];as=[];$('ksHomeScore').value=hg;$('ksAwayScore').value=ag;}else if(hs.length!==hg||as.length!==ag)return alert('يجب اختيار لاعب لكل هدف مسجل.');if(!$('ksRef1').value||!$('ksRef2').value||!$('ksRef3').value)return alert('يجب اختيار الحكام الأول والثاني والثالث.');if(!validateReferees())return alert('لا يجوز تكرار الحكم نفسه في كشف المباراة. اختر حكامًا مختلفين.');if(!adminDecision&&!$('ksBestPlayer').value)return alert('اختر أفضل لاعب في المباراة.');if(cards.some(c=>!c.playerId||!c.teamId||!c.type))return alert('يوجد إنذار غير مكتمل.');const redThenYellow=cards.find(c=>c.type==='yellow'&&cards.some(d=>S(d.playerId)===S(c.playerId)&&d.type==='red'));if(redThenYellow)return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');const duplicateCard=cards.find((c,i)=>cards.some((d,j)=>i!==j&&S(c.playerId)===S(d.playerId)&&S(c.type)===S(d.type)));if(duplicateCard)return alert(duplicateCard.type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');const totalGoals=hg+ag;const penalties=$('ksPenYes').value==='yes'?Math.max(0,Number($('ksPenalties').value)||0):0;if(penalties>totalGoals)return alert('عدد ركلات الجزاء لا يجوز أن يتجاوز مجموع أهداف الفريقين ('+totalGoals+').');const old=findSheet(active),now=new Date().toISOString(),img=await imageData(),sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,administrativeDecision:adminDecision,withdrawnTeamId:adminDecision?S($('ksWithdrawnTeam').value):'',withdrawalReason:adminDecision?'انسحاب الفريق — قرار إداري':'',homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId:S($('ksBestPlayer').value),bestPlayerName:pName($('ksBestPlayer').value),cards:cards.map(c=>({playerId:S(c.playerId),playerName:S(c.playerName||pName(c.playerId)),teamId:S(c.teamId),teamName:S(c.teamName||tName(c.teamId)),type:c.type==='red'?'red':'yellow'})),referees:[1,2,3,4].map(i=>S($('ksRef'+i).value)).filter(Boolean),referee1:S($('ksRef1').value),referee2:S($('ksRef2').value),referee3:S($('ksRef3').value),referee4:S($('ksRef4').value),supervisor:S($('ksSupervisor').value).trim(),penalties:$('ksPenYes').value==='yes'?Math.min(Math.max(0,Number($('ksPenalties').value)||0),hg+ag):0,images:img?[img]:(old?.images||[]),createdAt:old?.createdAt||now,updatedAt:now};const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);showStatus('تم الحفظ بنجاح');fillMatches();renderPending();renderSaved();close()}
+const adminDecision=!!$('ksAdminDecision')?.checked;let hg=Math.max(0,Number($('ksHomeScore').value)||0),ag=Math.max(0,Number($('ksAwayScore').value)||0);let hs=[...$('ksHomeGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean),as=[...$('ksAwayGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean);if(adminDecision){const withdrawn=S($('ksWithdrawnTeam')?.value),homeId=S(teamId(m,'home')),awayId=S(teamId(m,'away'));if(!withdrawn)return alert('اختر الفريق المنسحب أولاً.');if(withdrawn!==homeId&&withdrawn!==awayId)return alert('الفريق المنسحب غير مطابق لفريقي المباراة.');hg=withdrawn===homeId?0:3;ag=withdrawn===awayId?0:3;hs=[];as=[];$('ksHomeScore').value=hg;$('ksAwayScore').value=ag;}else if(hs.length!==hg||as.length!==ag)return alert('يجب اختيار لاعب لكل هدف مسجل.');if(!$('ksRef1').value||!$('ksRef2').value||!$('ksRef3').value)return alert('يجب اختيار الحكام الأول والثاني والثالث.');if(!validateReferees())return alert('لا يجوز تكرار الحكم نفسه في كشف المباراة. اختر حكامًا مختلفين.');if(!adminDecision&&!$('ksBestPlayer').value)return alert('اختر أفضل لاعب في المباراة.');if(cards.some(c=>!c.playerId||!c.teamId||!c.type))return alert('يوجد إنذار غير مكتمل.');const redThenYellow=cards.find(c=>c.type==='yellow'&&cards.some(d=>S(d.playerId)===S(c.playerId)&&d.type==='red'));if(redThenYellow)return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');const duplicateCard=cards.find((c,i)=>cards.some((d,j)=>i!==j&&S(c.playerId)===S(d.playerId)&&S(c.type)===S(d.type)));if(duplicateCard)return alert(duplicateCard.type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');const totalGoals=hg+ag;const penalties=$('ksPenYes').value==='yes'?Math.max(0,Number($('ksPenalties').value)||0):0;if(penalties>totalGoals)return alert('عدد ركلات الجزاء لا يجوز أن يتجاوز مجموع أهداف الفريقين ('+totalGoals+').');const old=findSheet(active),now=new Date().toISOString(),img=await imageData(),sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,administrativeDecision:adminDecision,withdrawnTeamId:adminDecision?S($('ksWithdrawnTeam').value):'',withdrawalReason:adminDecision?'انسحاب الفريق — قرار إداري':'',homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId:S($('ksBestPlayer').value),bestPlayerName:pName($('ksBestPlayer').value),cards:cards.map(c=>({playerId:S(c.playerId),playerName:S(c.playerName||pName(c.playerId)),teamId:S(c.teamId),teamName:S(c.teamName||tName(c.teamId)),type:c.type==='red'?'red':'yellow'})),referees:[1,2,3,4].map(i=>S($('ksRef'+i).value)).filter(Boolean),referee1:S($('ksRef1').value),referee2:S($('ksRef2').value),referee3:S($('ksRef3').value),referee4:S($('ksRef4').value),supervisor:S($('ksSupervisor').value).trim(),penalties:$('ksPenYes').value==='yes'?Math.min(Math.max(0,Number($('ksPenalties').value)||0),hg+ag):0,images:img?[img]:(old?.images||[]),createdAt:old?.createdAt||now,updatedAt:now};const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);
+/* حفظ محلي فوري ثم انتظار رفع الكشف إلى Firebase قبل إغلاق المحرر، حتى لا تعيد المزامنة نسخة قديمة فوق التعديل. */
+write(all);
+try{
+  if(typeof window.__manarFirebaseSaveKey==='function'){
+    await window.__manarFirebaseSaveKey(KEY);
+  }
+}catch(syncErr){
+  console.warn('Match sheet cloud save:',syncErr);
+}
+showStatus('تم الحفظ بنجاح');fillMatches();renderPending();renderSaved();close()}
 function showStatus(msg){const e=$('ksStatus');if(e){e.textContent='✅ '+msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500)}}
 function close(){active='';cards=[];editing=false;$('ksEditor').style.display='none';const b=$('ksNew');if(b)b.textContent='➕ إنشاء كشف'}
 function renderSaved(){
@@ -14700,18 +14710,12 @@ const esc=v=>S(v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"
 const DB=()=>window.db||{tournaments:[],teams:[],players:[],matches:[]};
 function raw(k){try{return A(JSON.parse(localStorage.getItem(k)||'[]'))}catch(e){return[]}}
 function allSheets(){
- const out=[],byMatch=new Map();
- // اقرأ الكشوفات مباشرة من التخزين، ولا تستدعِ أي محرك عرض آخر.
- ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>{
-   raw(k).forEach(x=>{
-     if(!x||x.matchId==null)return;
-     const id=S(x.matchId), prev=byMatch.get(id);
-     const xt=Date.parse(x.updatedAt||x.createdAt||0)||0;
-     const pt=prev ? (Date.parse(prev.updatedAt||prev.createdAt||0)||0) : -1;
-     if(!prev || xt>=pt) byMatch.set(id,x);
-   });
- });
- byMatch.forEach(x=>out.push(x));
+ const out=[],seen=new Set();
+ try{
+  const live=typeof window.uniqueMatchSheets==='function'?A(window.uniqueMatchSheets()):[];
+  live.forEach(x=>{if(x&&x.matchId!=null&&!seen.has(S(x.matchId))){seen.add(S(x.matchId));out.push(x)}});
+ }catch(e){}
+ ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>raw(k).forEach(x=>{if(x&&x.matchId!=null&&!seen.has(S(x.matchId))){seen.add(S(x.matchId));out.push(x)}}));
  return out;
 }
 function objId(v){return v&&typeof v==='object'?S(v.id??v.playerId??v.value):S(v)}
@@ -14741,19 +14745,16 @@ function renderPlayerStatsDirect(){
  put(h=>h.includes('أفضل لاعب')||h.includes('أكثر لاعب'),'⭐ أكثر اللاعبين حصولًا على أفضل لاعب — من الكشوفات',bestRows,'لا توجد اختيارات لأفضل لاعب مسجلة في كشوفات هذه البطولة.');
 }
 function renderSheetsDirect(){
- try{
  const box=document.getElementById('ksReportsList'),sel=document.getElementById('ksTournament');if(!box||!sel)return;const tid=S(sel.value);if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';return}
  const list=allSheets().filter(sh=>belongs(sh,tid));
  if(!list.length){box.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';return}
  const can=(()=>{try{return (typeof window.hasPermission==='function'&&window.hasPermission('matchSheets'))||document.body.classList.contains('admin')||document.body.classList.contains('editor')}catch(e){return document.body.classList.contains('admin')||document.body.classList.contains('editor')}})();
- box.innerHTML=list.map(sh=>{const m=A(DB().matches).find(x=>S(x.id)===S(sh.matchId))||{};const h=tname(sh.homeTeamId??m.home??m.homeTeamId),a=tname(sh.awayTeamId??m.away??m.awayTeamId);const hg=Number(sh.homeScore??m.hg??m.homeScore??0)||0,ag=Number(sh.awayScore??m.ag??m.awayScore??0)||0;let gs=entries(sh.homeScorers).concat(entries(sh.awayScorers));if(!gs.length)gs=entries(sh.goalScorers);const goals=gs.length?gs.map(x=>'⚽ '+esc(player(x)?.name||objName(x)||S(x))).join('، '):'لا توجد أهداف مسجلة';const cards=A(sh.cards);const ct=cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات';const bp=player(bestValue(sh));const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary"><div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ '+esc(m.time||sh.time||'—')+'</div><div class="pub-line">⚽ <b>مسجلو الأهداف:</b> '+goals+'</div><div class="pub-line">🟨🟥 <b>البطاقات:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>'}).join(''); } catch(e){ console.error('renderSheetsDirect',e); box.innerHTML='<div class="ks-empty">⚠️ تعذر عرض الكشوفات. تم منع توقف المنصة.</div>'; }
+ box.innerHTML=list.map(sh=>{const m=A(DB().matches).find(x=>S(x.id)===S(sh.matchId))||{};const h=tname(sh.homeTeamId??m.home??m.homeTeamId),a=tname(sh.awayTeamId??m.away??m.awayTeamId);const hg=Number(sh.homeScore??m.hg??m.homeScore??0)||0,ag=Number(sh.awayScore??m.ag??m.awayScore??0)||0;let gs=entries(sh.homeScorers).concat(entries(sh.awayScorers));if(!gs.length)gs=entries(sh.goalScorers);const goals=gs.length?gs.map(x=>'⚽ '+esc(player(x)?.name||objName(x)||S(x))).join('، '):'لا توجد أهداف مسجلة';const cards=A(sh.cards);const ct=cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات';const bp=player(bestValue(sh));const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary"><div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ '+esc(m.time||sh.time||'—')+'</div><div class="pub-line">⚽ <b>مسجلو الأهداف:</b> '+goals+'</div><div class="pub-line">🟨🟥 <b>البطاقات:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>'}).join('');
 }
-
 window.renderPlayerStatsDirect=renderPlayerStatsDirect;window.renderPublicSheetsFixed=renderSheetsDirect;
 function refresh(){setTimeout(()=>{try{renderPlayerStatsDirect()}catch(e){};try{renderSheetsDirect()}catch(e){}},80)}
 document.addEventListener('DOMContentLoaded',()=>{refresh();setTimeout(refresh,700);setTimeout(refresh,1800)});
-/* FIX: لا نغلف renderStats هنا؛ النسخة السابقة كانت قد تسبب إعادة استدعاء متداخلة وتجميد قسم الكشوفات. */
-window.__matchSheetsStatsDirectPatch=true;
+const oldRS=window.renderStats;window.renderStats=function(){if(typeof oldRS==='function')try{oldRS()}catch(e){}setTimeout(renderPlayerStatsDirect,120)};
 ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>window.addEventListener('storage',e=>{if(e.key===k)refresh()}));
 /* تم إيقاف إعادة الرسم الدوري للكشوفات. */
 })();
@@ -18899,277 +18900,165 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
   });
 })();
 </script>
-<!-- FINAL PATCH 2026-09-21: MATCH-SHEETS ROLLBACK + REFEREE-NAME RESOLUTION -->
-<script id="final-match-sheets-rollback-and-referee-names">
-/* FINAL REPAIR — Match Sheets stale-cloud rollback + numeric referee IDs */
+
+<!-- FINAL PATCH 2026-09-21: تثبيت حفظ تعديلات الكشوفات + إصلاح أسماء الحكام في إحصائيات الحكام -->
+<script id="final-sheet-save-and-referee-stats-20260921">
 (function(){
   'use strict';
-  const SHEET_KEYS=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
-  const REF_KEY='manar_referees_v1';
   const A=v=>Array.isArray(v)?v:[];
   const S=v=>String(v==null?'':v).trim();
-  const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const KEY='manar_match_sheets_v3';
+  const LEGACY='manar_match_sheets_v2';
 
-  function parseJSON(raw,fallback){try{const x=JSON.parse(raw);return x==null?fallback:x}catch(e){return fallback}}
-  function sheetTime(x){
-    const t=S(x?.updatedAt||x?.createdAt);
-    const n=Date.parse(t);
-    return Number.isFinite(n)?n:0;
-  }
-  function sheetMatchId(x){return S(x?.matchId??x?.id??'')}
-  function loadSheets(key){return A(parseJSON(localStorage.getItem(key)||'[]',[])).filter(x=>x&&typeof x==='object'&&sheetMatchId(x));}
-
-  const DELETE_KEY='manar_match_sheet_tombstones_v1';
-  function tombstones(){return parseJSON(localStorage.getItem(DELETE_KEY)||'{}',{})||{}}
-
-  /*
-   * عند وصول Snapshot قديمة من Firebase لا نسمح لها باستبدال كشف أحدث موجود على الجهاز.
-   * تتم المقارنة لكل مباراة بدل مقارنة المصفوفة كاملة.
-   * كما لا نسمح لنسخة سحابية أقدم بإعادة كشف حُذف محليًا.
-   */
-  function mergeSheets(current,incoming){
-    const tomb=tombstones();
-    /* اللقطة الفارغة قد تكون حذفًا حقيقيًا. نحميها مؤقتًا فقط خلال لحظة الحفظ المحلية حتى لا تسبق عملية الرفع إلى Firebase. */
-    if(!incoming.length && current.length && Date.now() < Number(window.__manarLocalSheetEditUntil||0)) return current.slice();
-    const map=new Map();
-    A(current).forEach(x=>{const id=sheetMatchId(x);if(id)map.set(id,x)});
-    A(incoming).forEach(x=>{
-      const id=sheetMatchId(x);if(!id)return;
-      if(Number(tomb[id]||0) >= sheetTime(x)) return;
-      const old=map.get(id);
-      if(!old){map.set(id,x);return}
-      const nt=sheetTime(x),ot=sheetTime(old);
-      if(nt>ot) map.set(id,x);
-      else if(nt===ot){
-        /* عند غياب التوقيت أو تساويه، حافظ على السجل المحلي الموجود بدل إرجاع نسخة أقدم. */
-        const ni=JSON.stringify(x),oi=JSON.stringify(old);
-        if(!oi && ni)map.set(id,x);
-      }
-    });
-    return [...map.values()];
-  }
-
-  function installStorageGuard(){
-    if(!window.Storage||!Storage.prototype)return;
-    if(Storage.prototype.__manarSheetRollbackGuard)return;
-    const previous=Storage.prototype.setItem;
-    function guarded(key,value){
-      const k=S(key);
-      if(this===localStorage && SHEET_KEYS.includes(k)){
-        try{
-          const incoming=A(JSON.parse(String(value||'[]')));
-          const current=loadSheets(k);
-          const merged=mergeSheets(current,incoming);
-          const mergedJSON=JSON.stringify(merged);
-          /* إذا كانت اللقطة الواردة قديمة، لا تكتبها كما هي. */
-          const incomingById=new Map(incoming.map(x=>[sheetMatchId(x),x]));
-          let changed=false;
-          merged.forEach(x=>{
-            const id=sheetMatchId(x), inc=incomingById.get(id), cur=current.find(c=>sheetMatchId(c)===id);
-            if(cur && inc && JSON.stringify(cur)!==JSON.stringify(inc)){
-              if(sheetTime(cur)>=sheetTime(inc)) changed=true;
-            }
-          });
-          if(changed || mergedJSON!==JSON.stringify(incoming)){
-            return previous.call(this,k,mergedJSON);
-          }
-        }catch(e){}
-      }
-      return previous.call(this,key,value);
-    }
-    guarded.__manarSheetRollbackGuard=true;
-    guarded.__manarOriginalStorageSetItem=previous;
-    Storage.prototype.setItem=guarded;
-    Storage.prototype.__manarSheetRollbackGuard=true;
-    const previousRemove=Storage.prototype.removeItem;
-    function guardedRemove(key){
-      const k=S(key);
-      if(this===localStorage && SHEET_KEYS.includes(k)){
-        try{
-          const hasRows=loadSheets(k).length>0;
-          const protectedNow=Date.now() < Number(window.__manarLocalSheetEditUntil||0);
-          if(hasRows && protectedNow)return;
-        }catch(e){}
-      }
-      return previousRemove.call(this,key);
-    }
-    guardedRemove.__manarSheetRollbackGuard=true;
-    Storage.prototype.removeItem=guardedRemove;
-  }
-
-  /* المزامنة الحالية تكرر استدعاء setItem بعد تحميل الصفحة؛ نعيد تركيب الحارس بعده أيضًا. */
-  function bootGuard(){
-    try{installStorageGuard()}catch(e){}
-  }
-  bootGuard();
-  document.addEventListener('DOMContentLoaded',bootGuard,{once:true});
-  setTimeout(bootGuard,300);
-  setTimeout(bootGuard,1000);
-  setTimeout(bootGuard,2500);
-
-  /* اجعل أي تغيير محلي للكشف محميًا حتى لا تسمح لقطة سحابية متأخرة بإرجاعه. */
-  function markLocalSheetEdit(){
+  /* طبقة حفظ إضافية: لا تعتمد على أن معالج setItem غير متزامن فقط. */
+  function readSheets(){
     try{
-      window.__manarLocalSheetEditUntil=Date.now()+10000;
-      const id=S(document.getElementById('ksMatch')?.value||'');
-      if(id){const t=tombstones();if(t[id]){delete t[id];localStorage.setItem(DELETE_KEY,JSON.stringify(t));}}
+      const v=JSON.parse(localStorage.getItem(KEY)||'[]');
+      return A(v);
+    }catch(e){return[]}
+  }
+  function forceSheetCloudSave(){
+    try{
+      if(typeof window.__manarFirebaseSaveKey==='function'){
+        const r=window.__manarFirebaseSaveKey(KEY);
+        if(r&&typeof r.then==='function')return r;
+      }
     }catch(e){}
+    return Promise.resolve(false);
   }
-  function bindSaveIntent(){
-    const b=document.getElementById('ksSave');
-    if(b&&!b.dataset.rollbackGuardBound){
-      b.dataset.rollbackGuardBound='1';
-      b.addEventListener('click',markLocalSheetEdit,true);
-    }
-  }
-  document.addEventListener('DOMContentLoaded',bindSaveIntent,{once:true});
-  setTimeout(bindSaveIntent,500);
+  window.__manarForceSheetCloudSave=forceSheetCloudSave;
 
-  /* عند حذف كشف، أنشئ tombstone محليًا حتى لا تعيده Firebase من Snapshot قديمة. */
-  function addTombstone(id){
-    if(!id)return;
-    const t=tombstones();t[S(id)]=Date.now();
-    try{localStorage.setItem(DELETE_KEY,JSON.stringify(t))}catch(e){}
-  }
-  document.addEventListener('click',function(e){
-    const d=e.target.closest&&e.target.closest('[data-ks-delete]');
-    if(d){addTombstone(d.getAttribute('data-ks-delete'));return;}
-    const old=e.target.closest&&e.target.closest('[data-ks-del]');
-    if(old){const el=old.closest('[data-ks-delete]');if(el)addTombstone(el.getAttribute('data-ks-delete'));}
-  },true);
-
-  /*
-   * حل معرفات الحكام:
-   * - id مباشر
-   * - الاسم نفسه
-   * - رقم 0-based أو 1-based من النسخ القديمة
-   * - كائن يحتوي على name/refereeName/id
-   */
-  function normalizeRefs(raw){
-    let arr=[];
-    if(Array.isArray(raw)) arr=raw.map((v,i)=>({v,i}));
-    else if(raw&&typeof raw==='object') arr=Object.entries(raw).map(([id,v],i)=>({v,id,i}));
-    return arr.map(o=>{
-      const v=o.v;
-      if(typeof v==='string'||typeof v==='number'){
-        const value=S(v);
-        return {id:S(o.id)||('R_'+o.i),name:value,age:0,photo:''};
-      }
-      const x=v&&typeof v==='object'?v:{};
-      return {
-        id:S(x.id??x.refereeId??o.id)||('R_'+o.i),
-        name:S(x.name??x.refereeName??x.displayName??x.fullName??x.title),
-        age:Number(x.age??x.refereeAge)||0,
-        photo:S(x.photo??x.image??x.photoUrl)
-      };
-    }).filter(x=>x.name);
-  }
-  function allRefSources(){
-    const out=[];
-    const push=x=>normalizeRefs(x).forEach(r=>out.push(r));
-    push(parseJSON(localStorage.getItem(REF_KEY)||'[]',[]));
-    try{push(window.db?.referees)}catch(e){}
-    ['manar_referees_v2','manar_referees','referees','refereeList','refereesList'].forEach(k=>push(parseJSON(localStorage.getItem(k)||'[]',[])));
-    return out;
-  }
+  /* حل أسماء الحكام: تدعم ID النصي، ID الرقمي، رقم ترتيب الحكم (1-based/0-based)، والاسم نفسه. */
   function refereeList(){
-    const src=allRefSources(),out=[],byId=new Map(),byName=new Map();
-    src.forEach(r=>{
-      const name=S(r.name);if(!name)return;
-      const id=S(r.id);
-      const found=(id&&byId.get(id))||byName.get(name);
-      if(found){
-        if(/^\d+$/.test(S(found.name)) && !/^\d+$/.test(name)) found.name=name;
-        if(!found.age&&r.age)found.age=r.age;
-        if(!found.photo&&r.photo)found.photo=r.photo;
-        return;
-      }
-      const n={id:id||('R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),name,age:r.age||0,photo:r.photo||''};
-      out.push(n);if(id)byId.set(id,n);byName.set(name,n);
-    });
-    return out;
+    let list=[];
+    try{list=JSON.parse(localStorage.getItem('manar_referees_v1')||'[]')}catch(e){}
+    if(!Array.isArray(list))list=[];
+    if(!list.length){
+      try{list=A(window.db&&window.db.referees)}catch(e){}
+    }
+    return list.filter(x=>x&&S(x.name));
   }
-  function resolveReferee(raw){
-    if(raw&&typeof raw==='object') raw=raw.id??raw.refereeId??raw.name??raw.refereeName??raw.displayName??raw.value??'';
-    const v=S(raw);if(!v)return '';
-    const list=refereeList();
-    let r=list.find(x=>S(x.id)===v||S(x.name)===v);
-    if(r)return r.name;
+  function refereeName(value){
+    const refs=refereeList();
+    if(value&&typeof value==='object'){
+      const direct=S(value.name||value.refereeName||value.displayName);
+      if(direct)return direct;
+      value=value.id??value.refereeId??value.value??'';
+    }
+    const v=S(value);
+    if(!v)return '';
+    let r=refs.find(x=>S(x.id)===v||S(x.name)===v);
+    if(r)return S(r.name);
+    /* بعض الكشوفات القديمة خزنت رقم الحكم بدل ID. */
     if(/^\d+$/.test(v)){
       const n=Number(v);
-      r=list[n]||list[n-1];
-      if(r)return r.name;
+      r=refs[n] || refs[n-1];
+      if(r&&S(r.name))return S(r.name);
     }
-    return v;
-  }
-  window.manarRefereeDisplayName=resolveReferee;
-
-  function fixRefereeSelects(){
-    for(let i=1;i<=4;i++){
-      const s=document.getElementById('ksRef'+i);if(!s)continue;
-      [...s.options].forEach(o=>{
-        const resolved=resolveReferee(o.value||o.textContent);
-        if(resolved&&/^\d+$/.test(S(o.textContent))){
-          o.textContent=resolved;
-        }
-      });
-      if(s.value){
-        const resolved=resolveReferee(s.value);
-        const opt=[...s.options].find(o=>S(o.value)===S(s.value));
-        if(opt&&resolved)opt.textContent=resolved;
+    try{
+      if(typeof window.manarRefereeDisplayName==='function'){
+        const n=S(window.manarRefereeDisplayName(v));
+        if(n&&n!==v&&!/^\d+$/.test(n))return n;
       }
-    }
+    }catch(e){}
+    /* لا نعرض رقمًا في جدول الإحصائيات إذا لم يمكن ربطه بحكم مسجل. */
+    return /^\d+$/.test(v)?'حكم غير محدد':v;
   }
-  function fixRefereeDisplays(root){
-    const base=root||document;
-    base.querySelectorAll('.pub-referee').forEach(el=>{
-      const original=S(el.textContent).replace(/^⚖️/,'').trim();
-      const resolved=resolveReferee(original);
-      if(resolved && resolved!==original)el.textContent='⚖️ '+resolved;
+  function sheetRefValues(sh){
+    const out=[];
+    for(let i=1;i<=4;i++){
+      if(sh&&sh['referee'+i]!=null)out.push(sh['referee'+i]);
+      else if(sh&&sh['ref'+i]!=null)out.push(sh['ref'+i]);
+      else if(Array.isArray(sh?.refereeIds)&&sh.refereeIds[i-1]!=null)out.push(sh.refereeIds[i-1]);
+    }
+    A(sh?.referees).forEach(v=>out.push(v));
+    ['referee1GuestName','referee2GuestName','referee3GuestName','referee4GuestName',
+     'ref1GuestName','ref2GuestName','ref3GuestName','ref4GuestName'].forEach(k=>{
+      if(sh&&sh[k]!=null)out.push(sh[k]);
     });
-    base.querySelectorAll('#refereesTableBody .referee-name').forEach(el=>{
-      const original=S(el.textContent);
-      const resolved=resolveReferee(original);
-      if(resolved && resolved!==original)el.textContent=resolved;
-    });
-    base.querySelectorAll('.pub-line').forEach(el=>{
-      if(!/الحكام/.test(el.textContent||''))return;
-      el.innerHTML=el.innerHTML.replace(/(<b>الحكام:<\/b>\s*)([^<]+)/g,function(_,label,raw){
-        const text=S(raw);
-        const converted=text.split(/([،,])/).map(part=>/^\s*\d+\s*$/.test(part)?resolveReferee(part.trim()):part).join('');
-        return label+esc(converted);
+    return out;
+  }
+  function uniqueSheets(){
+    const out=[],seen=new Set();
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
+      let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){}
+      A(a).forEach(sh=>{
+        if(!sh)return;
+        const id=S(sh.id||sh.matchId||sh.sheetNumber);
+        const key=id||JSON.stringify(sh);
+        if(seen.has(key))return;
+        seen.add(key);out.push(sh);
       });
     });
+    return out;
   }
-  function fixAllRefereeDisplays(){
-    try{fixRefereeSelects()}catch(e){}
-    try{fixRefereeDisplays(document)}catch(e){}
-    try{if(typeof window.updateRefereeOptions==='function')window.updateRefereeOptions()}catch(e){}
+  function refreshRefereeStatsTable(){
+    const stats=document.getElementById('statsBody');
+    if(!stats)return;
+    const tables=[...stats.querySelectorAll('table')].filter(t=>{
+      const h=[...t.querySelectorAll('thead th')].map(x=>S(x.textContent));
+      return h.some(x=>x.includes('الحكم')) && h.some(x=>x.includes('المشاركات'));
+    });
+    if(!tables.length)return;
+    const counts=new Map();
+    uniqueSheets().forEach(sh=>{
+      const seen=new Set();
+      sheetRefValues(sh).forEach(v=>{
+        const n=refereeName(v);
+        if(!n||n==='حكم غير محدد')return;
+        if(seen.has(n))return;
+        seen.add(n);counts.set(n,(counts.get(n)||0)+1);
+      });
+    });
+    const rows=[...counts].map(([name,n])=>({name,n}))
+      .sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar'))
+      .slice(0,12);
+    tables.forEach(t=>{
+      const tbody=t.querySelector('tbody');if(!tbody)return;
+      if(!rows.length){
+        tbody.innerHTML='<tr><td colspan="3">لا توجد مشاركات حكام مسجلة في الكشوفات.</td></tr>';
+        return;
+      }
+      tbody.innerHTML=rows.map((x,i)=>'<tr><td>'+(i+1)+'</td><td style="text-align:right;font-weight:800">'+escSafe(x.name)+'</td><td><b>'+x.n+'</b></td></tr>').join('');
+    });
   }
-  document.addEventListener('DOMContentLoaded',function(){
-    fixAllRefereeDisplays();
-    setTimeout(fixAllRefereeDisplays,250);
-    setTimeout(fixAllRefereeDisplays,1000);
-    setTimeout(fixAllRefereeDisplays,2500);
-    const box=document.getElementById('matchSheetsSection');
-    if(box){
-      const mo=new MutationObserver(()=>fixAllRefereeDisplays());
-      mo.observe(box,{childList:true,subtree:true});
-    }
-    const refsBox=document.getElementById('refereesTableBody');
-    if(refsBox){
-      const mo2=new MutationObserver(()=>fixAllRefereeDisplays());
-      mo2.observe(refsBox,{childList:true,subtree:true});
-    }
-  },{once:true});
+  function escSafe(v){return S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 
-  /* ضمان أن فتح الكشف المحرر يثبت النص الصحيح بعد إعادة بناء الخيارات. */
+  /* عند أي حفظ للكشف من زر الحفظ: انتظر مزامنة Firebase ثم أعد الرسم. */
   document.addEventListener('click',function(e){
-    if(e.target.closest&&e.target.closest('[data-ks-edit],[data-ks-open],#ksNew')){
-      setTimeout(fixAllRefereeDisplays,80);
-      setTimeout(fixAllRefereeDisplays,350);
-    }
+    const btn=e.target&&e.target.closest?e.target.closest('#ksSave'):null;
+    if(!btn)return;
+    setTimeout(function(){
+      forceSheetCloudSave().finally(function(){
+        try{if(typeof window.refreshMatchSheets==='function')window.refreshMatchSheets()}catch(x){}
+        try{refreshRefereeStatsTable()}catch(x){}
+      });
+    },120);
   },true);
-})();
 
+  const oldStats=window.renderStats;
+  if(typeof oldStats==='function'&&!oldStats.__finalRefereeNameRepair){
+    const wrapped=function(){
+      let r;
+      try{r=oldStats.apply(this,arguments)}catch(e){console.error('renderStats:',e)}
+      setTimeout(refreshRefereeStatsTable,0);
+      setTimeout(refreshRefereeStatsTable,150);
+      setTimeout(refreshRefereeStatsTable,600);
+      return r;
+    };
+    wrapped.__finalRefereeNameRepair=true;
+    window.renderStats=wrapped;
+  }
+  function init(){
+    setTimeout(refreshRefereeStatsTable,150);
+    setTimeout(refreshRefereeStatsTable,700);
+    setTimeout(refreshRefereeStatsTable,1600);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  window.addEventListener('storage',function(e){
+    if(e.key==='manar_referees_v1'||e.key===KEY||e.key===LEGACY){setTimeout(refreshRefereeStatsTable,80)}
+  });
+  window.refreshRefereeStatsNames=refreshRefereeStatsTable;
+})();
 </script>
+
