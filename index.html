@@ -10652,91 +10652,11 @@ let editingRefereeId=null;
 window.addManarReferee=function(){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const n=document.getElementById('refereeName').value.trim(),a=Number(document.getElementById('refereeAge').value),file=document.getElementById('refereePhoto').files[0];if(!n){alert('يرجى إدخال اسم الحكم');return}if(!a||a<1||a>120){alert('يرجى إدخال عمر صحيح');return}const d=data();if(d.some(x=>x.name.trim()===n&&x.id!==editingRefereeId)){alert('هذا الحكم موجود مسبقًا');return}const finish=(photo)=>{if(editingRefereeId){const x=d.find(x=>x.id===editingRefereeId);if(x){x.name=n;x.age=a;if(photo!==null)x.photo=photo}editingRefereeId=null;auditAdd('تعديل','referees',`تم تعديل بيانات الحكم «${n}».`);}else{d.push({id:Date.now(),name:n,age:a,photo:photo||''});auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);}save(d);document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم';renderManarReferees()};if(file){const r=new FileReader();r.onload=()=>finish(r.result);r.readAsDataURL(file)}else finish(null)};
 window.editManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}const x=data().find(x=>x.id===id);if(!x)return;editingRefereeId=id;document.getElementById('refereeName').value=x.name;document.getElementById('refereeAge').value=x.age;document.getElementById('refereePhoto').value='';document.querySelector('#referees .btn-primary').textContent='💾 حفظ التعديل';document.getElementById('refereeName').focus()};
 window.deleteManarReferee=function(id){if(typeof hasPermission==='function'&&!hasPermission('referees')){alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');return}if(confirm('هل تريد حذف الحكم؟')){const removed=data().find(x=>x.id===id);save(data().filter(x=>x.id!==id));auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);if(editingRefereeId===id){editingRefereeId=null;document.getElementById('refereeName').value='';document.getElementById('refereeAge').value='';document.querySelector('#referees .btn-primary').textContent='➕ إضافة الحكم'}renderManarReferees()}};
-window.renderManarReferees=function(){const b=document.getElementById('refereesTableBody');if(!b)return;const d=data().slice().sort((a,b)=>Number(b.age||0)-Number(a.age||0));const c=document.getElementById('refereeCount');if(c)c.textContent=d.length+' حكم';b.innerHTML=d.length?d.map((x,i)=>`<div class="referee-card"><div class="referee-card-top"><div class="referee-number">${i+1}</div><div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div><div class="referee-main"><div class="referee-name" role="button" tabindex="0" onclick="showManarRefereeProfile(${x.id})" onkeydown="if(event.key==='Enter'||event.key===' ')showManarRefereeProfile(${x.id})">${esc(x.name)}</div><div class="referee-role">اضغط على الاسم لعرض البطاقة</div></div></div><div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age}</strong> سنة</span><span class="referee-status">● حكم معتمد</span></div><div class="referee-actions" data-perm="referees"><button type="button" class="referee-edit" onclick="event.stopPropagation();editManarReferee(${x.id})">✏️ تعديل</button><button type="button" class="referee-delete" onclick="event.stopPropagation();deleteManarReferee(${x.id})">🗑️ حذف</button></div></div>`).join(''):'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';if(typeof applyPermissions==='function')applyPermissions()};
+window.renderManarReferees=function(){const b=document.getElementById('refereesTableBody');if(!b)return;const d=data().slice().sort((a,b)=>Number(b.age||0)-Number(a.age||0));const c=document.getElementById('refereeCount');if(c)c.textContent=d.length+' حكم';b.innerHTML=d.length?d.map((x,i)=>`<div class="referee-card"><div class="referee-card-top"><div class="referee-number">${i+1}</div><div class="referee-photo-wrap">${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${x.photo}" alt="صورة ${esc(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}</div><div class="referee-main"><div class="referee-name">${esc(x.name)}</div><div class="referee-role">حكم في رابطة المنار</div></div></div><div class="referee-info"><span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age}</strong> سنة</span><span class="referee-status">● حكم معتمد</span></div><div class="referee-actions" data-perm="referees"><button type="button" class="referee-edit" onclick="editManarReferee(${x.id})">✏️ تعديل</button><button type="button" class="referee-delete" onclick="deleteManarReferee(${x.id})">🗑️ حذف</button></div></div>`).join(''):'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بشكل مرتب بعد إضافتهم.</span></div>';if(typeof applyPermissions==='function')applyPermissions()};
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement&&(document.activeElement.id==='refereeName'||document.activeElement.id==='refereeAge'))addManarReferee()});
 document.addEventListener('DOMContentLoaded',renderManarReferees);
 })();
-</script><div id="manarRefereeProfileOverlay" aria-hidden="true" onclick="if(event.target===this)closeManarRefereeProfile()">
-  <div class="manar-referee-profile" role="dialog" aria-modal="true" aria-labelledby="manarRefereeProfileTitle">
-    <div class="manar-referee-profile-head">
-      <div id="manarRefereeProfilePhoto" class="manar-referee-profile-photo">⚖️</div>
-      <div style="min-width:0;flex:1">
-        <h3 id="manarRefereeProfileTitle">بطاقة الحكم</h3>
-        <small>حكم في رابطة المنار</small>
-      </div>
-      <button class="manar-referee-profile-close" type="button" onclick="closeManarRefereeProfile()" aria-label="إغلاق">×</button>
-    </div>
-    <div class="manar-referee-total"><b id="manarRefereeMatches">0</b><span>عدد المباريات التي أدارها</span></div>
-    <div class="manar-referee-basic">
-      <div><b>👤 اسم الحكم</b><strong id="manarRefereeName">—</strong></div>
-      <div><b>🎂 العمر</b><strong id="manarRefereeAge">—</strong></div>
-      <div><b>🏆 عدد البطولات</b><strong id="manarRefereeTournaments">0</strong></div>
-      <div><b>⚽ المباريات</b><strong id="manarRefereeMatchesSmall">0</strong></div>
-    </div>
-    <div class="manar-referee-tours-title">🏆 البطولات التي أدار فيها مباريات</div>
-    <div id="manarRefereeTours"><div class="manar-referee-empty-tours">لا توجد مباريات مسجلة لهذا الحكم حتى الآن.</div></div>
-  </div>
-</div>
-<script id="manar-referee-profile-js">
-(function(){
-  const REF_KEY='manar_referees_v1';
-  function esc2(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-  function refs(){try{return JSON.parse(localStorage.getItem(REF_KEY)||'[]')}catch(e){return[]}}
-  function arr(v){return Array.isArray(v)?v:[]}
-  function sheets(){
-    const out=[],seen=new Set();
-    try{if(typeof uniqueMatchSheets==='function')arr(uniqueMatchSheets()).forEach(x=>{const id=String(x?.matchId||'');if(id&&!seen.has(id)){seen.add(id);out.push(x)}})}catch(e){}
-    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{try{arr(JSON.parse(localStorage.getItem(k)||'[]')).forEach(x=>{const id=String(x?.matchId||'');if(id&&!seen.has(id)){seen.add(id);out.push(x)}})}catch(e){}});
-    return out;
-  }
-  function refMatches(ref){
-    const refId=String(ref.id), refName=String(ref.name||'').trim(), found=[], seen=new Set();
-    sheets().forEach(sh=>{
-      const vals=[];
-      [1,2,3,4].forEach(n=>vals.push(sh['referee'+n],sh['ref'+n],sh['referee'+n+'Id'],sh['ref'+n+'Id'],sh['referee'+n+'Name'],sh['ref'+n+'Name']));
-      arr(sh.referees).forEach(v=>{vals.push(v);if(v&&typeof v==='object')vals.push(v.id,v.refereeId,v.name,v.refereeName)});
-      ['referee1GuestName','referee2GuestName','referee3GuestName','referee4GuestName','ref1GuestName','ref2GuestName','ref3GuestName','ref4GuestName'].forEach(k=>vals.push(sh[k]));
-      const match=vals.some(v=>{
-        if(v==null)return false;
-        if(typeof v==='object')return String(v.id??v.refereeId??'')===refId || String(v.name??v.refereeName??'').trim()===refName;
-        const z=String(v).trim(); return z===refId || z===refName;
-      });
-      if(match){const mid=String(sh.matchId||'');if(mid&&!seen.has(mid)){seen.add(mid);found.push(sh)}}
-    });
-    // دعم إضافي إذا كان الحكم محفوظًا مباشرة داخل بيانات المباراة.
-    try{arr(window.db?.matches).forEach(m=>{
-      const vals=[m.refereeId,m.refereeName,m.referee,m.referee1,m.referee2,m.referee3,m.referee4];
-      const ok=vals.some(v=>{if(v==null)return false;if(typeof v==='object')return String(v.id??v.refereeId??'')===refId||String(v.name??v.refereeName??'').trim()===refName;const z=String(v).trim();return z===refId||z===refName});
-      if(ok){const mid=String(m.id||'');if(mid&&!seen.has(mid)){seen.add(mid);found.push({matchId:mid,tournamentId:m.tournamentId||m.tournament})}}
-    })}catch(e){}
-    return found;
-  }
-  function tournamentName(id){
-    try{const t=arr(window.db?.tournaments).find(x=>String(x.id)===String(id));return t?.name||'بطولة غير محددة'}catch(e){return 'بطولة غير محددة'}
-  }
-  window.showManarRefereeProfile=function(id){
-    const ref=refs().find(x=>String(x.id)===String(id));if(!ref)return;
-    const ms=refMatches(ref), groups={};
-    ms.forEach(sh=>{const tid=String(sh.tournamentId??sh.tournament??'');const key=tid||'unknown';if(!groups[key])groups[key]=0;groups[key]++});
-    const tourIds=Object.keys(groups).filter(k=>k!=='unknown');
-    const photo=document.getElementById('manarRefereeProfilePhoto');
-    if(photo)photo.innerHTML=ref.photo?`<img class="manar-referee-profile-photo" src="${ref.photo}" alt="صورة ${esc2(ref.name)}">`:'⚖️';
-    document.getElementById('manarRefereeProfileTitle').textContent=ref.name||'بطاقة الحكم';
-    document.getElementById('manarRefereeName').textContent=ref.name||'—';
-    document.getElementById('manarRefereeAge').textContent=(ref.age||'—')+(ref.age?' سنة':'');
-    document.getElementById('manarRefereeMatches').textContent=ms.length;
-    document.getElementById('manarRefereeMatchesSmall').textContent=ms.length;
-    document.getElementById('manarRefereeTournaments').textContent=tourIds.length+(groups.unknown?' +':'');
-    const box=document.getElementById('manarRefereeTours');
-    const rows=tourIds.map(tid=>`<div class="manar-referee-tour-row"><span class="tour-name">${esc2(tournamentName(tid))}</span><span class="tour-count">${groups[tid]} مباراة</span></div>`).join('');
-    box.innerHTML=rows||(groups.unknown?`<div class="manar-referee-tour-row"><span class="tour-name">بطولة غير محددة</span><span class="tour-count">${groups.unknown} مباراة</span></div>`:'<div class="manar-referee-empty-tours">لا توجد مباريات مسجلة لهذا الحكم حتى الآن.</div>');
-    const ov=document.getElementById('manarRefereeProfileOverlay');if(ov){ov.classList.add('show');ov.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
-  };
-  window.closeManarRefereeProfile=function(){const ov=document.getElementById('manarRefereeProfileOverlay');if(ov){ov.classList.remove('show');ov.setAttribute('aria-hidden','true');document.body.style.overflow='';}};
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')window.closeManarRefereeProfile()});
-})();
-</script>
-<script id="ordered-home-sections-js">
+</script><script id="ordered-home-sections-js">
 /* فتح الأيقونات مباشرة داخل القسم المطلوب، دون المرور بالواجهة الرئيسية */
 function openHomeSection(id){
   id=String(id||'').trim();
