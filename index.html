@@ -19062,3 +19062,47 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
 })();
 </script>
 
+
+<style id="fix-standings-goal-difference-column-20260921">
+/* توسيع عمود الفارق في جداول ترتيب المجموعات حتى يظهر الرقم كاملًا */
+#statsBody .standings-mobile-table th:nth-child(9),
+#statsBody .standings-mobile-table td:nth-child(9),
+#statsBody .standings-table:not(.mini-ranking) th:nth-child(9),
+#statsBody .standings-table:not(.mini-ranking) td:nth-child(9){
+  width:11% !important;
+  min-width:11% !important;
+  max-width:11% !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+}
+#statsBody .standings-mobile-table th:nth-child(n+3):not(:nth-child(9)),
+#statsBody .standings-mobile-table td:nth-child(n+3):not(:nth-child(9)),
+#statsBody .standings-table:not(.mini-ranking) th:nth-child(n+3):not(:nth-child(9)),
+#statsBody .standings-table:not(.mini-ranking) td:nth-child(n+3):not(:nth-child(9)){
+  width:8.2857% !important;
+}
+#statsBody .standings-mobile-table th:nth-child(2),
+#statsBody .standings-mobile-table td:nth-child(2),
+#statsBody .standings-table:not(.mini-ranking) th:nth-child(2),
+#statsBody .standings-table:not(.mini-ranking) td:nth-child(2){
+  width:25% !important;
+}
+@media(max-width:380px){
+  #statsBody .standings-mobile-table th:nth-child(9),
+  #statsBody .standings-mobile-table td:nth-child(9),
+  #statsBody .standings-table:not(.mini-ranking) th:nth-child(9),
+  #statsBody .standings-table:not(.mini-ranking) td:nth-child(9){
+    width:11% !important;
+    min-width:11% !important;
+    max-width:11% !important;
+    white-space:nowrap !important;
+    overflow:visible !important;
+  }
+  #statsBody .standings-mobile-table th:nth-child(n+3):not(:nth-child(9)),
+  #statsBody .standings-mobile-table td:nth-child(n+3):not(:nth-child(9)),
+  #statsBody .standings-table:not(.mini-ranking) th:nth-child(n+3):not(:nth-child(9)),
+  #statsBody .standings-table:not(.mini-ranking) td:nth-child(n+3):not(:nth-child(9)){
+    width:8.2857% !important;
+  }
+}
+</style>
