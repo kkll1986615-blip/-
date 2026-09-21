@@ -17512,5 +17512,138 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
   #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:9px !important;}
 }
 </style>
+<script id="final-referee-id-name-repair-2026-09-21">
+(function(){
+  'use strict';
+  const REF_KEY='manar_referees_v1';
+  const SHEET_KEYS=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
+  const S=v=>String(v==null?'':v).trim();
+  const A=v=>Array.isArray(v)?v:[];
+  const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  function read(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+  function write(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+  function newRefId(){return 'REF_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8).toUpperCase()}
+
+  /*
+    السبب: النسخة السابقة كانت تنشئ معرف الحكم بهذه الصورة: Date.now().
+    المعرف الرقمي ليس اسم الحكم، لكنه كان يظهر كرقم عندما يفشل الربط بين
+    الكشف وسجل الحكام. من الآن معرفات الحكام نصية وواضحة، مع الاحتفاظ بالاسم.
+  */
+  function migrate(){
+    const refs=A(read(REF_KEY));
+    if(!refs.length)return false;
+    const map=new Map();
+    let changed=false;
+    const normalized=refs.map(r=>{
+      if(!r||typeof r!=='object')return r;
+      const old=S(r.id);
+      const name=S(r.name??r.refereeName??r.fullName);
+      const nr={...r};
+      if(name && !S(nr.name))nr.name=name;
+      if(/^\d+$/.test(old)){
+        const nid=newRefId();
+        map.set(old,nid);
+        nr.id=nid;
+        changed=true;
+      }else if(!S(nr.id)){
+        nr.id=newRefId();
+        changed=true;
+      }
+      return nr;
+    });
+
+    if(changed)write(REF_KEY,normalized);
+
+    /* تحديث كل الكشوفات القديمة التي كانت تحفظ رقم الحكم فقط. */
+    if(map.size){
+      SHEET_KEYS.forEach(k=>{
+        const sheets=A(read(k));
+        if(!sheets.length)return;
+        let sheetChanged=false;
+        const out=sheets.map(sh=>{
+          if(!sh||typeof sh!=='object')return sh;
+          const x={...sh};
+          for(let i=1;i<=4;i++){
+            const key='referee'+i;
+            const old=S(x[key]);
+            if(map.has(old)){x[key]=map.get(old);sheetChanged=true}
+          }
+          if(Array.isArray(x.referees)){
+            const rr=x.referees.map(v=>map.get(S(v))||S(v)).filter(Boolean);
+            if(JSON.stringify(rr)!==JSON.stringify(x.referees)){x.referees=rr;sheetChanged=true}
+          }
+          if(Array.isArray(x.refereeIds)){
+            const rr=x.refereeIds.map(v=>map.get(S(v))||S(v)).filter(Boolean);
+            if(JSON.stringify(rr)!==JSON.stringify(x.refereeIds)){x.refereeIds=rr;sheetChanged=true}
+          }
+          /* الاسم المحفوظ صراحةً يجعل العرض صحيحًا حتى لو تعذر الربط مؤقتًا. */
+          const byId=id=>normalized.find(r=>S(r.id)===S(id));
+          for(let i=1;i<=4;i++){
+            const id=S(x['referee'+i]);
+            const r=byId(id);
+            if(r?.name)x['referee'+i+'Name']=r.name;
+          }
+          return x;
+        });
+        if(sheetChanged)write(k,out);
+        if(sheetChanged && typeof window.__manarFirebaseSaveKey==='function'){
+          out.forEach(()=>{});
+          window.__manarFirebaseSaveKey(k);
+        }
+      });
+    }
+    return changed||map.size>0;
+  }
+
+  function displayName(raw){
+    const refs=A(read(REF_KEY));
+    if(raw==null)return '';
+    if(typeof raw==='object'){
+      const n=S(raw.name??raw.refereeName??raw.fullName);
+      if(n)return n;
+      raw=raw.id??raw.refereeId??'';
+    }
+    const v=S(raw);
+    if(!v)return '';
+    const r=refs.find(x=>S(x?.id)===v || S(x?.name)===v || S(x?.refereeName)===v || S(x?.fullName)===v);
+    return S(r?.name??r?.refereeName??r?.fullName) || v;
+  }
+  window.manarRefereeDisplayName=displayName;
+
+  function refresh(){
+    try{if(typeof window.renderManarReferees==='function')window.renderManarReferees()}catch(e){}
+    try{if(typeof window.renderStats==='function')window.renderStats()}catch(e){}
+    try{if(typeof window.refreshPublicMatchSheets==='function')window.refreshPublicMatchSheets()}catch(e){}
+  }
+
+  function run(){
+    const changed=migrate();
+    if(changed)refresh();
+  }
+
+  /* بعد إضافة حكم جديد، حوّل المعرف مباشرة إلى المعرف النصي الجديد. */
+  const oldAdd=window.addManarReferee;
+  if(typeof oldAdd==='function' && !oldAdd.__refereeIdNameFixed){
+    const wrapped=function(){
+      const result=oldAdd.apply(this,arguments);
+      setTimeout(run,30);
+      return result;
+    };
+    wrapped.__refereeIdNameFixed=true;
+    window.addManarReferee=wrapped;
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+  /* Firebase قد يعيد تحميل بيانات قديمة بعد بدء الصفحة؛ نفحص المفتاح بخفة. */
+  let last='';
+  setInterval(()=>{
+    try{
+      const raw=localStorage.getItem(REF_KEY)||'';
+      if(raw!==last){last=raw;run()}
+    }catch(e){}
+  },1500);
+})();
+</script>
 </body>
 </html>
