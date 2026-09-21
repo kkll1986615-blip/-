@@ -17977,6 +17977,296 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 })();
 </script>
+
+<!-- FINAL REFEREES REPAIR 2026-09-21 -->
+<style id="referees-final-repair-style">
+  #refereesTableBody .referee-name{cursor:pointer!important;color:#075f45!important;font-weight:900!important}
+  #refereesTableBody .referee-name:hover{text-decoration:underline!important;color:#0ca678!important}
+  #referees .referee-card{position:relative}
+</style>
+<script id="referees-final-repair-engine">
+(function(){
+  'use strict';
+
+  const KEY='manar_referees_v1';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v==null?'':v).trim();
+  const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+  function json(k, fallback){
+    try{ const x=JSON.parse(localStorage.getItem(k)||'null'); return x==null?fallback:x; }
+    catch(e){ return fallback; }
+  }
+
+  /* يدعم كل الصيغ القديمة: مصفوفة، كائن id->record، وكائن id->name */
+  function normalize(raw){
+    let arr=[];
+    if(Array.isArray(raw)) arr=raw.map((v,i)=>({v,i}));
+    else if(raw && typeof raw==='object') arr=Object.entries(raw).map(([id,v],i)=>({v,id,i}));
+
+    return arr.map(o=>{
+      const v=o.v;
+      if(typeof v==='string' || typeof v==='number'){
+        const value=S(v);
+        /* إذا كان المفتاح رقمًا والقيمة نصًا، فالقيمة هي اسم الحكم. */
+        return {id:S(o.id)||('R_'+o.i),name:value,age:0,photo:''};
+      }
+      const x=(v&&typeof v==='object')?v:{};
+      return {
+        id:S(x.id ?? x.refereeId ?? o.id) || ('R_'+o.i+'_'+Date.now()),
+        name:S(x.name ?? x.refereeName ?? x.displayName ?? x.fullName ?? x.title),
+        age:Number(x.age ?? x.refereeAge)||0,
+        photo:S(x.photo ?? x.image ?? x.photoUrl)
+      };
+    }).filter(x=>x.name);
+  }
+
+  function collect(){
+    const all=[];
+    const add=x=>{ normalize(x).forEach(r=>all.push(r)); };
+
+    add(json(KEY,[]));
+    add(window.db && window.db.referees);
+
+    ['manar_referees_v2','manar_referees','referees','refereeList','refereesList'].forEach(k=>add(json(k,[])));
+
+    /* بعض النسخ القديمة كانت تضع الحكام داخل قاعدة المنصة. */
+    ['manar_sports_v2','manar_sports_v1','almanar_sports_v1','sports_platform_v1'].forEach(k=>{
+      const d=json(k,null);
+      if(d && typeof d==='object') add(d.referees);
+    });
+
+    const out=[], byId=new Map(), byName=new Map();
+    all.forEach(r=>{
+      const name=S(r.name);
+      if(!name) return;
+      const id=S(r.id);
+      const old=byId.get(id) || byName.get(name);
+      if(old){
+        if(!old.age && r.age) old.age=r.age;
+        if(!old.photo && r.photo) old.photo=r.photo;
+        if(id && !old.id) old.id=id;
+      }else{
+        const n={id:id||('R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)),name,age:r.age||0,photo:r.photo||''};
+        out.push(n);
+        if(id) byId.set(id,n);
+        byName.set(name,n);
+      }
+    });
+    return out;
+  }
+
+  function saveLocal(list){
+    const clean=normalize(list).filter(r=>r.name);
+    localStorage.setItem(KEY,JSON.stringify(clean));
+    try{
+      if(window.db && typeof window.db==='object') window.db.referees=clean;
+    }catch(e){}
+    /* المزامنة السحابية تعمل إذا كان المدير مسجلًا في Firebase. */
+    try{
+      if(typeof window.__manarFirebaseSaveKey==='function'){
+        const p=window.__manarFirebaseSaveKey(KEY);
+        if(p && p.catch) p.catch(()=>{});
+      }
+    }catch(e){}
+    return clean;
+  }
+
+  function refs(){
+    return collect();
+  }
+
+  window.__refereesFinalRead=refs;
+  window.__refereesFinalSave=saveLocal;
+
+  function render(){
+    const box=document.getElementById('refereesTableBody');
+    if(!box) return;
+    const list=refs().sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+    const count=document.getElementById('refereeCount');
+    if(count) count.textContent=list.length+' حكم';
+
+    box.innerHTML=list.length ? list.map((r,i)=>`
+      <div class="referee-card">
+        <div class="referee-card-top">
+          <div class="referee-number">${i+1}</div>
+          <div class="referee-photo-wrap">
+            ${r.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${esc(r.photo)}" alt="صورة ${esc(r.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}
+          </div>
+          <div class="referee-main">
+            <div class="referee-name" data-referee-id="${esc(r.id)}" role="button" tabindex="0" title="اضغط لعرض بطاقة الحكم">${esc(r.name)}</div>
+            <div class="referee-role">حكم في رابطة المنار</div>
+          </div>
+        </div>
+        <div class="referee-info">
+          <span class="referee-info-item">🎂 <b>العمر</b><strong>${r.age||'—'}</strong>${r.age?' سنة':''}</span>
+          <span class="referee-status">● حكم معتمد</span>
+        </div>
+        <div class="referee-actions" data-perm="referees">
+          <button type="button" class="referee-edit" onclick="editManarReferee('${esc(r.id)}')">✏️ تعديل</button>
+          <button type="button" class="referee-delete" onclick="deleteManarReferee('${esc(r.id)}')">🗑️ حذف</button>
+        </div>
+      </div>`).join('') :
+      '<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بعد إضافتهم.</span></div>';
+
+    try{ if(typeof applyPermissions==='function') applyPermissions(); }catch(e){}
+  }
+
+  let editingId=null;
+
+  window.addManarReferee=function(){
+    try{
+      if(typeof hasPermission==='function' && !hasPermission('referees')){
+        alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+        return;
+      }
+    }catch(e){}
+
+    const nEl=document.getElementById('refereeName');
+    const aEl=document.getElementById('refereeAge');
+    const fEl=document.getElementById('refereePhoto');
+    const name=S(nEl?.value);
+    const age=Number(aEl?.value);
+    const file=fEl?.files?.[0]||null;
+
+    if(!name) return alert('يرجى إدخال اسم الحكم');
+    if(!age || age<1 || age>120) return alert('يرجى إدخال عمر صحيح');
+
+    const list=refs();
+    if(list.some(r=>r.name===name && S(r.id)!==S(editingId))){
+      return alert('هذا الحكم موجود مسبقًا');
+    }
+
+    const finish=photo=>{
+      let next=list.slice();
+      if(editingId){
+        const i=next.findIndex(r=>S(r.id)===S(editingId));
+        if(i<0){ editingId=null; return alert('تعذر العثور على الحكم المراد تعديله.'); }
+        next[i]={...next[i],name,age,photo:photo!==null?photo:(next[i].photo||'')};
+      }else{
+        next.push({id:'R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),name,age,photo:photo||''});
+      }
+
+      saveLocal(next);
+      editingId=null;
+      if(nEl)nEl.value='';
+      if(aEl)aEl.value='';
+      if(fEl)fEl.value='';
+      const btn=document.querySelector('#referees .btn-primary');
+      if(btn)btn.textContent='➕ إضافة الحكم';
+      render();
+      try{ if(typeof window.updateRefereeOptions==='function') window.updateRefereeOptions(); }catch(e){}
+    };
+
+    if(file){
+      const reader=new FileReader();
+      reader.onload=()=>finish(reader.result);
+      reader.onerror=()=>finish(null);
+      reader.readAsDataURL(file);
+    }else finish(null);
+  };
+
+  window.editManarReferee=function(id){
+    try{
+      if(typeof hasPermission==='function' && !hasPermission('referees')){
+        alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+        return;
+      }
+    }catch(e){}
+    const r=refs().find(x=>S(x.id)===S(id));
+    if(!r) return alert('تعذر العثور على الحكم.');
+    editingId=r.id;
+    const n=document.getElementById('refereeName');
+    const a=document.getElementById('refereeAge');
+    if(n)n.value=r.name;
+    if(a)a.value=r.age||'';
+    const f=document.getElementById('refereePhoto');
+    if(f)f.value='';
+    const b=document.querySelector('#referees .btn-primary');
+    if(b)b.textContent='💾 حفظ التعديل';
+    n?.focus();
+  };
+
+  window.deleteManarReferee=function(id){
+    try{
+      if(typeof hasPermission==='function' && !hasPermission('referees')){
+        alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+        return;
+      }
+    }catch(e){}
+    const r=refs().find(x=>S(x.id)===S(id));
+    if(!r)return;
+    if(!confirm('هل تريد حذف الحكم «'+r.name+'»؟'))return;
+    saveLocal(refs().filter(x=>S(x.id)!==S(id)));
+    if(S(editingId)===S(id))editingId=null;
+    render();
+    try{ if(typeof window.updateRefereeOptions==='function') window.updateRefereeOptions(); }catch(e){}
+  };
+
+  /*
+    إصلاح السبب الشائع لظهور الأرقام:
+    إذا كانت الكشوفات تحتوي على refereeId رقمي، نحوله إلى الاسم الصحيح.
+    كذلك إذا كان الرقم يمثل ترتيب الحكم في القائمة القديمة.
+  */
+  window.manarRefereeDisplayName=function(raw){
+    if(raw && typeof raw==='object'){
+      const n=S(raw.name??raw.refereeName??raw.displayName);
+      if(n)return n;
+      raw=raw.id??raw.refereeId??raw.value??'';
+    }
+    const v=S(raw);
+    if(!v)return '';
+    const list=refs();
+    const byId=list.find(r=>S(r.id)===v);
+    if(byId)return byId.name;
+    const byName=list.find(r=>S(r.name)===v);
+    if(byName)return byName.name;
+    if(/^\d+$/.test(v)){
+      const idx=Number(v);
+      if(list[idx]?.name)return list[idx].name;
+      if(list[idx-1]?.name)return list[idx-1].name;
+    }
+    return v;
+  };
+
+  /* استعادة السجلات القديمة دون تحويل الأسماء إلى أرقام. */
+  function repairAndRender(){
+    const list=refs();
+    if(list.length) saveLocal(list);
+    render();
+    try{ if(typeof window.updateRefereeOptions==='function') window.updateRefereeOptions(); }catch(e){}
+  }
+
+  function bind(){
+    const box=document.getElementById('refereesTableBody');
+    if(!box || box.dataset.finalRepairBound)return;
+    box.dataset.finalRepairBound='1';
+    box.addEventListener('click',e=>{
+      const el=e.target.closest('.referee-name');
+      if(!el)return;
+      e.preventDefault(); e.stopPropagation();
+      if(typeof window.openManarRefereeProfile==='function')
+        window.openManarRefereeProfile(el.getAttribute('data-referee-id'));
+    });
+    box.addEventListener('keydown',e=>{
+      if(e.key!=='Enter' && e.key!==' ')return;
+      const el=e.target.closest('.referee-name');
+      if(!el)return;
+      e.preventDefault();
+      if(typeof window.openManarRefereeProfile==='function')
+        window.openManarRefereeProfile(el.getAttribute('data-referee-id'));
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    setTimeout(repairAndRender,100);
+    setTimeout(repairAndRender,700);
+    setTimeout(()=>{repairAndRender();bind()},1600);
+  });
+  window.addEventListener('storage',e=>{if(e.key===KEY)setTimeout(repairAndRender,50)});
+})();
+</script>
+
 </body>
 </html>
 <!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
