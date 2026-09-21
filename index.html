@@ -18137,3 +18137,409 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
   });
 })();
 </script>
+
+<!-- FINAL FIX: قسم الحكام - حفظ مضمون + بطاقة الحكم عند النقر -->
+<style id="referees-final-fix-style">
+#refereesTableBody .referee-name{
+  cursor:pointer!important;
+  color:#075f45!important;
+  text-decoration:none!important;
+}
+#refereesTableBody .referee-name:hover{
+  color:#0ca678!important;
+  text-decoration:underline!important;
+}
+#manarRefereeProfileOverlay .manar-referee-profile-head{
+  background:linear-gradient(135deg,#e8fff5,#eaf5ff,#fff5d9)!important;
+  border:2px solid #bfe6d5!important;
+}
+#manarRefereeProfileOverlay .manar-referee-stat-box{
+  border-radius:16px!important;
+  padding:16px!important;
+  text-align:center!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.08)!important;
+}
+#manarRefereeProfileOverlay .manar-referee-stat-box.matches{
+  background:linear-gradient(135deg,#e8f7ff,#d9f0ff)!important;
+  border:2px solid #a9d9f5!important;
+}
+#manarRefereeProfileOverlay .manar-referee-stat-box.tours{
+  background:linear-gradient(135deg,#fff8d8,#fff0b8)!important;
+  border:2px solid #f0d56a!important;
+}
+#manarRefereeProfileOverlay .manar-referee-stat-box b{
+  display:block!important;
+  font-size:30px!important;
+  font-weight:900!important;
+  margin-bottom:6px!important;
+}
+#manarRefereeProfileOverlay .manar-referee-stat-box.matches b{color:#1769aa!important}
+#manarRefereeProfileOverlay .manar-referee-stat-box.tours b{color:#b06b00!important}
+#manarRefereeProfileOverlay .manar-referee-stat-box span{
+  display:block!important;
+  font-weight:900!important;
+  color:#29434e!important;
+}
+</style>
+<script id="referees-final-fix-engine">
+(function(){
+  'use strict';
+
+  const REF_KEY='manar_referees_v1';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v==null?'':v).trim();
+  const esc2=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+  function readJSON(key,fallback){
+    try{const v=JSON.parse(localStorage.getItem(key)||'null');return v==null?fallback:v}catch(e){return fallback}
+  }
+
+  function normalizeRefs(raw){
+    const arr=Array.isArray(raw)?raw:
+      (raw&&typeof raw==='object'?Object.entries(raw).map(([id,v])=>({...v,id:v?.id??id})):[]);
+    return arr.filter(x=>x&&typeof x==='object').map((x,i)=>({
+      id:S(x.id||('R_'+Date.now()+'_'+i)),
+      name:S(x.name??x.refereeName??x.displayName),
+      age:Number(x.age)||0,
+      photo:x.photo||''
+    })).filter(x=>x.name);
+  }
+
+  function currentRefs(){
+    const local=normalizeRefs(readJSON(REF_KEY,[]));
+    const dbRefs=normalizeRefs(window.db?.referees);
+    const out=[],seen=new Set();
+    [...local,...dbRefs].forEach(r=>{
+      const key=S(r.id)||('name:'+S(r.name));
+      if(!seen.has(key)){seen.add(key);out.push(r)}
+    });
+    return out;
+  }
+
+  function persistRefs(list){
+    const clean=normalizeRefs(list);
+    try{localStorage.setItem(REF_KEY,JSON.stringify(clean))}catch(e){console.error(e)}
+
+    /* إبقاء قاعدة البرنامج الداخلية متزامنة أيضًا. */
+    try{
+      if(window.db && typeof window.db==='object'){
+        window.db.referees=clean;
+      }
+    }catch(e){}
+
+    /* رفع التعديل إلى Firebase عند توفر مزامنة المدير. */
+    try{
+      if(typeof window.__manarFirebaseSaveKey==='function'){
+        const result=window.__manarFirebaseSaveKey(REF_KEY);
+        if(result && typeof result.catch==='function')result.catch(()=>{});
+      }
+    }catch(e){console.warn('Firebase referee save skipped',e)}
+
+    return clean;
+  }
+
+  /* نستبدل save الخاص بالحكام بنسخة تحفظ محليًا + في قاعدة البيانات الداخلية + السحابة. */
+  window.__saveManarRefereesFinal=persistRefs;
+
+  function refereeValueMatches(v,ref,refs){
+    if(v==null)return false;
+    if(typeof v==='object')v=v.id??v.refereeId??v.name??v.refereeName??v.displayName??v.value??'';
+    const raw=S(v);
+    if(!raw)return false;
+    if(raw===S(ref.id)||raw===S(ref.name))return true;
+
+    /* بعض الكشوفات القديمة حفظت رقم ترتيب الحكم بدل المعرّف. */
+    if(/^\d+$/.test(raw)){
+      const n=Number(raw);
+      const r=refs[n]||refs[n-1];
+      if(r && (S(r.id)===S(ref.id)||S(r.name)===S(ref.name)))return true;
+    }
+    return false;
+  }
+
+  function extractRefValues(x){
+    if(!x)return [];
+    const vals=[];
+    for(let n=1;n<=4;n++){
+      vals.push(x['referee'+n],x['ref'+n],x['referee'+n+'Id'],x['ref'+n+'Id']);
+    }
+    A(x.referees).forEach(v=>vals.push(v));
+    A(x.refereeIds).forEach(v=>vals.push(v));
+    [
+      'referee1GuestName','referee2GuestName','referee3GuestName','referee4GuestName',
+      'ref1GuestName','ref2GuestName','ref3GuestName','ref4GuestName'
+    ].forEach(k=>vals.push(x[k]));
+    return vals;
+  }
+
+  function sourceArray(keys){
+    const out=[];
+    keys.forEach(k=>{
+      A(readJSON(k,[])).forEach(x=>{if(x&&typeof x==='object')out.push(x)});
+    });
+    return out;
+  }
+
+  function getMatchId(x,index){
+    return S(x?.id||x?.matchId||x?.sheetNumber||('auto_'+index));
+  }
+
+  function getTournament(x){
+    const tid=S(x?.tournamentId||x?.tourId||x?.tournamentIdRef);
+    const name=S(
+      x?.tournamentName||x?.tourName||x?.competitionName||
+      x?.tournamentTitle||x?.competitionTitle||
+      (typeof x?.tournament==='string'?x.tournament:'')
+    );
+    return {id:tid,name};
+  }
+
+  function refereeStats(ref){
+    const refs=currentRefs();
+    const sheets=sourceArray(['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1']);
+    const matches=A(window.db?.matches);
+    const used=new Set();
+    const tours=new Map();
+
+    function addMatch(x,index){
+      if(!x)return;
+      const vals=extractRefValues(x);
+      if(!vals.some(v=>refereeValueMatches(v,ref,refs)))return;
+
+      const key=getMatchId(x,index);
+      if(used.has(key))return;
+      used.add(key);
+
+      const t=getTournament(x);
+      const matchObj=matches.find(m=>getMatchId(m,matches.indexOf(m))===key);
+      const mt=t.id||t.name? t : getTournament(matchObj);
+      const tk=mt.id||('name:'+mt.name)||('match:'+key);
+      if(!tours.has(tk))tours.set(tk,{id:mt.id,name:mt.name,count:0});
+      tours.get(tk).count++;
+    }
+
+    sheets.forEach(addMatch);
+    matches.forEach((m,i)=>addMatch(m,i));
+
+    /* أسماء البطولات من قاعدة البطولات. */
+    const tournaments=A(window.db?.tournaments);
+    const rows=[...tours.values()].map(t=>{
+      const found=tournaments.find(x=>S(x.id)===S(t.id)||S(x.name)===S(t.name));
+      return {name:S(found?.name||t.name||'بطولة غير محددة'),count:t.count};
+    }).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar'));
+
+    return {
+      total:rows.reduce((n,x)=>n+x.count,0),
+      tournaments:rows.length,
+      rows
+    };
+  }
+
+  function renderProfile(ref){
+    let overlay=document.getElementById('manarRefereeProfileOverlay');
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.id='manarRefereeProfileOverlay';
+      overlay.innerHTML='<div class="manar-referee-profile" role="dialog" aria-modal="true"><div id="manarRefereeProfileBody"></div></div>';
+      overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('show')});
+      document.body.appendChild(overlay);
+    }
+
+    const stats=refereeStats(ref);
+    const body=overlay.querySelector('#manarRefereeProfileBody');
+    if(!body)return;
+
+    body.innerHTML=
+      '<div class="manar-referee-profile-head">'+
+        '<div class="manar-referee-profile-photo">'+
+          (ref.photo?'<img loading="lazy" decoding="async" src="'+esc2(ref.photo)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="">':'⚖️')+
+        '</div>'+
+        '<div><h3>'+esc2(ref.name)+'</h3><small>حكم في رابطة المنار</small></div>'+
+        '<button class="manar-referee-profile-close" type="button" onclick="closeManarRefereeProfile()">×</button>'+
+      '</div>'+
+      '<div class="manar-referee-basic">'+
+        '<div><b>اسم الحكم</b><strong>'+esc2(ref.name)+'</strong></div>'+
+        '<div><b>العمر</b><strong>'+(ref.age?ref.age+' سنة':'غير مسجل')+'</strong></div>'+
+      '</div>'+
+      '<div class="manar-referee-profile-stats">'+
+        '<div class="manar-referee-stat-box matches"><b>'+stats.total+'</b><span>عدد المباريات التي أدارها</span></div>'+
+        '<div class="manar-referee-stat-box tours"><b>'+stats.tournaments+'</b><span>عدد البطولات</span></div>'+
+      '</div>'+
+      '<div class="manar-referee-tours-title">🏆 البطولات التي أدار فيها الحكم</div>'+
+      (stats.rows.length
+        ?stats.rows.map(x=>'<div class="manar-referee-tour-row"><div class="tour-name">'+esc2(x.name)+'</div><div class="tour-count">'+x.count+' مباراة</div></div>').join('')
+        :'<div class="manar-referee-empty-tours">لم يتم تسجيل مباريات لهذا الحكم حتى الآن.</div>');
+
+    overlay.classList.add('show');
+  }
+
+  window.closeManarRefereeProfile=function(){
+    const o=document.getElementById('manarRefereeProfileOverlay');
+    if(o)o.classList.remove('show');
+  };
+
+  window.openManarRefereeProfile=function(id){
+    const ref=currentRefs().find(x=>S(x.id)===S(id));
+    if(ref)renderProfile(ref);
+  };
+
+  /*
+   * إعادة بناء عرض الحكام بدون الاعتماد على قراءة onclick لاستخراج المعرّف.
+   * النقر على الاسم نفسه يفتح البطاقة مباشرة.
+   */
+  window.renderManarReferees=function(){
+    const box=document.getElementById('refereesTableBody');
+    if(!box)return;
+
+    const refs=currentRefs().sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+    const count=document.getElementById('refereeCount');
+    if(count)count.textContent=refs.length+' حكم';
+
+    box.innerHTML=refs.length?refs.map((x,i)=>`
+      <div class="referee-card">
+        <div class="referee-card-top">
+          <div class="referee-number">${i+1}</div>
+          <div class="referee-photo-wrap">
+            ${x.photo?`<img loading="lazy" decoding="async" class="referee-photo" src="${esc2(x.photo)}" alt="صورة ${esc2(x.name)}">`:'<span class="referee-photo-placeholder">⚖️</span>'}
+          </div>
+          <div class="referee-main">
+            <div class="referee-name" data-referee-id="${esc2(x.id)}" role="button" tabindex="0" title="اضغط لعرض بطاقة الحكم">${esc2(x.name)}</div>
+            <div class="referee-role">حكم في رابطة المنار</div>
+          </div>
+        </div>
+        <div class="referee-info">
+          <span class="referee-info-item">🎂 <b>العمر</b><strong>${x.age||'—'}</strong> ${x.age?'سنة':''}</span>
+          <span class="referee-status">● حكم معتمد</span>
+        </div>
+        <div class="referee-actions" data-perm="referees">
+          <button type="button" class="referee-edit" onclick="editManarReferee('${esc2(x.id)}')">✏️ تعديل</button>
+          <button type="button" class="referee-delete" onclick="deleteManarReferee('${esc2(x.id)}')">🗑️ حذف</button>
+        </div>
+      </div>`).join('')
+      :'<div class="referee-empty"><div class="referee-empty-icon">⚖️</div><b>لا يوجد حكام مضافون حتى الآن</b><span>سيظهر الحكام هنا بعد إضافتهم.</span></div>';
+
+    if(typeof applyPermissions==='function')applyPermissions();
+  };
+
+  /* حفظ/تعديل/حذف موثوق حتى لو بقيت الدوال القديمة محملة. */
+  window.addManarReferee=function(){
+    if(typeof hasPermission==='function'&&!hasPermission('referees')){
+      alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+      return;
+    }
+
+    const nameEl=document.getElementById('refereeName');
+    const ageEl=document.getElementById('refereeAge');
+    const fileEl=document.getElementById('refereePhoto');
+    const name=S(nameEl?.value), age=Number(ageEl?.value), file=fileEl?.files?.[0]||null;
+
+    if(!name)return alert('يرجى إدخال اسم الحكم');
+    if(!age||age<1||age>120)return alert('يرجى إدخال عمر صحيح');
+
+    const list=currentRefs();
+    if(list.some(x=>x.name===name&&S(x.id)!==S(window.__editingRefereeFinalId))){
+      return alert('هذا الحكم موجود مسبقًا');
+    }
+
+    const finish=photo=>{
+      const next=list.slice();
+      if(window.__editingRefereeFinalId){
+        const idx=next.findIndex(x=>S(x.id)===S(window.__editingRefereeFinalId));
+        if(idx>=0){
+          next[idx]={...next[idx],name,age,photo:photo!==null?photo:(next[idx].photo||'')};
+        }
+      }else{
+        next.push({id:'R_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),name,age,photo:photo||''});
+      }
+
+      persistRefs(next);
+      window.__editingRefereeFinalId=null;
+      if(nameEl)nameEl.value='';
+      if(ageEl)ageEl.value='';
+      if(fileEl)fileEl.value='';
+      const btn=document.querySelector('#referees .btn-primary');
+      if(btn)btn.textContent='➕ إضافة الحكم';
+      window.renderManarReferees();
+      if(typeof window.updateRefereeOptions==='function'){
+        try{window.updateRefereeOptions()}catch(e){}
+      }
+    };
+
+    if(file){
+      const reader=new FileReader();
+      reader.onload=()=>finish(reader.result);
+      reader.onerror=()=>finish(null);
+      reader.readAsDataURL(file);
+    }else finish(null);
+  };
+
+  window.editManarReferee=function(id){
+    if(typeof hasPermission==='function'&&!hasPermission('referees')){
+      alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+      return;
+    }
+    const ref=currentRefs().find(x=>S(x.id)===S(id));
+    if(!ref)return;
+    window.__editingRefereeFinalId=ref.id;
+    const n=document.getElementById('refereeName'),a=document.getElementById('refereeAge');
+    if(n)n.value=ref.name;
+    if(a)a.value=ref.age||'';
+    const p=document.getElementById('refereePhoto');if(p)p.value='';
+    const b=document.querySelector('#referees .btn-primary');if(b)b.textContent='💾 حفظ التعديل';
+    n?.focus();
+  };
+
+  window.deleteManarReferee=function(id){
+    if(typeof hasPermission==='function'&&!hasPermission('referees')){
+      alert('إدارة حكام الرابطة متاحة للمدير أو لمن منحه صلاحية الحكام.');
+      return;
+    }
+    const ref=currentRefs().find(x=>S(x.id)===S(id));
+    if(!ref)return;
+    if(!confirm('هل تريد حذف الحكم «'+ref.name+'»؟'))return;
+    persistRefs(currentRefs().filter(x=>S(x.id)!==S(id)));
+    if(S(window.__editingRefereeFinalId)===S(id))window.__editingRefereeFinalId=null;
+    window.renderManarReferees();
+    if(typeof window.updateRefereeOptions==='function'){
+      try{window.updateRefereeOptions()}catch(e){}
+    }
+  };
+
+  function bindClicks(){
+    const box=document.getElementById('refereesTableBody');
+    if(!box||box.dataset.finalClickBound)return;
+    box.dataset.finalClickBound='1';
+
+    box.addEventListener('click',function(e){
+      const name=e.target.closest('.referee-name');
+      if(!name||!box.contains(name))return;
+      e.preventDefault();
+      e.stopPropagation();
+      window.openManarRefereeProfile(name.getAttribute('data-referee-id'));
+    });
+
+    box.addEventListener('keydown',function(e){
+      if(e.key!=='Enter'&&e.key!==' ')return;
+      const name=e.target.closest('.referee-name');
+      if(!name)return;
+      e.preventDefault();
+      window.openManarRefereeProfile(name.getAttribute('data-referee-id'));
+    });
+  }
+
+  async function finalInit(){
+    /* لا نمسح ما هو موجود؛ ندمج السجل المحلي مع db.referees. */
+    const merged=currentRefs();
+    if(merged.length)persistRefs(merged);
+    window.renderManarReferees();
+    bindClicks();
+  }
+
+  document.addEventListener('DOMContentLoaded',finalInit,{once:true});
+  window.addEventListener('storage',e=>{
+    if(e.key===REF_KEY){
+      window.renderManarReferees();
+    }
+  });
+})();
+</script>
