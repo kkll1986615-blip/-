@@ -11846,6 +11846,14 @@ document.addEventListener('DOMContentLoaded',function(){
     if(tid&&h&&a){
       const ht=db.teams.find(t=>same(t.id,h)), at=db.teams.find(t=>same(t.id,a));
       if(!ht||!at||!same(ht.tournamentId,tid)||!same(at.tournamentId,tid))return alert('خطأ في ربط المباراة: يجب أن يكون الفريقان تابعين للبطولة المختارة.');
+      if(same(h,a))return alert('يجب اختيار فريقين مختلفين.');
+      const tour=db.tournaments.find(t=>same(t.id,tid));
+      const tourType=S(tour?.type);
+      /* في الدوري من دور واحد: لا نسمح بتكرار المواجهة نفسها بأي ترتيب. */
+      if(tourType==='دوري من دور واحد'){
+        const duplicate=(db.matches||[]).some(m=>same(m.tournamentId,tid)&&((same(m.home,h)&&same(m.away,a))||(same(m.home,a)&&same(m.away,h))));
+        if(duplicate)return alert('هذه المواجهة مسجلة مسبقًا في بطولة الدوري من دور واحد. لا يمكن تكرار المباراة نفسها.');
+      }
     }
     return typeof oldAddMatch==='function'?oldAddMatch.apply(this,arguments):undefined;
   };
@@ -13634,6 +13642,87 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
 }
  }catch(e){status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
 start();
+</script>
+<!-- FINAL CLEANUP / INTEGRITY GUARD 2026-09-21 -->
+<script id="platform-final-integrity-guard">
+(function(){
+  'use strict';
+  const S=v=>String(v??'').trim();
+  const A=v=>Array.isArray(v)?v:[];
+  const KEY='manar_sports_v2';
+  const SYNC_KEYS=[
+    'manar_sports_v2','manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3',
+    'manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1','manar_media_news_v1',
+    'manar_player_management_windows_v1','manar_player_transfers_v1','manar_contact_settings_v1',
+    'manar_contact_messages_v1','manar_polls_v1'
+  ];
+
+  /* منع الكتابة فوق تعديل محلي لم يُرفع بعد إلى Firebase. */
+  if(!window.__manarRemoteConflictGuard){
+    window.__manarRemoteConflictGuard=true;
+    const originalSetItem=Storage.prototype.setItem;
+    const originalRemoveItem=Storage.prototype.removeItem;
+    let internal=false;
+    window.__manarApplyRemoteSafely=function(key,value,exists){
+      if(!SYNC_KEYS.includes(String(key)))return false;
+      try{
+        if(window.__manarFirebaseDirtyKeys instanceof Set && window.__manarFirebaseDirtyKeys.has(String(key))){
+          window.__manarFirebaseConflictKey=String(key);
+          const e=document.getElementById('firebaseSyncStatus');
+          if(e)e.textContent='الحالة: يوجد تعديل محلي لم تتم مزامنته بعد — لم يتم استبداله بتحديث سحابي';
+          return false;
+        }
+        internal=true;
+        if(exists)originalSetItem.call(localStorage,String(key),JSON.stringify(value));
+        else originalRemoveItem.call(localStorage,String(key));
+        return true;
+      }catch(e){return false}finally{internal=false}
+    };
+    /* exposed marker used by the Firebase layer without changing its public API */
+    window.__manarFirebaseDirtyKeys=window.__manarFirebaseDirtyKeys||new Set();
+  }
+
+  /* فحص سلامة العلاقات الأساسية قبل العرض. لا يحذف أي بيانات تلقائيًا. */
+  window.validateManarDataIntegrity=function(){
+    try{
+      const d=window.db||{};
+      const tids=new Set(A(d.tournaments).map(x=>S(x.id)));
+      const teams=new Set(A(d.teams).map(x=>S(x.id)));
+      const players=new Set(A(d.players).map(x=>S(x.id)));
+      const matches=new Set(A(d.matches).map(x=>S(x.id)));
+      const issues=[];
+      A(d.teams).forEach(x=>{if(x.tournamentId&&!tids.has(S(x.tournamentId)))issues.push('فريق مرتبط ببطولة غير موجودة: '+S(x.name));});
+      A(d.players).forEach(x=>{if(x.teamId&&!teams.has(S(x.teamId)))issues.push('لاعب مرتبط بفريق غير موجود: '+S(x.name));});
+      const seen=new Set();
+      A(d.matches).forEach(x=>{
+        if(x.tournamentId&&!tids.has(S(x.tournamentId)))issues.push('مباراة مرتبطة ببطولة غير موجودة: '+S(x.id));
+        if(x.home&&!teams.has(S(x.home)))issues.push('المباراة '+S(x.id)+' مرتبطة بفريق أول غير موجود');
+        if(x.away&&!teams.has(S(x.away)))issues.push('المباراة '+S(x.id)+' مرتبطة بفريق ثانٍ غير موجود');
+        const k=[S(x.tournamentId),[S(x.home),S(x.away)].sort().join('|')].join('::');
+        const tour=A(d.tournaments).find(t=>S(t.id)===S(x.tournamentId));
+        if(tour?.type==='دوري من دور واحد'&&seen.has(k))issues.push('تكرار مواجهة في دوري من دور واحد: '+S(x.home)+' / '+S(x.away));
+        seen.add(k);
+      });
+      return {ok:issues.length===0,issues,counts:{tournaments:A(d.tournaments).length,teams:A(d.teams).length,players:A(d.players).length,matches:A(d.matches).length}};
+    }catch(e){return {ok:false,issues:['تعذر فحص البيانات: '+e.message],counts:{}};}
+  };
+
+  /* لا نغيّر تصميم المنصة؛ فقط نوحد فحص الصحة ليكون متاحًا للمدير عند الحاجة. */
+  window.platformIntegritySummary=function(){
+    const r=window.validateManarDataIntegrity();
+    console.info('منصة رابطة المنار — فحص سلامة البيانات:',r);
+    return r;
+  };
+
+  /* منع تكرار ربط مراقبي الأحداث عند إعادة تشغيل وحدات الإصلاح. */
+  if(!window.__manarFinalCleanupReady){
+    window.__manarFinalCleanupReady=true;
+    document.addEventListener('DOMContentLoaded',function(){
+      try{window.platformIntegritySummary();}catch(e){}
+      try{if(typeof window.applyPermissions==='function')window.applyPermissions();}catch(e){}
+    },{once:true});
+  }
+})();
 </script>
 <!-- removed dead disabled patch: final-kashofat-stats-repair -->
 
