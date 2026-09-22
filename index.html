@@ -10675,7 +10675,7 @@ function data(){
     return [];
   }catch(e){return[]}
 }
-function save(a){
+function saveRefereeData(a){
   const clean=(Array.isArray(a)?a:[]).map((x,i)=>({
     id:x?.id!=null?x.id:(Date.now()+i),
     name:String(x?.name||'').trim(),
@@ -10738,7 +10738,7 @@ window.repairRefereeRegistry=async function(allowCloudPush=true){
   }
 
   if(changed){
-    save(current);
+    saveRefereeData(current);
   }else if(allowCloudPush && current.length && typeof window.__manarFirebaseSaveKey==='function'){
     try{window.__manarFirebaseSaveKey(KEY)}catch(e){}
   }
@@ -10787,7 +10787,7 @@ window.addManarReferee=function(){
       auditAdd('إضافة','referees',`تمت إضافة الحكم «${n}».`);
     }
     editingRefereeId=null;
-    save(d);
+    saveRefereeData(d);
     if(nameEl)nameEl.value='';
     if(ageEl)ageEl.value='';
     if(fileEl)fileEl.value='';
@@ -10830,7 +10830,7 @@ window.deleteManarReferee=function(id){
   }
   if(!confirm('هل تريد حذف الحكم؟'))return;
   const d=data(),removed=d.find(x=>String(x.id)===String(id));
-  save(d.filter(x=>String(x.id)!==String(id)));
+  saveRefereeData(d.filter(x=>String(x.id)!==String(id)));
   auditAdd('حذف','referees',`تم حذف الحكم «${removed?.name||id}».`);
   if(String(editingRefereeId)===String(id)){
     editingRefereeId=null;
