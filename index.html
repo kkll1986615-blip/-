@@ -8939,7 +8939,28 @@ function renderAuditLog(){
   box.innerHTML=`<table class="audit-table"><thead><tr><th>#</th><th>التاريخ والوقت</th><th>المستخدم</th><th>الصلاحية</th><th>العملية</th><th>القسم</th><th>التفاصيل</th></tr></thead><tbody>${rows.map((x,i)=>{const cls=x.action==='إضافة'?'add':x.action==='تعديل'?'edit':x.action==='حذف'?'delete':x.action==='إدارة الحسابات'?'manage':'';return `<tr><td>${i+1}</td><td class="audit-time">${esc(formatAuditDate(x.time))}</td><td class="audit-user">${esc(x.user||'—')}</td><td>${esc(auditLabel(x.role))}</td><td class="audit-action ${cls}">${esc(x.action)}</td><td><span class="badge">${esc(x.section)}</span></td><td class="audit-details">${esc(x.details)}</td></tr>`}).join('')}</tbody></table>`;
 }
 function formatAuditDate(v){try{const d=new Date(v);return d.toLocaleString('ar-IQ',{hour12:true,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch(e){return v||'—'}}
-function clearAuditLog(){if(currentRole!=='admin')return alert('مسح سجل المراجعة متاح للمدير فقط.');if(!confirm('هل تريد مسح سجل المراجعة بالكامل؟'))return;localStorage.removeItem(AUDIT_KEY);renderAuditLog();}
+async function clearAuditLog(){
+  if(currentRole!=='admin')return alert('مسح سجل المراجعة متاح للمدير فقط.');
+  if(!confirm('هل تريد مسح سجل المراجعة بالكامل من الجهاز وقاعدة Firebase؟'))return;
+  try{
+    /* مهم: لا نستخدم removeItem هنا، لأن Firebase قد يعيد النسخة القديمة عبر onValue. */
+    localStorage.setItem(AUDIT_KEY,'[]');
+    /* حذف/تصفير النسخة السحابية أولاً؛ بعدها لن يستطيع onValue إعادة السجل القديم. */
+    if(typeof window.__manarFirebaseResetSection==='function'){
+      await window.__manarFirebaseResetSection('audit');
+    }else if(typeof window.__manarFirebaseSaveKey==='function'){
+      await window.__manarFirebaseSaveKey(AUDIT_KEY);
+    }else{
+      throw new Error('مزامنة Firebase غير جاهزة.');
+    }
+    renderAuditLog();
+    alert('✅ تم مسح سجل المراجعة نهائيًا من الجهاز وقاعدة Firebase.');
+  }catch(e){
+    console.error('Audit clear error:',e);
+    renderAuditLog();
+    alert('❌ تعذر مسح سجل المراجعة من السحابة: '+(e?.message||e));
+  }
+}
 function setupAuditFilters(){['auditSectionFilter','auditActionFilter','auditSearch'].forEach(id=>{const e=document.getElementById(id);if(e&&!e.dataset.auditBound){e.dataset.auditBound='1';e.addEventListener('input',renderAuditLog);e.addEventListener('change',renderAuditLog)}});}
 
 /* مراجع صريحة لعناصر الصفحة - لتعمل بشكل صحيح على Android وChrome وWebView */
