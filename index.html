@@ -8111,9 +8111,35 @@ body.admin #predictionsSection{display:block}
     const t=sources.find(x=>str(x?.id)===id||norm(x?.name)===id||norm(x?.title)===id);
     return norm(t?.name||t?.title||m?.tournamentName||sh?.tournamentName||'بطولة غير محددة');
   }
-  function history(a,b){const A=norm(a),B=norm(b),wanted=new Set([A,B]),ms=allMatches(),out=[],used=new Set();sheets().forEach(sh=>{const mid=str(sh?.matchId),m=ms.find(x=>str(x?.id)===mid);if(!m||used.has(mid))return;const hs=Number(sh?.homeScore),as=Number(sh?.awayScore);if(!Number.isFinite(hs)||!Number.isFinite(as))return;const h=teamName(m?.homeTeamId??m?.homeTeam??m?.home??sh?.homeTeamId??sh?.homeTeam),aw=teamName(m?.awayTeamId??m?.awayTeam??m?.away??sh?.awayTeamId??sh?.awayTeam);if(wanted.has(h)&&wanted.has(aw)&&h!==aw){used.add(mid);out.push({h,a:aw,sc:{h:hs,a:as},t:tournamentName(m,sh),d:norm(m?.date||m?.matchDate||m?.scheduledDate||sh?.date||sh?.matchDate||'غير محدد')});}});return out;}
+  function history(a,b){
+    const A=norm(a),B=norm(b),wanted=new Set([A,B]),ms=allMatches(),out=[],used=new Set();
+    sheets().forEach(sh=>{
+      const mid=str(sh?.matchId),m=ms.find(x=>str(x?.id)===mid);
+      if(!m||used.has(mid))return;
+      const hs=Number(sh?.homeScore),as=Number(sh?.awayScore);
+      if(!Number.isFinite(hs)||!Number.isFinite(as))return;
+      const h=teamName(m?.homeTeamId??m?.homeTeam??m?.home??sh?.homeTeamId??sh?.homeTeam);
+      const aw=teamName(m?.awayTeamId??m?.awayTeam??m?.away??sh?.awayTeamId??sh?.awayTeam);
+      if(wanted.has(h)&&wanted.has(aw)&&h!==aw){
+        used.add(mid);
+        /* مهم: تاريخ المواجهات يُعرض حسب الفريقين اللذين اختارهما المستخدم،
+           وليس حسب كون الفريق Home أو Away في المباراة. هذا يمنع عكس الفائز
+           عندما يكون الفريق المختار أولاً هو الفريق الضيف. */
+        const scoreA = h===A ? hs : as;
+        const scoreB = h===A ? as : hs;
+        out.push({
+          h,a:aw,
+          sc:{h:hs,a:as},
+          selectedSc:{a:scoreA,b:scoreB},
+          t:tournamentName(m,sh),
+          d:norm(m?.date||m?.matchDate||m?.scheduledDate||sh?.date||sh?.matchDate||'غير محدد')
+        });
+      }
+    });
+    return out;
+  }
   function fill(){const a=document.getElementById('h2hTeamA'),b=document.getElementById('h2hTeamB');if(!a||!b)return;const oldA=str(a.value),oldB=str(b.value),list=teams(),html='<option value="">— اختر الفريق —</option>'+list.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');if(a.innerHTML!==html)a.innerHTML=html;if(b.innerHTML!==html)b.innerHTML=html;if(list.includes(oldA))a.value=oldA;if(list.includes(oldB))b.value=oldB;}
-  function render(){const a=document.getElementById('h2hTeamA'),b=document.getElementById('h2hTeamB'),box=document.getElementById('h2hResults'),sum=document.getElementById('h2hSummary');if(!a||!b||!box||!sum)return;const A=str(a.value),B=str(b.value);if(!A||!B){sum.textContent='اختر الفريقين لعرض تاريخ المواجهات.';box.innerHTML='<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>اختر اسم الفريقين أولاً</strong><span>سيظهر سجل المواجهات هنا.</span></div>';return;}if(A===B){sum.textContent='';box.innerHTML='<div class="h2h-empty"><strong>يرجى اختيار فريقين مختلفين.</strong></div>';return;}const rows=history(A,B),wa=rows.filter(r=>r.sc.h>r.sc.a).length,wb=rows.filter(r=>r.sc.a>r.sc.h).length,dr=rows.filter(r=>r.sc.h===r.sc.a).length;sum.innerHTML='<div class="h2h-summary-head"><span>⚔️ سجل المواجهات المباشرة</span><b>'+rows.length+' مباراة</b></div><div class="h2h-summary-stats"><span class="a-stat">فوز '+esc(A)+': <b>'+wa+'</b></span><span class="draw-stat">تعادل: <b>'+dr+'</b></span><span class="b-stat">فوز '+esc(B)+': <b>'+wb+'</b></span></div>';box.innerHTML=rows.length?rows.map((r,i)=>'<article class="h2h-row"><div class="h2h-match-top"><span>المواجهة '+(i+1)+'</span><span class="h2h-result-pill">'+(r.sc.h>r.sc.a?'فوز '+esc(r.h):r.sc.a>r.sc.h?'فوز '+esc(r.a):'تعادل')+'</span></div><div class="h2h-versus"><div class="h2h-team h2h-home"><span class="h2h-team-mark">⚽</span><strong>'+esc(r.h)+'</strong></div><div class="h2h-score-wrap"><small>النتيجة</small><div class="h2h-score">'+r.sc.h+' <i>—</i> '+r.sc.a+'</div></div><div class="h2h-team h2h-away"><strong>'+esc(r.a)+'</strong><span class="h2h-team-mark">⚽</span></div></div><div class="h2h-tournament"><span>🏆</span><strong>'+esc(r.t)+'</strong><em>📅 '+esc(r.d)+'</em></div></article>').join(''):'<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>لا توجد مواجهات مسجلة</strong><span>اختر فريقين آخرين أو أضف نتائج المباريات.</span></div>';}
+  function render(){const a=document.getElementById('h2hTeamA'),b=document.getElementById('h2hTeamB'),box=document.getElementById('h2hResults'),sum=document.getElementById('h2hSummary');if(!a||!b||!box||!sum)return;const A=str(a.value),B=str(b.value);if(!A||!B){sum.textContent='اختر الفريقين لعرض تاريخ المواجهات.';box.innerHTML='<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>اختر اسم الفريقين أولاً</strong><span>سيظهر سجل المواجهات هنا.</span></div>';return;}if(A===B){sum.textContent='';box.innerHTML='<div class="h2h-empty"><strong>يرجى اختيار فريقين مختلفين.</strong></div>';return;}const rows=history(A,B),wa=rows.filter(r=>r.selectedSc.a>r.selectedSc.b).length,wb=rows.filter(r=>r.selectedSc.b>r.selectedSc.a).length,dr=rows.filter(r=>r.selectedSc.a===r.selectedSc.b).length;sum.innerHTML='<div class="h2h-summary-head"><span>⚔️ سجل المواجهات المباشرة</span><b>'+rows.length+' مباراة</b></div><div class="h2h-summary-stats"><span class="a-stat">فوز '+esc(A)+': <b>'+wa+'</b></span><span class="draw-stat">تعادل: <b>'+dr+'</b></span><span class="b-stat">فوز '+esc(B)+': <b>'+wb+'</b></span></div>';box.innerHTML=rows.length?rows.map((r,i)=>{const winner=r.selectedSc.a>r.selectedSc.b?A:r.selectedSc.b>r.selectedSc.a?B:'';return '<article class="h2h-row"><div class="h2h-match-top"><span>المواجهة '+(i+1)+'</span><span class="h2h-result-pill">'+(winner?'فوز '+esc(winner):'تعادل')+'</span></div><div class="h2h-versus"><div class="h2h-team h2h-home"><span class="h2h-team-mark">⚽</span><strong>'+esc(r.h)+'</strong></div><div class="h2h-score-wrap"><small>النتيجة</small><div class="h2h-score">'+r.sc.h+' <i>—</i> '+r.sc.a+'</div></div><div class="h2h-team h2h-away"><strong>'+esc(r.a)+'</strong><span class="h2h-team-mark">⚽</span></div></div><div class="h2h-tournament"><span>🏆</span><strong>'+esc(r.t)+'</strong><em>📅 '+esc(r.d)+'</em></div></article>';}).join(''):'<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>لا توجد مواجهات مسجلة</strong><span>اختر فريقين آخرين أو أضف نتائج المباريات.</span></div>';}
   let timer=0;
   function refresh(){if(timer)cancelAnimationFrame(timer);timer=requestAnimationFrame(()=>{fill();render();timer=0;});}
   window.refreshHeadToHead=refresh;window.renderHeadToHead=render;
