@@ -8768,8 +8768,8 @@ function applyPermissions(){
 function openLogin(){ $('loginOverlay').style.display='flex'; $('loginError').style.display='none'; refreshLoginUsers(); $('loginUser').focus(); }
 function closeLogin(){ $('loginOverlay').style.display='none'; }
 function refreshLoginUsers(){let sel=$('loginRole');if(!sel)return;let prev=sel.value;sel.innerHTML=Object.keys(USERS).map(k=>`<option value="${esc(k)}">${esc(USERS[k].label||USERS[k].user)}</option>`).join('');if(USERS[prev])sel.value=prev;}
-async function login(){let role=$('loginRole').value,user=$('loginUser').value.trim(),pass=$('loginPass').value;let u=USERS[role];if(u&&user===u.user&&pass===u.pass){sessionStorage.setItem(AUTH_KEY,role);setRole(role);closeLogin();auditAdd('تسجيل الدخول','settings',`تم تسجيل دخول المستخدم «${u.user}».`);goPage('home');try{if(typeof window.__manarAutoSyncAfterAppLogin==='function')await window.__manarAutoSyncAfterAppLogin();}catch(e){console.warn('Auto sync after app login skipped:',e)}alert('تم تسجيل الدخول بنجاح — '+u.label.replace(/^.. /,''));}else{$('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';$('loginError').style.display='block';}}
-function logout(){if(currentUser) auditAdd('تسجيل الخروج','settings',`تم تسجيل خروج المستخدم «${currentUser}».`);sessionStorage.removeItem(AUTH_KEY);setRole('viewer');goPage('home');alert('تم تسجيل الخروج، عاد البرنامج إلى وضع المشاهدة.');}
+async function login(){let role=$('loginRole').value,user=$('loginUser').value.trim(),pass=$('loginPass').value;let u=USERS[role];if(u&&user===u.user&&pass===u.pass){sessionStorage.setItem(AUTH_KEY,role);setRole(role);closeLogin();try{await auditAdd('تسجيل الدخول','settings',`تم تسجيل دخول المستخدم «${u.user}» — الصلاحية: ${u.label||role}.`);}catch(e){console.warn('Login audit failed:',e)}goPage('home');try{if(typeof window.__manarAutoSyncAfterAppLogin==='function')await window.__manarAutoSyncAfterAppLogin();}catch(e){console.warn('Auto sync after app login skipped:',e)}alert('تم تسجيل الدخول بنجاح — '+u.label.replace(/^.. /,''));}else{$('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';$('loginError').style.display='block';}}
+async function logout(){if(currentUser){try{await auditAdd('تسجيل الخروج','settings',`تم تسجيل خروج المستخدم «${currentUser}».`);}catch(e){console.warn('Logout audit failed:',e)}}sessionStorage.removeItem(AUTH_KEY);setRole('viewer');goPage('home');alert('تم تسجيل الخروج، عاد البرنامج إلى وضع المشاهدة.');}
 function requirePermission(permission){if(hasPermission(permission))return true;alert('ليس لديك صلاحية لتنفيذ هذا الإجراء.');return false}
 function requireRole(min){return requirePermission(min==='admin'?'settings':'tournaments')}
 function updateRefereeAdminForm(){
@@ -8985,23 +8985,23 @@ function saveAuditLog(a){
 }
 function auditNow(){return new Date().toISOString()}
 function auditLabel(role){if(role==='admin')return 'مدير النظام';if(role==='editor')return 'مستخدم متوسط';if(role==='viewer')return 'زائر';return USERS[role]?.user||'مستخدم';}
-function auditAdd(action,section,details){
+async function auditAdd(action,section,details){
   const entry={id:uid('AUD'),time:auditNow(),user:currentUser||'زائر',role:currentRole||'viewer',action,section:PERMISSIONS[section]||section||'النظام',details:String(details||'')};
   const log=getAuditLog();
   log.unshift(entry);
   saveAuditLog(log);
-  /*
-   * سجل المراجعة يجب أن يكون مشتركًا بين جميع أجهزة المستخدمين.
-   * حسابات المنصة الداخلية (admin/editor/custom) ليست حسابات Firebase،
-   * لذلك لا يكفي الاعتماد على مزامنة localStorage وحدها.
-   * نرسل سجل العملية إلى Firebase عبر جلسة Firebase المجهولة المخصصة للسجل فقط.
-   * في حال تعذر الاتصال تبقى العملية محفوظة محليًا ولا تتعطل العملية الأصلية.
-   */
+  /* الحفظ المحلي يتم أولًا دائمًا، ثم تتم محاولة رفع نفس السجل إلى Firebase.
+     لا نعتمد على صلاحية حساب المنصة المحلية؛ الحسابات المحلية ليست حسابات Firebase. */
   try{
     if(typeof window.__manarFirebaseAuditAppend==='function'){
-      window.__manarFirebaseAuditAppend(entry).catch(e=>console.warn('Audit cloud append:',e));
+      await window.__manarFirebaseAuditAppend(entry);
     }
-  }catch(e){console.warn('Audit cloud append unavailable:',e)}
+  }catch(e){
+    console.warn('Audit cloud append unavailable:',e);
+    try{localStorage.setItem('manar_audit_pending_v1',JSON.stringify([entry,...(JSON.parse(localStorage.getItem('manar_audit_pending_v1')||'[]')||[])].slice(0,500)));}catch(_e){}
+  }
+  try{renderAuditLog();}catch(e){}
+  return entry;
 }
 function auditSnapshot(){
   try{return JSON.stringify(db)}catch(e){return ''}
@@ -13954,17 +13954,31 @@ window.__manarFirebaseAuditAppend=async function(entry){
     await runTransaction(auditRef,current=>{
       let arr=Array.isArray(current)?current:[];
       const cutoff=Date.now()-(7*24*60*60*1000);
-      arr=arr.filter(x=>{
-        const t=Date.parse(x?.time||'');
-        return !Number.isFinite(t) || t>=cutoff;
-      });
+      arr=arr.filter(x=>{const t=Date.parse(x?.time||'');return !Number.isFinite(t)||t>=cutoff;});
       if(arr.some(x=>String(x?.id||'')===String(entry.id||'')))return arr;
       arr.unshift(entry);
       return arr.slice(0,1000);
     });
+    /* إذا كان هناك سجلات محلية معلقة، نعيد محاولة رفعها بعد نجاح الاتصال. */
+    try{
+      const pending=JSON.parse(localStorage.getItem('manar_audit_pending_v1')||'[]');
+      if(Array.isArray(pending)&&pending.length){
+        localStorage.removeItem('manar_audit_pending_v1');
+        for(const x of pending){
+          if(String(x?.id)!==String(entry.id)){
+            await runTransaction(auditRef,current=>{
+              let arr=Array.isArray(current)?current:[];
+              if(arr.some(y=>String(y?.id||'')===String(x?.id||'')))return arr;
+              arr.unshift(x);return arr.slice(0,1000);
+            });
+          }
+        }
+      }
+    }catch(e){console.warn('Pending audit flush failed:',e)}
     return true;
   }catch(e){
     console.warn('Firebase audit append failed:',e);
+    try{const p=JSON.parse(localStorage.getItem('manar_audit_pending_v1')||'[]');if(!p.some(x=>String(x?.id||'')===String(entry?.id||''))){p.unshift(entry);localStorage.setItem('manar_audit_pending_v1',JSON.stringify(p.slice(0,500)));}}catch(_e){}
     return false;
   }
 };
@@ -14113,17 +14127,17 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
       applyingRemote=true;
       try{
         /* نعالج الإضافة/التعديل وكذلك الحذف من السحابة. */
-        if(k===AUDIT_KEY && snap.exists()){
+        if(k===AUDIT_KEY){
           try{
             const cloud=Array.isArray(snap.val())?snap.val():[];
             const local=getAuditLog();
-            const byId=new Map(cloud.map(x=>[String(x?.id||''),x]));
+            const byId=new Map();
+            cloud.forEach(x=>{const id=String(x?.id||'');if(id)byId.set(id,x)});
             local.forEach(x=>{const id=String(x?.id||'');if(id&&!byId.has(id))byId.set(id,x)});
             const merged=[...byId.values()].sort((a,b)=>String(b?.time||'').localeCompare(String(a?.time||''))).slice(0,1000);
             localStorage.setItem(k,JSON.stringify(merged));
-          }catch(e){localStorage.setItem(k,JSON.stringify(snap.val()))}
+          }catch(e){/* لا نستبدل السجل المحلي إذا فشل الدمج */}
         }else if(snap.exists()) localStorage.setItem(k,JSON.stringify(snap.val()));
-        else if(k===AUDIT_KEY) localStorage.setItem(k,'[]');
         else localStorage.removeItem(k);
         dirty.delete(k);
         if(k==='manar_sports_v2'){
