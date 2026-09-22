@@ -12751,7 +12751,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
   });
   document.addEventListener('DOMContentLoaded',function(){setTimeout(updateStatsMeta,50)});
 })();
-</script><section class="page" id="predictionsSection"><div class="card prediction-card"><div class="prediction-head"><div class="prediction-icon">🎯</div><h2>توقع نتيجة المباراة</h2></div><div class="prediction-grid"><div><label for="predictionTournament">البطولة</label><select id="predictionTournament"><option value="">اختر البطولة</option></select></div><div><label for="predictionMatch">المباريات المجدولة</label><select disabled="" id="predictionMatch"><option value="">اختر المباراة</option></select></div></div><div class="prediction-result" id="predictionResult"></div></div></section><script id="prediction-navigation-fix">
+</script><section class="page" id="predictionsSection"><div class="card prediction-card"><div class="prediction-head"><div class="prediction-icon">🎯</div><h2>توقع نتيجة المباراة</h2></div><div class="prediction-grid"><div><label for="predictionTournament">البطولة</label><select id="predictionTournament"><option value="">اختر البطولة</option></select></div><div><label for="predictionMatch">المباريات التي لا يوجد لها كشف</label><select disabled="" id="predictionMatch"><option value="">اختر المباراة</option></select></div></div><div class="prediction-result" id="predictionResult"></div></div></section><script id="prediction-navigation-fix">
 (function(){
   function openPrediction(e){
     if(e){e.preventDefault();e.stopPropagation();}
@@ -12862,18 +12862,18 @@ function dt(m){
  const x=new Date(String(m.date)+'T'+String(m.time||'00:00'));
  return isNaN(x)?null:x;
 }
-/* كل المباريات المجدولة، وليس فقط مباريات 24 ساعة */
+/* جميع المباريات التي لا يوجد لها كشف، بغض النظر عن التاريخ أو الوقت أو حالة المباراة.
+   بمجرد وجود كشف مرتبط بالمباراة تعتبر منتهية ولا تظهر هنا. */
 function scheduled(){
- const now=Date.now();
  return A(D().matches).map((m,i)=>({m,i,t:dt(m)})).filter(x=>{
-  const st=String(x.m.status||'').trim().toLowerCase();
-  if(['finished','ended','played','منتهية','انتهت','مباراة منتهية'].includes(st))return false;
-  /* أي مباراة لم تنتهِ وتملك موعداً مستقبلياً أو حالة قادمة/مجدولة تظهر */
-  if(['scheduled','upcoming','pending','مجدولة','قادمة','لم تبدأ','مباراة قادمة'].includes(st))return true;
-  return x.t ? x.t.getTime()>=now : true;
+   try{
+     if(typeof matchHasSheet==='function' && matchHasSheet(x.m.id)) return false;
+     if(typeof window.uniqueMatchSheets==='function' && A(window.uniqueMatchSheets()).some(sh=>String(sh?.matchId||'')===String(x.m.id))) return false;
+   }catch(e){}
+   return true;
  }).sort((a,b)=>{
-  const ad=a.t?a.t.getTime():Infinity,bd=b.t?b.t.getTime():Infinity;
-  return ad-bd||String(a.m.id||'').localeCompare(String(b.m.id||''));
+   const ad=a.t?a.t.getTime():Infinity,bd=b.t?b.t.getTime():Infinity;
+   return ad-bd||String(a.m.id||'').localeCompare(String(b.m.id||''));
  });
 }
 function fillT(){
@@ -12891,7 +12891,7 @@ function fillM(){
  const list=tid?scheduled().filter(x=>String(x.m.tournamentId||x.m.tournament||'')===tid):[];
  const old=String(q.value||'');
  q.disabled=!tid||!list.length;
- q.innerHTML='<option value="">'+(!tid?'اختر البطولة أولاً':(list.length?'اختر المباراة':'لا توجد مباريات مجدولة لهذه البطولة'))+'</option>'+
+ q.innerHTML='<option value="">'+(!tid?'اختر البطولة أولاً':(list.length?'اختر المباراة':'لا توجد مباريات بدون كشف لهذه البطولة'))+'</option>'+
  list.map(x=>{
   const z=sides(x.m),tour=A(D().tournaments).find(t=>String(t.id)===String(x.m.tournamentId||x.m.tournament||''));
   return `<option value="${esc(x.m.id??x.i)}">${esc(tour?.name||'')} — ${esc(tn(z.h))} × ${esc(tn(z.a))} — ${esc(x.m.date||'')} ${esc(x.m.time||'')}</option>`;
@@ -17163,14 +17163,14 @@ function patchCurrentUI(){
    open.innerHTML='';done.innerHTML='';return
  }
  const all=matches().filter(m=>tid(m)===t).slice().sort((a,b)=>(S(a.date)+' '+S(a.time)).localeCompare(S(b.date)+' '+S(b.time)));
- const hist=readHist(), pending=all.filter(m=>!actual(m));
+ const hist=readHist(), pending=all.filter(m=>!sheetFor(m.id));
  const tour=A(DB().tournaments).find(x=>S(x.id)===t);
  if(sum)sum.innerHTML='<div class="prediction-data-driven-note">🏆 '+esc(tour?.name||'البطولة')+' — التوقع لا يستخدم نسبة ثابتة: يتم حساب قوة كل فريق من أهدافه ونتائجه وفورمته وعدد الكشوفات المدخلة.</div>';
  const __oc=document.getElementById('predictionOpenCount'); if(__oc)__oc.textContent=String(pending.length);
  pending.forEach(m=>{let p=predict(m);save(m,p)});
  open.innerHTML=pending.length?pending.map(m=>matchCard(m,predict(m))).join(''):'<div class="prediction-empty success">✅ لا توجد مباريات جديدة للتوقع؛ ستظهر النتائج السابقة في سجل التوقعات.</div>';
  renderHistory(t);
- const doneCount=all.filter(m=>actual(m)&&hist[S(m.id)]).length;
+ const doneCount=all.filter(m=>sheetFor(m.id)&&hist[S(m.id)]).length;
  const __dc=document.getElementById('predictionDoneCount'); if(__dc)__dc.textContent=String(doneCount);
 }
 function install(){
