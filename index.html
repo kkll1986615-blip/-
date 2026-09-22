@@ -19283,3 +19283,155 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
   }
 }
 </style>
+
+
+<style id="prediction-final-robust-percentages-20260922-style">
+#predictionsSection .prediction-data-driven-note{font-size:12px;font-weight:800}
+#predictionsSection .pdd-data b{font-size:12px}
+</style>
+<script id="prediction-final-robust-percentages-20260922">
+(function(){
+'use strict';
+/* الإصلاح النهائي: قراءة نتائج كل فريق من الكشوفات والمباريات الفعلية،
+   مع معالجة اختلاف تخزين الفريق كمعرّف أو اسم أو كائن. */
+const KEY='manar_prediction_history_v1';
+const S=v=>String(v??'').trim();
+const A=v=>Array.isArray(v)?v:[];
+const N=v=>{const n=Number(v);return Number.isFinite(n)?n:null};
+const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function DB(){return window.db&&typeof window.db==='object'?window.db:{tournaments:[],teams:[],matches:[]}}
+function teams(){return A(DB().teams)}
+function team(v){
+  const raw=v&&typeof v==='object'?(v.id??v.teamId??v.name??v.teamName??v.title):v;
+  const q=S(raw);
+  return teams().find(t=>S(t.id)===q||S(t.name)===q||S(t.teamName)===q)||{};
+}
+function tid(m){return S(m?.tournamentId??m?.tournament??m?.tournamentID??m?.competitionId??'')}
+function tname(id){const t=team(id);return S(t.name||t.teamName)||S(id)||'فريق'}
+function logo(id){const t=team(id),u=t.logo||t.logoUrl||t.image||t.photo||t.teamLogo||'';return u?'<img loading="lazy" decoding="async" class="pdd-logo" src="'+esc(u)+'" alt="">':'<span class="pdd-logo" style="display:flex;align-items:center;justify-content:center;font-size:21px">⚽</span>'}
+function side(raw,names){
+  const vals=[];
+  if(raw&&typeof raw==='object') vals.push(raw.id,raw.teamId,raw.name,raw.teamName,raw.title);
+  else vals.push(raw);
+  (names||[]).forEach(x=>vals.push(x));
+  for(const v of vals){const t=team(v);if(t.id!=null)return S(t.id)}
+  return S(vals.find(v=>v!=null&&S(v))||'');
+}
+function sides(m){
+  return {
+    h:side(m?.home??m?.homeTeamId??m?.homeTeam??m?.homeId,[m?.homeName,m?.homeTeamName,m?.home_name]),
+    a:side(m?.away??m?.awayTeamId??m?.awayTeam??m?.awayId,[m?.awayName,m?.awayTeamName,m?.away_name])
+  };
+}
+function getSheets(){
+  let list=[];
+  try{if(typeof window.uniqueMatchSheets==='function')list=A(window.uniqueMatchSheets())}catch(e){}
+  if(!list.length){try{list=[...A(JSON.parse(localStorage.getItem('manar_match_sheets_v3')||'[]')),...A(JSON.parse(localStorage.getItem('manar_match_sheets_v2')||'[]')),...A(JSON.parse(localStorage.getItem('manar_match_sheets_v1')||'[]'))]}catch(e){}}
+  const map=new Map();list.filter(Boolean).forEach(x=>{const k=S(x.matchId);if(k)map.set(k,x)});return [...map.values()];
+}
+function allMatches(){
+  const out=[],seen=new Set();
+  const add=(m,fallbackTid)=>{
+    if(!m||typeof m!=='object')return;
+    const c={...m};if(!tid(c)&&fallbackTid)c.tournamentId=fallbackTid;
+    const id=S(c.id??c.matchId);
+    const key=id||JSON.stringify([sides(c).h,sides(c).a,c.date,c.time,tid(c)]);
+    if(seen.has(key))return;seen.add(key);out.push(c);
+  };
+  const d=DB();
+  A(d.matches).forEach(m=>add(m,tid(m)));
+  A(d.tournaments).forEach(t=>{
+    const x=S(t.id);
+    ['matches','fixtures','games','schedule'].forEach(k=>A(t[k]).forEach(m=>add(m,x)));
+  });
+  return out;
+}
+function scoreFrom(sh,m){
+  const h=N(sh?.homeScore??sh?.homeGoals??sh?.hg??sh?.scoreH),a=N(sh?.awayScore??sh?.awayGoals??sh?.ag??sh?.scoreA);
+  if(h!==null&&a!==null)return {h,a};
+  const mh=N(m?.hg??m?.homeScore??m?.homeGoals??m?.scoreA),ma=N(m?.ag??m?.awayScore??m?.awayGoals??m?.scoreB);
+  return mh!==null&&ma!==null?{h:mh,a:ma}:null;
+}
+function finished(m,sc){const st=S(m?.status).toLowerCase();return !!sc||['finished','ended','played','completed','complete','final','منتهية','انتهت','مكتملة','مباراة منتهية'].includes(st)}
+function dataRows(){
+  const ms=allMatches(),byId=new Map(ms.map(m=>[S(m.id),m])),rows=[],used=new Set();
+  getSheets().forEach(sh=>{
+    const id=S(sh.matchId),m=byId.get(id)||sh;
+    const z=sides(m); const shh=side(sh?.home??sh?.homeTeamId??sh?.homeTeam,[sh?.homeName,sh?.homeTeamName]);
+    const sha=side(sh?.away??sh?.awayTeamId??sh?.awayTeam,[sh?.awayName,sh?.awayTeamName]);
+    if(!z.h&&shh)m.home=shh;if(!z.a&&sha)m.away=sha;
+    const zz=sides(m),sc=scoreFrom(sh,m);if(!zz.h||!zz.a||!sc)return;
+    const key=id||JSON.stringify([zz.h,zz.a,sh.date,sh.time,sc.h,sc.a]);if(used.has(key))return;used.add(key);
+    rows.push({id,home:zz.h,away:zz.a,h:sc.h,a:sc.a,tournamentId:S(sh.tournamentId||tid(m)),date:S(m.date||sh.date),time:S(m.time||sh.time),sheet:true});
+  });
+  ms.forEach(m=>{
+    const id=S(m.id);if(id&&used.has(id))return;const z=sides(m),sc=scoreFrom(null,m);if(!z.h||!z.a||!finished(m,sc))return;
+    const key=id||JSON.stringify([z.h,z.a,m.date,m.time,sc.h,sc.a]);if(used.has(key))return;used.add(key);
+    rows.push({id,home:z.h,away:z.a,h:sc.h,a:sc.a,tournamentId:tid(m),date:S(m.date),time:S(m.time),sheet:false});
+  });
+  return rows;
+}
+function teamRows(teamId,tournamentId){
+  const id=S(teamId),t=S(tournamentId),all=dataRows();
+  let rows=all.filter(r=>(r.home===id||r.away===id)&&(!t||r.tournamentId===t));
+  let scope='البطولة';
+  if(!rows.length){rows=all.filter(r=>r.home===id||r.away===id);scope='جميع البطولات'}
+  rows.sort((a,b)=>(S(b.date)+' '+S(b.time)).localeCompare(S(a.date)+' '+S(a.time)));
+  const out=rows.map(r=>{const home=r.home===id,gf=home?r.h:r.a,ga=home?r.a:r.h;return {...r,gf,ga,w:gf>ga?1:0,d:gf===ga?1:0,l:gf<ga?1:0}});
+  const g=out.length,recent=out.slice(0,5),rg=recent.length;
+  return {rows,g,gf:out.reduce((n,x)=>n+x.gf,0),ga:out.reduce((n,x)=>n+x.ga,0),w:out.reduce((n,x)=>n+x.w,0),d:out.reduce((n,x)=>n+x.d,0),l:out.reduce((n,x)=>n+x.l,0),avgGF:g?out.reduce((n,x)=>n+x.gf,0)/g:0,avgGA:g?out.reduce((n,x)=>n+x.ga,0)/g:0,recentG:rg,recentGF:rg?recent.reduce((n,x)=>n+x.gf,0)/rg:0,recentGA:rg?recent.reduce((n,x)=>n+x.ga,0)/rg:0,scope};
+}
+function league(tournamentId){
+  const all=dataRows();let rows=all.filter(r=>!tournamentId||r.tournamentId===S(tournamentId));if(!rows.length)rows=all;
+  if(!rows.length)return {home:1.25,away:1,total:2.25,count:0};
+  const home=rows.reduce((n,r)=>n+r.h,0)/rows.length,away=rows.reduce((n,r)=>n+r.a,0)/rows.length;
+  return {home:Math.max(.35,home),away:Math.max(.30,away),total:home+away,count:rows.length};
+}
+function poisson(k,l){let e=Math.exp(-l),p=1;for(let i=1;i<=k;i++)p*=l/i;return e*p}
+function predict(m){
+  const z=sides(m),H=teamRows(z.h,tid(m)),V=teamRows(z.a,tid(m)),L=league(tid(m));
+  const avg=Math.max(.65,L.total/2);
+  const atkH=H.g?.62*(H.recentGF/avg)+.38*(H.avgGF/avg):1;
+  const atkV=V.g?.62*(V.recentGF/avg)+.38*(V.avgGF/avg):1;
+  const defH=H.g?.62*(H.recentGA/avg)+.38*(H.avgGA/avg):1;
+  const defV=V.g?.62*(V.recentGA/avg)+.38*(V.avgGA/avg):1;
+  const formH=H.g?Math.max(.72,Math.min(1.28,.62*((H.w*3+H.d)/(3*H.g))+.38*(H.recentG?(H.rows.slice(0,5).reduce((n,x)=>n+x.w*3+x.d,0)/(3*H.recentG)):0.5))):1;
+  const formV=V.g?Math.max(.72,Math.min(1.28,.62*((V.w*3+V.d)/(3*V.g))+.38*(V.recentG?(V.rows.slice(0,5).reduce((n,x)=>n+x.w*3+x.d,0)/(3*V.recentG)):0.5))):1;
+  let lh=Math.max(.15,L.home*atkH/Math.max(.55,defV)*.96*formH),la=Math.max(.12,L.away*atkV/Math.max(.55,defH)*.94*formV);
+  lh=Math.min(4.5,lh);la=Math.min(4.5,la);
+  let home=0,draw=0,away=0,best=[0,0,0];
+  for(let i=0;i<=7;i++)for(let j=0;j<=7;j++){const p=poisson(i,lh)*poisson(j,la);if(i>j)home+=p;else if(i<j)away+=p;else draw+=p;if(p>best[0])best=[p,i,j]}
+  const sm=home+draw+away||1;home/=sm;draw/=sm;away/=sm;
+  let hp=Math.round(home*100),dp=Math.round(draw*100),ap=100-hp-dp;if(ap<0){ap=0;dp=100-hp}
+  const games=H.g+V.g;
+  const confidence=L.count?Math.max(30,Math.min(95,Math.round(38+Math.min(35,games*3)+Math.min(15,Math.abs(lh-la)*9)))):30;
+  return {q:z,h:H,a:V,home:hp/100,draw:dp/100,away:ap/100,scoreH:best[1],scoreA:best[2],confidence,globalGames:L.count};
+}
+function hist(){try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');return x&&typeof x==='object'?x:{}}catch(e){return {}}}
+function save(m,p){try{const h=hist(),id=S(m.id);if(!id)return;h[id]={...(h[id]||{}),matchId:id,tournamentId:tid(m),homeId:p.q.h,awayId:p.q.a,homeName:tname(p.q.h),awayName:tname(p.q.a),home:p.scoreH,away:p.scoreA,homePct:Math.round(p.home*100),drawPct:Math.round(p.draw*100),awayPct:Math.round(p.away*100),confidence:p.confidence,updatedAt:new Date().toISOString()};localStorage.setItem(KEY,JSON.stringify(h))}catch(e){}}
+function card(m,p){const z=p.q,H=p.h,V=p.a;return '<div class="prediction-data-driven-card">'+
+'<div class="pdd-team-row"><div class="pdd-team">'+logo(z.h)+'<b>'+esc(tname(z.h))+'</b></div><span class="pdd-vs">VS</span><div class="pdd-team"><b>'+esc(tname(z.a))+'</b>'+logo(z.a)+'</div></div>'+
+'<div class="pdd-meta"><span>📅 '+esc(m.date||'—')+'</span><span>🕒 '+esc(m.time||'—')+'</span></div>'+
+'<div class="pdd-probs"><div class="pdd-prob home">فوز '+esc(tname(z.h))+'<b>'+Math.round(p.home*100)+'%</b></div><div class="pdd-prob draw">تعادل<b>'+Math.round(p.draw*100)+'%</b></div><div class="pdd-prob away">فوز '+esc(tname(z.a))+'<b>'+Math.round(p.away*100)+'%</b></div></div>'+
+'<div class="pdd-score">🎯 النتيجة الأقرب<strong>'+p.scoreH+' - '+p.scoreA+'</strong></div>'+
+'<div class="pdd-data"><div>⚽ متوسط التسجيل — '+esc(tname(z.h))+'<b>'+H.avgGF.toFixed(2)+'</b></div><div>🛡️ متوسط الاستقبال — '+esc(tname(z.h))+'<b>'+H.avgGA.toFixed(2)+'</b></div><div>⚽ متوسط التسجيل — '+esc(tname(z.a))+'<b>'+V.avgGF.toFixed(2)+'</b></div><div>🛡️ متوسط الاستقبال — '+esc(tname(z.a))+'<b>'+V.avgGA.toFixed(2)+'</b></div></div>'+
+'<div class="pdd-confidence">📈 نسبة الثقة: <b>'+p.confidence+'%</b> — مبنية على النتائج والكشوفات المسجلة للفريقين.</div></div>'}
+function render(){
+ const sec=document.getElementById('predictionsSection');if(!sec)return;const sel=sec.querySelector('#predictionTournamentV2'),open=sec.querySelector('#predictionOpenList'),sum=sec.querySelector('#predictionSummaryV2');if(!sel||!open)return;const t=S(sel.value);if(!t)return;
+ const all=allMatches().filter(m=>tid(m)===t).sort((a,b)=>(S(a.date)+' '+S(a.time)).localeCompare(S(b.date)+' '+S(b.time)));
+ const sheets=getSheets(),has=id=>sheets.some(x=>S(x.matchId)===S(id));
+ const pending=all.filter(m=>!has(m.id));
+ if(sum){const tour=A(DB().tournaments).find(x=>S(x.id)===t);sum.innerHTML='<div class="prediction-data-driven-note">🏆 '+esc(tour?.name||'البطولة')+' — نسب الفوز والتعادل محسوبة من بيانات كل فريق: النتائج، الأهداف، الاستقبال، والفورمة الحديثة.</div>'}
+ const oc=document.getElementById('predictionOpenCount');if(oc)oc.textContent=String(pending.length);
+ pending.forEach(m=>save(m,predict(m)));
+ open.innerHTML=pending.length?pending.map(m=>card(m,predict(m))).join(''):'<div class="prediction-empty success">✅ لا توجد مباريات جديدة للتوقع.</div>';
+ if(typeof window.refreshPredictionHistory==='function')try{window.refreshPredictionHistory(t)}catch(e){}
+}
+let timer=0,last='';
+function run(){clearTimeout(timer);timer=setTimeout(()=>{try{const sel=document.getElementById('predictionTournamentV2');if(!sel||!sel.value)return;const sig=S(sel.value)+'|'+dataRows().map(r=>[r.id,r.home,r.away,r.h,r.a,r.tournamentId]).flat().join(',');if(sig===last)return;last=sig;render()}catch(e){console.warn('prediction robust percentages',e)}},40)}
+window.__getPredictionForMatch=function(m){try{const p=predict(m);return {q:p.q,hw:p.home,draw:p.draw,aw:p.away,hg:p.scoreH,ag:p.scoreA,rate:p.confidence}}catch(e){return null}};
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='predictionTournamentV2')run()},true);
+window.addEventListener('storage',e=>{if(/^manar_/.test(S(e.key)))run()});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(run,500);setTimeout(run,1500)}, {once:true});else{setTimeout(run,500);setTimeout(run,1500)}
+})();
+</script>
