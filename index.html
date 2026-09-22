@@ -19194,126 +19194,108 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
 }
 </style>
 
-<!-- FINAL FIX: أي مباراة لها كشف تعتبر منتهية بشكل دائم 2026-09-22 -->
-<script id="final-match-sheet-finished-persistence-20260922">
+<!-- FINAL OVERRIDE: قائمة كشوفات المباريات = جميع مباريات البطولة التي لا تملك كشفاً، دون أي اعتبار للتاريخ أو الوقت -->
+<script id="final-all-un-sheeted-matches-20260922">
 (function(){
   'use strict';
-  var MAIN_KEY='manar_sports_v2';
-  var SHEET_KEYS=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
-
-  function S(v){return String(v==null?'':v).trim();}
-  function A(v){return Array.isArray(v)?v:[];}
-  function readJSON(key,fallback){try{var x=JSON.parse(localStorage.getItem(key)||'null');return x==null?fallback:x;}catch(e){return fallback;}}
-  function getDB(){
-    if(window.db&&typeof window.db==='object')return window.db;
-    var x=readJSON(MAIN_KEY,null);
-    return x&&typeof x==='object'?x:null;
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v??'');
+  const $=id=>document.getElementById(id);
+  function db(){return window.db||{tournaments:[],teams:[],matches:[]};}
+  function matches(){return A(db().matches);}
+  function teams(){return A(db().teams);}
+  function tournaments(){return A(db().tournaments).filter(t=>t&&t.archived!==true&&S(t.status)!=='archived');}
+  function team(id){return teams().find(t=>S(t.id)===S(id)||S(t.name)===S(id));}
+  function teamName(id){return team(id)?.name||S(id)||'فريق';}
+  function teamId(m,side){return S(side==='home'?(m?.home??m?.homeTeamId??m?.homeTeam):(m?.away??m?.awayTeamId??m?.awayTeam));}
+  function tournamentId(m){
+    const raw=S(m?.tournamentId??m?.tournament??m?.tournamentID??m?.tournamentName);
+    const t=tournaments().find(x=>S(x.id)===raw||S(x.name)===raw||S(x.title)===raw);
+    return t?S(t.id):raw;
   }
-  function allSheets(){
-    var out=[];
-    try{if(typeof window.uniqueMatchSheets==='function')out=A(window.uniqueMatchSheets()).slice();}catch(e){}
-    if(out.length)return out.filter(Boolean);
-    SHEET_KEYS.forEach(function(k){A(readJSON(k,[])).forEach(function(x){if(x)out.push(x);});});
-    var seen={};
-    return out.filter(function(x){var id=S(x&&x.matchId);if(!id)return false;var key=id+'|'+S(x.updatedAt||x.createdAt||'');if(seen[key])return false;seen[key]=1;return true;});
+  function matchId(m,i){return S(m?.id??i);}
+  function sheets(){
+    const keys=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
+    const out=[]; const seen=new Set();
+    keys.forEach(k=>{try{A(JSON.parse(localStorage.getItem(k)||'[]')).forEach(x=>{if(!x||x.matchId==null)return;const key=S(x.matchId);if(!seen.has(key)){seen.add(key);out.push(x)}})}catch(e){}});
+    try{if(typeof window.uniqueMatchSheets==='function'){A(window.uniqueMatchSheets()).forEach(x=>{if(!x||x.matchId==null)return;const key=S(x.matchId);if(!seen.has(key)){seen.add(key);out.push(x)}})}}catch(e){}
+    return out;
   }
-  function hasSheet(id){
-    id=S(id);
-    return !!id && allSheets().some(function(sh){return S(sh&&sh.matchId)===id;});
+  function hasSheet(m,i){
+    const id=matchId(m,i);
+    if(sheets().some(sh=>S(sh.matchId)===id))return true;
+    /* توافق مع الكشف القديم الذي قد يحمل معرّفاً مختلفاً: نفس البطولة + نفس الفريقين. */
+    const tid=tournamentId(m), h=teamId(m,'home'), a=teamId(m,'away');
+    if(!h||!a)return false;
+    return sheets().some(sh=>{
+      const st=S(sh.tournamentId??sh.tournament??sh.tournamentName??sh.tournamentID);
+      const sameTour=!st||st===tid||tournaments().some(t=>S(t.id)===st&&S(t.id)===tid)||tournaments().some(t=>S(t.name)===st&&S(t.id)===tid);
+      if(!sameTour)return false;
+      const shh=S(sh.homeTeamId??sh.homeTeam??sh.home), sha=S(sh.awayTeamId??sh.awayTeam??sh.away);
+      return (shh===h&&sha===a)||(shh===a&&sha===h);
+    });
   }
-  function findMatch(id){
-    var d=getDB(); if(!d)return null;
-    var ms=A(d.matches);
-    return ms.find(function(m){return S(m&&m.id)===S(id);})||null;
+  function allUnsheeted(tid){
+    return matches().map((m,i)=>({m,i,id:matchId(m,i)}))
+      .filter(x=>tournamentId(x.m)===S(tid) && !hasSheet(x.m,x.i));
   }
-  function effectiveFinished(m){
-    return !!m && (hasSheet(m.id) || ['finished','ended','completed','complete','final','منتهية','انتهت','مكتملة'].indexOf(S(m.status).toLowerCase())>=0);
-  }
-
-  async function persistMatch(id){
-    var d=getDB(),m=findMatch(id);
-    if(!d||!m)return false;
-    if(hasSheet(id))m.status='finished';
-    try{localStorage.setItem(MAIN_KEY,JSON.stringify(d));}catch(e){console.warn('match local save failed',e);return false;}
-    window.db=d;
-    if(typeof window.__manarFirebaseSaveKey==='function'){
-      try{await window.__manarFirebaseSaveKey(MAIN_KEY);}catch(e){console.warn('match cloud save failed',e);}
+  function renderPendingAll(){
+    const b=$('ksPending'), s=$('ksMatch'), tid=S($('ksTournament')?.value);
+    if(!b)return;
+    const list=tid?allUnsheeted(tid):[];
+    if(s){
+      const old=S(s.value);
+      s.innerHTML='<option value="">اختر مباراة لم يتم إدخال كشف لها</option>';
+      s.disabled=!tid;
+      list.forEach(x=>{
+        const o=document.createElement('option');
+        o.value=x.id;
+        o.textContent=teamName(teamId(x.m,'home'))+' '+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' - '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+' '+teamName(teamId(x.m,'away'))+' — '+S(x.m.date||'بدون تاريخ')+' '+(S(x.m.time)?'('+S(x.m.time)+')':'');
+        s.appendChild(o);
+      });
+      if(old&&list.some(x=>x.id===old))s.value=old;
     }
-    return true;
+    if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض جميع المباريات التي لا تملك كشفاً.</div>';return;}
+    if(!list.length){b.innerHTML='<div class="ks-empty">✅ لا توجد مباريات بدون كشف في هذه البطولة.</div>';return;}
+    b.innerHTML=list.map(x=>{
+      const m=x.m;
+      return '<div class="ks-match-card">'
+        +'<div class="ks-match-title">'+teamName(teamId(m,'home'))+' <b>'+Number(m.hg??m.homeGoals??m.homeScore??0)+' — '+Number(m.ag??m.awayGoals??m.awayScore??0)+'</b> '+teamName(teamId(m,'away'))+'</div>'
+        +'<div class="ks-meta"><span>📅 '+(S(m.date)||'بدون تاريخ')+'</span><span>⏰ '+(S(m.time)||'بدون وقت')+'</span><span>🏟️ '+(S(m.stadium)||'—')+'</span><span>📌 '+(S(m.status)==='finished'?'منتهية':'مباراة بدون كشف')+'</span></div>'
+        +(typeof window.hasPermission==='function'&&window.hasPermission('matchSheets')||document.body.classList.contains('admin')||document.body.classList.contains('editor')?'<button class="btn blue" type="button" data-ks-open="'+x.id+'">➕ إنشاء الكشف</button>':'')
+        +'</div>';
+    }).join('');
   }
-
-  /* إصلاح مباشر: عند حفظ تعديل مباراة لها كشف، اكتب الحالة finished في قاعدة البيانات
-     وفي localStorage ثم ارفعها للسحابة. */
-  window.__manarPersistMatchSheetStatus= persistMatch;
-
-  /* اعتراض زر حفظ تعديل المباراة الحالي بعد اكتمال جميع مستمعات الصفحة. */
-  function bindSave(){
-    var btn=document.getElementById('mmeSave');
-    if(!btn || btn.__matchSheetFinishedFixBound)return;
-    btn.__matchSheetFinishedFixBound=true;
-    btn.addEventListener('click',function(){
-      setTimeout(function(){
-        var modal=document.getElementById('manarMatchEditModal');
-        var id=S(modal&&modal.dataset.id);
-        if(!id || !hasSheet(id))return;
-        var m=findMatch(id);
-        if(!m)return;
-        m.status='finished';
-        persistMatch(id).then(function(){
-          try{if(typeof window.renderMatches==='function')window.renderMatches();}catch(e){}
-          try{if(typeof window.renderUpcomingMatches==='function')window.renderUpcomingMatches();}catch(e){}
-          try{if(typeof window.renderUpcoming==='function')window.renderUpcoming();}catch(e){}
-          try{if(typeof window.renderMatchView==='function')window.renderMatchView();}catch(e){}
-          try{if(typeof window.refreshMatchViewStatus==='function')window.refreshMatchViewStatus();}catch(e){}
-          try{if(typeof window.renderHome==='function')window.renderHome();}catch(e){}
-        });
-      },50);
-    },false);
-  }
-
-  /* اجعل أي رسم للمباريات المجدولة يستبعد المباراة ذات الكشف، حتى لو بقي status
-     القديم scheduled بسبب نسخة قديمة من البيانات. */
-  function repairStatuses(){
-    var d=getDB();if(!d||!Array.isArray(d.matches))return false;
-    var changed=false;
-    d.matches.forEach(function(m){if(m&&hasSheet(m.id)&&S(m.status)!=='finished'){m.status='finished';changed=true;}});
-    if(changed){
-      try{localStorage.setItem(MAIN_KEY,JSON.stringify(d));}catch(e){}
-      window.db=d;
-      if(typeof window.__manarFirebaseSaveKey==='function'){
-        try{window.__manarFirebaseSaveKey(MAIN_KEY);}catch(e){}
-      }
+  function refresh(){setTimeout(renderPendingAll,0);}
+  function bind(){
+    const sel=$('ksTournament');
+    if(sel&&!sel.__allUnsheetedBound){
+      sel.__allUnsheetedBound=true;
+      sel.addEventListener('change',refresh);
     }
-    return changed;
-  }
-
-  function patchRender(name){
-    var old=window[name];
-    if(typeof old!=='function' || old.__sheetFinishedWrapper)return;
-    var wrapped=function(){
-      repairStatuses();
-      var r=old.apply(this,arguments);
-      setTimeout(repairStatuses,0);
-      return r;
-    };
-    wrapped.__sheetFinishedWrapper=true;
-    window[name]=wrapped;
-  }
-
-  function init(){
-    bindSave();
-    repairStatuses();
-    ['renderMatches','renderUpcoming','renderUpcomingMatches','renderHome','renderMatchView'].forEach(patchRender);
-    setTimeout(function(){bindSave();repairStatuses();},200);
-    setTimeout(function(){bindSave();repairStatuses();},1000);
-  }
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
-  else init();
-  window.addEventListener('storage',function(e){
-    if(e.key===MAIN_KEY || SHEET_KEYS.indexOf(e.key)>=0){
-      setTimeout(function(){repairStatuses();bindSave();},80);
+    const save=$('ksSave');
+    if(save&&!save.__allUnsheetedBound){
+      save.__allUnsheetedBound=true;
+      save.addEventListener('click',()=>setTimeout(refresh,1200));
     }
-  });
+    const del=document;
+    if(!del.__allUnsheetedClicks){
+      del.__allUnsheetedClicks=true;
+      del.addEventListener('click',e=>{
+        if(e.target.closest('[data-ks-delete],[data-ks-del]'))setTimeout(refresh,500);
+      });
+    }
+    refresh();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
+  window.addEventListener('load',bind);
+  window.addEventListener('storage',e=>{if(/^manar_match_sheets_v[123]$/.test(S(e.key)))refresh();});
+  const oldRefresh=window.refreshMatchSheets;
+  if(typeof oldRefresh==='function'&&!oldRefresh.__allUnsheetedWrapped){
+    const wrapped=function(){const r=oldRefresh.apply(this,arguments);setTimeout(refresh,0);return r};
+    wrapped.__allUnsheetedWrapped=true;
+    window.refreshMatchSheets=wrapped;
+  }
+  window.renderAllUnsheetedMatches=renderPendingAll;
 })();
 </script>
