@@ -19299,3 +19299,127 @@ window.refreshMatchViewStatus=window.refreshMatchViewStatus||function(){renderVi
   window.renderAllUnsheetedMatches=renderPendingAll;
 })();
 </script>
+
+<!-- FINAL AUTHORITATIVE FIX: كل كشف = منتهية + قائمة الكشوفات تشمل كل مباراة بلا كشف -->
+<script id="final-authoritative-match-sheet-fix-20260922">
+(function(){
+'use strict';
+const A=v=>Array.isArray(v)?v:[];
+const S=v=>String(v??'').trim();
+const $=id=>document.getElementById(id);
+const MAIN='manar_sports_v2';
+const SHEET_KEYS=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
+function db(){return window.db&&typeof window.db==='object'?window.db:{tournaments:[],teams:[],matches:[]}}
+function matches(){return A(db().matches)}
+function teams(){return A(db().teams)}
+function tours(){return A(db().tournaments).filter(t=>t&&t.archived!==true&&S(t.status)!=='archived')}
+function teamId(m,side){return S(side==='home'?(m?.home??m?.homeTeamId??m?.homeTeam):(m?.away??m?.awayTeamId??m?.awayTeam))}
+function tourId(m){
+  const raw=S(m?.tournamentId??m?.tournament??m?.tournamentID??m?.tournamentName);
+  const t=tours().find(x=>S(x.id)===raw||S(x.name)===raw||S(x.title)===raw);
+  return t?S(t.id):raw;
+}
+function matchId(m,i){return S(m?.id??i)}
+function teamName(id){const t=teams().find(x=>S(x.id)===S(id)||S(x.name)===S(id));return t?.name||S(id)||'فريق'}
+function readSheets(){
+  const out=[],seen=new Set();
+  for(const k of SHEET_KEYS){
+    try{const a=JSON.parse(localStorage.getItem(k)||'[]');for(const x of A(a)){if(!x||x.matchId==null)continue;const id=S(x.matchId);if(!seen.has(id)){seen.add(id);out.push(x)}}}catch(e){}
+  }
+  try{if(typeof window.uniqueMatchSheets==='function')for(const x of A(window.uniqueMatchSheets())){if(!x||x.matchId==null)continue;const id=S(x.matchId);if(!seen.has(id)){seen.add(id);out.push(x)}}}catch(e){}
+  return out;
+}
+function sameFixture(m,sh){
+  const h=teamId(m,'home'),a=teamId(m,'away');
+  const shh=S(sh?.homeTeamId??sh?.homeTeam??sh?.home),sha=S(sh?.awayTeamId??sh?.awayTeam??sh?.away);
+  if(!h||!a||!shh||!sha)return false;
+  if(!((shh===h&&sha===a)||(shh===a&&sha===h)))return false;
+  const st=S(sh?.tournamentId??sh?.tournament??sh?.tournamentName??sh?.tournamentID);
+  if(!st)return true;
+  const tid=tourId(m);
+  if(st===tid)return true;
+  const t=tours().find(x=>S(x.id)===st||S(x.name)===st||S(x.title)===st);
+  return !!t&&S(t.id)===tid;
+}
+function sheetFor(m,i){
+  const id=matchId(m,i), ss=readSheets();
+  return ss.find(x=>S(x.matchId)===id)||ss.find(x=>sameFixture(m,x))||null;
+}
+function hasSheet(m,i){return !!sheetFor(m,i)}
+function persistMain(){
+  try{window.db=db();localStorage.setItem(MAIN,JSON.stringify(window.db));}catch(e){console.error('match status local save',e)}
+  try{if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(MAIN).catch(()=>{});}catch(e){}
+}
+function forceFinishedForSheets(){
+  let changed=false;
+  const ms=matches();
+  ms.forEach((m,i)=>{if(hasSheet(m,i)&&S(m.status).toLowerCase()!=='finished'){m.status='finished';changed=true;}});
+  if(changed)persistMain();
+  return changed;
+}
+function renderAuthoritative(){
+  forceFinishedForSheets();
+  const box=$('ksPending'), sel=$('ksTournament'), select=$('ksMatch');
+  if(!box||!sel)return;
+  const tid=S(sel.value);
+  const list=tid?matches().map((m,i)=>({m,i,id:matchId(m,i)}).filter(x=>tourId(x.m)===tid&&!hasSheet(x.m,x.i))):[];
+  if(select){
+    const old=S(select.value);select.innerHTML='<option value="">اختر مباراة لم يتم إدخال كشف لها</option>';select.disabled=!tid;
+    list.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=teamName(teamId(x.m,'home'))+' '+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' - '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+' '+teamName(teamId(x.m,'away'))+' — '+(S(x.m.date)||'بدون تاريخ')+(S(x.m.time)?' ('+S(x.m.time)+')':'');select.appendChild(o)});
+    if(old&&list.some(x=>x.id===old))select.value=old;
+  }
+  if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض جميع المباريات التي لم يُدخل لها كشف.</div>';return}
+  if(!list.length){box.innerHTML='<div class="ks-empty">✅ لا توجد مباريات بدون كشف في هذه البطولة.</div>';return}
+  const can=!!(typeof window.hasPermission==='function'&&window.hasPermission('matchSheets'))||document.body.classList.contains('admin')||document.body.classList.contains('editor');
+  box.innerHTML=list.map(x=>'<div class="ks-match-card"><div class="ks-match-title">'+teamName(teamId(x.m,'home'))+' <b>'+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' — '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+'</b> '+teamName(teamId(x.m,'away'))+'</div><div class="ks-meta"><span>📅 '+(S(x.m.date)||'بدون تاريخ')+'</span><span>⏰ '+(S(x.m.time)||'بدون وقت')+'</span><span>🏟️ '+(S(x.m.stadium)||'—')+'</span><span>📌 لا يوجد كشف</span></div>'+(can?'<button class="btn blue" type="button" data-ks-open="'+x.id+'">➕ إنشاء الكشف</button>':'')+'</div>').join('');
+}
+window.__manarForceMatchSheetsFinished=function(){forceFinishedForSheets();renderAuthoritative();};
+function bind(){
+  forceFinishedForSheets();renderAuthoritative();
+  const sel=$('ksTournament');if(sel&&!sel.__authoritativeBound){sel.__authoritativeBound=true;sel.addEventListener('change',()=>setTimeout(renderAuthoritative,20));}
+  const sheetSave=$('ksSave');
+  if(sheetSave&&!sheetSave.__authoritativeBound){
+    sheetSave.__authoritativeBound=true;
+    sheetSave.addEventListener('click',()=>setTimeout(()=>{forceFinishedForSheets();renderAuthoritative();},700));
+    sheetSave.addEventListener('click',()=>setTimeout(()=>{forceFinishedForSheets();renderAuthoritative();},1800));
+  }
+}
+/* اعتراض نهائي على زر تعديل المباراة: نحفظ مباشرة في قاعدة البيانات ولا نعتمد على معالج سابق قد يعيد النسخة القديمة. */
+function bindMatchEditor(){
+  const b=$('mmeSave');if(!b||b.__authoritativeMatchSave)return;
+  b.__authoritativeMatchSave=true;
+  b.addEventListener('click',function(ev){
+    ev.preventDefault();ev.stopImmediatePropagation();
+    const modal=$('manarMatchEditModal');if(!modal)return;
+    const id=S(modal.dataset.id),m=matches().find(x=>S(x.id)===id);
+    if(!m)return;
+    const date=S($('mmeDate')?.value),time=S($('mmeTime')?.value);
+    if(!date||!time){alert('يرجى إدخال تاريخ ووقت المباراة.');return;}
+    const sh=sheetFor(m,matches().indexOf(m));
+    const std=S($('mmeStadium')?.value),other=S($('mmeOther')?.value);
+    m.date=date;m.time=time;m.stadium=std==='ملعب آخر'?(other||'ملعب آخر'):(std||'ملعب المنار الرئيسي');
+    if(sh){
+      m.status='finished';
+      if(sh.homeScore!==undefined)m.hg=Number(sh.homeScore)||0;
+      if(sh.awayScore!==undefined)m.ag=Number(sh.awayScore)||0;
+    }else{
+      m.status=S($('mmeStatus')?.value)==='finished'?'finished':'scheduled';
+      m.hg=Math.max(0,parseInt($('mmeHG')?.value,10)||0);m.ag=Math.max(0,parseInt($('mmeAG')?.value,10)||0);
+    }
+    persistMain();
+    try{if(typeof window.renderMatches==='function')window.renderMatches()}catch(e){}
+    try{if(typeof window.renderUpcomingMatches==='function')window.renderUpcomingMatches()}catch(e){}
+    try{if(typeof window.renderMatchView==='function')window.renderMatchView()}catch(e){}
+    try{if(typeof window.renderHome==='function')window.renderHome()}catch(e){}
+    try{renderAuthoritative()}catch(e){}
+    try{$('manarMatchEditModal').classList.remove('show');$('manarMatchEditModal').setAttribute('aria-hidden','true')}catch(e){}
+    alert(sh?'تم حفظ تعديل المباراة واعتمادها منتهية لوجود كشف.':'تم حفظ تعديل المباراة بنجاح.');
+  },true);
+}
+function start(){bind();bindMatchEditor();setTimeout(bind,300);setTimeout(bindMatchEditor,300);setTimeout(bind,1000);setTimeout(bindMatchEditor,1000);}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+window.addEventListener('load',start);
+window.addEventListener('storage',e=>{if(SHEET_KEYS.includes(S(e.key))||S(e.key)===MAIN)setTimeout(start,100)});
+setInterval(()=>{try{forceFinishedForSheets();renderAuthoritative()}catch(e){}},2000);
+})();
+</script>
