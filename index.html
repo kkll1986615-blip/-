@@ -18507,6 +18507,171 @@ window.__manarPredictionAnalysis=function(m){return robustPrediction(m)};
 })();
 </script>
 
+
+<style id="prediction-final-arabic-dynamic-fix">
+#predictionsSection .prediction-data-driven-card{direction:rtl}
+#predictionsSection .pdd-prob b{direction:ltr;unicode-bidi:isolate}
+#predictionsSection .pdd-score strong{direction:ltr;unicode-bidi:isolate}
+#predictionsSection .pdd-confidence b{direction:ltr;unicode-bidi:isolate}
+</style>
+<script id="prediction-final-arabic-dynamic-fix">
+(function(){
+'use strict';
+const S=v=>String(v??'').trim(), A=v=>Array.isArray(v)?v:[];
+const N=v=>{const n=Number(v);return Number.isFinite(n)?n:null};
+const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const DB=()=>window.db&&typeof window.db==='object'?window.db:{tournaments:[],teams:[],matches:[]};
+const teams=()=>A(DB().teams), matches=()=>A(DB().matches);
+
+function team(v){
+  const raw=v&&typeof v==='object'?(v.id??v.teamId??v.name??v.teamName??v.title):v, q=S(raw);
+  return teams().find(t=>S(t.id)===q||S(t.name)===q||S(t.teamName)===q)||null;
+}
+function teamId(v){const t=team(v);return t?S(t.id):S(v)}
+function teamName(v){const t=team(v);return S(t?.name||t?.teamName)||S(v)||'فريق'}
+function sides(m){
+  return {
+    h:teamId(m?.home??m?.homeTeamId??m?.homeTeam??m?.homeId),
+    a:teamId(m?.away??m?.awayTeamId??m?.awayTeam??m?.awayId)
+  };
+}
+function tournamentId(m){return S(m?.tournamentId??m?.tournament??m?.tournamentID??m?.competitionId??'')}
+
+function getSheets(){
+  let list=[];
+  try{if(typeof window.uniqueMatchSheets==='function')list=A(window.uniqueMatchSheets())}catch(e){}
+  if(!list.length){
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
+      try{list.push(...A(JSON.parse(localStorage.getItem(k)||'[]')))}catch(e){}
+    });
+  }
+  const map=new Map();
+  list.forEach(sh=>{if(!sh)return;const id=S(sh.matchId);if(id)map.set(id,sh)});
+  return [...map.values()];
+}
+function score(sh,m){
+  const h=N(sh?.homeScore??sh?.homeGoals??sh?.hg??sh?.scoreH??m?.homeScore??m?.homeGoals??m?.hg);
+  const a=N(sh?.awayScore??sh?.awayGoals??sh?.ag??sh?.scoreA??m?.awayScore??m?.awayGoals??m?.ag);
+  return h!==null&&a!==null?{h,a}:null;
+}
+function allCompleted(){
+  const ms=matches(),map=new Map(getSheets().map(sh=>[S(sh.matchId),sh])),out=[];
+  ms.forEach(m=>{
+    const sh=map.get(S(m.id)),sc=score(sh,m),z=sides(m);
+    if(!sc||!z.h||!z.a)return;
+    out.push({m,sh,home:z.h,away:z.a,h:sc.h,a:sc.a,date:S(m.date),time:S(m.time)});
+  });
+  return out;
+}
+function historyFor(id){
+  const tid=teamId(id),rows=[];
+  allCompleted().forEach(r=>{
+    const home=r.home===tid;
+    if(!home&&r.away!==tid)return;
+    const gf=home?r.h:r.a,ga=home?r.a:r.h;
+    rows.push({gf,ga,w:gf>ga?1:0,d:gf===ga?1:0,date:r.date,time:r.time});
+  });
+  rows.sort((a,b)=>(S(b.date)+' '+S(b.time)).localeCompare(S(a.date)+' '+S(a.time)));
+  return rows;
+}
+function stats(id){
+  const rows=historyFor(id),recent=rows.slice(0,5);
+  const avg=(a,k)=>a.length?a.reduce((n,x)=>n+x[k],0)/a.length:0;
+  const ppg=a=>a.length?a.reduce((n,x)=>n+x.w*3+x.d,0)/a.length:0;
+  return {rows,g:rows.length,gf:avg(rows,'gf'),ga:avg(rows,'ga'),
+    rg:recent.length,rgf:avg(recent,'gf'),rga:avg(recent,'ga'),
+    ppg:ppg(rows),rppg:ppg(recent)};
+}
+function leagueAvg(tid){
+  const rows=allCompleted().filter(r=>!tid||tournamentId(r.m)===S(tid));
+  if(!rows.length)return {home:1.25,away:1,total:2.25,count:0};
+  const h=rows.reduce((n,r)=>n+r.h,0)/rows.length;
+  const a=rows.reduce((n,r)=>n+r.a,0)/rows.length;
+  return {home:Math.max(.35,h),away:Math.max(.30,a),total:Math.max(.65,h+a),count:rows.length};
+}
+function poisson(k,l){
+  l=Math.max(.01,Number(l)||.01);
+  let p=Math.exp(-l);
+  for(let i=1;i<=k;i++)p*=l/i;
+  return p;
+}
+function prediction(m){
+  const z=sides(m),H=stats(z.h),V=stats(z.a),L=leagueAvg(tournamentId(m));
+  const avg=Math.max(.65,L.total/2);
+  const atkH=H.g?.62*(H.rgf/avg)+.38*(H.gf/avg):1;
+  const atkV=V.g?.62*(V.rgf/avg)+.38*(V.gf/avg):1;
+  const defH=H.g?.62*(H.rga/avg)+.38*(H.ga/avg):1;
+  const defV=V.g?.62*(V.rga/avg)+.38*(V.ga/avg):1;
+  const formH=H.g?Math.max(.72,Math.min(1.28,.62*(H.ppg/3)+.38*(H.rppg/3||.5))):1;
+  const formV=V.g?Math.max(.72,Math.min(1.28,.62*(V.ppg/3)+.38*(V.rppg/3||.5))):1;
+  let lh=Math.max(.15,L.home*atkH/Math.max(.55,defV)*.96*formH);
+  let la=Math.max(.12,L.away*atkV/Math.max(.55,defH)*.94*formV);
+  lh=Math.min(4.5,lh);la=Math.min(4.5,la);
+
+  let home=0,draw=0,away=0,best=[-1,0,0];
+  for(let i=0;i<=7;i++)for(let j=0;j<=7;j++){
+    const p=poisson(i,lh)*poisson(j,la);
+    if(i>j)home+=p;else if(i<j)away+=p;else draw+=p;
+    if(p>best[0])best=[p,i,j];
+  }
+  const sm=home+draw+away||1;
+  home/=sm;draw/=sm;away/=sm;
+
+  let hp=Math.round(home*100),dp=Math.round(draw*100),ap=100-hp-dp;
+  if(ap<0){ap=0;dp=100-hp}
+  if(ap>100){ap=100;dp=100-hp}
+
+  const games=H.g+V.g;
+  const confidence=L.count
+    ? Math.max(30,Math.min(95,Math.round(38+Math.min(35,games*3)+Math.min(15,Math.abs(lh-la)*9))))
+    : 30;
+
+  return {z,H,V,home:hp,draw:dp,away:ap,scoreH:best[1],scoreA:best[2],confidence};
+}
+function card(m,p){
+  const z=p.z,H=p.H,V=p.V;
+  return '<div class="prediction-data-driven-card" data-fixed-prediction="1">'+
+  '<div class="pdd-team-row"><div class="pdd-team"><b>'+esc(teamName(z.h))+'</b></div><span class="pdd-vs">VS</span><div class="pdd-team"><b>'+esc(teamName(z.a))+'</b></div></div>'+
+  '<div class="pdd-meta"><span>📅 '+esc(m.date||'—')+'</span><span>🕒 '+esc(m.time||'—')+'</span></div>'+
+  '<div class="pdd-probs">'+
+  '<div class="pdd-prob home">فوز '+esc(teamName(z.h))+'<b>'+p.home+'%</b></div>'+
+  '<div class="pdd-prob draw">تعادل<b>'+p.draw+'%</b></div>'+
+  '<div class="pdd-prob away">فوز '+esc(teamName(z.a))+'<b>'+p.away+'%</b></div>'+
+  '</div>'+
+  '<div class="pdd-score">🎯 النتيجة الأقرب<strong>'+p.scoreH+' - '+p.scoreA+'</strong></div>'+
+  '<div class="pdd-data">'+
+  '<div>⚽ متوسط التسجيل — '+esc(teamName(z.h))+'<b>'+H.gf.toFixed(2)+'</b></div>'+
+  '<div>🛡️ متوسط الاستقبال — '+esc(teamName(z.h))+'<b>'+H.ga.toFixed(2)+'</b></div>'+
+  '<div>⚽ متوسط التسجيل — '+esc(teamName(z.a))+'<b>'+V.gf.toFixed(2)+'</b></div>'+
+  '<div>🛡️ متوسط الاستقبال — '+esc(teamName(z.a))+'<b>'+V.ga.toFixed(2)+'</b></div>'+
+  '</div>'+
+  '<div class="pdd-confidence">📈 نسبة الثقة: <b>'+p.confidence+'%</b></div></div>';
+}
+function renderFixed(){
+  const sec=document.getElementById('predictionsSection');if(!sec)return;
+  const sel=sec.querySelector('#predictionTournamentV2'),open=sec.querySelector('#predictionOpenList'),count=document.getElementById('predictionOpenCount');
+  if(!sel||!open||!sel.value)return;
+  const tid=S(sel.value);
+  const map=new Map(getSheets().map(sh=>[S(sh.matchId),sh]));
+  const pending=matches().filter(m=>tournamentId(m)===tid&&!map.has(S(m.id)))
+    .sort((a,b)=>(S(a.date)+' '+S(a.time)).localeCompare(S(b.date)+' '+S(b.time)));
+  if(count)count.textContent=String(pending.length);
+  open.innerHTML=pending.length
+    ? pending.map(m=>card(m,prediction(m))).join('')
+    : '<div class="prediction-empty success">لا توجد مباريات متاحة للتوقع حالياً.</div>';
+}
+function boot(){
+  setTimeout(renderFixed,100);
+  setTimeout(renderFixed,700);
+  setTimeout(renderFixed,1500);
+  setInterval(renderFixed,3000);
+  document.addEventListener('change',e=>{if(e.target?.id==='predictionTournamentV2')setTimeout(renderFixed,30)},true);
+  window.addEventListener('storage',e=>{if(/^manar_/.test(S(e.key)))setTimeout(renderFixed,50)});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+</script>
+
 </body>
 </html>
 <!-- FINAL PATCH 2026-09-16: الكشف يجعل المباراة منتهية + محرر مباريات احترافي + عدد المباريات في الإحصائيات -->
