@@ -17580,5 +17580,15 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
   #statsBody .standings-table thead th:nth-child(n+3) > span{font-size:9px !important;}
 }
 </style>
+
+<!-- GITHUB PAGES PWA HARDENING -->
+<script>
+(function(){
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js', {scope:'./'}).catch(function(){});
+  }, {once:true});
+})();
+</script>
 </body>
 </html>
