@@ -9544,59 +9544,77 @@ function addMatch(){
 async function del(type,id,matchIndex=null){
   if(type==='tournaments' && (!hasPermission('tournaments') || !hasPermission('delete'))){if(currentRole==='viewer')openLogin();else alert('حذف البطولات متاح للمدير أو للحساب الذي منحه المدير صلاحية البطولات والحذف.');return}
   if(type==='matches'&&(!hasPermission('matches')||!hasPermission('delete'))){alert('حذف المباريات متاح للمدير أو منحه المدير صلاحية المباريات والحذف.');return}
-  let perm=type==='officialPlayers'?'officialPlayers':type==='matches'?'matches':type==='players'?'players':type==='teams'?'teams':type==='tournaments'?'tournaments':'delete';
   if(type==='players'){if(!hasPermission('players')){alert('ليس لديك صلاحية إدارة قسم اللاعبين.');return}}else if(!hasPermission('delete')){alert('الحذف متاح فقط للمدير أو للحسابات التي منحها المدير صلاحية الحذف.');return}
-  if(!confirm('هل تريد الحذف؟'))return;
+  if(!confirm(type==='matches'?'هل تريد حذف هذه المباراة نهائيًا؟':'هل تريد الحذف؟'))return;
+
+  const normalizedId=String(id ?? '');
+  let removed=false;
+
   if(type==='matches'){
-    const normalizedId=String(id ?? '');
-    let m=db.matches.find(x=>String(x?.id ?? '')===normalizedId);
-    if(m){
-      getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=Math.max(0,(+p.goals||0)-1)});
-      (m.cards||[]).forEach(c=>{let p=db.players.find(x=>x.id===c.playerId);if(p){if(c.type==='yellow')p.yellow=Math.max(0,(+p.yellow||0)-1);else p.red=Math.max(0,(+p.red||0)-1)}});
-      /* حذف أي كشف مرتبط بالمباراة حتى لا يعيدها نظام المزامنة كبيانات مكتملة. */
-      ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
-        try{
-          const a=JSON.parse(localStorage.getItem(k)||'[]');
-          if(Array.isArray(a)){
-            const b=a.filter(x=>String(x?.matchId||'')!==String(id));
-            localStorage.setItem(k,JSON.stringify(b));
-          }
-        }catch(e){console.warn('Match sheet cleanup skipped:',e)}
-      });
-    }
-  }
-  /* حذف سجل المباراة المحدد فقط. هذا مهم عند وجود مباراتين متطابقتين:
-     لا نحذف كل السجلات التي تحمل نفس المعرّف بالخطأ. */
-  if(type==='matches' && Number.isInteger(Number(matchIndex)) &&
-     Number(matchIndex)>=0 && Number(matchIndex)<db.matches.length &&
-     String(db.matches[Number(matchIndex)]?.id ?? '')===String(id ?? '')){
-    db.matches.splice(Number(matchIndex),1);
+    if(!Array.isArray(db.matches))db.matches=[];
+    let idx=-1;
+    const mi=Number(matchIndex);
+    if(Number.isInteger(mi) && mi>=0 && mi<db.matches.length && String(db.matches[mi]?.id ?? '')===normalizedId){idx=mi;}
+    else idx=db.matches.findIndex(x=>String(x?.id ?? '')===normalizedId);
+    if(idx<0){alert('لم يتم العثور على المباراة المطلوب حذفها. أعد تحميل الصفحة ثم حاول مرة أخرى.');return;}
+    const m=db.matches[idx];
+    try{
+      getMatchScorers(m).forEach(pid=>{const p=db.players.find(x=>String(x.id)===String(pid));if(p)p.goals=Math.max(0,(+p.goals||0)-1);});
+      (m.cards||[]).forEach(c=>{const p=db.players.find(x=>String(x.id)===String(c.playerId));if(p){if(c.type==='yellow')p.yellow=Math.max(0,(+p.yellow||0)-1);else if(c.type==='red')p.red=Math.max(0,(+p.red||0)-1);}});
+    }catch(e){console.warn('Match statistics cleanup skipped:',e)}
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{
+      try{const a=JSON.parse(localStorage.getItem(k)||'[]');if(Array.isArray(a))localStorage.setItem(k,JSON.stringify(a.filter(x=>String(x?.matchId||'')!==normalizedId)));}catch(e){console.warn('Match sheet cleanup skipped:',e)}
+    });
+    db.matches.splice(idx,1);removed=true;
   }else{
-    /* احتياط: المقارنة بالنص تعالج اختلاف نوع المعرّف بين رقم/نص. */
-    const idx=db[type].findIndex(x=>String(x?.id ?? '')===String(id ?? ''));
-    if(idx>=0)db[type].splice(idx,1);
+    const arr=Array.isArray(db[type])?db[type]:[];
+    const idx=arr.findIndex(x=>String(x?.id ?? '')===normalizedId);
+    if(idx<0){alert('لم يتم العثور على السجل المطلوب حذفه.');return;}
+    arr.splice(idx,1);db[type]=arr;removed=true;
   }
-  if(type==='teams'){db.players=db.players.filter(p=>p.teamId!==id);db.officialPlayers=db.officialPlayers.filter(p=>p.teamId!==id);db.matches=db.matches.filter(m=>m.home!==id&&m.away!==id)}
+  if(!removed)return;
+
+  if(type==='teams'){
+    db.players=db.players.filter(p=>String(p.teamId)!==normalizedId);
+    db.officialPlayers=db.officialPlayers.filter(p=>String(p.teamId)!==normalizedId);
+    db.matches=db.matches.filter(m=>String(m.home)!==normalizedId&&String(m.away)!==normalizedId);
+  }
   if(type==='tournaments'){
-    const teams=db.teams.filter(t=>String(t.tournamentId)===String(id)).map(t=>String(t.id));
-    db.teams=db.teams.filter(t=>String(t.tournamentId)!==String(id));db.players=db.players.filter(p=>!teams.includes(String(p.teamId)));db.officialPlayers=db.officialPlayers.filter(p=>!teams.includes(String(p.teamId)));db.matches=db.matches.filter(m=>String(m.tournamentId)!==String(id));db.archives=(db.archives||[]).filter(a=>String(a?.tournament?.id||a?.original?.id||'')!==String(id));
+    const teams=db.teams.filter(t=>String(t.tournamentId)===normalizedId).map(t=>String(t.id));
+    db.teams=db.teams.filter(t=>String(t.tournamentId)!==normalizedId);
+    db.players=db.players.filter(p=>!teams.includes(String(p.teamId)));
+    db.officialPlayers=db.officialPlayers.filter(p=>!teams.includes(String(p.teamId)));
+    db.matches=db.matches.filter(m=>String(m.tournamentId)!==normalizedId);
+    db.archives=(db.archives||[]).filter(a=>String(a?.tournament?.id||a?.original?.id||'')!==normalizedId);
   }
-  /* حفظ الحذف محليًا ثم انتظار رفع النسخة المحذوفة إلى Firebase قبل إعادة الرسم.
-     هذا يمنع onValue من إعادة المباراة المحذوفة من النسخة السحابية القديمة. */
-  save();
+
+  if(!save())return;
+  try{
+    if(type==='matches'){
+      window.__manarDeletedMatchIds=window.__manarDeletedMatchIds||new Set();
+      window.__manarDeletedMatchIds.add(normalizedId);
+    }
+  }catch(e){}
+
   try{
     if(type==='matches' && typeof window.__manarFirebaseSaveKey==='function'){
-      await window.__manarFirebaseSaveKey(KEY);
+      const ok=await window.__manarFirebaseSaveKey(KEY);
+      if(ok!==true)console.warn('Match deletion queued locally; Firebase write is not currently available.');
     }else if(type==='tournaments' && typeof window.__manarFirebaseDeleteTournament==='function'){
-      await window.__manarFirebaseDeleteTournament(String(id));
+      await window.__manarFirebaseDeleteTournament(normalizedId);
     }
-  }catch(e){
-    console.error('Cloud delete sync:',e);
-    alert('⚠️ تم حذف المباراة محليًا، لكن تعذر تأكيد الحذف في قاعدة البيانات السحابية: '+(e?.message||e));
+  }catch(e){console.error('Cloud delete sync:',e)}
+
+  try{rebuildIndexes()}catch(e){}
+  try{renderAll()}catch(e){}
+  if(type==='matches'){
+    try{if(typeof renderMatches==='function')renderMatches()}catch(e){}
+    try{if(typeof renderMatchView==='function')renderMatchView()}catch(e){}
+    try{if(typeof renderUpcoming==='function')renderUpcoming()}catch(e){}
+    try{if(typeof renderHome==='function')renderHome()}catch(e){}
+    try{if(typeof refreshMatchKnockoutControl==='function')refreshMatchKnockoutControl()}catch(e){}
   }
-  renderAll();
-  if(type==='matches'){try{if(typeof renderMatchView==='function')renderMatchView()}catch(e){}try{if(typeof renderUpcoming==='function')renderUpcoming()}catch(e){}}
-  alert(type==='tournaments'?'تم حذف البطولة وجميع بياناتها نهائيًا.':type==='matches'?'تم حذف المباراة وكشفها المرتبط بها بنجاح.':'تم الحذف بنجاح.');
+  alert(type==='tournaments'?'تم حذف البطولة وجميع بياناتها نهائيًا.':type==='matches'?'✅ تم حذف المباراة نهائيًا وحفظ الحذف.':'تم الحذف بنجاح.');
 }
 function opts(list,placeholder){return `<option value="">${placeholder}</option>`+list.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}
 function refreshPlayerRegistrationTeams(){
@@ -13936,7 +13954,15 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
         else localStorage.removeItem(k);
         dirty.delete(k);
         if(k==='manar_sports_v2'){
-          try{db=loadMainDatabase();window.db=db;__manarDataVersion++}catch(e){console.warn('Database reload after realtime update failed:',e)}
+          try{
+            const incoming=loadMainDatabase();
+            const deleted=window.__manarDeletedMatchIds instanceof Set?window.__manarDeletedMatchIds:new Set();
+            if(deleted.size && Array.isArray(incoming.matches)){
+              incoming.matches=incoming.matches.filter(m=>!deleted.has(String(m?.id??'')));
+              localStorage.setItem(k,JSON.stringify(incoming));
+            }
+            db=incoming;window.db=db;__manarDataVersion++;
+          }catch(e){console.warn('Database reload after realtime update failed:',e)}
         }
         scheduleRender();
         status(snap.exists()?'وصل تحديث جديد من السحابة':'تم حذف التحديث من السحابة',true);
