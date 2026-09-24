@@ -13844,14 +13844,12 @@ function render(){
 function openModal(){$('firebaseSyncModal').style.display='flex'}
 function closeModal(){$('firebaseSyncModal').style.display='none'}
 $('firebaseSyncFab')?.addEventListener('click',openModal);$('fsClose')?.addEventListener('click',closeModal);$('firebaseSyncModal')?.addEventListener('click',e=>{if(e.target.id==='firebaseSyncModal')closeModal()});
-function localManagerRole(){try{const role=sessionStorage.getItem('manar_auth_v2')||'';return role==='admin'||role==='editor'}catch(e){return false}}
+function localManagerRole(){try{const role=sessionStorage.getItem('manar_auth_v2')||'';return role==='admin'||role==='editor'||String(role).startsWith('u_')}catch(e){return false}}
 function canWrite(){
-  if(!auth?.currentUser) return false;
-  if(!auth.currentUser.isAnonymous) return true;
-  try{
-    const role=sessionStorage.getItem('manar_auth_v2')||'';
-    return role==='admin'||role==='editor'||String(role).startsWith('u_');
-  }catch(e){return false}
+  if(!auth?.currentUser)return false;
+  /* تسجيل Firebase المجهول هو هوية الاتصال التلقائية. لا نطلب من المدير تسجيل دخول Firebase منفصلًا. */
+  if(!auth.currentUser.isAnonymous)return true;
+  return localManagerRole();
 }
 function localValue(key){try{const raw=localStorage.getItem(key);return raw===null?null:JSON.parse(raw)}catch(e){return null}}
 async function pushKey(key){if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');await set(ref(db,CLOUD_PATH+'/'+key),localValue(key));dirty.delete(key)}
@@ -13904,7 +13902,6 @@ async function initialSync(){
   const hasCloud=SYNC_KEYS.some(k=>initialValues[k]!==null);
   const localHasData=hasLocalData();
   const signedIn=canWrite();
-  const platformManager=(()=>{try{const r=sessionStorage.getItem('manar_auth_v2')||'';return r==='admin'||r==='editor'||String(r).startsWith('u_')}catch(e){return false}})();
 
   /*
     إصلاح جذري للحفظ:
@@ -13916,7 +13913,7 @@ async function initialSync(){
     for(const k of SYNC_KEYS){
       if(localStorage.getItem(k)!==null)dirty.add(k);
     }
-    if((signedIn||platformManager) && dirty.size){
+    if(signedIn && dirty.size){
       const pending=[...dirty];
       applyingRemote=true;
       try{
@@ -13928,7 +13925,7 @@ async function initialSync(){
       status('تم حفظ البيانات المحلية ومزامنتها مع السحابة',true);
     }else{
       render();
-      status(platformManager?'تم الحفظ محليًا — ستتم المزامنة تلقائيًا مع السحابة':'تمت القراءة من السحابة — الزائر لا يحتاج إلى تسجيل دخول',true);
+      status(signedIn?'تم الإبقاء على البيانات المحلية قبل المزامنة':'تم الحفظ محليًا — سجّل دخول Firebase لمزامنتها مع الأجهزة الأخرى',true);
     }
     return;
   }
@@ -13945,27 +13942,49 @@ async function initialSync(){
     status('لا توجد بيانات سحابية بعد — قاعدة البيانات جاهزة للحفظ',true);
   }
 }
-async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getDatabase(app);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction};patchStorage();const saved=sessionStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
- if(!auth.currentUser){signInAnonymously(auth).catch(e=>console.warn('Anonymous Firebase auth unavailable:',e));}
-  /* المزامنة أصبحت مرتبطة بدخول المنصة نفسه: المدير أو المستخدم المفوض لا يحتاج إلى فتح نافذة Firebase يدويًا. */
-  async function autoSyncForPlatformRole(){
-    const role=(()=>{try{return sessionStorage.getItem('manar_auth_v2')||'viewer'}catch(e){return 'viewer'}})();
-    if(role!=='admin' && role!=='editor' && !String(role).startsWith('u_')) return;
-    if(!auth.currentUser){
-      try{await signInAnonymously(auth)}catch(e){status('تعذر الاتصال بالمزامنة التلقائية: '+(e?.message||e),false);return}
+async function autoSyncForPlatformRole(){
+  if(!localManagerRole()||!auth?.currentUser)return;
+  try{
+    /* عند دخول المدير/المفوّض: ارفع التعديلات المحلية أولًا، ثم حدّث شاشة المدير من السحابة. */
+    const pending=[...dirty];
+    if(pending.length){
+      applyingRemote=true;
+      try{await pushKeys(pending);}finally{applyingRemote=false}
     }
-    if(initialDone){
-      try{
-        /* إذا كان الجهاز يحمل تعديلات محلية لم تُرفع، يرفعها المدير أولاً حتى لا تُستبدل ببيانات أقدم من السحابة. */
-        if(dirty.size){const pending=[...dirty];applyingRemote=true;await pushKeys(pending);dirty.clear();applyingRemote=false;}
-        await pullAll();
-        status('تمت المزامنة تلقائيًا بعد دخول المدير/المفوّض',true)
-      }catch(e){applyingRemote=false;status('تعذر إكمال المزامنة التلقائية: '+(e?.message||e),false)}
+    /* إذا لم توجد تعديلات معلّقة، نضمن أن بيانات هذا الجهاز تصل للسحابة مرة واحدة عند دخول المدير. */
+    if(!pending.length){
+      const keysWithData=SYNC_KEYS.filter(k=>localStorage.getItem(k)!==null);
+      if(keysWithData.length){
+        applyingRemote=true;
+        try{await pushKeys(keysWithData);}finally{applyingRemote=false}
+      }
     }
+    await pullAll();
+    status('تمت المزامنة تلقائيًا — بيانات المدير متاحة للزوار',true);
+  }catch(e){
+    console.error('Automatic manager sync failed:',e);
+    status('متصل لكن تعذر رفع بيانات المدير: '+(e?.message||e),false);
   }
-  window.__manarAutoSyncForPlatformRole=autoSyncForPlatformRole;
-  window.addEventListener('manar-role-changed',()=>{setTimeout(autoSyncForPlatformRole,150)});
-  onAuthStateChanged(auth,async user=>{if(user){status('Firebase متصل — المزامنة التلقائية مفعلة',true);if(initialDone){try{if(dirty.size && (localManagerRole()||document.body.classList.contains('admin')||document.body.classList.contains('editor'))){const pending=[...dirty];applyingRemote=true;await pushKeys(pending);dirty.clear();applyingRemote=false;}await pullAll();}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+(e?.message||e),false)}}}else status('غير متصل بالمزامنة السحابية',false)});
+}
+window.__manarAutoSyncForManager=autoSyncForPlatformRole;
+window.addEventListener('manar-role-changed',()=>{
+  if(localManagerRole())setTimeout(()=>autoSyncForPlatformRole(),100);
+});
+
+async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getDatabase(app);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction};patchStorage();const saved=sessionStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
+ if(!auth.currentUser){signInAnonymously(auth).catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
+  onAuthStateChanged(auth,async user=>{
+    if(user){
+      status('Firebase متصل — '+(user.email||'اتصال تلقائي'),true);
+      if(localManagerRole()){
+        await autoSyncForPlatformRole();
+      }else if(initialDone){
+        try{await pullAll()}catch(e){}
+      }
+    }else{
+      status(localManagerRole()?'متصل للقراءة — بانتظار اتصال Firebase':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true);
+    }
+  });
  for(const k of SYNC_KEYS){
   onValue(ref(db,CLOUD_PATH+'/'+k),async snap=>{
     initialValues[k]=snap.exists()?snap.val():null;
