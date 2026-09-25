@@ -10651,33 +10651,95 @@ async function resetPlatformSection(){
   if(!confirm('⚠️ تصفير قسم: '+labels[type]+'\n\n'+descriptions[type]+'\n\nهل تريد المتابعة؟'))return;
   const second=prompt('للتأكيد النهائي، اكتب كلمة: تصفير');
   if(second!=='تصفير'){alert('تم إلغاء العملية. لم يتم حذف أي بيانات.');return;}
+
+  const emptySheets='[]';
+  const sheetsKeys=['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'];
+  const changedKeys=new Set();
+  let resetDone=false;
+  let resetError=null;
+
+  // الحفظ المحلي هو الأساس. وبعده نطلب رفع المفتاح إلى Firebase إن كان المدير مسجلاً.
+  const setLocal=async(key,value)=>{
+    localStorage.setItem(key,value);
+    changedKeys.add(key);
+    if(typeof window.__manarFirebaseSaveKey==='function'){
+      try{ await window.__manarFirebaseSaveKey(key); }catch(e){ console.warn('Firebase section reset sync skipped:',key,e); }
+    }
+  };
+
   try{
-    const emptySheets='[]';
-    const setLocal=(key,value)=>{localStorage.setItem(key,value);if(typeof window.__manarFirebaseSaveKey==='function'){try{window.__manarFirebaseSaveKey(key)}catch(e){}}};
     if(!window.db||typeof window.db!=='object')window.db={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
     db=window.db;
-    const sheetsKeys=['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'];
+
     if(type==='tournaments'){
       db.tournaments=[];db.teams=[];db.players=[];db.matches=[];db.officialPlayers=[];db.suspensions=[];db.archives=[];
-      sheetsKeys.forEach(k=>setLocal(k,emptySheets));setLocal('manar_tournament_archive_v1','[]');setLocal('manar_prediction_history_v1','[]');save();
+      for(const k of sheetsKeys)await setLocal(k,emptySheets);
+      await setLocal('manar_tournament_archive_v1','[]');
+      await setLocal('manar_prediction_history_v1','[]');
+      save(); changedKeys.add('manar_sports_v2');
     }else if(type==='teams'){
       const teamIds=new Set((db.teams||[]).map(t=>String(t.id)));
-      db.teams=[];db.players=(db.players||[]).filter(p=>!teamIds.has(String(p.teamId)));
-      const matchIds=new Set((db.matches||[]).filter(m=>teamIds.has(String(m.home||m.homeTeamId||m.homeId))||teamIds.has(String(m.away||m.awayTeamId||m.awayId))).map(m=>String(m.id)));
-      db.matches=(db.matches||[]).filter(m=>!matchIds.has(String(m.id)));
-      sheetsKeys.forEach(k=>{try{const arr=JSON.parse(localStorage.getItem(k)||'[]');setLocal(k,JSON.stringify(Array.isArray(arr)?arr.filter(s=>!matchIds.has(String(s.matchId))):[]))}catch(e){setLocal(k,emptySheets)}});save();
-    }else if(type==='players'){db.players=[];db.officialPlayers=[];save();
-    }else if(type==='matches'){db.matches=[];sheetsKeys.forEach(k=>setLocal(k,emptySheets));setLocal('manar_prediction_history_v1','[]');save();
-    }else if(type==='sheets'){sheetsKeys.forEach(k=>setLocal(k,emptySheets));setLocal('manar_prediction_history_v1','[]');if(typeof syncMatchStatusesFromSheets==='function')syncMatchStatusesFromSheets(true);save();
-    }else if(type==='referees'){setLocal('manar_referees_v1','[]');if(typeof window.renderManarReferees==='function')window.renderManarReferees();
-    }else if(type==='news'){setLocal('manar_media_news_v1','[]');
-    }else if(type==='archives'){db.archives=[];setLocal('manar_tournament_archive_v1','[]');save();
-    }else if(type==='predictions'){setLocal('manar_prediction_history_v1','[]');
-    }else if(type==='polls'){setLocal('manar_polls_v1','[]');setLocal('manar_poll_votes_v1','{}');setLocal('manar_poll_voter_v1','{}');
-    }else if(type==='audit'){setLocal('manar_audit_log_v1','[]');}
-    window.db=db;if(typeof rebuildIndexes==='function')rebuildIndexes();__manarDataVersion++;__manarLastRenderPrepVersion=-1;if(typeof renderAll==='function')renderAll();
-    alert('✅ تم تصفير قسم «'+labels[type]+'» فقط بنجاح.');if(info)info.textContent='✅ تم تصفير القسم المحدد فقط. بقية أقسام المنصة لم يتم حذفها.';
-  }catch(err){console.error('Section reset error:',err);alert('❌ تعذر تصفير القسم المحدد. لم يتم إكمال العملية.');}
+      const oldMatches=Array.isArray(db.matches)?db.matches:[];
+      const matchIds=new Set(oldMatches.filter(m=>teamIds.has(String(m.home||m.homeTeamId||m.homeId))||teamIds.has(String(m.away||m.awayTeamId||m.awayId))).map(m=>String(m.id)));
+      db.teams=[];
+      db.players=(db.players||[]).filter(p=>!teamIds.has(String(p.teamId)));
+      db.matches=oldMatches.filter(m=>!matchIds.has(String(m.id)));
+      for(const k of sheetsKeys){
+        try{const arr=JSON.parse(localStorage.getItem(k)||'[]');await setLocal(k,JSON.stringify(Array.isArray(arr)?arr.filter(s=>!matchIds.has(String(s.matchId))):[]));}
+        catch(e){await setLocal(k,emptySheets);}
+      }
+      save(); changedKeys.add('manar_sports_v2');
+    }else if(type==='players'){
+      db.players=[];db.officialPlayers=[];save();changedKeys.add('manar_sports_v2');
+    }else if(type==='matches'){
+      db.matches=[];
+      for(const k of sheetsKeys)await setLocal(k,emptySheets);
+      await setLocal('manar_prediction_history_v1','[]');
+      save();changedKeys.add('manar_sports_v2');
+    }else if(type==='sheets'){
+      for(const k of sheetsKeys)await setLocal(k,emptySheets);
+      await setLocal('manar_prediction_history_v1','[]');
+      // لا نسمح لدالة إعادة حالة المباريات أن تعيد إنشاء كشوفات أو بيانات قديمة.
+      if(typeof syncMatchStatusesFromSheets==='function'){
+        try{syncMatchStatusesFromSheets(true);}catch(e){console.warn('syncMatchStatusesFromSheets skipped after reset:',e);}
+      }
+      save();changedKeys.add('manar_sports_v2');
+    }else if(type==='referees'){
+      await setLocal('manar_referees_v1','[]');
+    }else if(type==='news'){
+      await setLocal('manar_media_news_v1','[]');
+    }else if(type==='archives'){
+      db.archives=[];await setLocal('manar_tournament_archive_v1','[]');save();changedKeys.add('manar_sports_v2');
+    }else if(type==='predictions'){
+      await setLocal('manar_prediction_history_v1','[]');
+    }else if(type==='polls'){
+      await setLocal('manar_polls_v1','[]');
+      await setLocal('manar_poll_votes_v1','{}');
+      await setLocal('manar_poll_voter_v1','{}');
+    }else if(type==='audit'){
+      await setLocal('manar_audit_log_v1','[]');
+    }
+
+    window.db=db;
+    if(typeof rebuildIndexes==='function'){try{rebuildIndexes();}catch(e){console.warn('rebuildIndexes skipped:',e);}}
+    __manarDataVersion++;__manarLastRenderPrepVersion=-1;
+    resetDone=true;
+  }catch(err){
+    resetError=err;
+    console.error('Section reset error:',err);
+  }
+
+  if(resetDone){
+    // تحديث الواجهة خارج كتلة الحذف حتى لا يؤدي خطأ رسومي إلى إظهار رسالة فشل بعد حذف البيانات فعلاً.
+    try{if(typeof renderAll==='function')renderAll();}catch(e){console.warn('renderAll after section reset skipped:',e);}
+    try{
+      if(type==='referees'&&typeof window.renderManarReferees==='function')window.renderManarReferees();
+    }catch(e){console.warn('referee render skipped:',e);}
+    if(info)info.textContent='✅ تم تصفير قسم «'+labels[type]+'» فقط بنجاح. بقية أقسام المنصة لم يتم حذفها.';
+    alert('✅ تم تصفير قسم «'+labels[type]+'» بنجاح.');
+  }else{
+    alert('❌ تعذر تصفير القسم المحدد. لم يتم إكمال العملية.'+(resetError?.message?'\n\nالتفاصيل: '+resetError.message:''));
+  }
 }
 document.addEventListener('DOMContentLoaded',()=>{const s=document.getElementById('platformResetSection'),info=document.getElementById('platformResetSectionInfo');if(s&&info)s.addEventListener('change',()=>{const map={tournaments:'سيتم حذف البطولات وبياناتها المرتبطة.',teams:'سيتم حذف الفرق واللاعبين والمباريات والكشوفات المرتبطة بها.',players:'سيتم حذف اللاعبين فقط.',matches:'سيتم حذف المباريات وكشوفاتها المرتبطة بها.',sheets:'سيتم حذف الكشوفات فقط.',referees:'سيتم حذف الحكام فقط.',news:'سيتم حذف الأخبار فقط.',archives:'سيتم حذف الأرشيف فقط.',predictions:'سيتم حذف التوقعات السابقة فقط.',polls:'سيتم حذف الاستطلاعات والتصويت فقط.',audit:'سيتم حذف سجل المراجعة فقط.'};if(!s.value){info.style.display='none';return;}info.style.display='block';info.textContent='📌 '+(map[s.value]||'سيتم تصفير القسم المحدد فقط.');});});
 
