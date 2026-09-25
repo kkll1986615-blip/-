@@ -9845,7 +9845,7 @@ function renderPublicSelectedTournament(id){
   const s=publicTournamentStatus(t);
   const statusText=s==='active'?'جارية':s==='upcoming'?'قادمة':'منتهية';
   const statusIcon=s==='active'?'🟢':s==='upcoming'?'🟡':'🔴';
-  box.innerHTML=`<article class="public-tournament-card"><div class="public-tournament-header"><div class="public-tournament-brand"><div class="public-tournament-icon">🏆</div><div><div class="public-tournament-kicker">البطولة المختارة</div><h3>${esc(t.name||'بطولة بدون اسم')}</h3></div></div><span class="public-tour-status">${statusIcon} ${statusText}</span></div><div class="public-tournament-details"><div class="public-detail primary"><span>اسم البطولة</span><strong>${esc(t.name||'—')}</strong></div><div class="public-detail"><span>الحالة</span><strong>${statusIcon} ${statusText}</strong></div><div class="public-detail"><span>الفرق المشاركة</span><strong>${teams.length} فريق</strong></div></div>${renderPublicTeamsByGroup(t,teams)}${hasPermission('tournaments')?`<div class="tournament-public-actions"><button class="btn tournament-edit-btn" type="button" onclick="editTournament('${t.id}')">✏️ تعديل</button>${hasPermission('delete')?`<button class="btn danger tournament-perm-delete" type="button" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}</div>`:''}</article>`;
+  box.innerHTML=`<article class="public-tournament-card"><div class="public-tournament-header"><div class="public-tournament-brand"><div class="public-tournament-icon">🏆</div><div><div class="public-tournament-kicker">البطولة المختارة</div><h3>${esc(t.name||'بطولة بدون اسم')}</h3></div></div><span class="public-tour-status">${statusIcon} ${statusText}</span></div><div class="public-tournament-details"><div class="public-detail primary"><span>اسم البطولة</span><strong>${esc(t.name||'—')}</strong></div><div class="public-detail"><span>الحالة</span><strong>${statusIcon} ${statusText}</strong></div><div class="public-detail"><span>الفرق المشاركة</span><strong>${teams.length} فريق</strong></div></div>${renderPublicTeamsByGroup(t,teams)}${(hasPermission('tournaments')||hasPermission('tournamentArchive'))?`<div class="tournament-public-actions">${hasPermission('tournaments')?`<button class="btn tournament-edit-btn" type="button" onclick="editTournament('${t.id}')">✏️ تعديل</button>`:''}${hasPermission('tournamentArchive')?`<button class="btn archive-action-btn" type="button" onclick="archiveTournamentToPDF('${t.id}')">🗄️ أرشفة البطولة</button>`:''}${hasPermission('delete')?`<button class="btn danger tournament-perm-delete" type="button" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}</div>`:''}</article>`;
   applyPermissions();
 }
 function renderAllPublicTournamentYears(){
@@ -11806,16 +11806,15 @@ function saveContactSettings(){
     });
 
     const canDelete=typeof hasPermission==='function' ? hasPermission('tournaments') : false;
-
-    list.innerHTML=sorted.map(x=>{
+    const canArchive=typeof hasPermission==='function' ? hasPermission('tournamentArchive') : false;
+    list.innerHTML=sorted.map((x,idx)=>{
       const t=x.tournament||x.original||{};
-      const ms=Array.isArray(x.matches)?x.matches.length:0;
-      const ts=Array.isArray(x.teams)?x.teams.length:0;
-      const ps=Array.isArray(x.players)?x.players.length:0;
-      const action=canDelete && x.id ? `<button type="button" class="btn danger" onclick="deleteArchive('${String(x.id).replace(/'/g,"\\'")}')">🗑️ حذف من الأرشيف</button>` : '';
-      return `<div class="public-archive-item"><div class="section-title"><div><h3>🏆 ${safe(t.name||x.name||'بطولة بدون اسم')}</h3><span class="badge">منتهية ومؤرشفة</span></div>
-          ${action}
-        </div><div class="archive-meta"><div>📅 البداية: <b>${safe(t.startDate||'غير محدد')}</b></div><div>📅 النهاية: <b>${safe(t.endDate||'غير محدد')}</b></div><div>👥 الفرق: <b>${ts}</b></div><div>🏟️ المباريات: <b>${ms}</b></div><div>⚽ اللاعبين: <b>${ps}</b></div><div>🗃️ الأرشفة: <b>${safe(String(x.archivedAt||'').slice(0,10)||'غير محدد')}</b></div></div></div>`;
+      const ms=Array.isArray(x.matches)?x.matches.length:0, ts=Array.isArray(x.teams)?x.teams.length:0, ps=Array.isArray(x.players)?x.players.length:0;
+      const num=Number(x.archiveNumber)||idx+1;
+      const pdfName=x.pdfFileName||('بطولة-'+num+'.pdf');
+      const pdfButtons=canArchive && x.id ? `<button type="button" class="btn archive-pdf-btn" onclick="openArchivedTournamentPDF('${String(x.id).replace(/'/g,"\\'")}')">📄 فتح PDF</button><button type="button" class="btn blue" onclick="downloadArchivedTournamentPDF('${String(x.id).replace(/'/g,"\\'")}')">⬇️ تحميل PDF</button>` : '';
+      const delBtn=canDelete && x.id ? `<button type="button" class="btn danger" onclick="deleteArchive('${String(x.id).replace(/'/g,"\\'")}')">🗑️ حذف</button>` : '';
+      return `<div class="public-archive-item"><div class="section-title"><div><h3>📁 ملف رقم ${num} — 🏆 ${safe(t.name||x.name||'بطولة بدون اسم')}</h3><span class="badge">منتهية ومؤرشفة • PDF</span></div><div class="archive-file-actions">${pdfButtons}${delBtn}</div></div><div class="archive-meta"><div>📄 اسم الملف: <b>${safe(pdfName)}</b></div><div>📅 البداية: <b>${safe(t.startDate||'غير محدد')}</b></div><div>📅 النهاية: <b>${safe(t.endDate||'غير محدد')}</b></div><div>👥 الفرق: <b>${ts}</b></div><div>🏟️ المباريات: <b>${ms}</b></div><div>⚽ اللاعبين: <b>${ps}</b></div><div>🗃️ الأرشفة: <b>${safe(String(x.archivedAt||'').slice(0,10)||'غير محدد')}</b></div></div></div>`;
     }).join('');
   }
 
@@ -17067,10 +17066,34 @@ const oldGo=window.goPage;if(typeof oldGo==='function'&&!oldGo.__pollWrapped){wi
       <div class="footer">المنصة الرياضية — أرشيف البطولة الرسمي</div>
       <\/body><\/html>`;
   }
-  window.exportArchivedTournamentPDF=window.exportArchivedTournamentPDF||exportArchivedTournamentPDF;
+  window.__buildTournamentArchiveHTML=reportHTML;
+  window.exportArchivedTournamentPDF=window.exportArchivedTournamentPDF||function(id){ const ar=archives().find(x=>S(x.id)===S(id)); if(!ar)return alert('لم يتم العثور على ملف الأرشيف.'); const w=window.open('','_blank'); if(w){w.document.open();w.document.write(reportHTML(ar));w.document.close();setTimeout(()=>w.print(),700);} };
 })();
 </script>
 
+<style id="tournament-archive-pdf-manager-style">.archive-action-btn{background:linear-gradient(135deg,#7b2cbf,#9d4edd)!important;color:#fff!important}.archive-file-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}@media(max-width:700px){.archive-file-actions{width:100%;justify-content:stretch}.archive-file-actions .btn{flex:1;min-width:110px}}</style>
+<script id="tournament-archive-pdf-manager">
+(function(){'use strict';
+const IDB_NAME='manar_tournament_archive_files_v1',IDB_STORE='pdfs';let libPromise=null;const S=v=>String(v??'').trim(),A=v=>Array.isArray(v)?v:[];
+function can(){try{return typeof hasPermission==='function'&&hasPermission('tournamentArchive')}catch(e){return false}}
+function odb(){return new Promise((res,rej)=>{if(!indexedDB)return rej(new Error('المتصفح لا يدعم تخزين ملفات الأرشيف'));const r=indexedDB.open(IDB_NAME,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(IDB_STORE))r.result.createObjectStore(IDB_STORE,{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function put(id,blob,name){const d=await odb();return new Promise((res,rej)=>{const tx=d.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put({id:String(id),blob,name,updatedAt:new Date().toISOString()});tx.oncomplete=()=>{d.close();res()};tx.onerror=()=>{d.close();rej(tx.error)}})}
+async function get(id){const d=await odb();return new Promise((res,rej)=>{const r=d.transaction(IDB_STORE,'readonly').objectStore(IDB_STORE).get(String(id));r.onsuccess=()=>{d.close();res(r.result||null)};r.onerror=()=>{d.close();rej(r.error)}})}
+async function del(id){try{const d=await odb();return new Promise(res=>{const tx=d.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).delete(String(id));tx.oncomplete=()=>{d.close();res()};tx.onerror=()=>{d.close();res()}})}catch(e){}}
+function loadLib(){if(window.html2pdf)return Promise.resolve(window.html2pdf);if(libPromise)return libPromise;libPromise=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';s.onload=()=>window.html2pdf?res(window.html2pdf):rej(new Error('محرك PDF غير متاح'));s.onerror=()=>rej(new Error('تعذر تحميل محرك PDF. تحقق من الإنترنت.'));document.head.appendChild(s)});return libPromise}
+function ar(id){return A(window.db?.archives).find(x=>S(x.id)===S(id))}
+function nextNum(){return Math.max(0,...A(window.db?.archives).map(x=>Number(x.archiveNumber)||0))+1}
+function validate(t){const miss=[];if(!S(t?.name))miss.push('اسم البطولة');if(!S(t?.season))miss.push('الموسم');if(!S(t?.startDate))miss.push('تاريخ البداية');if(!S(t?.endDate))miss.push('تاريخ النهاية');if(!S(t?.type))miss.push('نظام البطولة');if(miss.length)return 'أكمل: '+miss.join('، ');if(String(t.endDate)<String(t.startDate))return 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية.';if(!A(window.db?.teams).some(x=>S(x.tournamentId)===S(t.id)))return 'سجل فريقًا واحدًا على الأقل قبل الأرشفة.';return ''}
+function snapshot(t){const teams=A(window.db?.teams).filter(x=>S(x.tournamentId)===S(t.id)),ids=teams.map(x=>x.id);return {id:'AR_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),archiveNumber:nextNum(),archivedAt:new Date().toISOString(),pdfReady:false,pdfFileName:'',tournament:JSON.parse(JSON.stringify(t)),teams:JSON.parse(JSON.stringify(teams)),players:JSON.parse(JSON.stringify(A(window.db?.players).filter(x=>ids.includes(x.teamId)))),officialPlayers:JSON.parse(JSON.stringify(A(window.db?.officialPlayers).filter(x=>ids.includes(x.teamId)))),matches:JSON.parse(JSON.stringify(A(window.db?.matches).filter(x=>S(x.tournamentId)===S(t.id))))}}
+async function make(arx){if(typeof window.__buildTournamentArchiveHTML!=='function')throw new Error('قالب PDF غير متاح');await loadLib();const iframe=document.createElement('iframe');iframe.style.cssText='position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0';document.body.appendChild(iframe);const d=iframe.contentDocument;d.open();d.write(window.__buildTournamentArchiveHTML(arx));d.close();await new Promise(r=>setTimeout(r,800));const name='بطولة-'+(Number(arx.archiveNumber)||1)+'-'+S(arx.tournament?.name||'أرشيف').replace(/[\/:*?"<>|]/g,'-')+'.pdf';const w=window.html2pdf().set({margin:[8,8,12,8],filename:name,image:{type:'jpeg',quality:.94},html2canvas:{scale:1.5,useCORS:true,backgroundColor:'#fff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(d.body);const blob=await w.outputPdf('blob');iframe.remove();return {blob,name}}
+window.archiveTournamentToPDF=async function(id){if(!can()){if(typeof openLogin==='function')openLogin();return}const t=A(window.db?.tournaments).find(x=>S(x.id)===S(id));if(!t)return alert('البطولة غير موجودة.');const problem=validate(t);if(problem)return alert('⚠️ '+problem);let x=ar(id);try{if(x){if(!confirm('البطولة مؤرشفة مسبقًا. إعادة إنشاء ملف PDF؟'))return}else{x=snapshot(t);window.db.archives.push(x);t.status='archived';t.archivedAt=x.archivedAt;t.archiveNumber=x.archiveNumber;if(!save())return}const pdf=await make(x);await put(x.id,pdf.blob,pdf.name);x.pdfReady=true;x.pdfFileName=pdf.name;x.pdfUpdatedAt=new Date().toISOString();save();if(typeof renderPublicTournamentArchive==='function')renderPublicTournamentArchive();alert('✅ تمت الأرشفة بنجاح. رقم الملف: '+x.archiveNumber+'\n📄 تم حفظ ملف PDF داخل أرشيف البطولات.')}catch(e){console.error(e);alert('❌ تعذر إنشاء ملف PDF: '+(e?.message||e))}}
+async function ensure(id){const x=ar(id);if(!x)return null;const c=await get(id).catch(()=>null);if(c?.blob)return c;const p=await make(x);await put(id,p.blob,p.name);x.pdfReady=true;x.pdfFileName=p.name;save();return {blob:p.blob,name:p.name}}
+window.openArchivedTournamentPDF=async function(id){if(!can()){if(typeof openLogin==='function')openLogin();return}try{const f=await ensure(id);if(!f)return alert('ملف الأرشيف غير موجود.');const u=URL.createObjectURL(f.blob);window.open(u,'_blank');setTimeout(()=>URL.revokeObjectURL(u),60000)}catch(e){alert('❌ تعذر فتح PDF: '+(e?.message||e))}}
+window.downloadArchivedTournamentPDF=async function(id){if(!can()){if(typeof openLogin==='function')openLogin();return}try{const f=await ensure(id);if(!f)return alert('ملف الأرشيف غير موجود.');const u=URL.createObjectURL(f.blob),a=document.createElement('a');a.href=u;a.download=f.name;a.click();setTimeout(()=>URL.revokeObjectURL(u),60000)}catch(e){alert('❌ تعذر تحميل PDF: '+(e?.message||e))}}
+window.deleteArchivedTournamentPDF=del;
+})();
+</script>
+<script id="archive-pdf-delete-hook">(function(){const od=window.deleteArchive;if(typeof od==='function'&&!od.__pdfHook){window.deleteArchive=function(id){const r=od.apply(this,arguments);try{window.deleteArchivedTournamentPDF(id)}catch(e){}setTimeout(()=>typeof renderPublicTournamentArchive==='function'&&renderPublicTournamentArchive(),100);return r};window.deleteArchive.__pdfHook=true}})();</script>
 <style id="install-single-section-final">
 /* الإصدار النهائي: قسم تثبيت المنصة فقط، بدون أزرار تثبيت عائمة أو شاشات تثبيت قديمة */
 #installAppBtn,#pwaInstallLanding,#pwaInstallBtn,#sportsInstallBtn,#bottomInstallBtn{display:none!important;visibility:hidden!important;pointer-events:none!important}
