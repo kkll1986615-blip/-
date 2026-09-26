@@ -2005,7 +2005,7 @@ header:after{height:0!important}
   padding:0 0 24px!important;
   margin:0!important;
   display:flex!important;
-  justify-content:space-between!important;
+  justify-content:center!important;
   align-items:center!important;
 }
 #home #allSectionsHome .section-title h2{
@@ -7907,7 +7907,7 @@ body.admin #predictionsSection{display:block}
   border:2px solid #dcebf4!important; box-shadow:0 10px 26px rgba(26,91,125,.09)!important;
 }
 #headToHeadSection .h2h-summary-head{
-  display:flex!important; align-items:center!important; justify-content:space-between!important; gap:10px!important;
+  display:flex!important; align-items:center!important; justify-content:center!important; gap:10px!important;
   padding:26px 30px 22px!important; border-bottom:1px solid rgba(180,205,220,.35)!important;
   color:#0b0f16!important; font-size:24px!important; font-weight:950!important;
 }
@@ -7937,7 +7937,7 @@ body.admin #predictionsSection{display:block}
   border:2px solid #e3eaf0!important; box-shadow:0 10px 28px rgba(28,77,108,.09)!important;
 }
 #headToHeadSection .h2h-match-top{
-  display:flex!important; align-items:center!important; justify-content:space-between!important; gap:10px!important;
+  display:flex!important; align-items:center!important; justify-content:center!important; gap:10px!important;
   padding:20px 28px!important; background:linear-gradient(135deg,#f6fbff,#fbf7ff)!important;
   border-bottom:1px solid #e4edf3!important; color:#111!important; font-size:18px!important; font-weight:950!important;
 }
@@ -16069,7 +16069,7 @@ const oldGo=window.goPage;if(typeof oldGo==='function'&&!oldGo.__pollWrapped){wi
 /* ترتيب نهائي لأقسام الواجهة الرئيسية - بدون تغيير وظائف البرنامج */
 #home .quick-grid{display:none!important;}
 #home #allSectionsHome{margin-top:14px!important;padding:14px!important;border-radius:22px!important;background:#fff!important;border:1px solid #dbe8e5!important;box-shadow:0 8px 24px rgba(16,70,55,.08)!important;}
-#home #allSectionsHome .section-title{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 0 12px!important;padding:0 4px!important;}
+#home #allSectionsHome .section-title{display:flex!important;align-items:center!important;justify-content:center!important;margin:0 0 12px!important;padding:0 4px!important;}
 #home #allSectionsHome .all-sections-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;gap:2px!important;width:100%!important;background:#d7e4e0!important;border-radius:18px!important;overflow:hidden!important;align-items:stretch!important;}
 #home #allSectionsHome .home-section-card{order:initial!important;min-width:0!important;width:100%!important;height:118px!important;min-height:118px!important;margin:0!important;padding:9px 4px!important;border:0!important;border-radius:0!important;background:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:7px!important;text-align:center!important;color:#14251f!important;box-shadow:none!important;transform:none!important;}
 #home #allSectionsHome .home-section-card:hover{transform:none!important;box-shadow:inset 0 0 0 2px #0ca678!important;z-index:2!important;}
@@ -16853,7 +16853,7 @@ window.__getPredictionForMatch=function(m){
 #manarRefereeProfileOverlay .manar-referee-stat-box b{display:block!important;font-size:30px!important;line-height:1.1!important}
 #manarRefereeProfileOverlay .manar-referee-stat-box span{display:block!important;margin-top:5px!important;font-size:12px!important;font-weight:900!important}
 #manarRefereeProfileOverlay .manar-referee-tours-title{margin-top:14px!important;padding:11px 13px!important;border-radius:16px!important;background:linear-gradient(135deg,#ecfeff,#eff6ff)!important;color:#075985!important;font-size:15px!important;font-weight:1000!important;border:1px solid #ccecf5!important}
-#manarRefereeProfileOverlay .manar-referee-tour-row{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:10px!important;margin-top:8px!important;padding:11px 12px!important;border-radius:14px!important;background:#fff!important;border:1px solid #dceef4!important}
+#manarRefereeProfileOverlay .manar-referee-tour-row{display:flex!important;justify-content:center!important;align-items:center!important;gap:10px!important;margin-top:8px!important;padding:11px 12px!important;border-radius:14px!important;background:#fff!important;border:1px solid #dceef4!important}
 #manarRefereeProfileOverlay .manar-referee-tour-row .tour-name{font-weight:900!important;color:#164e63!important;min-width:0!important;overflow-wrap:anywhere!important}
 #manarRefereeProfileOverlay .manar-referee-tour-row .tour-count{white-space:nowrap!important;font-weight:1000!important;color:#fff!important;background:linear-gradient(135deg,#10b981,#059669)!important;border-radius:999px!important;padding:6px 10px!important;font-size:11px!important}
 @media(max-width:430px){#manarRefereeProfileOverlay .manar-referee-basic,#manarRefereeProfileOverlay .manar-referee-profile-stats{grid-template-columns:1fr 1fr!important}#manarRefereeProfileOverlay .manar-referee-profile{padding:12px!important;border-radius:21px!important}#manarRefereeProfileOverlay .manar-referee-stat-box b{font-size:26px!important}}
@@ -17688,8 +17688,11 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
   }
 
   function buildArchiveReport(ar){
-    const archiveLogoSrc=document.querySelector('.brand-logo')?.getAttribute('src') || document.querySelector('.brand-logo')?.src || '';
-    const t=ar?.tournament||ar?.original||{};
+    const associationLogoSrc=document.querySelector('.brand-logo')?.getAttribute('src') || document.querySelector('.brand-logo')?.src || '';
+    const archivedTournament=ar?.tournament||ar?.original||{};
+    const liveTournament=A(dbRef()?.tournaments).find(x=>S(x?.id)===S(ar?.tournamentId||archivedTournament?.id));
+    const t={...(archivedTournament||{}),...(liveTournament||{})};
+    const tournamentLogoSrc=t.logo||t.logoUrl||t.image||t.photo||'';
     const teams=A(ar?.teams), players=A(ar?.players), matches=A(ar?.matches), shs=A(ar?.matchSheets);
     const shMap=new Map(shs.map(sh=>[S(sh?.matchId),sh]));
     const teamStats=new Map();
@@ -17786,7 +17789,7 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
         <div class="archive-sheet-head">
           <div class="archive-sheet-info"><b>📋 كشف المباراة ${esc(sh.sheetNumber||i+1)}</b><small>${esc(date)}${time?' — '+esc(time):''}</small></div>
           <div class="archive-sheet-main-match"><b class="archive-match-title">${esc(h)} &nbsp; × &nbsp; ${esc(a)}</b><div class="archive-sheet-score"><span>${esc(h)}</span><strong>${hg} - ${ag}</strong><span>${esc(a)}</span></div></div>
-          <div class="archive-sheet-logo"><img src="${esc(archiveLogoSrc)}" alt="شعار المنصة الرياضية"></div>
+          <div class="archive-sheet-logo"><img src="${esc(tournamentLogoSrc||associationLogoSrc)}" alt="شعار البطولة"></div>
         </div>
         <div class="archive-sheet-grid">
           <div><b>🏟️ الملعب</b><span>${esc(stadium)}</span></div>
@@ -17797,7 +17800,6 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
           <div><b>🥅 ضربات الجزاء</b><span>${pens}</span></div>
           <div class="archive-sheet-full"><b>🟨🟥 الإنذارات والبطاقات</b><span>${cardsList.length?cardsList.map(x=>esc(x)).join('<br>'):'لا توجد إنذارات أو بطاقات'}</span></div>
         </div>
-      <div class="archive-sheet-credit">تصميم وتنفيذ: المنصة الرياضية</div>
       </div>`;
       });
       if(!sheetsHtml.length)return '<div class="empty">لا توجد كشوفات محفوظة.</div>';
@@ -17823,7 +17825,7 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
     }
     .cover{
       min-height:257mm;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;page-break-after:always;break-after:page;
+      text-align:center;page-break-after:auto;break-after:auto;
     }
     .cover .cup{font-size:64px}
     .cover h1{font-size:30px;color:#075f45;margin:10px}
@@ -18037,8 +18039,8 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
     .archive-sheet-page{
       box-sizing:border-box;
       width:100%;
-      height:138mm;
-      min-height:138mm;
+      height:137mm;
+      min-height:137mm;
       margin:0;
       padding:4mm;
       padding-top:5mm;
@@ -18198,6 +18200,39 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
       .archive-sheet-grid{grid-template-columns:1fr}.archive-sheet-full{grid-column:auto}.archive-match-sheet{padding:8px}
     }
 
+    /* هوية PDF: شعار الرابطة ثابت في كل صفحة، وشعار البطولة خاص بالبطولة الحالية */
+    .archive-fixed-logo{display:none;}
+    .archive-overview-page{padding:6mm!important;overflow:hidden!important;}
+    .archive-overview-head{display:flex;align-items:center;justify-content:space-between;gap:8mm;border-bottom:2px solid #d8e7e1;padding:3mm 2mm 4mm;margin-bottom:4mm;}
+    .archive-overview-title{display:flex;align-items:center;gap:4mm;min-width:0;}
+    .archive-cup{font-size:28pt;line-height:1;}
+    .archive-kicker{font-size:9pt;color:#55756b;font-weight:800;margin-bottom:1mm;}
+    .archive-overview-head h1{font-size:21pt;color:#075f45;margin:0;line-height:1.2;}
+    .archive-season{font-size:9pt;color:#64756e;margin-top:1.5mm;font-weight:800;}
+    .archive-tournament-logo{width:24mm;height:24mm;object-fit:contain;border:1px solid #d7e6df;border-radius:7px;background:#fff;padding:2mm;flex:0 0 24mm;}
+    .archive-meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm;margin-bottom:4mm;}
+    .archive-meta-grid>div{padding:2.5mm;border:1px solid #d7e6df;border-radius:6px;background:#f7fbf9;text-align:center;}
+    .archive-meta-grid b{display:block;font-size:7.5pt;color:#55756b;margin-bottom:1mm;}
+    .archive-meta-grid span{display:block;font-size:9pt;font-weight:900;color:#17352b;}
+    .archive-overview-page .section{margin-bottom:3mm;}
+    .archive-overview-page h2{font-size:11pt;padding:2mm 0;margin:0 0 2mm;border-bottom:1px solid #d8e7e1;}
+    .archive-overview-page .stats{grid-template-columns:repeat(4,1fr);gap:2mm;}
+    .archive-overview-page .stat{padding:2.5mm 1mm;border-radius:6px;}
+    .archive-overview-page .stat-icon{font-size:13pt;}
+    .archive-overview-page .stat b{font-size:15pt;}
+    .archive-overview-page .stat>span:last-child{font-size:7.5pt;}
+    .archive-overview-page table{font-size:7.5pt!important;margin:2mm auto!important;}
+    .archive-overview-page th,.archive-overview-page td{padding:2.5px 3px!important;line-height:1.15!important;}
+    .archive-overview-bottom{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+    .archive-overview-bottom>div{min-width:0;}
+    .archive-extra-details{display:none!important;}
+    .archive-match-pages{break-before:page;page-break-before:always;}
+    @media print{
+      .archive-fixed-logo{display:block!important;position:fixed!important;top:2mm!important;right:4mm!important;width:11mm!important;height:11mm!important;object-fit:contain!important;z-index:2147483647!important;}
+      .archive-overview-page{height:270mm!important;min-height:270mm!important;max-height:270mm!important;}
+      .archive-match-pages{break-before:page!important;page-break-before:always!important;}
+    }
+
     /* تذييل PDF ثابت ويتكرر تلقائياً في أسفل كل ورقة مطبوعة */
     .archive-fixed-footer{display:none;}
     @media print{
@@ -18209,8 +18244,8 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
         bottom:2mm!important;
         height:8mm!important;
         align-items:center!important;
-        justify-content:space-between!important;
-        gap:8mm!important;
+        justify-content:center!important;
+        gap:0!important;
         direction:rtl!important;
         padding:0 2mm!important;
         border-top:1px solid #9ddfd4!important;
@@ -18240,18 +18275,18 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
       .section{break-inside:auto;page-break-inside:auto}
       .section h2{break-after:avoid;page-break-after:avoid}
       .archive-sheet-pair{
-        width:200mm!important;max-width:200mm!important;height:280mm!important;min-height:280mm!important;
-        margin:0 auto!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:4mm!important;
+        width:200mm!important;max-width:200mm!important;height:278mm!important;min-height:278mm!important;
+        margin:0 auto!important;padding:0!important;display:flex!important;flex-direction:column!important;gap:0!important;
         page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid!important;
       }
       .archive-sheet-pair:last-child{page-break-after:auto!important;break-after:auto!important}
       .archive-sheet-page{
-        width:200mm!important;max-width:200mm!important;height:138mm!important;min-height:138mm!important;
-        margin:0!important;padding:4mm!important;padding-top:5mm!important;overflow:hidden!important;
+        width:200mm!important;max-width:200mm!important;height:139mm!important;min-height:139mm!important;
+        margin:0!important;padding:4mm!important;padding-top:7mm!important;padding-bottom:9mm!important;overflow:hidden!important;
         page-break-before:auto!important;page-break-after:auto!important;break-before:auto!important;break-after:auto!important;
         page-break-inside:avoid!important;break-inside:avoid!important;
       }
-      .archive-match-sheet{flex:0 0 140mm!important;height:138mm!important;max-height:138mm!important;margin:0!important;padding:6px!important;overflow:hidden!important}
+      .archive-match-sheet{flex:0 0 139mm!important;height:139mm!important;max-height:139mm!important;margin:0!important;padding:6px!important;overflow:hidden!important}
       .archive-sheet-head{padding:5px 7px!important;margin-bottom:5px!important}
       .archive-sheet-grid{gap:4px!important}
       .archive-sheet-grid>div{padding:5px 6px!important}
@@ -18288,33 +18323,36 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
     </style>
 
 </style></head><body>
-    <img class="archive-fixed-logo" src="${esc(archiveLogoSrc)}" alt="">
+    <img class="archive-fixed-logo" src="${esc(associationLogoSrc)}" alt="شعار الرابطة">
     <div class="archive-fixed-footer" aria-hidden="true">
       <span>تصميم وتنفيذ المنصة الرياضية المهندس خالد الوائلي</span>
       <span class="archive-page-number">صفحة <b></b></span>
     </div>
-    <div class="archive-report-page">
-    <div class="cover"><div class="cup">🏆</div><h1>المنصة الرياضية</h1><h2>الأرشيف الرسمي للبطولة</h2><div class="line"></div><h2>${esc(t.name||'بطولة بدون اسم')}</h2><div class="meta">
-    <div><b>الموسم</b><br>${esc(t.season||'—')}</div><div><b>الفئة</b><br>${esc(t.age||t.category||'—')}</div>
-    <div><b>النظام</b><br>${esc(t.type||t.system||'—')}</div><div><b>البطل</b><br>${esc(winner)}</div>
-    <div><b>تاريخ البداية</b><br>${esc(t.startDate||'—')}</div><div><b>تاريخ النهاية</b><br>${esc(t.endDate||'—')}</div>
-    </div><div class="small">تاريخ الأرشفة: ${esc(new Date(ar.archivedAt||Date.now()).toLocaleString('ar-IQ'))}</div></div>
-
-    <div class="section first"><h2>📊 ملخص البطولة — ${esc(t.name||'بطولة بدون اسم')}</h2><div class="stats">
-    <div class="stat"><span class="stat-icon">🛡️</span><b>${teams.length}</b><span>الفرق المشاركة</span></div><div class="stat"><span class="stat-icon">👥</span><b>${players.length}</b><span>اللاعبون</span></div><div class="stat"><span class="stat-icon">⚽</span><b>${matches.length}</b><span>المباريات</span></div><div class="stat"><span class="stat-icon">🥅</span><b>${goals}</b><span>الأهداف</span></div>
-    <div class="stat"><span class="stat-icon">🟨</span><b>${yellow}</b><span>البطاقات الصفراء</span></div><div class="stat"><span class="stat-icon">🟥</span><b>${red}</b><span>البطاقات الحمراء</span></div><div class="stat"><span class="stat-icon">🎯</span><b>${penalties}</b><span>ركلات الجزاء</span></div><div class="stat"><span class="stat-icon">📋</span><b>${shs.length}</b><span>كشوفات المباريات</span></div>
-    </div><div class="note">تم حفظ نسخة مستقلة من بيانات البطولة عند الأرشفة، وتشمل الفرق واللاعبين والمباريات وكشوفات المباريات والبيانات المرتبطة بها.</div></div>
-
-    <div class="section"><h2>🏆 ترتيب الفرق والنتائج — ${esc(t.name||'بطولة بدون اسم')}</h2><table><thead><tr><th>#</th><th>الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>له</th><th>عليه</th><th>الفارق</th><th>النقاط</th></tr></thead><tbody>${standingRows||'<tr><td colspan="10">لا توجد نتائج كافية.</td></tr>'}</tbody></table></div>
-
-    <div class="section"><h2>📋 الكشوفات الرسمية التفصيلية — ${esc(t.name||'بطولة بدون اسم')}</h2>${sheetRows}</div>
-
-    <div class="section"><h2>🥇 هدافو البطولة — ${esc(t.name||'بطولة بدون اسم')}</h2><table class="players-by-team-table archive-unified-table"><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>الأهداف</th></tr></thead><tbody>${scorerRows}</tbody></table></div>
-    <div class="section"><h2>⭐ أفضل لاعب — ${esc(t.name||'بطولة بدون اسم')}</h2><table class="players-by-team-table archive-unified-table"><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>عدد الجوائز</th></tr></thead><tbody>${bestRows}</tbody></table></div>
-
-    <div class="section"><h2>👥 الفرق المشاركة — ${esc(t.name||'بطولة بدون اسم')}</h2><table class="players-by-team-table archive-unified-table"><thead><tr><th>#</th><th>الفريق</th><th>رئيس الفريق</th><th>المدرب</th><th>عدد اللاعبين</th></tr></thead><tbody>${teamRows||'<tr><td colspan="5">لا توجد فرق.</td></tr>'}</tbody></table></div>
-    <div class="section"><h2>👤 لاعبو البطولة حسب الفريق — ${esc(t.name||'بطولة بدون اسم')}</h2><div class="players-by-team-wrap"><table class="players-by-team-table"><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>الرقم</th><th>المركز/الفئة</th></tr></thead><tbody>${playerRows||'<tr><td colspan="5">لا توجد بيانات.</td></tr>'}</tbody></table></div></div>
-    </div></body></html>`;
+    <div class="archive-report-page archive-overview-page">
+    <div class="archive-overview-head">
+      <div class="archive-overview-title">
+        <div class="archive-cup">🏆</div>
+        <div><div class="archive-kicker">الأرشيف الرسمي للبطولة</div><h1>${esc(t.name||'بطولة بدون اسم')}</h1><div class="archive-season">الموسم: ${esc(t.season||'—')}</div></div>
+      </div>
+      ${tournamentLogoSrc?`<img class="archive-tournament-logo" src="${esc(tournamentLogoSrc)}" alt="شعار البطولة">`:''}
+    </div>
+    <div class="archive-meta-grid">
+      <div><b>الفئة</b><span>${esc(t.age||t.category||'—')}</span></div><div><b>النظام</b><span>${esc(t.type||t.system||'—')}</span></div>
+      <div><b>البطل</b><span>${esc(winner)}</span></div><div><b>تاريخ البداية</b><span>${esc(t.startDate||'—')}</span></div>
+      <div><b>تاريخ النهاية</b><span>${esc(t.endDate||'—')}</span></div><div><b>تاريخ الأرشفة</b><span>${esc(new Date(ar.archivedAt||Date.now()).toLocaleDateString('ar-IQ'))}</span></div>
+    </div>
+    <div class="section first"><h2>📊 خلاصة البطولة</h2><div class="stats">
+      <div class="stat"><span class="stat-icon">🛡️</span><b>${teams.length}</b><span>الفرق</span></div><div class="stat"><span class="stat-icon">👥</span><b>${players.length}</b><span>اللاعبون</span></div><div class="stat"><span class="stat-icon">⚽</span><b>${matches.length}</b><span>المباريات</span></div><div class="stat"><span class="stat-icon">🥅</span><b>${goals}</b><span>الأهداف</span></div>
+      <div class="stat"><span class="stat-icon">🟨</span><b>${yellow}</b><span>الصفراء</span></div><div class="stat"><span class="stat-icon">🟥</span><b>${red}</b><span>الحمراء</span></div><div class="stat"><span class="stat-icon">🎯</span><b>${penalties}</b><span>الجزاء</span></div><div class="stat"><span class="stat-icon">📋</span><b>${shs.length}</b><span>الكشوفات</span></div>
+    </div></div>
+    <div class="section"><h2>🏆 ترتيب الفرق والنتائج</h2><table class="archive-standings-table"><thead><tr><th>#</th><th>الفريق</th><th>لعب</th><th>ف</th><th>ت</th><th>خ</th><th>له</th><th>عليه</th><th>فارق</th><th>نقاط</th></tr></thead><tbody>${standingRows||'<tr><td colspan="10">لا توجد نتائج.</td></tr>'}</tbody></table></div>
+    <div class="archive-overview-bottom">
+      <div><h2>🥇 الهدافون</h2><table class="archive-unified-table"><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>الأهداف</th></tr></thead><tbody>${scorerRows}</tbody></table></div>
+      <div><h2>⭐ أفضل لاعب</h2><table class="archive-unified-table"><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>الجوائز</th></tr></thead><tbody>${bestRows}</tbody></table></div>
+    </div>
+    </div>
+    <div class="section archive-extra-details"><h2>👥 الفرق المشاركة</h2><table class="players-by-team-table archive-unified-table"><thead><tr><th>#</th><th>الفريق</th><th>رئيس الفريق</th><th>المدرب</th><th>اللاعبون</th></tr></thead><tbody>${teamRows||'<tr><td colspan="5">لا توجد فرق.</td></tr>'}</tbody></table></div>
+    <div class="archive-match-pages">${sheetRows}</div>    </div></body></html>`;
   }
 
   function printArchivePDF(ar){
@@ -18361,8 +18399,8 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
             display:flex!important;
             position:fixed!important;
             left:5mm!important;right:5mm!important;bottom:2mm!important;
-            height:8mm!important;align-items:center!important;justify-content:space-between!important;
-            direction:rtl!important;gap:8mm!important;padding:0 2mm!important;
+            height:8mm!important;align-items:center!important;justify-content:center!important;
+            direction:rtl!important;gap:0!important;padding:0 2mm!important;
             border-top:1px solid #9ddfd4!important;background:#fff!important;color:#075f45!important;
             font:900 8.5pt/1 Tahoma,Arial,sans-serif!important;
             z-index:2147483647!important;
@@ -18372,7 +18410,7 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
           #archivePrintPreview .archive-page-number b:after{content:counter(page)!important;}
           #archivePrintPreview .archive-report-page{padding-bottom:12mm!important;}
           @page{size:A4 portrait;margin:5mm 5mm 14mm 5mm;}
-          @page{counter-reset:page 1;}
+          @page{counter-reset:page 0;}
         }`;
       document.head.appendChild(style);
       const wrap=document.createElement('div');
