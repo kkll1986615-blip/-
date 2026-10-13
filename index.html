@@ -17956,7 +17956,7 @@ render();status('تم تنزيل '+n+' قسمًا من السحابة'+(kept?'،
 $('fsLogin')?.addEventListener('click',async()=>{const email=$('fsAuthEmail').value.trim(),pass=$('fsAuthPassword').value;if(!email||!pass){alert('أدخل بريد Firebase وكلمة المرور.');return}try{await signInWithEmailAndPassword(auth,email,pass);sessionStorage.setItem('manar_firebase_email',email);$('fsAuthPassword').value='';status('تم تسجيل الدخول إلى Firebase — جاري تأكيد المزامنة',true)}catch(e){status('فشل تسجيل الدخول: '+(e?.message||e),false);alert('تعذر تسجيل الدخول إلى Firebase. تأكد من البريد وكلمة المرور وتفعيل Email/Password في Firebase Authentication.')}});
 $('fsLogout')?.addEventListener('click',async()=>{try{await signOut(auth);sessionStorage.removeItem('manar_firebase_email');status('تم الخروج — القراءة ما زالت متاحة',true)}catch(e){status('فشل تسجيل الخروج',false)}});
 $('fsPush')?.addEventListener('click',pushAll);$('fsPull')?.addEventListener('click',pullAll);
-function patchStorage(){if(window.__manarFirebasePatched)return;window.__manarFirebasePatched=true;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){const k=String(key),result=original.call(this,key,value);if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote){dirty.add(k);try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}if(canWrite()){clearTimeout(window.__manarFirebasePushTimer);window.__manarFirebasePushTimer=clearTimeout(window.__manarFirebasePushTimer); window.__manarFirebasePushTimer=setTimeout(()=>{ const pending=[...dirty]; applyingRemote=true; pushKeys(pending).then(()=>status('تم تحديث السحابة فورًا',true)).catch(e=>status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false)).finally(()=>{applyingRemote=false;}); },80)}}return result}}
+function patchStorage(){if(window.__manarFirebasePatched)return;window.__manarFirebasePatched=true;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){const k=String(key),result=original.call(this,key,value);if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote){dirty.add(k);try{sessionStorage.setItem('manar_local_save_time',String(Date.now()));localStorage.setItem('manar_pending_cloud_changes_v1','1')}catch(e){}if(canWrite()){clearTimeout(window.__manarFirebasePushTimer);window.__manarFirebasePushTimer=setTimeout(()=>{const pending=[...dirty];applyingRemote=true;pushKeys(pending).then(()=>{localStorage.removeItem('manar_pending_cloud_changes_v1');status('تم تحديث السحابة فورًا',true)}).catch(e=>status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false)).finally(()=>{applyingRemote=false})},80)}}return result}}
 window.__manarFirebaseSaveKey=async function(key){
   if(!SYNC_KEYS.includes(key))return false;
   dirty.add(key);
@@ -17972,6 +17972,31 @@ async function initialSync(){
   const hasCloud=SYNC_KEYS.some(k=>initialValues[k]!==null);
   const localHasData=hasLocalData();
   const signedIn=canWrite();
+  let pendingLocalChanges=false;
+  try{pendingLocalChanges=localStorage.getItem('manar_pending_cloud_changes_v1')==='1'}catch(e){}
+
+  /* تغييرات محلية معلّقة، بما فيها الحذف، تتقدم على النسخة السحابية القديمة حتى لو أصبحت قاعدة البيانات فارغة. */
+  if(pendingLocalChanges){
+    if(signedIn){
+      applyingRemote=true;
+      try{
+        for(const k of SYNC_KEYS){
+          const raw=localStorage.getItem(k);
+          if(raw===null)await set(ref(db,CLOUD_PATH+'/'+k),null);
+          else await set(ref(db,CLOUD_PATH+'/'+k),JSON.parse(raw));
+          dirty.delete(k);
+        }
+        localStorage.removeItem('manar_pending_cloud_changes_v1');
+        await pullAll();
+        status('تمت مزامنة التغييرات المحلية بما فيها الحذف مع قاعدة البيانات السحابية',true);
+      }catch(e){status('بقيت التغييرات محليًا ولم تكتمل مزامنتها: '+(e?.message||e),false)}
+      finally{applyingRemote=false}
+    }else{
+      render();
+      status('توجد تغييرات محلية معلّقة. سجّل دخول Firebase حتى تُحفظ عمليات الحذف في قاعدة البيانات وتمنع عودتها.',false);
+    }
+    return;
+  }
 
   /*
     إصلاح جذري للحفظ:
@@ -18022,6 +18047,16 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
     if(initialReady===SYNC_KEYS.length){
       await initialSync();
     }else if(initialDone&&!applyingRemote){
+      /* لا تسمح لتحديث سحابي قديم بإلغاء تغيير محلي لم تتم مزامنته. */
+      if(dirty.has(k)){
+        if(canWrite()){
+          applyingRemote=true;
+          try{await pushKey(k);if(dirty.size===0)localStorage.removeItem('manar_pending_cloud_changes_v1');status('تمت مزامنة التعديل المحلي مع السحابة',true)}
+          catch(e){status('تعذر مزامنة التعديل المحلي: '+(e?.message||e),false)}
+          finally{applyingRemote=false}
+        }
+        return;
+      }
       applyingRemote=true;
       try{
         /* نعالج الإضافة/التعديل وكذلك الحذف من السحابة. */
