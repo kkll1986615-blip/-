@@ -11445,7 +11445,7 @@ header #authBar .logout-btn{
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
 <!-- المنصة الرياضية | تنظيم وصيانة 2026-09-14: إزالة رقع معطلة فقط، مع الحفاظ على البيانات والوظائف الحالية. -->
-<header><div class="brand"><img loading="lazy" decoding="async" alt="شعار المنصة الرياضية" class="brand-logo" src="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'&gt;&lt;circle cx='64' cy='64' r='58' fill='%23ffffff' stroke='%23087f5b' stroke-width='6'/&gt;&lt;path d='M64 34l17 12-7 20H54l-7-20z' fill='%23087f5b'/&gt;&lt;path d='M47 46L28 49l-7 21 17 13 19-17M81 46l19 3 7 21-17 13-19-17M54 66l-7 21 17 12 17-12-7-21' fill='none' stroke='%23087f5b' stroke-width='6' stroke-linejoin='round'/&gt;&lt;/svg&gt;"><div class="brand-text"><h1>🏆 المنصة الرياضية</h1><small>منصة رياضية رقمية متكاملة في المنار لإدارة البطولات وتنظيم الفرق واللاعبين والمباريات والحكام، مع متابعة النتائج والإحصائيات والتوقعات وأرشفة البطولات ضمن تجربة احترافية سهلة الاستخدام.</small><div id="authBar"><span class="role-pill" id="rolePill">👁️ مشاهد</span><button class="login-btn" id="loginBtn" onclick="openLogin()">↪ دخول</button><button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none">خروج</button></div></div><div aria-label="الوقت والتاريخ" class="header-clock"><div class="clock-time"><span>◷</span><b id="headerTime">03:55:42 م</b></div><div class="clock-date"><span>▣</span><b id="headerDate">2026-08-14</b></div><div class="clock-day" id="headerDay">الجمعة</div></div></div></header><div id="loginOverlay" onclick="if(event.target===this)closeLogin()"><div class="login-box"><h2>🔐 تسجيل الدخول</h2><p>اختر الحساب وأدخل كلمة المرور للوصول إلى صلاحيات الإدارة.</p><div class="auth-note">المشاهدة متاحة للجميع بدون تسجيل دخول. تسجيل الدخول مطلوب فقط لإدارة البيانات والإعدادات.</div><div class="grid"><div><label>نوع الحساب</label><select id="loginRole"><option value="admin">👑 مدير النظام (Admin)</option><option value="editor">🛠️ صلاحية متوسطة</option></select></div><div><label>اسم المستخدم</label><input autocomplete="username" id="loginUser" placeholder="اسم المستخدم"/></div><div><label>كلمة المرور</label><input autocomplete="current-password" id="loginPass" placeholder="كلمة المرور" type="password"/></div></div><div id="loginError" style="color:#b42318;font-size:13px;margin-top:8px;display:none"></div><div class="actions"><button class="btn" onclick="login()">دخول</button><button class="btn secondary" onclick="closeLogin()">إلغاء</button></div></div></div><div aria-label="الساعة والتاريخ" class="clock-date-box" id="clockDateBox"><div class="clock-date-part"><span class="clock-label">التاريخ</span><div class="digital-date" id="digitalDate">15 / 08 / 2026</div></div><div class="clock-divider"></div><div class="clock-time-part"><span class="clock-label">الوقت</span><div class="digital-clock" id="digitalClock">00:00:00 م</div></div></div><div aria-label="الشريط الإخباري" class="news-ticker" id="homeNewsTicker"><div class="news-ticker-label">📰 الأخبار الرياضية</div><div class="news-ticker-viewport"><div class="news-ticker-track" id="homeNewsTrack"><span class="news-empty">لا توجد أخبار رياضية حالياً</span></div></div></div><nav class="app-sidebar" id="nav"><button aria-label="الواجهة الرئيسية" class="active" data-page="home"><span class="nav-ico">🏠</span><span class="nav-label">الواجهة الرئيسية</span></button><button data-page="tournaments">🏆 <span>البطولات</span></button><button class="nav-item" data-page="teams">⚽ <span>الفرق</span></button><button data-page="players">👥 <span>اللاعبون</span></button><button data-page="matches">⚽ <span>المباريات</span></button><button data-page="matchSheetsSection">📋 <span>كشوفات المباريات</span></button><button data-page="predictionsSection">🎯 <span>توقع نتيجة المباراة</span></button><button data-page="stats">📈 <span>الإحصائيات</span></button><button data-page="overallRanking" type="button">🏆 <span>التصنيف العام</span></button><button data-page="mediaSection">📰 <span>الإعلام</span></button><button data-page="contactSection">📞 <span>تواصل معنا</span></button><button class="nav-item" data-page="referees">⚖️ <span>حكام رابطة المنار</span></button><button class="admin-only" data-page="settings"><span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;vertical-align:middle"><svg viewBox="0 0 64 64" width="24" height="24" role="img" aria-label="الإعدادات"><path d="M27 4h10l2 7a22 22 0 0 1 5 2l6-4 7 7-4 6a22 22 0 0 1 2 5l7 2v10l-7 2a22 22 0 0 1-2 5l4 6-7 7-6-4a22 22 0 0 1-5 2l-2 7H27l-2-7a22 22 0 0 1-5-2l-6 4-7-7 4-6a22 22 0 0 1-2-5l-7-2V29l7-2a22 22 0 0 1 2-5l-4-6 7-7 6 4a22 22 0 0 1 5-2z" fill="#38bdf8" stroke="#075985" stroke-width="2"/><circle cx="32" cy="34" r="11" fill="#f8fafc" stroke="#075985" stroke-width="4"/></svg></span> <span>الإعدادات</span></button><button data-page="headToHeadSection">⚔️ <span>تاريخ المواجهات</span></button><button class="admin-only" data-page="backup">💾 <span>النسخ الاحتياطي</span></button><button data-page="pollsSection">🗳️ <span>استطلاع رأي</span></button><button data-page="installAppSection" id="installProgramNavBtn">📲 <span>تثبيت البرنامج</span></button></nav><main><section class="page" id="installAppSection">
+<header><div class="brand"><img loading="lazy" decoding="async" alt="شعار المنصة الرياضية" class="brand-logo" src="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'&gt;&lt;circle cx='64' cy='64' r='58' fill='%23ffffff' stroke='%23087f5b' stroke-width='6'/&gt;&lt;path d='M64 34l17 12-7 20H54l-7-20z' fill='%23087f5b'/&gt;&lt;path d='M47 46L28 49l-7 21 17 13 19-17M81 46l19 3 7 21-17 13-19-17M54 66l-7 21 17 12 17-12-7-21' fill='none' stroke='%23087f5b' stroke-width='6' stroke-linejoin='round'/&gt;&lt;/svg&gt;"><div class="brand-text"><h1>🏆 المنصة الرياضية</h1><small>منصة رياضية رقمية متكاملة في المنار لإدارة البطولات وتنظيم الفرق واللاعبين والمباريات والحكام، مع متابعة النتائج والإحصائيات والتوقعات وأرشفة البطولات ضمن تجربة احترافية سهلة الاستخدام.</small><div id="authBar"><span class="role-pill" id="rolePill">👁️ مشاهد</span><button class="login-btn" id="loginBtn" onclick="openLogin()">↪ دخول</button><button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none">خروج</button></div></div><div aria-label="الوقت والتاريخ" class="header-clock"><div class="clock-time"><span>◷</span><b id="headerTime">03:55:42 م</b></div><div class="clock-date"><span>▣</span><b id="headerDate">2026-08-14</b></div><div class="clock-day" id="headerDay">الجمعة</div></div></div></header><div id="loginOverlay" onclick="if(event.target===this)closeLogin()"><div class="login-box"><h2>🔐 تسجيل الدخول</h2><p>اختر الحساب وأدخل كلمة المرور للوصول إلى صلاحيات الإدارة.</p><div class="auth-note">المشاهدة متاحة للجميع بدون تسجيل دخول. تسجيل الدخول مطلوب فقط لإدارة البيانات والإعدادات.</div><div class="grid"><div><label>نوع الحساب</label><select id="loginRole" onchange="fillLoginUsername()"><option value="admin">👑 مدير النظام (Admin)</option><option value="editor">🛠️ صلاحية متوسطة</option></select></div><div><label>اسم المستخدم</label><input autocomplete="username" id="loginUser" placeholder="اسم المستخدم"/></div><div><label>كلمة المرور</label><input autocomplete="current-password" id="loginPass" placeholder="كلمة المرور" type="password"/></div></div><div id="loginError" style="color:#b42318;font-size:13px;margin-top:8px;display:none"></div><div class="actions"><button class="btn" onclick="login()">دخول</button><button class="btn secondary" onclick="closeLogin()">إلغاء</button></div><div style="margin-top:10px;text-align:center"><button type="button" class="btn secondary" style="font-size:12px" onclick="resetLoginAccounts()">استعادة بيانات الدخول الافتراضية</button></div></div></div><div aria-label="الساعة والتاريخ" class="clock-date-box" id="clockDateBox"><div class="clock-date-part"><span class="clock-label">التاريخ</span><div class="digital-date" id="digitalDate">15 / 08 / 2026</div></div><div class="clock-divider"></div><div class="clock-time-part"><span class="clock-label">الوقت</span><div class="digital-clock" id="digitalClock">00:00:00 م</div></div></div><div aria-label="الشريط الإخباري" class="news-ticker" id="homeNewsTicker"><div class="news-ticker-label">📰 الأخبار الرياضية</div><div class="news-ticker-viewport"><div class="news-ticker-track" id="homeNewsTrack"><span class="news-empty">لا توجد أخبار رياضية حالياً</span></div></div></div><nav class="app-sidebar" id="nav"><button aria-label="الواجهة الرئيسية" class="active" data-page="home"><span class="nav-ico">🏠</span><span class="nav-label">الواجهة الرئيسية</span></button><button data-page="tournaments">🏆 <span>البطولات</span></button><button class="nav-item" data-page="teams">⚽ <span>الفرق</span></button><button data-page="players">👥 <span>اللاعبون</span></button><button data-page="matches">⚽ <span>المباريات</span></button><button data-page="matchSheetsSection">📋 <span>كشوفات المباريات</span></button><button data-page="predictionsSection">🎯 <span>توقع نتيجة المباراة</span></button><button data-page="stats">📈 <span>الإحصائيات</span></button><button data-page="overallRanking" type="button">🏆 <span>التصنيف العام</span></button><button data-page="mediaSection">📰 <span>الإعلام</span></button><button data-page="contactSection">📞 <span>تواصل معنا</span></button><button class="nav-item" data-page="referees">⚖️ <span>حكام رابطة المنار</span></button><button class="admin-only" data-page="settings"><span aria-hidden="true" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;vertical-align:middle"><svg viewBox="0 0 64 64" width="24" height="24" role="img" aria-label="الإعدادات"><path d="M27 4h10l2 7a22 22 0 0 1 5 2l6-4 7 7-4 6a22 22 0 0 1 2 5l7 2v10l-7 2a22 22 0 0 1-2 5l4 6-7 7-6-4a22 22 0 0 1-5 2l-2 7H27l-2-7a22 22 0 0 1-5-2l-6 4-7-7 4-6a22 22 0 0 1-2-5l-7-2V29l7-2a22 22 0 0 1 2-5l-4-6 7-7 6 4a22 22 0 0 1 5-2z" fill="#38bdf8" stroke="#075985" stroke-width="2"/><circle cx="32" cy="34" r="11" fill="#f8fafc" stroke="#075985" stroke-width="4"/></svg></span> <span>الإعدادات</span></button><button data-page="headToHeadSection">⚔️ <span>تاريخ المواجهات</span></button><button class="admin-only" data-page="backup">💾 <span>النسخ الاحتياطي</span></button><button data-page="pollsSection">🗳️ <span>استطلاع رأي</span></button><button data-page="installAppSection" id="installProgramNavBtn">📲 <span>تثبيت البرنامج</span></button></nav><main><section class="page" id="installAppSection">
 <div class="card install-section-card">
   <div class="section-title"><div><h2>📲 تثبيت البرنامج</h2><small>ثبّت المنصة الرياضية على هاتفك للوصول إليها بسرعة مثل التطبيق.</small></div><span class="badge" id="appVersionBadge">الإصدار الحالي</span></div>
   <div class="install-sports-hero">
@@ -11572,10 +11572,40 @@ function applyPermissions(){
   document.querySelectorAll('.audit-clear-admin-only').forEach(el=>el.style.display=currentRole==='admin'?'':'none');
   document.querySelectorAll('[data-perm]').forEach(el=>{el.style.display=hasPermission(el.dataset.perm)?'':'none'});
 }
-function openLogin(){const o=authEl('loginOverlay'),e=authEl('loginError'),u=authEl('loginUser');if(!o)return;o.style.display='flex';if(e)e.style.display='none';refreshLoginUsers();if(u)u.focus();}
+function openLogin(){const o=authEl('loginOverlay'),e=authEl('loginError'),u=authEl('loginUser'),p=authEl('loginPass');if(!o)return;o.style.display='flex';if(e)e.style.display='none';if(u){u.value='';u.setAttribute('autocomplete','username');}if(p){p.value='';p.type='password';p.setAttribute('autocomplete','current-password');}refreshLoginUsers();fillLoginUsername();if(u)u.focus();}
 function closeLogin(){const o=authEl('loginOverlay');if(o)o.style.display='none';}
 function refreshLoginUsers(){let sel=authEl('loginRole');if(!sel)return;let prev=sel.value;sel.innerHTML=Object.keys(USERS).map(k=>`<option value="${String(k).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}">${String(USERS[k].label||USERS[k].user).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}</option>`).join('');if(USERS[prev])sel.value=prev;}
-function login(){const roleEl=authEl('loginRole'),userEl=authEl('loginUser'),passEl=authEl('loginPass'),err=authEl('loginError');const role=roleEl?.value||'',user=(userEl?.value||'').trim(),pass=passEl?.value||'',u=USERS[role];if(u&&user===u.user&&pass===u.pass){sessionStorage.setItem(AUTH_KEY,role);setRole(role);closeLogin();if(typeof auditAdd==='function')auditAdd('تسجيل الدخول','settings',`تم تسجيل دخول المستخدم «${u.user}».`);if(typeof goPage==='function')goPage('home');alert('تم تسجيل الدخول بنجاح — '+u.label.replace(/^.. /,''));}else{if(err){err.textContent='اسم المستخدم أو كلمة المرور غير صحيحة';err.style.display='block';}}}
+function fillLoginUsername(){const role=authEl('loginRole')?.value,u=USERS[role],field=authEl('loginUser');if(field&&u)field.value=u.user||'';}
+function resetLoginAccounts(){
+  const ok=confirm('سيتم إعادة اسم وكلمة مرور حسابي المدير والصلاحية المتوسطة إلى القيم الافتراضية. لن تُحذف بيانات البطولات والفرق والمباريات. هل تريد المتابعة؟');
+  if(!ok)return;
+  try{
+    if(!USERS||typeof USERS!=='object')USERS={};
+    const defs=JSON.parse(JSON.stringify(DEFAULT_USERS));
+    ['admin','editor'].forEach(role=>{
+      if(!USERS[role])USERS[role]=defs[role];
+      else{
+        USERS[role].user=defs[role].user;
+        USERS[role].pass=defs[role].pass;
+        if(!USERS[role].label)USERS[role].label=defs[role].label;
+        if(!Array.isArray(USERS[role].permissions))USERS[role].permissions=defs[role].permissions;
+      }
+    });
+    localStorage.setItem(USERS_KEY,JSON.stringify(USERS));
+    sessionStorage.removeItem(AUTH_KEY);
+    refreshLoginUsers();
+    const roleEl=authEl('loginRole'), userEl=authEl('loginUser'), passEl=authEl('loginPass'), err=authEl('loginError');
+    if(roleEl)roleEl.value='admin';
+    if(userEl)userEl.value='admin';
+    if(passEl)passEl.value='';
+    if(err){err.style.display='block';err.style.color='#087f5b';err.textContent='تمت استعادة الحسابات. المدير: admin — كلمة المرور: admin123';}
+    setRole('viewer');
+  }catch(e){
+    const err=authEl('loginError');
+    if(err){err.style.display='block';err.textContent='تعذر حفظ بيانات الدخول على هذا الجهاز. أغلق الملف وافتحه مجددًا أو استخدم متصفحًا آخر.';}
+  }
+}
+function login(){const roleEl=authEl('loginRole'),userEl=authEl('loginUser'),passEl=authEl('loginPass'),err=authEl('loginError');const role=roleEl?.value||'',user=(userEl?.value||'').trim(),pass=passEl?.value||'',u=USERS[role];if(u&&user===u.user&&pass===u.pass){if(passEl)passEl.value='';sessionStorage.setItem(AUTH_KEY,role);setRole(role);closeLogin();if(typeof auditAdd==='function')auditAdd('تسجيل الدخول','settings',`تم تسجيل دخول المستخدم «${u.user}».`);if(typeof goPage==='function')goPage('home');alert('تم تسجيل الدخول بنجاح — '+u.label.replace(/^.. /,''));}else{if(passEl)passEl.value='';if(err){err.textContent='اسم المستخدم أو كلمة المرور غير صحيحة';err.style.display='block';}}}
 function logout(){if(currentUser) auditAdd('تسجيل الخروج','settings',`تم تسجيل خروج المستخدم «${currentUser}».`);sessionStorage.removeItem(AUTH_KEY);setRole('viewer');goPage('home');alert('تم تسجيل الخروج، عاد البرنامج إلى وضع المشاهدة.');}
 function requirePermission(permission){if(hasPermission(permission))return true;alert('ليس لديك صلاحية لتنفيذ هذا الإجراء.');return false}
 function requireRole(min){return requirePermission(min==='admin'?'settings':'tournaments')}
@@ -11586,10 +11616,10 @@ function updateRefereeAdminForm(){
 function authInit(){let r=sessionStorage.getItem(AUTH_KEY);setRole(USERS[r]?r:'viewer');refreshLoginUsers();}
 function toggleAdminPasswordPanel(){const body=document.getElementById('adminPasswordPanelBody');const btn=document.getElementById('toggleAdminPasswordPanel');if(!body||!btn)return;const opening=body.style.display==='none'||!body.style.display;body.style.display=opening?'block':'none';btn.setAttribute('aria-expanded',opening?'true':'false');btn.textContent=opening?'🔐 إخفاء المعلومات':'🔐 إظهار المعلومات';if(!opening){const msg=document.getElementById('passwordMessage');if(msg)msg.style.display='none';} }
 function updatePasswordStrength(){let v=$('newAdminPass').value||'',score=0;if(v.length>=6)score++;if(v.length>=10)score++;if(/[A-Z]/.test(v))score++;if(/[0-9]/.test(v))score++;if(/[^A-Za-z0-9]/.test(v))score++;let bar=$('passwordStrengthBar');bar.style.width=(score*20)+'%';bar.style.background=score<=1?'#e03131':score<=3?'#f59f00':'#12b886';}
-function changeAdminPassword(){if(currentRole!=='admin'){openLogin();return}let old=$('oldAdminPass').value,newPass=$('newAdminPass').value,confirmPass=$('confirmAdminPass').value,msg=$('passwordMessage');msg.style.display='block';if(old!==USERS.admin.pass){msg.style.color='#b42318';msg.textContent='كلمة المرور الحالية غير صحيحة.';return}if(newPass.length<6){msg.style.color='#b42318';msg.textContent='يجب أن تكون كلمة المرور الجديدة 6 أحرف/أرقام على الأقل.';return}if(newPass!==confirmPass){msg.style.color='#b42318';msg.textContent='تأكيد كلمة المرور غير مطابق.';return}USERS.admin.pass=newPass;localStorage.setItem(USERS_KEY,JSON.stringify(USERS));renderUsers();auditAdd('تعديل','settings','تم تغيير كلمة مرور مدير النظام.');$('oldAdminPass').value='';$('newAdminPass').value='';$('confirmAdminPass').value='';updatePasswordStrength();msg.style.color='#087f5b';msg.textContent='تم تغيير كلمة مرور مدير النظام بنجاح.';}
+function changeAdminPassword(){if(currentRole!=='admin'){openLogin();return}let old=$('oldAdminPass').value,newPass=$('newAdminPass').value,confirmPass=$('confirmAdminPass').value,msg=$('passwordMessage');msg.style.display='block';if(old!==USERS.admin.pass){msg.style.color='#b42318';msg.textContent='كلمة المرور الحالية غير صحيحة.';return}if(newPass.length<12){msg.style.color='#b42318';msg.textContent='يجب أن تكون كلمة المرور الجديدة 12 حرفًا على الأقل، ويفضل أن تجمع أحرفًا وأرقامًا ورموزًا.';return}if(newPass!==confirmPass){msg.style.color='#b42318';msg.textContent='تأكيد كلمة المرور غير مطابق.';return}USERS.admin.pass=newPass;localStorage.setItem(USERS_KEY,JSON.stringify(USERS));renderUsers();auditAdd('تعديل','settings','تم تغيير كلمة مرور مدير النظام.');$('oldAdminPass').value='';$('newAdminPass').value='';$('confirmAdminPass').value='';updatePasswordStrength();msg.style.color='#087f5b';msg.textContent='تم تغيير كلمة مرور مدير النظام بنجاح.';}
 function saveUsers(){
 localStorage.setItem(USERS_KEY,JSON.stringify(USERS));refreshLoginUsers();renderUsers();}
-function addManagedUser(){if(currentRole!=='admin'){openLogin();return}let u=$('newManagedUser').value.trim(),p=$('newManagedPass').value,role='u_'+Date.now().toString(36);if(!u||!p)return alert('أدخل اسم المستخدم وكلمة المرور');if(Object.values(USERS).some(x=>x.user===u))return alert('اسم المستخدم موجود مسبقًا');let permissions=[...document.querySelectorAll('#userPermissions input:checked')].map(x=>x.value);USERS[role]={user:u,pass:p,label:'👤 '+u,cls:'custom',permissions};$('newManagedUser').value='';$('newManagedPass').value='';document.querySelectorAll('#userPermissions input').forEach(x=>x.checked=false);saveUsers();auditUserChange('إدارة الحسابات',`تم إنشاء حساب «${u}» ومنحه الصلاحيات المحددة: ${(permissions||[]).map(x=>PERMISSIONS[x]||x).join('، ')||'بدون صلاحيات إدارة'}.`);alert('تم إنشاء الحساب ومنحه الصلاحيات المحددة.');}
+function addManagedUser(){if(currentRole!=='admin'){openLogin();return}let u=$('newManagedUser').value.trim(),p=$('newManagedPass').value,role='u_'+Date.now().toString(36);if(!u||!p)return alert('أدخل اسم المستخدم وكلمة المرور');if(p.length<12)return alert('اجعل كلمة المرور 12 حرفًا على الأقل، ويفضل الجمع بين أحرف وأرقام ورموز.');if(Object.values(USERS).some(x=>x.user===u))return alert('اسم المستخدم موجود مسبقًا');let permissions=[...document.querySelectorAll('#userPermissions input:checked')].map(x=>x.value);USERS[role]={user:u,pass:p,label:'👤 '+u,cls:'custom',permissions};$('newManagedUser').value='';$('newManagedPass').value='';document.querySelectorAll('#userPermissions input').forEach(x=>x.checked=false);saveUsers();auditUserChange('إدارة الحسابات',`تم إنشاء حساب «${u}» ومنحه الصلاحيات المحددة: ${(permissions||[]).map(x=>PERMISSIONS[x]||x).join('، ')||'بدون صلاحيات إدارة'}.`);alert('تم إنشاء الحساب ومنحه الصلاحيات المحددة.');}
 function deleteManagedUser(role){if(currentRole!=='admin')return;if(role==='admin'||role==='editor')return alert('لا يمكن حذف الحسابات الأساسية.');const deletedUser=USERS[role]?.user||role;delete USERS[role];saveUsers();auditUserChange('إدارة الحسابات',`تم حذف حساب «${deletedUser}».`);}
 function initPermissionOptions(){let box=$('userPermissions');if(!box)return;const order=['tournaments','matches','teams','players','matchSheets','stats','referees','media','audit','backup','settings','delete'];box.innerHTML=order.filter(k=>PERMISSIONS[k]).map(k=>`<label><input type="checkbox" value="${k}"><span>${esc(PERMISSIONS[k])}</span></label>`).join('')}
 function setAllManagedPermissions(value){document.querySelectorAll('#userPermissions input[type="checkbox"]').forEach(x=>x.checked=!!value)}
@@ -11608,15 +11638,15 @@ function renderUsers(){
   const box=$('managedUsersList');
   if(!box)return;
   if(currentRole!=='admin'){
-    box.innerHTML='<div class="notice">عرض بيانات الحسابات وكلمات المرور متاح لمدير النظام فقط.</div>';
+    box.innerHTML='<div class="notice">عرض بيانات الحسابات متاح لمدير النظام فقط.</div>';
     return;
   }
   const rows=Object.entries(USERS).map(([k,u])=>{
     const perms=(u.permissions||[]).map(x=>`<span class="badge">${esc(PERMISSIONS[x]||x)}</span>`).join(' ')||'بدون صلاحيات إدارة';
     const action=(k==='admin'||k==='editor')?'حساب أساسي':`<button class="btn danger" type="button" onclick="deleteManagedUser('${String(k).replace(/'/g, '&#39;')}')">حذف</button>`;
-    return `<tr><td><span class="managed-username-chip"><span class="managed-user-avatar">👤</span><span class="managed-username-text">${esc(u.user||'')}</span></span></td><td><span class="managed-password-text">${esc(u.pass||'')}</span></td><td>${esc(u.label||'مستخدم')}</td><td>${perms}</td><td>${action}</td></tr>`;
+    return `<tr><td><span class="managed-username-chip"><span class="managed-user-avatar">👤</span><span class="managed-username-text">${esc(u.user||'')}</span></span></td><td><span class="managed-password-text">محمي — لا يُعرض</span></td><td>${esc(u.label||'مستخدم')}</td><td>${perms}</td><td>${action}</td></tr>`;
   }).join('');
-  box.innerHTML=`<div class="notice">تظهر جميع الحسابات، بما فيها حساب المدير، وكلمات المرور المحفوظة محليًا. هذه البيانات مرئية للمدير المسجل دخوله فقط.</div><table><thead><tr><th>اسم المستخدم</th><th>كلمة المرور</th><th>نوع الحساب</th><th>الصلاحيات</th><th>إجراء</th></tr></thead><tbody>${rows}</tbody></table>`;
+  box.innerHTML=`<div class="notice">تظهر الحسابات والصلاحيات فقط. لا تعرض المنصة كلمات المرور داخل الجدول.</div><table><thead><tr><th>اسم المستخدم</th><th>حالة كلمة المرور</th><th>نوع الحساب</th><th>الصلاحيات</th><th>إجراء</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 
@@ -13669,46 +13699,6 @@ header .header-clock{display:none!important}
 (function(){function clean(){const b=document.querySelector('header .brand');if(!b)return;b.querySelectorAll(':scope > .brand-logo').forEach((e,i)=>{if(i)e.remove()});b.querySelectorAll(':scope > .brand-text').forEach((e,i)=>{if(i)e.remove()});b.querySelectorAll('.brand-text small').forEach((e,i)=>{if(i)e.remove()});document.querySelectorAll('.clock-date-box').forEach((e,i)=>{if(i)e.remove()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean()})();
 <\/script>
 
-
-<style id="login-credentials-visible-fix">
-#loginOverlay .login-credentials-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eef9f4;border:1px solid #cce7da;color:#174c3a;font-size:13px;line-height:1.7;text-align:right}
-#loginOverlay .login-credentials-note b{color:#075985}
-#loginOverlay #loginUser,#loginOverlay #loginPass{font-weight:800;direction:ltr;text-align:left}
-</style>
-<script id="login-credentials-visible-fix-script">
-(function(){
- function fillCredentials(){
-   const role=document.getElementById('loginRole');
-   const user=document.getElementById('loginUser');
-   const pass=document.getElementById('loginPass');
-   if(!role||!user||!pass||typeof USERS==='undefined') return;
-   const u=USERS[role.value];
-   if(!u) return;
-   user.value=u.user||'';
-   pass.value=u.pass||'';
-   pass.type='text';
-   let note=document.getElementById('loginCredentialsNote');
-   if(!note){
-     note=document.createElement('div');
-     note.id='loginCredentialsNote';
-     note.className='login-credentials-note';
-     pass.closest('.grid')?.after(note);
-   }
-   note.innerHTML='بيانات الدخول للحساب المختار: <b>اسم المستخدم:</b> '+String(u.user||'')+' &nbsp; | &nbsp; <b>كلمة المرور:</b> '+String(u.pass||'');
- }
- function bind(){
-   const role=document.getElementById('loginRole');
-   if(role && role.dataset.credBound!=='1'){ role.dataset.credBound='1'; role.addEventListener('change',fillCredentials); }
-   fillCredentials();
- }
- window.addEventListener('DOMContentLoaded',bind,{once:true});
- const oldOpen=window.openLogin;
- if(typeof oldOpen==='function'){
-   window.openLogin=function(){ oldOpen.apply(this,arguments); setTimeout(fillCredentials,0); };
- }
-})();
-<\/script>
-
 <style id="final-clock-date-overlap-fix">
 /* إصلاح تداخل الساعة والتاريخ بعد تحديث الصفحة: اعتماد عرض واحد مستقل أسفل الرأس */
 header .header-clock{display:none!important}
@@ -14049,46 +14039,6 @@ header .header-clock{display:none!important}
 </style>
 <script id="final-single-identity-runtime-cleanup">
 (function(){function clean(){const b=document.querySelector('header .brand');if(!b)return;b.querySelectorAll(':scope > .brand-logo').forEach((e,i)=>{if(i)e.remove()});b.querySelectorAll(':scope > .brand-text').forEach((e,i)=>{if(i)e.remove()});b.querySelectorAll('.brand-text small').forEach((e,i)=>{if(i)e.remove()});document.querySelectorAll('.clock-date-box').forEach((e,i)=>{if(i)e.remove()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean()})();
-<\/script>
-
-
-<style id="login-credentials-visible-fix">
-#loginOverlay .login-credentials-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eef9f4;border:1px solid #cce7da;color:#174c3a;font-size:13px;line-height:1.7;text-align:right}
-#loginOverlay .login-credentials-note b{color:#075985}
-#loginOverlay #loginUser,#loginOverlay #loginPass{font-weight:800;direction:ltr;text-align:left}
-</style>
-<script id="login-credentials-visible-fix-script">
-(function(){
- function fillCredentials(){
-   const role=document.getElementById('loginRole');
-   const user=document.getElementById('loginUser');
-   const pass=document.getElementById('loginPass');
-   if(!role||!user||!pass||typeof USERS==='undefined') return;
-   const u=USERS[role.value];
-   if(!u) return;
-   user.value=u.user||'';
-   pass.value=u.pass||'';
-   pass.type='text';
-   let note=document.getElementById('loginCredentialsNote');
-   if(!note){
-     note=document.createElement('div');
-     note.id='loginCredentialsNote';
-     note.className='login-credentials-note';
-     pass.closest('.grid')?.after(note);
-   }
-   note.innerHTML='بيانات الدخول للحساب المختار: <b>اسم المستخدم:</b> '+String(u.user||'')+' &nbsp; | &nbsp; <b>كلمة المرور:</b> '+String(u.pass||'');
- }
- function bind(){
-   const role=document.getElementById('loginRole');
-   if(role && role.dataset.credBound!=='1'){ role.dataset.credBound='1'; role.addEventListener('change',fillCredentials); }
-   fillCredentials();
- }
- window.addEventListener('DOMContentLoaded',bind,{once:true});
- const oldOpen=window.openLogin;
- if(typeof oldOpen==='function'){
-   window.openLogin=function(){ oldOpen.apply(this,arguments); setTimeout(fillCredentials,0); };
- }
-})();
 <\/script>
 
 <style id="final-clock-date-overlap-fix">
@@ -21603,46 +21553,6 @@ header .header-clock{display:none!important}
 </style>
 <script id="final-single-identity-runtime-cleanup">
 (function(){function clean(){const b=document.querySelector('header .brand');if(!b)return;b.querySelectorAll(':scope > .brand-logo').forEach((e,i)=>{if(i)e.remove()});b.querySelectorAll(':scope > .brand-text').forEach((e,i)=>{if(i)e.remove()});b.querySelectorAll('.brand-text small').forEach((e,i)=>{if(i)e.remove()});document.querySelectorAll('.clock-date-box').forEach((e,i)=>{if(i)e.remove()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean()})();
-</script>
-
-
-<style id="login-credentials-visible-fix">
-#loginOverlay .login-credentials-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#eef9f4;border:1px solid #cce7da;color:#174c3a;font-size:13px;line-height:1.7;text-align:right}
-#loginOverlay .login-credentials-note b{color:#075985}
-#loginOverlay #loginUser,#loginOverlay #loginPass{font-weight:800;direction:ltr;text-align:left}
-</style>
-<script id="login-credentials-visible-fix-script">
-(function(){
- function fillCredentials(){
-   const role=document.getElementById('loginRole');
-   const user=document.getElementById('loginUser');
-   const pass=document.getElementById('loginPass');
-   if(!role||!user||!pass||typeof USERS==='undefined') return;
-   const u=USERS[role.value];
-   if(!u) return;
-   user.value=u.user||'';
-   pass.value=u.pass||'';
-   pass.type='text';
-   let note=document.getElementById('loginCredentialsNote');
-   if(!note){
-     note=document.createElement('div');
-     note.id='loginCredentialsNote';
-     note.className='login-credentials-note';
-     pass.closest('.grid')?.after(note);
-   }
-   note.innerHTML='بيانات الدخول للحساب المختار: <b>اسم المستخدم:</b> '+String(u.user||'')+' &nbsp; | &nbsp; <b>كلمة المرور:</b> '+String(u.pass||'');
- }
- function bind(){
-   const role=document.getElementById('loginRole');
-   if(role && role.dataset.credBound!=='1'){ role.dataset.credBound='1'; role.addEventListener('change',fillCredentials); }
-   fillCredentials();
- }
- window.addEventListener('DOMContentLoaded',bind,{once:true});
- const oldOpen=window.openLogin;
- if(typeof oldOpen==='function'){
-   window.openLogin=function(){ oldOpen.apply(this,arguments); setTimeout(fillCredentials,0); };
- }
-})();
 </script>
 
 <style id="final-clock-date-overlap-fix">
