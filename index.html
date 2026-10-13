@@ -16152,20 +16152,20 @@ document.addEventListener('DOMContentLoaded',function(){
     const tour=db.tournaments.find(t=>same(t.id,tid));
     if(!tour)return alert('البطولة المختارة غير موجودة. أعد اختيار البطولة.');
     const groupCount=parseInt(tour.groupCount||0,10)||0;
-    if(tour.type==='مجموعات'){
+    if(isGroupTournament(tour)){
       if(groupCount<2)return alert('هذه البطولة بنظام مجموعات، لكن عدد المجموعات غير محدد بشكل صحيح.');
       if(group<1||group>groupCount)return alert('اختر المجموعة أولاً قبل تسجيل الفريق.');
     }
     if(db.teams.some(t=>same(t.tournamentId,tid)&&same(t.name,name)))return alert('هذا الفريق مسجل مسبقًا في البطولة المختارة.');
     const logoInput=document.getElementById('teamLogo');
     const logo=typeof readLogo==='function'?await readLogo(logoInput?.files?.[0]):'';
-    db.teams.push({id:typeof uid==='function'?uid('TM'):'TM_'+Date.now(),name,tournamentId:tid,groupNumber:tour.type==='مجموعات'?group:0,groupName:tour.type==='مجموعات'?'المجموعة '+String.fromCharCode(64+group):'',president:S(document.getElementById('teamPresident')?.value),coach:S(document.getElementById('teamCoach')?.value),logo});
+    db.teams.push({id:typeof uid==='function'?uid('TM'):'TM_'+Date.now(),name,tournamentId:tid,groupNumber:isGroupTournament(tour)?group:0,groupName:isGroupTournament(tour)?'المجموعة '+String.fromCharCode(64+group):'',president:S(document.getElementById('teamPresident')?.value),coach:S(document.getElementById('teamCoach')?.value),logo});
     ['teamNameInput','teamPresident','teamCoach'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
     if(logoInput)logoInput.value='';
     const gs=document.getElementById('teamGroup');if(gs)gs.value='';
     persistAndRefresh();
     if(typeof toggleTeamRegistration==='function')toggleTeamRegistration(false);
-    alert(tour.type==='مجموعات'?'تم تسجيل الفريق داخل المجموعة المختارة بنجاح.':'تم تسجيل الفريق وربطه بالبطولة المختارة بنجاح.');
+    alert(isGroupTournament(tour)?'تم تسجيل الفريق داخل المجموعة المختارة بنجاح.':'تم تسجيل الفريق وربطه بالبطولة المختارة بنجاح.');
   };
 
   /* 3) إصلاح قوائم الفريق: البطولة ← الفريق فقط من نفس البطولة. */
@@ -19494,14 +19494,23 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const wrap=document.getElementById('teamGroupWrap');
     const sel=document.getElementById('teamGroup');
     if(!tour||!wrap||!sel)return;
-    const t=(window.db?.tournaments||[]).find(x=>String(x.id)===String(tour.value));
+    const data=window.db || (typeof db!=='undefined'?db:null) || {};
+    const t=(Array.isArray(data.tournaments)?data.tournaments:[]).find(x=>String(x.id)===String(tour.value));
     const n=parseInt(t?.groupCount||0,10)||0;
-    if(isGroupTournament(t)&&n>=2){
+    const typ=String(t?.type||'').trim();
+    const grouped=(typeof isGroupTournament==='function')?isGroupTournament(t):(['مجموعات','مجموعات ثم خروج مغلوب'].includes(typ));
+    const previous=sel.value;
+    if(grouped&&n>=2){
       wrap.style.display='block';
-      sel.innerHTML='<option value="">اختر المجموعة</option>'+Array.from({length:n},(_,i)=>'<option value="'+(i+1)+'">المجموعة '+String.fromCharCode(65+i)+'</option>').join('');
+      wrap.hidden=false;
+      sel.innerHTML='<option value="">اختر المجموعة أولاً</option>'+Array.from({length:n},(_,i)=>'<option value="'+(i+1)+'">المجموعة '+String.fromCharCode(65+i)+'</option>').join('');
+      if(previous && Number(previous)>=1 && Number(previous)<=n)sel.value=previous;
+      sel.required=true;
     }else{
       wrap.style.display='none';
+      wrap.hidden=true;
       sel.innerHTML='<option value="">لا توجد مجموعات</option>';
+      sel.required=false;
     }
   }
   window.refreshTeamGroupSelector=updateTeamGroupField;
@@ -21568,6 +21577,19 @@ header .header-clock{display:none!important}
 (function(){function refresh(){var d=new Date(),pad=function(n){return String(n).padStart(2,'0')};var date=document.getElementById('digitalDate'),time=document.getElementById('digitalClock');if(date)date.textContent=pad(d.getDate())+' / '+pad(d.getMonth()+1)+' / '+d.getFullYear();if(time){var h=d.getHours(),suffix=h>=12?'م':'ص';h=h%12||12;time.textContent=pad(h)+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())+' '+suffix;}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();setInterval(refresh,1000);})();
 </script>
 
+
+<script id="team-group-selector-reliability-fix">
+(function(){
+  function refresh(){try{if(typeof window.refreshTeamGroupSelector==='function')window.refreshTeamGroupSelector();}catch(e){}}
+  document.addEventListener('DOMContentLoaded',function(){
+    const tour=document.getElementById('teamTour');
+    if(tour){tour.addEventListener('change',function(){setTimeout(refresh,0);});}
+    const panel=document.getElementById('teamRegistrationPanel');
+    if(panel && typeof MutationObserver!=='undefined')new MutationObserver(refresh).observe(panel,{attributes:true,attributeFilter:['style','class']});
+    setTimeout(refresh,100);setTimeout(refresh,500);setTimeout(refresh,1200);
+  });
+})();
+</script>
 </body>
 </html>
 
