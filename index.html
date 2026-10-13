@@ -21625,7 +21625,58 @@ header .header-clock{display:none!important}
   });
 })();
 </script>
-</body>
+
+<!-- إصلاح نهائي لحقل اختيار المجموعة في تسجيل الفرق فقط -->
+<style id="team-group-selector-final-style">
+#teamRegistrationPanel #teamGroupWrap.team-group-selector-visible{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;grid-column:1/-1!important;width:100%!important;}
+#teamRegistrationPanel #teamGroupWrap select{display:block!important;width:100%!important;min-height:44px!important;visibility:visible!important;}
+</style>
+<script id="team-group-selector-final-fix">
+(function(){
+  function getDB(){try{if(window.db&&Array.isArray(window.db.tournaments))return window.db;if(typeof db!=='undefined'&&db&&Array.isArray(db.tournaments))return db;}catch(e){}return null;}
+  function refresh(){
+    const tourSel=document.getElementById('teamTour');
+    const wrap=document.getElementById('teamGroupWrap');
+    const sel=document.getElementById('teamGroup');
+    if(!tourSel||!wrap||!sel)return;
+    const data=getDB();
+    const tid=String(tourSel.value||'');
+    const t=data&&Array.isArray(data.tournaments)?data.tournaments.find(x=>String(x.id)===tid):null;
+    const type=String(t&&t.type||'').trim();
+    let grouped=false;
+    try{grouped=!!(t&&typeof isGroupTournament==='function'&&isGroupTournament(t));}catch(e){}
+    if(/مجموعات|group/i.test(type))grouped=true;
+    const count=Math.max(0,parseInt(t&&t.groupCount||0,10)||0);
+    if(t&&grouped){
+      wrap.classList.add('team-group-selector-visible');wrap.hidden=false;wrap.style.setProperty('display','block','important');
+      const old=String(sel.value||'');
+      if(count>=2){
+        const opts=['<option value="">اختر المجموعة أولاً</option>'];
+        for(let i=1;i<=count&&i<=26;i++)opts.push('<option value="'+i+'">المجموعة '+String.fromCharCode(64+i)+'</option>');
+        sel.innerHTML=opts.join('');
+        if(old&&Number(old)>=1&&Number(old)<=count)sel.value=old;
+        sel.disabled=false;sel.required=true;
+      }else{
+        sel.innerHTML='<option value="">عدد المجموعات غير محدد</option>';sel.disabled=true;sel.required=false;
+      }
+    }else{
+      wrap.classList.remove('team-group-selector-visible');wrap.hidden=true;wrap.style.setProperty('display','none','important');
+      sel.innerHTML='<option value="">لا توجد مجموعات</option>';sel.disabled=true;sel.required=false;
+    }
+  }
+  function bind(){
+    const tourSel=document.getElementById('teamTour');
+    if(tourSel&&!tourSel.__teamGroupFinalBound){tourSel.__teamGroupFinalBound=true;tourSel.addEventListener('change',refresh);}
+    const panel=document.getElementById('teamRegistrationPanel');
+    if(panel&&!panel.__teamGroupFinalObserver&&typeof MutationObserver!=='undefined'){panel.__teamGroupFinalObserver=new MutationObserver(refresh);panel.__teamGroupFinalObserver.observe(panel,{attributes:true,attributeFilter:['style','class']});}
+    refresh();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+  [50,250,700,1400,2500].forEach(ms=>setTimeout(bind,ms));
+  document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#teamRegistrationPanel,button[onclick*="toggleTeamRegistration"]'))setTimeout(refresh,30);});
+  window.refreshTeamGroupSelector=refresh;
+})();
+</script>\n</body>
 </html>
 
 <style id="ended-tournament-logo-circle-size">
