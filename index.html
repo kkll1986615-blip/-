@@ -14937,7 +14937,7 @@ async function resetSelectedPlatformSections(){
   const labels={tournaments:'البطولات',teams:'الفرق',players:'اللاعبون',matches:'المباريات ونتائجها',officialPlayers:'اللاعبون الرسميون',sheets:'كشوفات المباريات',referees:'الحكام',archives:'الأرشيف',news:'الأخبار والوسائط',audit:'سجل المراجعة',transfers:'انتقالات اللاعبين',polls:'الاستطلاعات',contact:'رسائل وإعدادات التواصل',predictions:'سجل التوقعات'};
   const names=selected.map(k=>labels[k]||k).join('، ');
   if(!confirm('⚠️ سيتم حذف بيانات الأقسام التالية من قاعدة البيانات المحلية والسحابية عند توفر الاتصال:\n\n'+names+'\n\nستبقى بقية الأقسام وحسابات المستخدمين محفوظة. هل تريد المتابعة؟'))return;
-  if(prompt('للتأكيد النهائي، اكتب: تصفير المحدد')!=='تصفير المحدد'){alert('تم إلغاء العملية ولم تُحذف البيانات.');return;}
+  if(!confirm('تأكيد أخير: هل تريد فعلًا تصفير الأقسام المحددة فقط؟ لا يمكن التراجع عن الحذف.')){alert('تم إلغاء العملية ولم تُحذف البيانات.');return;}
   try{
     const emptyArrays={tournaments:'tournaments',teams:'teams',players:'players',matches:'matches',officialPlayers:'officialPlayers',archives:'archives',suspensions:'suspensions'};
     selected.forEach(k=>{if(emptyArrays[k])db[emptyArrays[k]]=[];});
