@@ -14221,7 +14221,7 @@ async function resetPlatformAdminOnly(){
   if(!first)return;
 
   const second=prompt('للتأكيد النهائي، اكتب كلمة: تصفير');
-  if(second!=='تصفير'){
+  if(String(second||'').trim()!=='تصفير'){
     alert('تم إلغاء العملية. لم يتم حذف أي بيانات.');
     return;
   }
@@ -21757,8 +21757,9 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
     const sel=document.getElementById('platformResetSection'); const key=sel&&sel.value; const cfg=sectionConfig[key];
     if(!cfg){alert('يرجى اختيار القسم المراد تصفيره أولاً.');return;}
     if(!confirm('⚠️ سيتم تصفير قسم «'+cfg.label+'» على الجهاز وقاعدة البيانات السحابية. ستبقى بقية الأقسام دون تغيير. هل تريد المتابعة؟'))return;
-    const check=prompt('للتأكيد، اكتب اسم القسم كما يلي تمامًا:\n'+cfg.label);
-    if(check!==cfg.label){alert('تم إلغاء العملية، ولم تُحذف أي بيانات.');return;}
+    const check=prompt('للتأكيد، اكتب كلمة «تصفير» أو اسم القسم «'+cfg.label+'».');
+    const confirmation=String(check||'').trim();
+    if(confirmation!=='تصفير' && confirmation!==cfg.label){alert('تم إلغاء العملية، ولم تُحذف أي بيانات.');return;}
     const keysToTouch=[...new Set(['manar_sports_v2',...cfg.keys])];
     const oldStorage={};
     keysToTouch.forEach(k=>{oldStorage[k]=localStorage.getItem(k);});
