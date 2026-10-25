@@ -17155,17 +17155,18 @@ window.__manarFirebaseHardReset=async function(){
     const rootRef=ref(db,CLOUD_PATH);
     const snap=await get(rootRef);
     const rootValue=snap.exists()?snap.val():null;
-    // حذف بيانات المنصة بتحديث ذري واحد؛ لا نستخدم remove() الذي تسبب بخطأ SDK.
+    // حذف كل مفتاح على حدة باستخدام set(path, null) بدل update(rootRef, patch)،
+    // لتجنب خطأ SDK: e_checkNotDeleted is not a function.
+    // حسابات المستخدمين محفوظة عمدًا ولا تدخل في قائمة الحذف.
     const cloudKeys=new Set([...SYNC_KEYS,
       'manar_poll_votes_v1','manar_contact_settings_v1',
       'manar_contact_messages_v1','manar_platform_settings_v1',
       ...((rootValue&&typeof rootValue==='object'&&!Array.isArray(rootValue))?Object.keys(rootValue).filter(k=>k!=='manar_users_v3'):[])
     ]);
-    // حسابات مستخدمي المنصة محفوظة عمدًا ولا تُحذف.
     cloudKeys.delete('manar_users_v3');
-    const deletePatch={};
-    for(const k of cloudKeys) deletePatch[k]=null;
-    if(Object.keys(deletePatch).length) await update(rootRef,deletePatch);
+    for(const k of cloudKeys){
+      await set(ref(db,CLOUD_PATH+'/'+k),null);
+    }
     const verify=await get(rootRef);
     const remaining=verify.exists()?verify.val():null;
     const remainingKeys=remaining&&typeof remaining==='object'&&!Array.isArray(remaining)?Object.keys(remaining).filter(k=>k!=='manar_users_v3'):[];
