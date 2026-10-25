@@ -11015,6 +11015,14 @@ const KEY='manar_sports_v2';
 const LEGACY_MAIN_KEY='manar_match_sheets_v1';
 function loadMainDatabase(){
   const empty={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};
+  /* لا ندمج النسخ القديمة بعد التصفير: المعلومة تُحفظ داخل القاعدة الرئيسية وتُزامن مع Firebase. */
+  let resetMeta=null;
+  try{
+    const primary=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(primary&&typeof primary==='object'&&primary.__manarResetMeta&&typeof primary.__manarResetMeta==='object')resetMeta=primary.__manarResetMeta;
+  }catch(e){}
+  const resetSections=resetMeta&&resetMeta.sections&&typeof resetMeta.sections==='object'?resetMeta.sections:{};
+  const authoritativeField=type=>!!(resetMeta&&resetMeta.fullResetAt)||Object.prototype.hasOwnProperty.call(resetSections,type);
   const keys=[KEY,'manar_sports_v2','manar_sports_v1','almanar_sports_v1','sports_platform_v1'];
   const candidates=[];
   const seenKeys=new Set();
@@ -11065,7 +11073,7 @@ function loadMainDatabase(){
     }
   }catch(e){}
 
-  if(!candidates.length)return empty;
+  if(!candidates.length)return resetMeta?{...empty,__manarResetMeta:resetMeta}:empty;
   candidates.sort((a,b)=>b.score-a.score);
   const best=candidates[0].data;
 
@@ -11075,6 +11083,8 @@ function loadMainDatabase(){
   // نأخذ البيانات من القاعدة الأقوى، ثم نضيف أي سجلات ناقصة من القواعد الأخرى.
   for(const c of candidates){
     for(const type of Object.keys(merged)){
+      /* بعد تصفير حقل، لا نسترجع سجلات ذلك الحقل من أي مفتاح قديم. */
+      if(authoritativeField(type)&&c.key!==KEY)continue;
       for(const item of (c.data[type]||[])){
         if(!item||typeof item!=='object')continue;
         const id=item.id!=null?String(item.id):JSON.stringify(item);
@@ -11088,13 +11098,14 @@ function loadMainDatabase(){
 
   // إذا كانت قاعدة أفضل واضحة، أعطها الأولوية، مع الاحتفاظ بالسجلات المضافة من النسخ القديمة.
   return {
-    tournaments:merged.tournaments.length?merged.tournaments:best.tournaments,
-    teams:merged.teams.length?merged.teams:best.teams,
-    players:merged.players.length?merged.players:best.players,
-    matches:merged.matches.length?merged.matches:best.matches,
-    officialPlayers:merged.officialPlayers.length?merged.officialPlayers:best.officialPlayers,
-    archives:merged.archives.length?merged.archives:best.archives,
-    suspensions:merged.suspensions.length?merged.suspensions:best.suspensions
+    tournaments:authoritativeField('tournaments')?merged.tournaments:(merged.tournaments.length?merged.tournaments:best.tournaments),
+    teams:authoritativeField('teams')?merged.teams:(merged.teams.length?merged.teams:best.teams),
+    players:authoritativeField('players')?merged.players:(merged.players.length?merged.players:best.players),
+    matches:authoritativeField('matches')?merged.matches:(merged.matches.length?merged.matches:best.matches),
+    officialPlayers:authoritativeField('officialPlayers')?merged.officialPlayers:(merged.officialPlayers.length?merged.officialPlayers:best.officialPlayers),
+    archives:authoritativeField('archives')?merged.archives:(merged.archives.length?merged.archives:best.archives),
+    suspensions:authoritativeField('suspensions')?merged.suspensions:(merged.suspensions.length?merged.suspensions:best.suspensions),
+    ...(resetMeta&&((Number(resetMeta.fullResetAt)||0)>0||Object.keys(resetSections).length>0||Object.keys(resetMeta.keys||{}).length>0)?{__manarResetMeta:resetMeta}:{})
   };
 }
 let db=loadMainDatabase();
@@ -11140,10 +11151,11 @@ try{
       matches:Array.isArray(db.matches)?db.matches:[],
       officialPlayers:Array.isArray(db.officialPlayers)?db.officialPlayers:[],
       archives:Array.isArray(db.archives)?db.archives:[],
-      suspensions:Array.isArray(db.suspensions)?db.suspensions:[]
+      suspensions:Array.isArray(db.suspensions)?db.suspensions:[],
+      __manarResetMeta:db.__manarResetMeta&&typeof db.__manarResetMeta==='object'?db.__manarResetMeta:undefined
     };
     if(normalized.tournaments.length||normalized.teams.length||normalized.players.length||normalized.matches.length||
-       normalized.officialPlayers.length||normalized.archives.length||normalized.suspensions.length){
+       normalized.officialPlayers.length||normalized.archives.length||normalized.suspensions.length||normalized.__manarResetMeta){
       localStorage.setItem(KEY,JSON.stringify(normalized));
     }
   }
@@ -14212,111 +14224,76 @@ async function resetPlatformAdminOnly(){
     alert('تصفير المنصة متاح لمدير النظام فقط.');
     return;
   }
-  if(typeof window.__manarFirebaseCanWrite!=='function' || !window.__manarFirebaseCanWrite()){
-    alert('لضمان تصفير المنصة على الجهاز وقاعدة البيانات السحابية معًا، سجّل الدخول أولًا إلى حساب Firebase المصرّح له بالكتابة، ثم أعد المحاولة. لم يتم حذف أي بيانات.');
+  if(typeof window.__manarFirebaseCanWrite!=='function'||!window.__manarFirebaseCanWrite()){
+    alert('لضمان تصفير المنصة على الجهاز وقاعدة البيانات السحابية معًا، سجّل الدخول إلى حساب Firebase المصرّح له بالكتابة أولًا. لم يتم حذف أي بيانات.');
     return;
   }
-
-  const first=confirm('⚠️ تحذير شديد\n\nسيتم حذف جميع البيانات الرياضية من هذا الجهاز: البطولات والفرق واللاعبين والمباريات والكشوفات والحكام والأخبار والأرشيف وسجل المراجعة.\n\nسيتم الإبقاء على حسابات المستخدمين وكلمة مرور المدير.\n\nهل تريد المتابعة؟');
-  if(!first)return;
-
-  const second=prompt('للتأكيد النهائي، اكتب كلمة: تصفير');
-  if(String(second||'').trim()!=='تصفير'){
+  if(!confirm('⚠️ سيتم تصفير جميع بيانات المنصة الرياضية، بما فيها البطولات التجريبية، من الجهاز والسحابة. ستبقى حسابات المستخدمين وكلمة مرور المدير. هل تريد المتابعة؟'))return;
+  if(String(prompt('للتأكيد النهائي، اكتب كلمة: تصفير')||'').trim()!=='تصفير'){
     alert('تم إلغاء العملية. لم يتم حذف أي بيانات.');
     return;
   }
 
+  window.__manarFirebaseResetLock=true;
+  const resetMeta={fullResetAt:Date.now(),sections:{},keys:{}};
+  const emptyDb={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[],__manarResetMeta:resetMeta};
+  const emptyValues={
+    manar_sports_v2:emptyDb,
+    manar_match_sheets_v1:[],manar_match_sheets_v2:[],manar_match_sheets_v3:[],
+    manar_referees_v1:[],manar_audit_log_v1:[],manar_tournament_archive_v1:[],
+    manar_media_news_v1:[],manar_player_management_windows_v1:{},manar_player_transfers_v1:[],
+    manar_contact_settings_v1:{},manar_contact_messages_v1:[],manar_polls_v1:[],manar_poll_votes_v1:[]
+  };
+  Object.keys(emptyValues).forEach(k=>resetMeta.keys[k]=resetMeta.fullResetAt);
   try{
-    /* قفل المزامنة أثناء التصفير حتى لا تعيد الكتابة المؤجلة إنشاء بيانات سحابية بعد حذفها. */
-    window.__manarFirebaseResetLock=true;
-    const keepKeys=new Set(['manar_users_v3']);
-
-    const appTerms=[
-      'manar_','almanar_','platform_','sports_',
-      'tournaments','teams','players','matches','sheets',
-      'referees','warnings','suspensions','news','archives',
-      'audit','media','contact','backup','firebase'
-    ];
-
-    // احذف السحابة أولًا؛ إذا رفضت Firebase العملية تبقى بيانات الجهاز كما هي.
+    /* حذف بيانات Firebase أولًا، مع استثناء سجل حسابات المستخدمين من الحذف. */
     await window.__manarFirebaseHardReset();
 
+    const keepKeys=new Set(['manar_users_v3']);
     const keysToDelete=[];
+    const appPattern=/manar|almanar|platform|sports|tournament|team|player|match|sheet|referee|suspension|warning|archive|media|news|poll|audit|firebase|backup|contact|demo|test|seed|transfer/i;
     for(let i=0;i<localStorage.length;i++){
       const k=localStorage.key(i);
-      if(!k || keepKeys.has(k))continue;
-
+      if(!k||keepKeys.has(k))continue;
       const low=k.toLowerCase();
-      let isAppKey=appTerms.some(term=>low.includes(term.toLowerCase()));
-
-      /*
-        أيضًا احذف أي سجل JSON قديم يحتوي على بنية قاعدة المنصة،
-        حتى لو كان محفوظًا تحت اسم غير معروف.
-      */
+      let isAppKey=appPattern.test(low);
       if(!isAppKey){
         try{
           const raw=localStorage.getItem(k);
           const x=JSON.parse(raw);
-          if(x && typeof x==='object' &&
-             (Array.isArray(x.tournaments) || Array.isArray(x.teams) ||
-              Array.isArray(x.players) || Array.isArray(x.matches) ||
-              Array.isArray(x.officialPlayers) || Array.isArray(x.archives) ||
-              Array.isArray(x.suspensions))){
-            isAppKey=true;
-          }
+          if(x&&typeof x==='object'&&!Array.isArray(x)&&
+            (Array.isArray(x.tournaments)||Array.isArray(x.teams)||Array.isArray(x.players)||Array.isArray(x.matches)||
+             Array.isArray(x.officialPlayers)||Array.isArray(x.archives)||Array.isArray(x.suspensions)))isAppKey=true;
+          if(Array.isArray(x)&&x.some(v=>v&&typeof v==='object'&&('id' in v)&&('name' in v)&&('season' in v)))isAppKey=true;
         }catch(e){}
       }
-
       if(isAppKey)keysToDelete.push(k);
     }
-
     keysToDelete.forEach(k=>localStorage.removeItem(k));
 
-    /* تصفير كل مخازن البيانات المعروفة صراحةً */
-    const emptyDb={
-      tournaments:[],
-      teams:[],
-      players:[],
-      matches:[],
-      officialPlayers:[],
-      archives:[],
-      suspensions:[]
-    };
-
-    [
-      'manar_sports_v2',
-      'manar_sports_v1',
-      'almanar_sports_v1',
-      'sports_platform_v1'
-    ].forEach(k=>localStorage.setItem(k,JSON.stringify(emptyDb)));
-
-    localStorage.setItem('manar_match_sheets_v1','[]');
-    localStorage.setItem('manar_match_sheets_v2','[]');
-    localStorage.setItem('manar_referees_v1','[]');
-    localStorage.setItem('manar_audit_log_v1','[]');
-    localStorage.setItem('manar_tournament_archive_v1','[]');
-    localStorage.setItem('manar_media_news_v1','[]');
-    localStorage.setItem('manar_player_management_windows_v1','{}');
-    localStorage.setItem('manar_player_transfers_v1','[]');
-    localStorage.removeItem('manar_contact_settings_v1');
+    /* أبقِ مفاتيح القاعدة القديمة فارغة أيضًا، حتى لا تسترجعها نسخة أقدم من التطبيق. */
+    ['manar_sports_v2','manar_sports_v1','almanar_sports_v1','sports_platform_v1'].forEach(k=>localStorage.setItem(k,JSON.stringify(emptyDb)));
+    Object.entries(emptyValues).forEach(([k,v])=>localStorage.setItem(k,JSON.stringify(v)));
     localStorage.removeItem('publicSelectedTournamentYear');
     localStorage.removeItem('publicSelectedTour');
 
-    /* اجعل المتغير الحالي فارغًا أيضًا */
     db=JSON.parse(JSON.stringify(emptyDb));
     window.db=db;
-    if(typeof rebuildIndexes==='function')rebuildIndexes();
+    try{if(typeof rebuildIndexes==='function')rebuildIndexes();}catch(e){}
 
-    /* لا نستخدم save() هنا حتى لا يعيد تسجيل بيانات قديمة */
-    alert('✅ تم تصفير جميع بيانات المنصة بنجاح على الجهاز والسحابة. سيتم إعادة تحميل المنصة الآن.');
+    /* بعد الحذف، نكتب حالة فارغة موثقة إلى مفاتيح Firebase؛ لا نترك مفاتيح غائبة
+       تسمح لجهاز آخر بإعادة رفع نسخة قديمة. كل مفتاح يتم التحقق منه بعد الكتابة. */
+    await window.__manarFirebaseResetSectionCloud(Object.keys(emptyValues));
+
+    window.__manarFirebaseResetLock=false;
+    alert('✅ تم تصفير المنصة بالكامل على الجهاز وقاعدة Firebase، بما فيها البيانات التجريبية. تم الحفاظ على حسابات المستخدمين. ستُعاد تشغيل المنصة الآن.');
     location.reload();
   }catch(err){
     window.__manarFirebaseResetLock=false;
     console.error('Platform reset error:',err);
-    alert('❌ تعذر تصفير المنصة بالكامل. لم يتم إكمال العملية.\nالسبب: '+(err&&err.message?err.message:'خطأ غير معروف'));
+    alert('❌ لم يتم تأكيد اكتمال التصفير على الجهاز والسحابة. تحقق من اتصال الإنترنت وصلاحيات Firebase ثم أعد المحاولة.\nالتفاصيل: '+(err&&err.message?err.message:'خطأ غير معروف'));
   }
 }
-
 (function(){function adminOnly(){if(typeof currentRole!=='undefined'&&currentRole==='admin')return true;alert('🛠️ صيانة المنصة متاحة لمدير النظام فقط.');return false}function status(t,c){const e=document.getElementById('maintenanceStatus');if(e){e.textContent=t;e.style.background=c==='error'?'#fdecec':c==='warn'?'#fff6dd':'#eaf7ee';e.style.color=c==='error'?'#a11f1f':c==='warn'?'#806000':'#176b38'}}function report(a){const e=document.getElementById('maintenanceReport');if(e)e.innerHTML=a.map(x=>`<div style="padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff"><b>${x[0]}</b> ${x[1]}</div>`).join('')}function backup(){const d={savedAt:new Date().toISOString(),database:typeof db!=='undefined'?db:null};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='نسخة_قبل_الصيانة_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}window.platformMaintenanceCheck=function(){if(!adminOnly())return;if(typeof db==='undefined'||!db){status('❌ قاعدة البيانات غير متاحة.','error');return}const r=[],issues=[];['tournaments','teams','players','matches','officialPlayers','archives','suspensions'].forEach(k=>{if(!Array.isArray(db[k])){issues.push(k);r.push(['⚠️',k+' يحتاج إلى إصلاح.'])}else r.push(['✅',k+' سليم — '+db[k].length+' سجل.'])});const ts=new Set((db.tournaments||[]).map(x=>String(x.id))),te=new Set((db.teams||[]).map(x=>String(x.id)));const bt=(db.teams||[]).filter(x=>x.tournamentId&&!ts.has(String(x.tournamentId))).length,bp=(db.players||[]).filter(x=>x.teamId&&!te.has(String(x.teamId))).length;if(bt){issues.push('team-links');r.push(['⚠️','يوجد '+bt+' فريق مرتبط ببطولة غير موجودة.'])}else r.push(['✅','روابط الفرق سليمة.']);if(bp){issues.push('player-links');r.push(['⚠️','يوجد '+bp+' لاعب مرتبط بفريق غير موجود.'])}else r.push(['✅','روابط اللاعبين سليمة.']);report(r);status(issues.length?'⚠️ اكتمل الفحص — توجد '+issues.length+' ملاحظة.':'✅ اكتمل الفحص — لا توجد مشاكل واضحة.',issues.length?'warn':'ok')};window.platformMaintenanceRepair=function(){if(!adminOnly())return;if(!confirm('سيتم إنشاء نسخة احتياطية ثم إصلاح بنية البيانات وإعادة بناء الفهارس. هل تريد المتابعة؟'))return;try{backup();if(typeof db==='undefined'||!db)throw new Error('قاعدة البيانات غير متاحة');const d={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[]};Object.keys(d).forEach(k=>{if(!Array.isArray(db[k]))db[k]=[];db[k]=db[k].filter(x=>x&&typeof x==='object')});db.matches.forEach(m=>{if(!Array.isArray(m.cards))m.cards=[];if(m.home==null)m.home='';if(m.away==null)m.away=''});window.db=db;if(typeof rebuildIndexes==='function')rebuildIndexes();localStorage.setItem(KEY,JSON.stringify(db));if(typeof auditAdd==='function')auditAdd('صيانة','النظام','تم تنفيذ إصلاح تلقائي بواسطة مدير النظام.');status('✅ تمت الصيانة بنجاح.','ok');report([['💾','تم إنشاء نسخة احتياطية قبل الإصلاح.'],['🔧','تم إصلاح الحقول الأساسية وتنظيف السجلات غير الصالحة فقط.'],['🗂️','تمت إعادة بناء الفهارس.'],['✅','تم حفظ قاعدة البيانات.']]);if(typeof renderAll==='function')renderAll()}catch(e){status('❌ فشلت عملية الصيانة.','error');report([['❌','لم يتم حذف البيانات. النسخة الاحتياطية التي أُنشئت قبل العملية متاحة لديك.']])}};window.platformMaintenanceReload=function(){if(!adminOnly())return;if(confirm('هل تريد إعادة تشغيل المنصة الآن؟'))location.reload()}})();
 rebuildIndexes();authInit();nav();updateHomeNewsTicker('home');initPermissionOptions();renderAll();
 try{
@@ -17084,8 +17061,28 @@ function localManagerRole(){try{const role=sessionStorage.getItem('manar_auth_v2
 function canWrite(){return !!auth?.currentUser && !auth.currentUser.isAnonymous}
 function localValue(key){try{const raw=localStorage.getItem(key);return raw===null?null:JSON.parse(raw)}catch(e){return null}}
 async function pushKey(key){if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');await set(ref(db,CLOUD_PATH+'/'+key),localValue(key));dirty.delete(key)}
-async function pushKeys(keys){const unique=[...new Set(keys)].filter(k=>SYNC_KEYS.includes(k));for(const k of unique){await pushKey(k)}}
-async function pushAll(){if(window.__manarFirebaseResetLock)return;if(!canWrite()){status('القراءة متاحة، لكن مزامنة التعديلات تحتاج تسجيل دخول Firebase',false);return}try{applyingRemote=true;status('جارٍ حفظ التعديلات الموجودة محليًا في السحابة...',true);const present=SYNC_KEYS.filter(k=>localStorage.getItem(k)!==null);await pushKeys(present);status('تم رفع '+present.length+' قسمًا محفوظًا محليًا إلى السحابة؛ لم تُحذف المفاتيح المحلية الغائبة',true)}catch(e){status('فشل المزامنة: '+firebaseErrorMessage(e),false)}finally{applyingRemote=false}}
+async function pushKeys(keys){if(window.__manarFirebaseResetLock)return false;const unique=[...new Set(keys)].filter(k=>SYNC_KEYS.includes(k));for(const k of unique){if(window.__manarFirebaseResetLock)return false;await pushKey(k)}return true}
+async function pushAll(){
+  if(window.__manarFirebaseResetLock)return false;
+  if(!canWrite()){status('القراءة متاحة، لكن مزامنة التعديلات تحتاج تسجيل دخول Firebase',false);return false}
+  try{
+    /* الجهاز القديم الذي لا يحمل ختم التصفير لا يُسمح له باستبدال حالة السحابة الأحدث. */
+    const cloudMainSnap=await get(ref(db,CLOUD_PATH+'/manar_sports_v2'));
+    const cloudMain=cloudMainSnap.exists()?cloudMainSnap.val():null;
+    if(cloudResetMarkerIsNewer(cloudMain,localValue('manar_sports_v2'))){
+      await pullAll();
+      status('تم تنزيل تصفير Firebase الأحدث؛ لم تُرفع البيانات المحلية القديمة',true);
+      return false;
+    }
+    applyingRemote=true;
+    status('جارٍ حفظ التعديلات الموجودة محليًا في السحابة...',true);
+    const present=SYNC_KEYS.filter(k=>localStorage.getItem(k)!==null);
+    await pushKeys(present);
+    status('تم رفع '+present.length+' قسمًا محفوظًا محليًا إلى السحابة؛ لم تُحذف المفاتيح المحلية الغائبة',true);
+    return true;
+  }catch(e){status('فشل المزامنة: '+firebaseErrorMessage(e),false);return false}
+  finally{applyingRemote=false}
+}
 /* يبدأ التحقق والمزامنة تلقائيًا بعد نجاح تسجيل الدخول المحلي للمدير أو أي حساب مخوّل. لا يرفع البيانات إلا بعد مصادقة Firebase ذات صلاحية كتابة. */
 window.__manarFirebaseSyncAfterPlatformLogin=async function(role){
   try{
@@ -17156,10 +17153,14 @@ window.__manarFirebaseResetSectionCloud=async function(keys){
       if(Array.isArray(value)&&value.length===0){
         if(!isEmptyCloudValue(verify)) throw new Error('لم تؤكد Firebase تصفير القسم: '+k);
       }else if(value&&typeof value==='object'&&!Array.isArray(value)){
-        if(!verify||typeof verify!=='object') throw new Error('لم تؤكد Firebase حفظ بيانات القسم: '+k);
-        const emptyArrayFields=Object.keys(value).filter(field=>Array.isArray(value[field])&&value[field].length===0);
-        for(const field of emptyArrayFields){
-          if(!isEmptyCloudValue(verify[field])) throw new Error('لم تؤكد Firebase تصفير الحقل '+field+' في '+k);
+        if(Object.keys(value).length===0){
+          if(!isEmptyCloudValue(verify)) throw new Error('لم تؤكد Firebase تصفير القسم الفارغ: '+k);
+        }else{
+          if(!verify||typeof verify!=='object') throw new Error('لم تؤكد Firebase حفظ بيانات القسم: '+k);
+          const emptyArrayFields=Object.keys(value).filter(field=>Array.isArray(value[field])&&value[field].length===0);
+          for(const field of emptyArrayFields){
+            if(!isEmptyCloudValue(verify[field])) throw new Error('لم تؤكد Firebase تصفير الحقل '+field+' في '+k);
+          }
         }
       }else if(JSON.stringify(verify)!==JSON.stringify(value)){
         throw new Error('لم تؤكد Firebase حفظ التغيير للقسم: '+k);
@@ -17190,10 +17191,31 @@ window.__manarFirebaseHardReset=async function(){
     return true;
   } finally { applyingRemote=false; }
 };
-async function pullAll(){if(window.__manarFirebaseResetLock)return;try{applyingRemote=true;let n=0,missing=0;for(const k of SYNC_KEYS){const snap=await get(ref(db,CLOUD_PATH+'/'+k));if(snap.exists()){localStorage.setItem(k,JSON.stringify(snap.val()));n++}else{missing++ /* لا نحذف النسخة المحلية لمجرد غياب المفتاح من السحابة */}}dirty.clear();
-/* مهم: بعد تنزيل بيانات Firebase يجب إعادة تحميل متغير db نفسه؛ وإلا تبقى قوائم الاختيار مرتبطة بالبيانات القديمة الفارغة. */
-try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
-render();status('تم تنزيل '+n+' قسمًا من السحابة، وتم الحفاظ على البيانات المحلية للمفاتيح غير الموجودة ('+missing+')',true)}catch(e){status('فشل تنزيل بيانات السحابة: '+(e?.message||e),false)}finally{applyingRemote=false}}
+async function pullAll(){
+  if(window.__manarFirebaseResetLock)return;
+  try{
+    applyingRemote=true;
+    const mainSnap=await get(ref(db,CLOUD_PATH+'/manar_sports_v2'));
+    const cloudMain=mainSnap.exists()?mainSnap.val():null;
+    const localMainBefore=localValue('manar_sports_v2');
+    let n=0,missing=0,cleared=0;
+    for(const k of SYNC_KEYS){
+      const snap=await get(ref(db,CLOUD_PATH+'/'+k));
+      if(snap.exists()){
+        localStorage.setItem(k,JSON.stringify(snap.val()));n++;
+      }else if(k!=='manar_sports_v2'&&cloudResetAppliesToStorageKey(cloudMain,localMainBefore,k)){
+        /* قد تختفي المصفوفة الفارغة من Firebase؛ ختم التصفير يجعل غيابها حذفًا مقصودًا لا فقدانًا عاديًا. */
+        localStorage.setItem(k,JSON.stringify(emptyValueForResetKey(k)));cleared++;
+      }else{
+        missing++; /* لا نحذف النسخة المحلية لمجرد غياب المفتاح من السحابة، ما لم يوجد ختم تصفير أحدث. */
+      }
+    }
+    dirty.clear();
+    try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
+    render();status('تم تنزيل '+n+' قسمًا من السحابة، وتصفير '+cleared+' مفتاحًا فارغًا بموجب ختم التصفير، والحفاظ على '+missing+' مفتاحًا غير موجود',true);
+  }catch(e){status('فشل تنزيل بيانات السحابة: '+(e?.message||e),false)}
+  finally{applyingRemote=false}
+}
 function firebaseErrorMessage(e){const code=e?.code||'';const map={
  'auth/invalid-credential':'البريد أو كلمة المرور غير صحيحة، أو بيانات الدخول غير صالحة.',
  'auth/wrong-password':'كلمة المرور غير صحيحة.',
@@ -17323,6 +17345,7 @@ $('fsCloudRestore')?.addEventListener('click',async()=>{
 
 function patchStorage(){if(window.__manarFirebasePatched)return;window.__manarFirebasePatched=true;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){const k=String(key),result=original.call(this,key,value);if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote&&!window.__manarFirebaseResetLock){dirty.add(k);try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}if(canWrite()){clearTimeout(window.__manarFirebasePushTimer);window.__manarFirebasePushTimer=setTimeout(()=>{ const pending=[...dirty]; if(!pending.length||!canWrite())return; applyingRemote=true; pushKeys(pending).then(()=>status('تم تحديث السحابة فورًا',true)).catch(e=>status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false)).finally(()=>{applyingRemote=false;}); },35)}}return result}}
 window.__manarFirebaseSaveKey=async function(key){
+  if(window.__manarFirebaseResetLock)return false;
   if(!SYNC_KEYS.includes(key))return false;
   dirty.add(key);
   if(!canWrite())return false;
@@ -17331,12 +17354,43 @@ window.__manarFirebaseSaveKey=async function(key){
   finally{applyingRemote=false}
 };
 function hasLocalData(){try{const m=localValue('manar_sports_v2');return !!(m&&typeof m==='object'&&((m.tournaments||[]).length||(m.teams||[]).length||(m.players||[]).length||(m.matches||[]).length||(m.archives||[]).length||(m.officialPlayers||[]).length||(m.suspensions||[]).length))}catch(e){return false}}
+function cloudResetMarkerIsNewer(cloudMain,localMain){
+  const cm=cloudMain&&typeof cloudMain==='object'?cloudMain.__manarResetMeta:null;
+  const lm=localMain&&typeof localMain==='object'?localMain.__manarResetMeta:null;
+  if(!cm||typeof cm!=='object')return false;
+  const cFull=Number(cm.fullResetAt)||0,lFull=Number(lm&&lm.fullResetAt)||0;
+  if(cFull>lFull)return true;
+  const cs=cm.sections&&typeof cm.sections==='object'?cm.sections:{};
+  const ls=lm&&lm.sections&&typeof lm.sections==='object'?lm.sections:{};
+  for(const [field,stamp] of Object.entries(cs)){if((Number(stamp)||0)>(Number(ls[field])||0))return true;}
+  const ck=cm.keys&&typeof cm.keys==='object'?cm.keys:{};
+  const lk=lm&&lm.keys&&typeof lm.keys==='object'?lm.keys:{};
+  for(const [key,stamp] of Object.entries(ck)){if((Number(stamp)||0)>(Number(lk[key])||0))return true;}
+  return false;
+}
+function cloudResetAppliesToStorageKey(cloudMain,localMain,key){
+  const cm=cloudMain&&typeof cloudMain==='object'?cloudMain.__manarResetMeta:null;
+  const lm=localMain&&typeof localMain==='object'?localMain.__manarResetMeta:null;
+  if(!cm||typeof cm!=='object')return false;
+  if((Number(cm.fullResetAt)||0)>(Number(lm&&lm.fullResetAt)||0))return true;
+  const ck=cm.keys&&typeof cm.keys==='object'?cm.keys:{};
+  const lk=lm&&lm.keys&&typeof lm.keys==='object'?lm.keys:{};
+  return (Number(ck[key])||0)>(Number(lk[key])||0);
+}
+function emptyValueForResetKey(key){return key==='manar_player_management_windows_v1'||key==='manar_contact_settings_v1'?{}:[];}
 async function initialSync(){
   if(initialDone)return;
   initialDone=true;
   const hasCloud=SYNC_KEYS.some(k=>initialValues[k]!==null);
   const localHasData=hasLocalData();
   const signedIn=canWrite();
+
+  /* إذا كانت السحابة تحمل تصفيرًا أحدث، فاسحب حالتها أولًا ولا ترفع ذاكرة الجهاز القديمة فوقها. */
+  if(cloudResetMarkerIsNewer(initialValues['manar_sports_v2'],localValue('manar_sports_v2'))){
+    await pullAll();
+    status('تم اعتماد حالة التصفير الأحدث من Firebase ومنع استرجاع البيانات المحلية القديمة',true);
+    return;
+  }
 
   /*
     إصلاح جذري للحفظ:
@@ -17386,7 +17440,7 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
     initialReady++;
     if(initialReady===SYNC_KEYS.length){
       await initialSync();
-    }else if(initialDone&&!applyingRemote){
+    }else if(initialDone&&!applyingRemote&&!window.__manarFirebaseResetLock){
       applyingRemote=true;
       try{
         /* نعالج الإضافة/التعديل وكذلك الحذف من السحابة. */
@@ -21744,24 +21798,25 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     let oldDb=null;
     try{if(typeof db!=='undefined'&&db&&typeof db==='object')oldDb=JSON.parse(JSON.stringify(db));}catch(e){}
     try{
-      const cloudKeys=[...cfg.keys];
-      if(cfg.arrays.length){
-        if(typeof db==='undefined'||!db||typeof db!=='object')throw new Error('قاعدة بيانات المنصة غير متاحة.');
-        cfg.arrays.forEach(k=>{db[k]=[];});
-        window.db=db;
-        if(typeof save==='function'){
-          const saved=save();
-          if(saved===false)throw new Error('تعذر حفظ التصفير في قاعدة البيانات المحلية.');
-        } else {
-          localStorage.setItem('manar_sports_v2',JSON.stringify(db));
-        }
-        cloudKeys.push('manar_sports_v2');
-      }
+      if(typeof db==='undefined'||!db||typeof db!=='object')throw new Error('قاعدة بيانات المنصة غير متاحة.');
+      const stamp=Date.now();
+      const meta=db.__manarResetMeta&&typeof db.__manarResetMeta==='object'?JSON.parse(JSON.stringify(db.__manarResetMeta)):{sections:{},keys:{}};
+      if(!meta.sections||typeof meta.sections!=='object')meta.sections={};
+      if(!meta.keys||typeof meta.keys!=='object')meta.keys={};
+      cfg.arrays.forEach(k=>{db[k]=[];meta.sections[k]=stamp;});
+      cfg.keys.forEach(k=>{meta.keys[k]=stamp;});
+      db.__manarResetMeta=meta;
+      window.db=db;
+      /* لا تستخدم save() أثناء التصفير؛ فهو يسجل عملية جديدة في سجل المراجعة. */
+      localStorage.setItem('manar_sports_v2',JSON.stringify(db));
       cfg.keys.forEach(k=>localStorage.setItem(k,JSON.stringify([])));
       if(key==='sheets'){
         ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>localStorage.setItem(k,'[]'));
       }
-      // انتظر نجاح الكتابة السحابية قبل إبلاغ المستخدم بإتمام العملية.
+      try{if(typeof rebuildIndexes==='function')rebuildIndexes();}catch(e){}
+      try{if(typeof window.__manarDataVersion!=='undefined')window.__manarDataVersion++;}catch(e){}
+      // تُكتب القاعدة الرئيسية مع ختم التصفير ومفتاح القسم، ثم تُكتب بيانات القسم وتُتحقق.
+      const cloudKeys=[...new Set(['manar_sports_v2',...cfg.keys])];
       await window.__manarFirebaseResetSectionCloud(cloudKeys);
       if(key==='referees'&&typeof window.renderManarReferees==='function')window.renderManarReferees();
       if(key==='sheets'&&typeof window.refreshMatchSheets==='function')window.refreshMatchSheets();
