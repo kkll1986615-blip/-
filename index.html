@@ -17047,7 +17047,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <script id="firebase-realtime-sync-final" type="module">
 import {initializeApp,getApps} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
 import {getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut,onAuthStateChanged,signInAnonymously} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
-import {getDatabase,ref,set,get,onValue,runTransaction} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js';
+import {getDatabase,ref,set,get,remove,onValue,runTransaction} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js';
 
 const FIREBASE_CONFIG={apiKey:'AIzaSyBl8ETnvRg4w-7BTleNROgmzSaqtPbUWRE',authDomain:'almanar-sports.firebaseapp.com',databaseURL:'https://almanar-sports-default-rtdb.firebaseio.com',projectId:'almanar-sports',storageBucket:'almanar-sports.firebasestorage.app',messagingSenderId:'933674233471',appId:'1:933674233471:web:6dbcd5517687aa9a47194a'};
 const CLOUD_PATH='manar_platform';
@@ -17150,10 +17150,15 @@ window.__manarFirebaseHardReset=async function(){
   if(!canWrite()) throw new Error('يجب تسجيل الدخول إلى حساب Firebase الذي يملك صلاحية الكتابة قبل التصفير الكلي.');
   applyingRemote=true;
   try{
-    // حذف جذر بيانات المنصة دفعة واحدة، مع بقاء حسابات Firebase خارج هذا المسار.
-    await set(ref(db,CLOUD_PATH),null);
+    // استخدم remove() المخصصة للحذف في Realtime Database بدل set(..., null).
+    // هذا يحذف بيانات المنصة فقط تحت manar_platform ولا يمس حسابات Firebase.
+    const rootRef=ref(db,CLOUD_PATH);
+    await remove(rootRef);
+    // تحقق من نتيجة الحذف قبل السماح بتصفير النسخة المحلية.
+    const verify=await get(rootRef);
+    if(verify.exists()) throw new Error('لم تؤكد Firebase حذف بيانات المنصة؛ لم يتم إكمال التصفير المحلي.');
     dirty.clear();
-    status('تم حذف بيانات المنصة من قاعدة البيانات السحابية',true);
+    status('تم التحقق من حذف بيانات المنصة من قاعدة البيانات السحابية',true);
     return true;
   } finally { applyingRemote=false; }
 };
