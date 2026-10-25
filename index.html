@@ -17047,7 +17047,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <script id="firebase-realtime-sync-final" type="module">
 import {initializeApp,getApps} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
 import {getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut,onAuthStateChanged,signInAnonymously} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
-import {getDatabase,ref,set,get,remove,onValue,runTransaction} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js';
+import {getDatabase,ref,set,get,update,remove,onValue,runTransaction} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js';
 
 const FIREBASE_CONFIG={apiKey:'AIzaSyBl8ETnvRg4w-7BTleNROgmzSaqtPbUWRE',authDomain:'almanar-sports.firebaseapp.com',databaseURL:'https://almanar-sports-default-rtdb.firebaseio.com',projectId:'almanar-sports',storageBucket:'almanar-sports.firebasestorage.app',messagingSenderId:'933674233471',appId:'1:933674233471:web:6dbcd5517687aa9a47194a'};
 const CLOUD_PATH='manar_platform';
@@ -17085,7 +17085,7 @@ function canWrite(){return !!auth?.currentUser && !auth.currentUser.isAnonymous}
 function localValue(key){try{const raw=localStorage.getItem(key);return raw===null?null:JSON.parse(raw)}catch(e){return null}}
 async function pushKey(key){if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');await set(ref(db,CLOUD_PATH+'/'+key),localValue(key));dirty.delete(key)}
 async function pushKeys(keys){const unique=[...new Set(keys)].filter(k=>SYNC_KEYS.includes(k));for(const k of unique){await pushKey(k)}}
-async function pushAll(){if(!canWrite()){status('القراءة متاحة، لكن مزامنة التعديلات تحتاج تسجيل دخول Firebase',false);return}try{applyingRemote=true;status('جارٍ حفظ التعديلات الموجودة محليًا في السحابة...',true);const present=SYNC_KEYS.filter(k=>localStorage.getItem(k)!==null);await pushKeys(present);status('تم رفع '+present.length+' قسمًا محفوظًا محليًا إلى السحابة؛ لم تُحذف المفاتيح المحلية الغائبة',true)}catch(e){status('فشل المزامنة: '+firebaseErrorMessage(e),false)}finally{applyingRemote=false}}
+async function pushAll(){if(window.__manarFirebaseResetLock)return;if(!canWrite()){status('القراءة متاحة، لكن مزامنة التعديلات تحتاج تسجيل دخول Firebase',false);return}try{applyingRemote=true;status('جارٍ حفظ التعديلات الموجودة محليًا في السحابة...',true);const present=SYNC_KEYS.filter(k=>localStorage.getItem(k)!==null);await pushKeys(present);status('تم رفع '+present.length+' قسمًا محفوظًا محليًا إلى السحابة؛ لم تُحذف المفاتيح المحلية الغائبة',true)}catch(e){status('فشل المزامنة: '+firebaseErrorMessage(e),false)}finally{applyingRemote=false}}
 /* يبدأ التحقق والمزامنة تلقائيًا بعد نجاح تسجيل الدخول المحلي للمدير أو أي حساب مخوّل. لا يرفع البيانات إلا بعد مصادقة Firebase ذات صلاحية كتابة. */
 window.__manarFirebaseSyncAfterPlatformLogin=async function(role){
   try{
@@ -17155,7 +17155,7 @@ window.__manarFirebaseHardReset=async function(){
     const rootRef=ref(db,CLOUD_PATH);
     const snap=await get(rootRef);
     const rootValue=snap.exists()?snap.val():null;
-    // حذف أبناء المسار واحدًا واحدًا لتفادي رفض حذف الجذر، ويشمل أي مفاتيح غير معروفة موجودة حاليًا.
+    // حذف بيانات المنصة بتحديث ذري واحد؛ لا نستخدم remove() الذي تسبب بخطأ SDK.
     const cloudKeys=new Set([...SYNC_KEYS,
       'manar_poll_votes_v1','manar_contact_settings_v1',
       'manar_contact_messages_v1','manar_platform_settings_v1',
@@ -17163,7 +17163,9 @@ window.__manarFirebaseHardReset=async function(){
     ]);
     // حسابات مستخدمي المنصة محفوظة عمدًا ولا تُحذف.
     cloudKeys.delete('manar_users_v3');
-    for(const k of cloudKeys) await remove(ref(db,CLOUD_PATH+'/'+k));
+    const deletePatch={};
+    for(const k of cloudKeys) deletePatch[k]=null;
+    if(Object.keys(deletePatch).length) await update(rootRef,deletePatch);
     const verify=await get(rootRef);
     const remaining=verify.exists()?verify.val():null;
     const remainingKeys=remaining&&typeof remaining==='object'&&!Array.isArray(remaining)?Object.keys(remaining).filter(k=>k!=='manar_users_v3'):[];
