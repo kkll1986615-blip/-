@@ -14313,7 +14313,7 @@ async function resetPlatformAdminOnly(){
   }catch(err){
     window.__manarFirebaseResetLock=false;
     console.error('Platform reset error:',err);
-    alert('❌ تعذر تصفير المنصة بالكامل. لم يتم إكمال العملية.');
+    alert('❌ تعذر تصفير المنصة بالكامل. لم يتم إكمال العملية.\nالسبب: '+(err&&err.message?err.message:'خطأ غير معروف'));
   }
 }
 
@@ -17057,7 +17057,7 @@ const SYNC_KEYS=[
  'manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3',
  'manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1',
  'manar_media_news_v1','manar_player_management_windows_v1','manar_player_transfers_v1',
- 'manar_contact_settings_v1','manar_contact_messages_v1','manar_polls_v1'
+ 'manar_contact_settings_v1','manar_contact_messages_v1','manar_polls_v1','manar_poll_votes_v1'
 ];
 let app,auth,db,applyingRemote=false,initialReady=0,initialDone=false,started=false,authStateReadyDone=false;
 let resolveFirebaseInit;
@@ -17132,17 +17132,19 @@ window.__manarFirebaseResetSectionCloud=async function(keys){
   if(!unique.length) return true;
   applyingRemote=true;
   try{
-    const snap=await get(ref(db,CLOUD_PATH));
-    const nextRoot=snap.exists()&&snap.val()&&typeof snap.val()==='object'?{...snap.val()}:{};
+    // كتابة المفاتيح المتأثرة مباشرة تحافظ على بقية الأقسام ولا تحتاج صلاحية إعادة كتابة جذر المنصة.
     for(const k of unique){
       const value=localValue(k);
       if(value===null) throw new Error('تعذر قراءة البيانات المحلية للقسم: '+k);
-      nextRoot[k]=value;
+      const itemRef=ref(db,CLOUD_PATH+'/'+k);
+      await set(itemRef,value);
+      const verify=await get(itemRef);
+      // قد تمثل Firebase المصفوفة الفارغة كمسار غير موجود؛ وهذا يعد تصفيرًا صحيحًا.
+      const emptyArray=Array.isArray(value)&&value.length===0;
+      if((!verify.exists()&&!emptyArray) || (verify.exists()&&JSON.stringify(verify.val())!==JSON.stringify(value))) throw new Error('لم تؤكد Firebase حفظ تصفير المفتاح: '+k);
     }
-    // تحديث جميع مفاتيح القسم في عملية سحابية واحدة لتفادي تصفير جزئي.
-    await set(ref(db,CLOUD_PATH),nextRoot);
     unique.forEach(k=>dirty.delete(k));
-    status('تم تصفير القسم المحدد وحفظ التصفير في قاعدة البيانات السحابية',true);
+    status('تم التحقق من تصفير القسم المحدد في قاعدة البيانات السحابية',true);
     return true;
   } finally { applyingRemote=false; }
 };
@@ -17150,19 +17152,31 @@ window.__manarFirebaseHardReset=async function(){
   if(!canWrite()) throw new Error('يجب تسجيل الدخول إلى حساب Firebase الذي يملك صلاحية الكتابة قبل التصفير الكلي.');
   applyingRemote=true;
   try{
-    // استخدم remove() المخصصة للحذف في Realtime Database بدل set(..., null).
-    // هذا يحذف بيانات المنصة فقط تحت manar_platform ولا يمس حسابات Firebase.
     const rootRef=ref(db,CLOUD_PATH);
-    await remove(rootRef);
-    // تحقق من نتيجة الحذف قبل السماح بتصفير النسخة المحلية.
+    const snap=await get(rootRef);
+    const rootValue=snap.exists()?snap.val():null;
+    // حذف أبناء المسار واحدًا واحدًا لتفادي رفض حذف الجذر، ويشمل أي مفاتيح غير معروفة موجودة حاليًا.
+    const cloudKeys=new Set([...SYNC_KEYS,
+      'manar_poll_votes_v1','manar_contact_settings_v1',
+      'manar_contact_messages_v1','manar_platform_settings_v1',
+      ...((rootValue&&typeof rootValue==='object'&&!Array.isArray(rootValue))?Object.keys(rootValue).filter(k=>k!=='manar_users_v3'):[])
+    ]);
+    // حسابات مستخدمي المنصة محفوظة عمدًا ولا تُحذف.
+    cloudKeys.delete('manar_users_v3');
+    for(const k of cloudKeys) await remove(ref(db,CLOUD_PATH+'/'+k));
     const verify=await get(rootRef);
-    if(verify.exists()) throw new Error('لم تؤكد Firebase حذف بيانات المنصة؛ لم يتم إكمال التصفير المحلي.');
+    const remaining=verify.exists()?verify.val():null;
+    const remainingKeys=remaining&&typeof remaining==='object'&&!Array.isArray(remaining)?Object.keys(remaining).filter(k=>k!=='manar_users_v3'):[];
+    if(remainingKeys.length){
+      throw new Error('بقيت بيانات في Firebase ولم يكتمل الحذف. تحقق من Database Rules وصلاحية الكتابة. المفاتيح المتبقية: '+remainingKeys.join(', '));
+    }
+    if(verify.exists()&&(!remaining||typeof remaining!=='object')) throw new Error('لم تؤكد Firebase حذف بيانات المنصة بالكامل. تحقق من قواعد قاعدة البيانات.');
     dirty.clear();
     status('تم التحقق من حذف بيانات المنصة من قاعدة البيانات السحابية',true);
     return true;
   } finally { applyingRemote=false; }
 };
-async function pullAll(){try{applyingRemote=true;let n=0,missing=0;for(const k of SYNC_KEYS){const snap=await get(ref(db,CLOUD_PATH+'/'+k));if(snap.exists()){localStorage.setItem(k,JSON.stringify(snap.val()));n++}else{missing++ /* لا نحذف النسخة المحلية لمجرد غياب المفتاح من السحابة */}}dirty.clear();
+async function pullAll(){if(window.__manarFirebaseResetLock)return;try{applyingRemote=true;let n=0,missing=0;for(const k of SYNC_KEYS){const snap=await get(ref(db,CLOUD_PATH+'/'+k));if(snap.exists()){localStorage.setItem(k,JSON.stringify(snap.val()));n++}else{missing++ /* لا نحذف النسخة المحلية لمجرد غياب المفتاح من السحابة */}}dirty.clear();
 /* مهم: بعد تنزيل بيانات Firebase يجب إعادة تحميل متغير db نفسه؛ وإلا تبقى قوائم الاختيار مرتبطة بالبيانات القديمة الفارغة. */
 try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
 render();status('تم تنزيل '+n+' قسمًا من السحابة، وتم الحفاظ على البيانات المحلية للمفاتيح غير الموجودة ('+missing+')',true)}catch(e){status('فشل تنزيل بيانات السحابة: '+(e?.message||e),false)}finally{applyingRemote=false}}
@@ -21761,6 +21775,7 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
     const check=prompt('للتأكيد، اكتب كلمة «تصفير» أو اسم القسم «'+cfg.label+'».');
     const confirmation=String(check||'').trim();
     if(confirmation!=='تصفير' && confirmation!==cfg.label){alert('تم إلغاء العملية، ولم تُحذف أي بيانات.');return;}
+    window.__manarFirebaseResetLock=true;
     const keysToTouch=[...new Set(['manar_sports_v2',...cfg.keys])];
     const oldStorage={};
     keysToTouch.forEach(k=>{oldStorage[k]=localStorage.getItem(k);});
@@ -21791,6 +21806,7 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
       if(key==='audit'&&typeof window.renderAuditLog==='function')window.renderAuditLog();
       if(key==='news'&&typeof window.updateHomeNewsTicker==='function')window.updateHomeNewsTicker('home');
       if(typeof renderAll==='function')try{renderAll()}catch(e){}
+      window.__manarFirebaseResetLock=false;
       alert('✅ تم تصفير قسم «'+cfg.label+'» على الجهاز والسحابة بنجاح. بقية الأقسام لم يتم تصفيرها.');
     }catch(err){
       // إذا فشل التحديث السحابي، استعد نسخة القسم المحلية حتى لا تختلف المنصة عن السحابة.
@@ -21799,6 +21815,7 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
         if(oldDb){db=oldDb;window.db=db;}
         if(typeof renderAll==='function')renderAll();
       }catch(restoreErr){console.error('Section reset rollback failed:',restoreErr);}
+      window.__manarFirebaseResetLock=false;
       console.error('Section reset error:',err);
       alert('❌ تعذر تصفير القسم على السحابة؛ تمت استعادة البيانات المحلية السابقة قدر الإمكان. تحقق من الإنترنت وصلاحيات Firebase ثم أعد المحاولة. التفاصيل: '+(err&&err.message?err.message:'خطأ غير معروف'));
     }
