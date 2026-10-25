@@ -7300,23 +7300,27 @@ html,body{max-width:100%;overflow-x:hidden}body{min-height:100vh;-webkit-overflo
 @media(max-width:600px){.public-registered-teams-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.public-registered-team-card{grid-template-columns:25px 38px minmax(0,1fr);gap:6px;padding:8px}.public-team-mini-badge{display:none}.public-registered-logo{width:37px;height:37px;border-radius:11px}.public-team-number{width:24px;height:24px;font-size:10px}.public-registered-team-info strong{font-size:11px}.public-registered-team-info small{font-size:7px}.public-vivid-groups-grid{grid-template-columns:1fr!important}.public-vivid-group-box .public-registered-teams-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 
-/* تحسين بصري لقائمة الحسابات الحالية فقط */
-#managedUsersList{overflow-x:auto;border-radius:16px;padding:3px}
-#managedUsersList table{width:100%;min-width:570px;border-collapse:separate;border-spacing:0 9px;background:transparent}
-#managedUsersList table tr:first-child th{background:linear-gradient(120deg,#075985,#2563eb,#7c3aed)!important;color:#fff!important;border:0;padding:13px 12px;font-weight:900;text-align:right}
-#managedUsersList table tr:first-child th:first-child{border-radius:0 12px 12px 0}
-#managedUsersList table tr:first-child th:last-child{border-radius:12px 0 0 12px}
-#managedUsersList table tr:not(:first-child){background:linear-gradient(115deg,#f0f9ff 0%,#f5f3ff 52%,#fff7ed 100%);box-shadow:0 5px 14px rgba(37,99,235,.08)}
-#managedUsersList table tr:not(:first-child) td{padding:13px 12px;border-top:1px solid #dbeafe;border-bottom:1px solid #e9d5ff;vertical-align:top}
-#managedUsersList table tr:not(:first-child) td:first-child{border-right:4px solid #06b6d4;border-radius:0 12px 12px 0;font-weight:900;color:#075985}
-#managedUsersList table tr:not(:first-child) td:last-child{border-left:1px solid #e9d5ff;border-radius:12px 0 0 12px}
-#managedUsersList table tr:not(:first-child) td:nth-child(2){font-weight:800;color:#6d28d9}
-#managedUsersList table tr:not(:first-child) td:nth-child(3) .badge{display:inline-flex;margin:2px;padding:5px 8px;border-radius:999px;background:linear-gradient(120deg,#cffafe,#dbeafe)!important;color:#075985!important;border:1px solid #7dd3fc;font-weight:800;white-space:normal}
+/* تصميم احترافي زاهي لقسم الحسابات فقط */
+#managedUsersList{overflow-x:auto;border-radius:20px;padding:5px;background:linear-gradient(135deg,#f0f9ff,#fdf4ff 55%,#fff7ed);border:1px solid #dbeafe}
+#managedUsersList table{width:100%;min-width:650px;border-collapse:separate;border-spacing:0 10px;background:transparent}
+#managedUsersList table tr:first-child th{background:linear-gradient(115deg,#0891b2 0%,#2563eb 48%,#7c3aed 100%)!important;color:#fff!important;border:0;padding:14px 13px;font-weight:950;text-align:right;font-size:13px;white-space:nowrap}
+#managedUsersList table tr:first-child th:first-child{border-radius:0 14px 14px 0}
+#managedUsersList table tr:first-child th:last-child{border-radius:14px 0 0 14px}
+#managedUsersList table tr:not(:first-child){background:#fff;box-shadow:0 7px 18px rgba(79,70,229,.09);transition:transform .18s ease,box-shadow .18s ease}
+#managedUsersList table tr:not(:first-child):hover{box-shadow:0 10px 23px rgba(37,99,235,.15);transform:translateY(-1px)}
+#managedUsersList table tr:not(:first-child) td{padding:14px 13px;border-top:1px solid #e0e7ff;border-bottom:1px solid #e0e7ff;vertical-align:middle;line-height:1.7}
+#managedUsersList table tr:not(:first-child) td:first-child{border-right:4px solid #06b6d4;border-radius:0 14px 14px 0;font-weight:950;color:#075985;background:linear-gradient(90deg,#fff,#ecfeff)}
+#managedUsersList table tr:not(:first-child) td:last-child{border-left:1px solid #e0e7ff;border-radius:14px 0 0 14px;white-space:nowrap}
+#managedUsersList table tr:not(:first-child) td:nth-child(2){font-weight:850;color:#6d28d9}
+#managedUsersList table tr:not(:first-child) td:nth-child(3){white-space:nowrap;color:#334155;font-weight:800}
+#managedUsersList table tr:not(:first-child) td:nth-child(3) span{display:inline-block;min-width:76px;text-align:center;padding:6px 10px;border:1px dashed #a5b4fc;border-radius:10px;background:#f8fafc;color:#475569;letter-spacing:1px}
+#managedUsersList table tr:not(:first-child) td:nth-child(4) .badge{display:inline-flex;margin:3px;padding:6px 9px;border-radius:999px;background:linear-gradient(120deg,#cffafe,#dbeafe)!important;color:#075985!important;border:1px solid #7dd3fc;font-weight:850;white-space:normal}
 #managedUsersList table tr:not(:first-child) td:first-child:before{content:"👤 ";font-size:1em}
-#managedUsersList .btn.danger{border-radius:10px;font-weight:900;box-shadow:0 4px 10px rgba(220,38,38,.14)}
-#managedUsersList .empty{padding:18px;text-align:center;border-radius:14px;background:linear-gradient(120deg,#ecfeff,#eef2ff,#fdf2f8);color:#4338ca;font-weight:900;border:1px dashed #818cf8}
-@media(max-width:600px){#managedUsersList table{min-width:530px}#managedUsersList table tr:not(:first-child) td{padding:10px 9px}}
-
+#managedUsersList .btn{border-radius:10px;font-weight:900;min-height:35px;white-space:nowrap}
+#managedUsersList .btn.secondary{background:linear-gradient(120deg,#dbeafe,#ede9fe)!important;color:#4338ca!important;border:1px solid #c4b5fd}
+#managedUsersList .btn.danger{background:linear-gradient(120deg,#fb7185,#e11d48)!important;color:#fff!important;border:0;box-shadow:0 4px 10px rgba(225,29,72,.18)}
+#managedUsersList .empty{padding:22px;text-align:center;border-radius:16px;background:linear-gradient(120deg,#ecfeff,#eef2ff,#fdf2f8);color:#4338ca;font-weight:950;border:1px dashed #818cf8}
+@media(max-width:600px){#managedUsersList{padding:3px;border-radius:15px}#managedUsersList table{min-width:620px;border-spacing:0 8px}#managedUsersList table tr:not(:first-child) td{padding:10px 9px;font-size:12px}#managedUsersList table tr:first-child th{padding:11px 9px;font-size:12px}}
 </style>
 <style id="prediction-admin-only-final">
 body.editor #predictionsSection,
@@ -10818,6 +10822,22 @@ img { decoding: async; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 </style>
+
+<style id="account-edit-only-style">
+#managedUsersList .account-edit-table-wrap{width:100%;overflow-x:auto;border-radius:18px;padding:6px;background:linear-gradient(135deg,#ecfeff,#eff6ff 48%,#faf5ff);border:1px solid #bfdbfe}
+#managedUsersList .account-edit-table{width:100%;min-width:300px;border-collapse:separate;border-spacing:0 9px;background:transparent}
+#managedUsersList .account-edit-table th{padding:13px 12px;text-align:right;color:#fff;background:linear-gradient(115deg,#0891b2,#2563eb 52%,#7c3aed);font-weight:900}
+#managedUsersList .account-edit-table th:first-child{border-radius:0 12px 12px 0}#managedUsersList .account-edit-table th:last-child{border-radius:12px 0 0 12px}
+#managedUsersList .account-edit-row{background:#fff;box-shadow:0 5px 15px #2563eb12}
+#managedUsersList .account-edit-row td{padding:12px;border-bottom:1px solid #dbeafe;vertical-align:top}
+#managedUsersList .account-field-label{display:block;font-weight:800;color:#334155;margin-bottom:7px}
+#managedUsersList .account-edit-input{box-sizing:border-box;width:100%;min-width:0;border:1.5px solid #bfdbfe;border-radius:11px;padding:11px 10px;background:#f8fbff;color:#0f172a;font:inherit;outline:none}
+#managedUsersList .account-edit-input:focus{border-color:#7c3aed;box-shadow:0 0 0 3px #8b5cf633;background:#fff}
+#managedUsersList .account-save-row{display:flex;justify-content:center;padding:14px 4px}
+#managedUsersList .account-save-btn{min-width:190px;padding:12px 22px;font-weight:900;background:linear-gradient(110deg,#059669,#0d9488,#0284c7)!important;color:#fff!important;border:0;border-radius:13px;box-shadow:0 7px 17px #0891b233}
+@media(max-width:480px){#managedUsersList .account-edit-table th,#managedUsersList .account-edit-row td{padding:8px 6px}#managedUsersList .account-edit-input{padding:10px 7px;font-size:14px}}
+</style>
+
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -10872,8 +10892,12 @@ img { decoding: async; }
 <div><label>📌 حالة المباراة</label><select id="matchStatus"><option value="scheduled">📅 مجدولة</option><option value="finished">✅ منتهية</option></select></div>
 </div><div class="actions"><button class="btn" onclick="addMatch()">💾 حفظ المباراة</button></div></div><div class="card match-view-selector-card"><div class="section-title"><div><h2>📋 عرض المباريات</h2><small>اختر البطولة أولاً، ثم اختر نوع المباريات التي تريد عرضها.</small></div><span class="badge">👁️ متاح للجميع</span></div><div class="grid match-view-selectors"><div><label>🏆 اسم البطولة</label><select id="matchViewTournament" onchange="refreshMatchViewStatus()"><option value="">— اختر البطولة —</option></select></div><div><label>📌 نوع المباريات</label><select disabled="" id="matchViewFilter" onchange="renderMatchView()"><option value="">— اختر نوع المباريات —</option><option value="scheduled">📅 المباريات المجدولة</option><option value="finished">✅ المباريات المنتهية</option></select></div></div><div class="match-view-help" id="matchViewHelp">🏆 اختر اسم البطولة لعرض خيارات المباريات.</div></div><div class="card"><div id="matchViewList"><div class="upcoming-empty">🏆 اختر اسم البطولة أولاً.</div></div></div><div id="upcomingMatches" style="display:none"></div><div id="matchList" style="display:none"></div></section><section class="page" id="overallRanking"><div class="card overall-ranking-new"><div class="section-title"><div><h2>🏆 التصنيف العام</h2><small>ترتيب نتائج الفرق في جميع البطولات الرسمية في المنار</small></div><span class="badge">جميع البطولات الرسمية</span></div><div class="notice overall-ranking-note">
       يتم جمع نتائج المباريات المنتهية للفرق المسجلة في البطولات الرسمية وعرضها في جدول واحد.
-    </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card"><h2>إحصائيات البطولة</h2><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings"><div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>تغيير اسم المستخدم وكلمة المرور الخاصة بالمنصة.</small></div><span class="badge">Admin فقط</span></div><div class="card settings-card" data-perm="settings"><h2>🔐 تغيير اسم المستخدم وكلمة المرور</h2><div class="notice">يمكن للمدير تحديث بيانات الدخول. تُحفظ بيانات الحساب محليًا؛ المزامنة السحابية للحسابات غير مفعلة في النظام الحالي.</div><div class="user-management-block" style="margin-top:14px;border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🖼️ شعار المنصة</h3><small>اختر صورة جديدة لتظهر في ترويسة المنصة والقائمة الجانبية على هذا الجهاز.</small></div><img id="platformLogoPreview" alt="معاينة شعار المنصة" style="width:64px;height:64px;object-fit:contain;border-radius:50%;border:2px solid #d5e8df;background:#fff;padding:3px"/ loading="lazy" decoding="async"></div><div class="actions" style="margin-top:12px"><button class="btn blue" type="button" onclick="document.getElementById('platformLogoFile').click()">🖼️ تغيير شعار المنصة</button><button class="btn secondary" type="button" onclick="resetPlatformLogo()">↩️ استعادة الشعار الافتراضي</button><input id="platformLogoFile" type="file" accept="image/*" style="display:none" onchange="changePlatformLogo(event)"/></div><div id="platformLogoMessage" style="font-size:13px;margin-top:8px;color:#0b5d3b" role="status"></div></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input autocomplete="username" id="newAdminUser" placeholder="أدخل اسم المستخدم الجديد"/></div><div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div><div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div><div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div></div><div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div><div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ بيانات الدخول الجديدة</button></div></div><div class="card settings-card" data-perm="settings"><div class="section-title"><h2>⚙️ الإعدادات</h2><span class="badge">مدير النظام</span></div><div class="notice">إدارة الحسابات والصلاحيات بشكل منظم. الزائر يبقى مشاهدًا دون تسجيل دخول.</div><div class="user-management-block audit-shortcut-block" style="border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🧾 سجل المراجعة</h3><small>المدير لديه صلاحية تلقائية، ويمكنه منح «سجل المراجعة» لأي حساب من قائمة الصلاحيات. مسح السجل متاح للمدير فقط.</small></div><span class="badge">🔐 المدير أو من يخوله</span></div><div class="actions"><button class="btn" type="button" onclick="openAuditLog()">🧾 فتح سجل المراجعة</button></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">👤 الحسابات الحالية</h3><span class="badge">الحسابات</span></div><div class="table-wrap" id="managedUsersList"></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">➕ إنشاء حساب جديد</h3><span class="badge">الخطوة 1</span></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input id="newManagedUser" placeholder="مثال: مسؤول المباريات"/></div><div><label>كلمة المرور</label><input id="newManagedPass" placeholder="كلمة مرور الحساب" type="password"/></div></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">🔐 الصلاحيات</h3><span class="badge">الخطوة 2</span></div><div class="permission-tools"><button class="btn secondary" onclick="setAllManagedPermissions(true)" type="button">☑️ تحديد الكل</button><button class="btn secondary" onclick="setAllManagedPermissions(false)" type="button">☐ إلغاء الكل</button></div><div class="permission-grid" id="userPermissions"></div></div><div class="actions"><button class="btn btn-primary" onclick="addManagedUser()">➕ إنشاء الحساب بالصلاحيات المحددة</button></div><div class="card settings-card platform-reset-card" data-platform-reset="admin-only"><div class="section-title"><h2>⚠️ تصفير المنصة</h2><span class="badge">المدير فقط</span></div><div class="platform-reset-warning">
-    هذا الإجراء يحذف بيانات المنصة الرياضية المخزنة على هذا الجهاز، بما في ذلك البطولات والفرق واللاعبين والمباريات والكشوفات والحكام والأرشيف والأخبار وسجل المراجعة. <b>لا يتم حذف حسابات المستخدمين أو كلمة مرور المدير.</b></div><div class="actions"><button class="btn danger platform-reset-only" onclick="resetPlatformAdminOnly()" type="button">🧹 تصفير المنصة بالكامل</button></div></div></div></section><section class="page audit-page-standalone" data-perm="audit" id="auditLog"><div class="card audit-card"><div class="section-title"><h2>🧾 سجل المراجعة</h2><span class="badge">للمدير أو من يخوله</span></div><div class="viewer-note">🔐 الوصول متاح لمدير النظام أو للحساب الذي منحه المدير صلاحية «سجل المراجعة». يمكن للمخول عرض السجل والبحث والتصفية؛ أما مسح السجل فمتاح للمدير فقط. يتم تسجيل الإضافات والتعديلات والحذف وإدارة الحسابات.</div><div class="audit-toolbar"><div><label>تصفية القسم</label><select id="auditSectionFilter"><option value="">كل الأقسام</option></select></div><div><label>تصفية العملية</label><select id="auditActionFilter"><option value="">كل العمليات</option><option value="إضافة">إضافة</option><option value="تعديل">تعديل</option><option value="حذف">حذف</option><option value="إدارة الحسابات">إدارة الحسابات</option><option value="حفظ بيانات">حفظ بيانات</option><option value="تسجيل الدخول">تسجيل الدخول</option><option value="تسجيل الخروج">تسجيل الخروج</option></select></div><div class="audit-search"><label>بحث</label><input id="auditSearch" placeholder="ابحث باسم المستخدم أو التفاصيل"/></div><div class="actions audit-actions"><button class="btn secondary" type="button" onclick="goPage('settings')">↩️ الإعدادات</button><button class="btn secondary" type="button" onclick="openAuditLog()">🔄 عرض الكل</button><button class="btn secondary" type="button" onclick="renderAuditLog()">🔄 تحديث</button><button class="btn danger audit-clear-admin-only" type="button" onclick="clearAuditLog()">🗑️ مسح السجل</button></div></div><div class="table-wrap" id="auditLogList"></div></div></section><div class="card admin-only" id="platformMaintenanceBox" style="margin-top:16px"><div class="section-title"><h2>🛠️ صيانة المنصة</h2><span class="badge">المدير فقط</span></div><div class="notice">فحص وإصلاح مشاكل بيانات المنصة بعد النشر أو التحديث. يتم إنشاء نسخة احتياطية قبل الإصلاح.</div><div class="actions" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn blue" onclick="platformMaintenanceCheck()" type="button">🔍 فحص المنصة</button><button class="btn" onclick="platformMaintenanceRepair()" type="button">🔧 إصلاح تلقائي</button><button class="btn secondary" onclick="platformMaintenanceReload()" type="button">🔄 إعادة تشغيل</button></div><div id="maintenanceStatus" style="margin-top:12px;padding:12px;border-radius:12px;background:#f4f6f8;font-weight:800">جاهز للفحص.</div><div id="maintenanceReport" style="margin-top:10px;display:grid;gap:8px"></div></div><section class="page" id="backup"><div class="card"><h2>حفظ واستعادة البيانات</h2><div class="notice">البيانات تحفظ تلقائيًا على الجهاز. استخدم النسخ الاحتياطي قبل حذف المتصفح أو تغيير الهاتف.</div><div class="actions"><button class="btn blue admin-only" onclick="downloadBackup()">⬇️ تصدير نسخة احتياطية</button><label class="btn secondary admin-only" style="display:inline-block">⬆️ استعادة نسخة<input accept=".json" onchange="restoreBackup(event)" style="display:none" type="file"/></label><button class="btn danger admin-only" onclick="clearAll()">حذف جميع البيانات</button></div></div></section><section class="page" id="matchSheetsSection"><div class="card ks-root"><div class="section-title"><h2>📋 كشوفات المباريات</h2><span class="badge">سجل رسمي للمباراة</span></div><div class="ks-note">🔐 الإدخال والتعديل والحذف للمدير أو من يملك صلاحية «كشوفات المباريات». الزوار يشاهدون ملخصات الكشوفات فقط.</div><div class="ks-toolbar"><div><label>🏆 البطولة</label><select id="ksTournament"><option value="">اختر البطولة</option></select></div><div><label>⚽ المباراة</label><select disabled="" id="ksMatch"><option value="">اختر البطولة أولاً</option></select></div><button class="btn blue" id="ksNew" type="button">➕ إنشاء كشف</button></div><div class="ks-list" id="ksPending"></div><div class="ks-editor" id="ksEditor" style="display:none"><div class="ks-editor-head"><div><b id="ksEditorTitle">📝 إنشاء كشف مباراة</b><small id="ksNumber">رقم الكشف: تلقائي</small></div><button class="btn secondary" id="ksClose" type="button">إغلاق</button></div><div class="ks-match-info" id="ksMatchInfo"></div><div class="ks-step"><h3>1️⃣ نتيجة المباراة</h3><div class="ks-score"><div><label id="ksHomeLabel">الفريق الأول</label><input id="ksHomeScore" inputmode="numeric" min="0" type="number"/></div><strong>×</strong><div><label id="ksAwayLabel">الفريق الثاني</label><input id="ksAwayScore" inputmode="numeric" min="0" type="number"/></div></div></div><div class="ks-step"><h3>2️⃣ مسجلو الأهداف</h3><div class="ks-two"><div><b id="ksHomeGoalsTitle">الفريق الأول</b><div class="ks-dynamic" id="ksHomeGoals"></div></div><div><b id="ksAwayGoalsTitle">الفريق الثاني</b><div class="ks-dynamic" id="ksAwayGoals"></div></div></div><small>تظهر خانات المسجلين حسب عدد الأهداف، ولا يتم تسجيل الدقيقة أو الشوط.</small></div><div class="ks-step"><h3>3️⃣ الإنذارات والبطاقات</h3><div class="ks-card-entry"><select id="ksCardTeam"><option value="">اختر الفريق</option></select><select disabled="" id="ksCardPlayer"><option value="">اختر اللاعب</option></select><select id="ksCardType"><option value="yellow">🟨 صفراء</option><option value="red">🟥 حمراء</option></select><button class="btn warn" id="ksAddCard" type="button">إضافة البطاقة</button></div><div class="ks-events" id="ksCards"></div></div><div class="ks-step"><h3>4️⃣ أفضل لاعب</h3><div class="ks-grid"><div><label>أفضل لاعب *</label><select id="ksBestPlayer"><option value="">اختر اللاعب</option></select></div></div></div><div class="ks-step"><h3>5️⃣ الحكام والمشرف</h3><div class="ks-grid"><div><label>الحكم الأول *</label><select id="ksRef1"></select></div><div><label>الحكم الثاني *</label><select id="ksRef2"></select></div><div><label>الحكم الثالث *</label><select id="ksRef3"></select></div><div><label>الحكم الرابع</label><select id="ksRef4"></select></div><div><label>مشرف المباراة</label><input id="ksSupervisor" placeholder="اسم المشرف"/></div></div></div><div class="ks-step"><h3>6️⃣ ضربات الجزاء</h3><div class="ks-grid"><div><label>هل توجد ضربات جزاء؟</label><select id="ksPenYes"><option value="no">لا</option><option value="yes">نعم</option></select></div><div><label>العدد</label><input id="ksPenalties" min="0" type="number" value="0"/></div></div></div><div class="ks-step"><h3>7️⃣ صورة الكشف <small>(اختياري)</small></h3><input accept="image/*" id="ksImage" type="file"/><div id="ksImagePreview"></div></div><div class="ks-actions"><button class="btn primary" id="ksSave" type="button">💾 حفظ الكشف</button><button class="btn secondary" id="ksCancel" type="button">إلغاء</button></div><div class="ks-status" id="ksStatus"></div></div><div class="ks-public"><div class="section-title"><h3>📋 الكشوفات المدخلة</h3><span class="badge">المشاهدة للجميع</span></div><div id="ksReportsList"></div></div></div></section><section class="page" id="contactUs" style="display:none"><div class="section-page-title"><h2>📞 تواصل معنا</h2><span class="badge">نحن هنا لخدمتكم</span></div><div class="card"><div class="section-title"><h2>💬 تواصل معنا</h2><small>يسعدنا استقبال استفساراتكم وملاحظاتكم</small></div><div class="grid"><div class="card" style="margin:0"><h3>📞 الهاتف</h3><p>يمكنك إضافة رقم الهاتف هنا.</p></div><div class="card" style="margin:0"><h3>📱 واتساب</h3><p>يمكنك إضافة رقم الواتساب هنا.</p></div><div class="card" style="margin:0"><h3>📧 البريد الإلكتروني</h3><p>يمكنك إضافة البريد الإلكتروني هنا.</p></div><div class="card" style="margin:0"><h3>📍 العنوان</h3><p>يمكنك إضافة عنوان المنصة هنا.</p></div></div></div></section></main><section class="page" id="headToHeadSection">
+    </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card stats-hero-card"><div class="stats-hero-heading"><span class="stats-hero-art" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-label="رسم بياني للإحصائيات"><defs><linearGradient id="statsIconGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c1c3"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect x="8" y="8" width="80" height="80" rx="23" fill="url(#statsIconGradient)"/><path d="M25 68V51h10v17M43 68V38h10v30M61 68V26h10v42" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 74h52" stroke="#dff7ff" stroke-width="4" stroke-linecap="round"/></svg></span><div class="stats-hero-copy"><h2>إحصائيات البطولة</h2><p>قراءة واضحة لأرقام البطولة وأداء الفرق واللاعبين</p></div><span class="stats-hero-tag">📊 تحليل الأداء</span></div><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings"><div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>تغيير اسم المستخدم وكلمة المرور الخاصة بالمنصة.</small></div><span class="badge">Admin فقط</span></div><div class="card settings-card" data-perm="settings"><h2>🔐 تغيير اسم المستخدم وكلمة المرور</h2><div class="notice">يمكن للمدير تحديث بيانات الدخول. تُحفظ بيانات الحساب محليًا؛ المزامنة السحابية للحسابات غير مفعلة في النظام الحالي.</div><div class="user-management-block" style="margin-top:14px;border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🖼️ شعار المنصة</h3><small>اختر صورة جديدة لتظهر في ترويسة المنصة والقائمة الجانبية على هذا الجهاز.</small></div><img id="platformLogoPreview" alt="معاينة شعار المنصة" style="width:64px;height:64px;object-fit:contain;border-radius:50%;border:2px solid #d5e8df;background:#fff;padding:3px"/ loading="lazy" decoding="async"></div><div class="actions" style="margin-top:12px"><button class="btn blue" type="button" onclick="document.getElementById('platformLogoFile').click()">🖼️ تغيير شعار المنصة</button><button class="btn secondary" type="button" onclick="resetPlatformLogo()">↩️ استعادة الشعار الافتراضي</button><input id="platformLogoFile" type="file" accept="image/*" style="display:none" onchange="changePlatformLogo(event)"/></div><div id="platformLogoMessage" style="font-size:13px;margin-top:8px;color:#0b5d3b" role="status"></div></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input autocomplete="username" id="newAdminUser" placeholder="أدخل اسم المستخدم الجديد"/></div><div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div><div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div><div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div></div><div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div><div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ بيانات الدخول الجديدة</button></div></div><div class="card settings-card" data-perm="settings"><div class="section-title"><h2>⚙️ الإعدادات</h2><span class="badge">مدير النظام</span></div><div class="notice">إدارة الحسابات والصلاحيات بشكل منظم. الزائر يبقى مشاهدًا دون تسجيل دخول.</div><div class="user-management-block audit-shortcut-block" style="border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🧾 سجل المراجعة</h3><small>المدير لديه صلاحية تلقائية، ويمكنه منح «سجل المراجعة» لأي حساب من قائمة الصلاحيات. مسح السجل متاح للمدير فقط.</small></div><span class="badge">🔐 المدير أو من يخوله</span></div><div class="actions"><button class="btn" type="button" onclick="openAuditLog()">🧾 فتح سجل المراجعة</button></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">👤 الحسابات الحالية</h3><span class="badge">الحسابات</span></div><div class="table-wrap" id="managedUsersList"></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">➕ إنشاء حساب جديد</h3><span class="badge">الخطوة 1</span></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input id="newManagedUser" placeholder="مثال: مسؤول المباريات"/></div><div><label>كلمة المرور</label><input id="newManagedPass" placeholder="كلمة مرور الحساب" type="password"/></div></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">🔐 الصلاحيات</h3><span class="badge">الخطوة 2</span></div><div class="permission-tools"><button class="btn secondary" onclick="setAllManagedPermissions(true)" type="button">☑️ تحديد الكل</button><button class="btn secondary" onclick="setAllManagedPermissions(false)" type="button">☐ إلغاء الكل</button></div><div class="permission-grid" id="userPermissions"></div></div><div class="actions"><button class="btn btn-primary" onclick="addManagedUser()">➕ إنشاء الحساب بالصلاحيات المحددة</button></div><div class="card settings-card platform-reset-card" data-platform-reset="admin-only"><div class="section-title"><h2>⚠️ تصفير المنصة</h2><span class="badge">المدير فقط</span></div><div class="platform-reset-warning">
+    يمكنك تصفير قسم واحد فقط مع الإبقاء على بقية بيانات المنصة، أو اختيار التصفير الكلي. هذه الأدوات متاحة لمدير النظام فقط، ولا تحذف حسابات المستخدمين أو كلمة مرور المدير.</div>
+  <div class="grid" style="margin:12px 0">
+    <div><label for="platformResetSection">🧩 اختر القسم المراد تصفيره</label><select id="platformResetSection"><option value="">— اختر القسم —</option><option value="tournaments">🏆 البطولات</option><option value="teams">⚽ الفرق</option><option value="players">👤 اللاعبون</option><option value="matches">📅 المباريات</option><option value="sheets">📋 كشوفات المباريات</option><option value="referees">⚖️ الحكام</option><option value="archives">🗄️ أرشيف البطولات</option><option value="news">📰 الأخبار والإعلام</option><option value="polls">🗳️ استطلاعات الرأي</option><option value="audit">🧾 سجل المراجعة</option><option value="suspensions">🟥 الإيقافات والإنذارات</option><option value="transfers">🔁 انتقالات اللاعبين</option><option value="officialPlayers">🪪 اللاعبين الرسميين</option></select></div>
+  </div>
+  <div class="actions"><button class="btn warn platform-reset-only" onclick="resetPlatformSection()" type="button">🧹 تصفير القسم المحدد</button><button class="btn danger platform-reset-only" onclick="resetPlatformAdminOnly()" type="button">⚠️ تصفير المنصة بالكامل</button></div></div></div></section><section class="page audit-page-standalone" data-perm="audit" id="auditLog"><div class="card audit-card"><div class="section-title"><h2>🧾 سجل المراجعة</h2><span class="badge">للمدير أو من يخوله</span></div><div class="viewer-note">🔐 الوصول متاح لمدير النظام أو للحساب الذي منحه المدير صلاحية «سجل المراجعة». يمكن للمخول عرض السجل والبحث والتصفية؛ أما مسح السجل فمتاح للمدير فقط. يتم تسجيل الإضافات والتعديلات والحذف وإدارة الحسابات.</div><div class="audit-toolbar"><div><label>تصفية القسم</label><select id="auditSectionFilter"><option value="">كل الأقسام</option></select></div><div><label>تصفية العملية</label><select id="auditActionFilter"><option value="">كل العمليات</option><option value="إضافة">إضافة</option><option value="تعديل">تعديل</option><option value="حذف">حذف</option><option value="إدارة الحسابات">إدارة الحسابات</option><option value="حفظ بيانات">حفظ بيانات</option><option value="تسجيل الدخول">تسجيل الدخول</option><option value="تسجيل الخروج">تسجيل الخروج</option></select></div><div class="audit-search"><label>بحث</label><input id="auditSearch" placeholder="ابحث باسم المستخدم أو التفاصيل"/></div><div class="actions audit-actions"><button class="btn secondary" type="button" onclick="goPage('settings')">↩️ الإعدادات</button><button class="btn secondary" type="button" onclick="openAuditLog()">🔄 عرض الكل</button><button class="btn secondary" type="button" onclick="renderAuditLog()">🔄 تحديث</button><button class="btn danger audit-clear-admin-only" type="button" onclick="clearAuditLog()">🗑️ مسح السجل</button></div></div><div class="table-wrap" id="auditLogList"></div></div></section><div class="card admin-only" id="platformMaintenanceBox" style="margin-top:16px"><div class="section-title"><h2>🛠️ صيانة المنصة</h2><span class="badge">المدير فقط</span></div><div class="notice">فحص وإصلاح مشاكل بيانات المنصة بعد النشر أو التحديث. يتم إنشاء نسخة احتياطية قبل الإصلاح.</div><div class="actions" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn blue" onclick="platformMaintenanceCheck()" type="button">🔍 فحص المنصة</button><button class="btn" onclick="platformMaintenanceRepair()" type="button">🔧 إصلاح تلقائي</button><button class="btn secondary" onclick="platformMaintenanceReload()" type="button">🔄 إعادة تشغيل</button></div><div id="maintenanceStatus" style="margin-top:12px;padding:12px;border-radius:12px;background:#f4f6f8;font-weight:800">جاهز للفحص.</div><div id="maintenanceReport" style="margin-top:10px;display:grid;gap:8px"></div></div><section class="page" id="backup"><div class="card"><h2>حفظ واستعادة البيانات</h2><div class="notice">البيانات تحفظ تلقائيًا على الجهاز. استخدم النسخ الاحتياطي قبل حذف المتصفح أو تغيير الهاتف.</div><div class="actions"><button class="btn blue admin-only" onclick="downloadBackup()">⬇️ تصدير نسخة احتياطية</button><label class="btn secondary admin-only" style="display:inline-block">⬆️ استعادة نسخة<input accept=".json" onchange="restoreBackup(event)" style="display:none" type="file"/></label><button class="btn danger admin-only" onclick="clearAll()">حذف جميع البيانات</button></div></div></section><section class="page" id="matchSheetsSection"><div class="card ks-root"><div class="section-title"><h2>📋 كشوفات المباريات</h2><span class="badge">سجل رسمي للمباراة</span></div><div class="ks-note">🔐 الإدخال والتعديل والحذف للمدير أو من يملك صلاحية «كشوفات المباريات». الزوار يشاهدون ملخصات الكشوفات فقط.</div><div class="ks-toolbar"><div><label>🏆 البطولة</label><select id="ksTournament"><option value="">اختر البطولة</option></select></div><div><label>⚽ المباراة</label><select disabled="" id="ksMatch"><option value="">اختر البطولة أولاً</option></select></div><button class="btn blue" id="ksNew" type="button">➕ إنشاء كشف</button></div><div class="ks-list" id="ksPending"></div><div class="ks-editor" id="ksEditor" style="display:none"><div class="ks-editor-head"><div><b id="ksEditorTitle">📝 إنشاء كشف مباراة</b><small id="ksNumber">رقم الكشف: تلقائي</small></div><button class="btn secondary" id="ksClose" type="button">إغلاق</button></div><div class="ks-match-info" id="ksMatchInfo"></div><div class="ks-step"><h3>1️⃣ نتيجة المباراة</h3><div class="ks-score"><div><label id="ksHomeLabel">الفريق الأول</label><input id="ksHomeScore" inputmode="numeric" min="0" type="number"/></div><strong>×</strong><div><label id="ksAwayLabel">الفريق الثاني</label><input id="ksAwayScore" inputmode="numeric" min="0" type="number"/></div></div></div><div class="ks-step"><h3>2️⃣ مسجلو الأهداف</h3><div class="ks-two"><div><b id="ksHomeGoalsTitle">الفريق الأول</b><div class="ks-dynamic" id="ksHomeGoals"></div></div><div><b id="ksAwayGoalsTitle">الفريق الثاني</b><div class="ks-dynamic" id="ksAwayGoals"></div></div></div><small>تظهر خانات المسجلين حسب عدد الأهداف، ولا يتم تسجيل الدقيقة أو الشوط.</small></div><div class="ks-step"><h3>3️⃣ الإنذارات والبطاقات</h3><div class="ks-card-entry"><select id="ksCardTeam"><option value="">اختر الفريق</option></select><select disabled="" id="ksCardPlayer"><option value="">اختر اللاعب</option></select><select id="ksCardType"><option value="yellow">🟨 صفراء</option><option value="red">🟥 حمراء</option></select><button class="btn warn" id="ksAddCard" type="button">إضافة البطاقة</button></div><div class="ks-events" id="ksCards"></div></div><div class="ks-step"><h3>4️⃣ أفضل لاعب</h3><div class="ks-grid"><div><label>أفضل لاعب *</label><select id="ksBestPlayer"><option value="">اختر اللاعب</option></select></div></div></div><div class="ks-step"><h3>5️⃣ الحكام والمشرف</h3><div class="ks-grid"><div><label>الحكم الأول *</label><select id="ksRef1"></select></div><div><label>الحكم الثاني *</label><select id="ksRef2"></select></div><div><label>الحكم الثالث *</label><select id="ksRef3"></select></div><div><label>الحكم الرابع</label><select id="ksRef4"></select></div><div><label>مشرف المباراة</label><input id="ksSupervisor" placeholder="اسم المشرف"/></div></div></div><div class="ks-step"><h3>6️⃣ ضربات الجزاء</h3><div class="ks-grid"><div><label>هل توجد ضربات جزاء؟</label><select id="ksPenYes"><option value="no">لا</option><option value="yes">نعم</option></select></div><div><label>العدد</label><input id="ksPenalties" min="0" type="number" value="0"/></div></div></div><div class="ks-step"><h3>7️⃣ صورة الكشف <small>(اختياري)</small></h3><input accept="image/*" id="ksImage" type="file"/><div id="ksImagePreview"></div></div><div class="ks-actions"><button class="btn primary" id="ksSave" type="button">💾 حفظ الكشف</button><button class="btn secondary" id="ksCancel" type="button">إلغاء</button></div><div class="ks-status" id="ksStatus"></div></div><div class="ks-public"><div class="section-title"><h3>📋 الكشوفات المدخلة</h3><span class="badge">المشاهدة للجميع</span></div><div id="ksReportsList"></div></div></div></section><section class="page" id="contactUs" style="display:none"><div class="section-page-title"><h2>📞 تواصل معنا</h2><span class="badge">نحن هنا لخدمتكم</span></div><div class="card"><div class="section-title"><h2>💬 تواصل معنا</h2><small>يسعدنا استقبال استفساراتكم وملاحظاتكم</small></div><div class="grid"><div class="card" style="margin:0"><h3>📞 الهاتف</h3><p>يمكنك إضافة رقم الهاتف هنا.</p></div><div class="card" style="margin:0"><h3>📱 واتساب</h3><p>يمكنك إضافة رقم الواتساب هنا.</p></div><div class="card" style="margin:0"><h3>📧 البريد الإلكتروني</h3><p>يمكنك إضافة البريد الإلكتروني هنا.</p></div><div class="card" style="margin:0"><h3>📍 العنوان</h3><p>يمكنك إضافة عنوان المنصة هنا.</p></div></div></div></section></main><section class="page" id="headToHeadSection">
   <div class="section-page-title"><h2>⚔️ تاريخ المواجهات</h2><span class="badge">جميع البطولات المسجلة</span></div>
   <div class="card h2h-card">
     <div class="section-title">
@@ -10904,7 +10928,7 @@ if(!USERS||typeof USERS!=='object'||!USERS.admin||!USERS.editor){
 }
 Object.values(USERS).forEach(u=>{if(!Array.isArray(u.permissions))u.permissions=[]});
 let currentRole='viewer', currentUser='';
-function setRole(role){currentRole=role||'viewer';currentUser=role&&USERS[role]?USERS[role].user:'';document.body.classList.remove('viewer','editor','admin','custom');document.body.classList.add(currentRole==='viewer'?'viewer':currentRole==='admin'?'admin':currentRole==='editor'?'editor':'custom');let u=USERS[currentRole];$('rolePill').textContent=u?u.label:'👁️ مشاهد';$('loginBtn').style.display=u?'none':'inline-block';$('logoutBtn').style.display=u?'inline-block':'none';applyPermissions();updateRefereeAdminForm();}
+function setRole(role){currentRole=role||'viewer';currentUser=role&&USERS[role]?USERS[role].user:'';document.body.classList.remove('viewer','editor','admin','custom');document.body.classList.add(currentRole==='viewer'?'viewer':currentRole==='admin'?'admin':currentRole==='editor'?'editor':'custom');let u=USERS[currentRole];$('rolePill').textContent=u?u.label:'👁️ مشاهد';$('loginBtn').style.display=u?'none':'inline-block';$('logoutBtn').style.display=u?'inline-block':'none';applyPermissions();updateRefereeAdminForm();if(typeof renderUsers==='function')renderUsers();}
 function hasPermission(permission){if(currentRole==='admin')return true;if(currentRole==='viewer')return false;return !!(USERS[currentRole]?.permissions||[]).includes(permission)}
 window.hasPermission=hasPermission;
 function applyPermissions(){
@@ -10937,7 +10961,54 @@ function addManagedUser(){if(currentRole!=='admin'){openLogin();return}let u=$('
 function deleteManagedUser(role){if(currentRole!=='admin')return;if(role==='admin'||role==='editor')return alert('لا يمكن حذف الحسابات الأساسية.');const deletedUser=USERS[role]?.user||role;delete USERS[role];saveUsers();auditUserChange('إدارة الحسابات',`تم حذف حساب «${deletedUser}».`);}
 function initPermissionOptions(){let box=$('userPermissions');if(!box)return;const order=['tournaments','matches','teams','players','matchSheets','stats','referees','media','audit','backup','settings','delete'];box.innerHTML=order.filter(k=>PERMISSIONS[k]).map(k=>`<label><input type="checkbox" value="${k}"><span>${esc(PERMISSIONS[k])}</span></label>`).join('')}
 function setAllManagedPermissions(value){document.querySelectorAll('#userPermissions input[type="checkbox"]').forEach(x=>x.checked=!!value)}
-function renderUsers(){let box=$('managedUsersList');if(!box)return;let rows=Object.entries(USERS).map(([k,u])=>`<tr><td>${esc(u.user)}</td><td>${esc(u.label||(k==='admin'?'مدير النظام':'مستخدم'))}</td><td>${(u.permissions||[]).map(x=>`<span class="badge">${esc(PERMISSIONS[x]||x)}</span>`).join(' ')||'بدون صلاحيات إدارة'}</td><td>${k==='admin'?'<span class="badge" style="background:linear-gradient(120deg,#fef3c7,#fde68a)!important;color:#92400e!important">👑 حساب المدير</span>':k==='editor'?'حساب أساسي':'<button class="btn danger" onclick="deleteManagedUser(\''+k+'\')">حذف</button>'}</td></tr>`).join('');box.innerHTML=rows?`<table><tr><th>اسم المستخدم</th><th>نوع الحساب</th><th>الصلاحيات</th><th>الحالة / إجراء</th></tr>${rows}</table>`:'<div class="empty">لا توجد حسابات مسجلة</div>';}
+function toggleManagedPassword(role,button){
+  if(currentRole!=='admin'){alert('عرض بيانات الحسابات متاح لمدير النظام فقط.');return;}
+  const span=document.getElementById('managed-pass-'+role);
+  const account=USERS[role];
+  if(!span||!account)return;
+  const showing=span.dataset.showing==='1';
+  span.textContent=showing?'••••••••':String(account.pass||'غير متاح');
+  span.dataset.showing=showing?'0':'1';
+  if(button)button.textContent=showing?'عرض كلمة المرور':'إخفاء';
+}
+function renderUsers(){
+  const box=$('managedUsersList');
+  if(!box)return;
+  if(currentRole!=='admin'){
+    box.innerHTML='<div class="empty">🔒 تعديل بيانات الحسابات متاح لمدير النظام فقط.</div>';
+    return;
+  }
+  const rows=Object.entries(USERS).map(([k,u])=>{
+    const roleSafe=String(k).replace(/[^a-zA-Z0-9_-]/g,'');
+    return '<tr class="account-edit-row"><td><label class="account-field-label" for="account-user-'+roleSafe+'">اسم المستخدم</label><input class="account-edit-input" id="account-user-'+roleSafe+'" data-account-user="'+roleSafe+'" value="'+esc(u.user||'')+'" autocomplete="off"></td><td><label class="account-field-label" for="account-pass-'+roleSafe+'">كلمة المرور</label><input class="account-edit-input" id="account-pass-'+roleSafe+'" data-account-pass="'+roleSafe+'" value="'+esc(u.pass||'')+'" autocomplete="new-password"></td></tr>';
+  }).join('');
+  box.innerHTML=rows?'<div class="account-edit-table-wrap"><table class="account-edit-table"><thead><tr><th>اسم المستخدم</th><th>كلمة المرور</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="account-save-row"><button type="button" class="btn primary account-save-btn" id="saveAccountChangesBtn">💾 حفظ التغييرات</button></div>':'<div class="empty">لا توجد حسابات مسجلة</div>';
+  const saveBtn=document.getElementById('saveAccountChangesBtn');
+  if(saveBtn)saveBtn.addEventListener('click',saveManagedAccountChanges);
+}
+function saveManagedAccountChanges(){
+  if(currentRole!=='admin'){alert('هذه الصلاحية متاحة لمدير النظام فقط.');return;}
+  const changes=[];const seen=new Set();
+  for(const [role,account] of Object.entries(USERS)){
+    const safeRole=String(role).replace(/[^a-zA-Z0-9_-]/g,'');
+    const userInput=document.querySelector('[data-account-user="'+safeRole+'"]');
+    const passInput=document.querySelector('[data-account-pass="'+safeRole+'"]');
+    if(!userInput||!passInput){alert('تعذر قراءة حقول الحسابات. أعد فتح قسم إدارة المستخدمين.');return;}
+    const user=userInput.value.trim(),pass=passInput.value;
+    if(!user||!pass){alert('يرجى إدخال اسم المستخدم وكلمة المرور لكل الحسابات.');return;}
+    if(user.length<3){alert('اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل.');userInput.focus();return;}
+    const normalized=user.toLocaleLowerCase();
+    if(seen.has(normalized)){alert('اسم المستخدم مكرر: '+user);userInput.focus();return;}
+    seen.add(normalized);changes.push({role,account,user,pass});
+  }
+  const oldUsers=JSON.stringify(USERS);
+  changes.forEach(({role,account,user,pass})=>{account.user=user;account.pass=pass;if(role!=='admin'&&account.cls==='custom')account.label='👤 '+user;});
+  try{localStorage.setItem(USERS_KEY,JSON.stringify(USERS));}
+  catch(err){try{const restored=JSON.parse(oldUsers);Object.keys(USERS).forEach(k=>delete USERS[k]);Object.assign(USERS,restored);}catch(e){}alert('تعذر حفظ التغييرات على هذا الجهاز.');renderUsers();return;}
+  if(typeof refreshLoginUsers==='function')refreshLoginUsers();
+  if(typeof auditUserChange==='function')auditUserChange('إدارة الحسابات','تم تحديث أسماء المستخدمين وكلمات المرور من قبل مدير النظام.');
+  renderUsers();alert('تم حفظ تغييرات الحسابات بنجاح.');
+}
 
 
 const KEY='manar_sports_v2';
@@ -13239,6 +13310,28 @@ function viewTournamentArchivePublic(id){
 #statsBody .stats-team-identity img{flex:0 0 30px;width:30px;height:30px;object-fit:contain;border-radius:50%;background:#fff;border:1px solid #dbeafe;padding:2px;}
 #statsBody .stats-team-identity span{overflow-wrap:anywhere;}
 </style>
+
+<style id="stats-professional-design-only">
+/* تحسين بصري محصور بقسم الإحصائيات دون التأثير على أي قسم آخر */
+#statsBody{--st-ink:#183247;--st-muted:#607487;--st-line:#dce7ef;--st-surface:#fff;direction:rtl;color:var(--st-ink);padding:clamp(8px,1.8vw,18px);}
+#statsBody .card{position:relative;overflow:hidden;background:linear-gradient(155deg,#fff 0%,#f8fbff 100%);border:1px solid var(--st-line)!important;border-radius:18px!important;padding:clamp(12px,2vw,20px)!important;margin:0 0 17px!important;box-shadow:0 7px 22px rgba(27,65,94,.075)!important;}
+#statsBody .card:before{content:"";position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#0ca678,#228be6,#7950f2,#f59f00);}
+#statsBody h2,#statsBody h3,#statsBody h4{color:#153b57!important;font-weight:900!important;line-height:1.45;margin:5px 0 13px!important;}
+#statsBody h2{font-size:clamp(18px,2.2vw,23px)!important;}#statsBody h3{font-size:clamp(16px,1.9vw,20px)!important;}#statsBody h4{font-size:15px!important;}
+#statsBody .table-wrap,#statsBody .stats-table-wrap,#statsBody .table-container{overflow-x:auto!important;border:1px solid #e1eaf1;border-radius:13px;background:#fff;margin-top:10px!important;box-shadow:0 3px 10px rgba(31,66,92,.035);}
+#statsBody table{width:100%;border-collapse:separate!important;border-spacing:0!important;background:#fff;border-radius:12px;overflow:hidden;font-size:13px!important;}
+#statsBody table thead th,#statsBody table th{background:linear-gradient(135deg,#e8f4ff,#e5f8f0)!important;color:#174766!important;font-weight:900!important;padding:12px 10px!important;border-bottom:1px solid #d4e5ef!important;white-space:nowrap;}
+#statsBody table td{padding:10px!important;border-bottom:1px solid #edf2f6!important;color:#294253;vertical-align:middle;}
+#statsBody table tbody tr:nth-child(even){background:#f7fafc!important;}#statsBody table tbody tr:hover{background:#eef8ff!important;}
+#statsBody table tbody tr:last-child td{border-bottom:0!important;}
+#statsBody .popular-stats-ranking{border:1px solid #e0eaf1;border-radius:14px;padding:12px;background:linear-gradient(145deg,#fff,#f7fbff);margin:10px auto!important;box-shadow:0 4px 13px rgba(25,65,95,.055);}
+#statsBody .empty{border:1px dashed #a9c6d8!important;border-radius:14px!important;background:linear-gradient(135deg,#f3f9ff,#f0fcf7)!important;padding:20px!important;text-align:center;font-weight:800;color:#42647b!important;}
+#statsBody .stats-live-bar{border-radius:11px!important;padding:9px 12px!important;margin-bottom:12px!important;background:linear-gradient(90deg,#e7f8ef,#edf6ff)!important;border:1px solid #d7e9e8;color:#24546a;font-weight:800;}
+#statsBody .points-badge,#statsBody .stat-win,#statsBody .stat-draw,#statsBody .stat-loss,#statsBody .cards-red-count,#statsBody .cards-total-count{font-weight:900!important;}
+#statsBody .points-badge{display:inline-flex;align-items:center;justify-content:center;min-width:30px;padding:4px 9px;border-radius:999px;color:#fff!important;background:linear-gradient(135deg,#1971c2,#0ca678)!important;}
+#statsBody select,#statsBody input,#statsBody button{border-radius:10px!important;max-width:100%;}
+@media(max-width:600px){#statsBody{padding:7px;}#statsBody .card{border-radius:14px!important;padding:12px!important;margin-bottom:12px!important;}#statsBody table{font-size:12px!important;min-width:420px;}#statsBody table th,#statsBody table td{padding:8px 7px!important;}#statsBody .table-wrap,#statsBody .stats-table-wrap,#statsBody .table-container{border-radius:10px;}#statsBody h2{font-size:18px!important;}#statsBody h3{font-size:16px!important;}}
+</style>
 </head><body><embed type="application/pdf" src="'+String(a.pdfData).replace(/"/g,'&quot;')+'">
 <style id="ended-card-admin-reference-override">
 #endedTournamentList .ended-card-admin-footer{padding:14px 18px 18px!important;border-top:1px solid #dce8f3!important;background:linear-gradient(180deg,#ffffff,#f7fbff)!important}
@@ -14119,6 +14212,10 @@ async function resetPlatformAdminOnly(){
     alert('تصفير المنصة متاح لمدير النظام فقط.');
     return;
   }
+  if(typeof window.__manarFirebaseCanWrite!=='function' || !window.__manarFirebaseCanWrite()){
+    alert('لضمان تصفير المنصة على الجهاز وقاعدة البيانات السحابية معًا، سجّل الدخول أولًا إلى حساب Firebase المصرّح له بالكتابة، ثم أعد المحاولة. لم يتم حذف أي بيانات.');
+    return;
+  }
 
   const first=confirm('⚠️ تحذير شديد\n\nسيتم حذف جميع البيانات الرياضية من هذا الجهاز: البطولات والفرق واللاعبين والمباريات والكشوفات والحكام والأخبار والأرشيف وسجل المراجعة.\n\nسيتم الإبقاء على حسابات المستخدمين وكلمة مرور المدير.\n\nهل تريد المتابعة؟');
   if(!first)return;
@@ -14145,6 +14242,9 @@ async function resetPlatformAdminOnly(){
       'referees','warnings','suspensions','news','archives',
       'audit','media','contact','backup','firebase'
     ];
+
+    // احذف السحابة أولًا؛ إذا رفضت Firebase العملية تبقى بيانات الجهاز كما هي.
+    await window.__manarFirebaseHardReset();
 
     const keysToDelete=[];
     for(let i=0;i<localStorage.length;i++){
@@ -14212,8 +14312,6 @@ async function resetPlatformAdminOnly(){
     window.db=db;
     if(typeof rebuildIndexes==='function')rebuildIndexes();
 
-    /* حذف البيانات من Firebase أيضًا؛ وإلا فإن onValue/pullAll يعيد النسخة القديمة بعد إعادة التحميل. */
-    if(typeof window.__manarFirebaseHardReset==='function'){try{await window.__manarFirebaseHardReset();}catch(e){console.error('Firebase hard reset:',e);}}
     /* لا نستخدم save() هنا حتى لا يعيد تسجيل بيانات قديمة */
     alert('✅ تم تصفير جميع بيانات المنصة بنجاح على الجهاز والسحابة. سيتم إعادة تحميل المنصة الآن.');
     location.reload();
@@ -15878,7 +15976,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       ${addTable(`أكثر الحكام مشاركة في ${name} — أكثر 12`,'⚖️',['#','الحكم','المشاركات'],refereeRows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td><b>${x.n}</b></td></tr>`),'لا توجد مشاركات حكام مسجلة في كشوفات المباريات.')}
       ${addTable(`فرق البطولة حسب البطاقات في ${name}`,'🟨',['ت','الفريق','الصفراء','الحمراء','المجموع'],mostCards.map((x,i)=>`<tr><td><span class="cards-team-rank">${i+1}</span></td><td class="cards-team-cell"><span class="cards-team-logo">${logoHtml(x.id,true)}</span><b>${esc(x.name)}</b></td><td><span class="cards-yellow-count">${x.y}</span></td><td><span class="cards-red-count">${x.r}</span></td><td><span class="cards-total-count">${x.total}</span></td></tr>`),'لا توجد فرق مسجلة في هذه البطولة.')}
       ${addTable(`أكثر لاعب حصولًا على أفضل لاعب في ${name}`,'⭐',['ت','اسم اللاعب','اسم الفريق','العدد'],topBest.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.n}</b></td></tr>`),'لا توجد اختيارات لأفضل لاعب مسجلة.')}
-      ${addTable(`أفضل حراس المرمى في ${name} — أفضل 3`,'🧤',['#','الحارس','الفريق','شباك نظيفة','المشاركات','الأهداف المستقبلة'],bestKeepers.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.clean}</b></td><td>${x.apps}</td><td>${x.ga}</td></tr>`),'يتم احتساب الحارس صاحب رقم القميص 1 فقط، ولا توجد بيانات كافية.')}
+      ${addTable(`أفضل حراس المرمى في ${name} — أفضل 3`,'🧤',['#','الحارس','الفريق','شباك نظيفة','الأهداف المستقبلة'],bestKeepers.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.clean}</b></td><td>${x.ga}</td></tr>`),'يتم احتساب الحارس صاحب رقم القميص 1 فقط، ولا توجد بيانات كافية.')}
 
     `;
   }
@@ -16881,7 +16979,7 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script><!-- Firebase Realtime Database Sync - final repair -->
 
-<button id="firebaseSyncFab" type="button">☁️ المزامنة</button>
+<button id="firebaseSyncFab" type="button" style="display:none">☁️ المزامنة</button>
 <div aria-label="مزامنة Firebase" aria-modal="true" id="firebaseSyncModal" role="dialog">
 <div class="firebase-sync-panel" onclick="event.stopPropagation()">
 <h2>☁️ مزامنة المنصة مع Firebase</h2>
@@ -16897,12 +16995,13 @@ document.addEventListener('DOMContentLoaded',function(){
 <button class="fs-danger" id="fsLogout" type="button">🚪 تسجيل الخروج</button>
 <button class="fs-blue" id="fsPush" type="button">⬆️ رفع بيانات هذا الجهاز</button>
 <button class="fs-blue" id="fsPull" type="button">⬇️ تنزيل بيانات السحابة</button>
-<button class="fs-primary" id="fsCloudBackup" type="button">🛡️ إنشاء نسخة احتياطية سحابية</button>
+<button class="fs-primary" id="fsCloudBackup" type="button">📥 تنزيل نسخة احتياطية للهاتف</button>
+<button class="fs-blue" id="fsLocalBackupUploadBtn" type="button">📤 رفع نسخة من الهاتف</button><input id="fsLocalBackupFile" type="file" accept="application/json,.json" style="display:none">
 <button class="fs-blue" id="fsCloudTest" type="button">🧪 اختبار الرفع والتحقق</button>
-<button class="fs-secondary" id="fsCloudRestore" type="button">♻️ استعادة نسخة سحابية</button>
+<button class="fs-secondary" id="fsCloudRestore" type="button">♻️ استعادة نسخة سحابية قديمة</button>
 <button class="fs-secondary" id="fsClose" type="button">إغلاق</button>
 </div>
-<div class="firebase-sync-note" id="firebase-sync-note-final-fix">⚠️ المدير يسجل الدخول إلى Firebase مرة واحدة، وبعدها تُحفظ التعديلات تلقائيًا وتظهر للزوار على جميع الأجهزة.</div><div class="firebase-sync-note">المسار المشترك: <b>manar_platform</b>. القراءة متاحة للزوار، والكتابة تتم تلقائيًا للحساب المصرح له. كلمة المرور لا تُحفظ في localStorage.</div>
+<div class="firebase-sync-note" id="firebase-sync-note-final-fix">⚠️ المدير يسجل الدخول إلى Firebase مرة واحدة، وبعدها تُحفظ التعديلات تلقائيًا وتظهر للزوار على جميع الأجهزة.</div><div class="firebase-sync-note">المسار المشترك: <b>manar_platform</b>. القراءة متاحة للزوار، والكتابة للحساب المصرح له. النسخة الاحتياطية تُنزّل إلى الهاتف لتقليل استهلاك مساحة السحابة. كلمة المرور لا تُحفظ في localStorage.</div>
 </div>
 </div>
 <script id="save-diagnostic-final">
@@ -16989,7 +17088,7 @@ function localManagerRole(){try{const role=sessionStorage.getItem('manar_auth_v2
 function canWrite(){return !!auth?.currentUser && !auth.currentUser.isAnonymous}
 function localValue(key){try{const raw=localStorage.getItem(key);return raw===null?null:JSON.parse(raw)}catch(e){return null}}
 async function pushKey(key){if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');await set(ref(db,CLOUD_PATH+'/'+key),localValue(key));dirty.delete(key)}
-async function pushKeys(keys){for(const k of keys)await pushKey(k)}
+async function pushKeys(keys){const unique=[...new Set(keys)].filter(k=>SYNC_KEYS.includes(k));for(const k of unique){await pushKey(k)}}
 async function pushAll(){if(!canWrite()){status('القراءة متاحة، لكن مزامنة التعديلات تحتاج تسجيل دخول Firebase',false);return}try{applyingRemote=true;status('جارٍ حفظ التعديلات الموجودة محليًا في السحابة...',true);const present=SYNC_KEYS.filter(k=>localStorage.getItem(k)!==null);await pushKeys(present);status('تم رفع '+present.length+' قسمًا محفوظًا محليًا إلى السحابة؛ لم تُحذف المفاتيح المحلية الغائبة',true)}catch(e){status('فشل المزامنة: '+firebaseErrorMessage(e),false)}finally{applyingRemote=false}}
 /* يبدأ التحقق والمزامنة تلقائيًا بعد نجاح تسجيل الدخول المحلي للمدير أو أي حساب مخوّل. لا يرفع البيانات إلا بعد مصادقة Firebase ذات صلاحية كتابة. */
 window.__manarFirebaseSyncAfterPlatformLogin=async function(role){
@@ -17030,10 +17129,37 @@ window.__manarFirebaseDeleteTournament=async function(tid){
     for(const k of ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_tournament_archive_v1'])await set(ref(db,CLOUD_PATH+'/'+k),localValue(k));
   }finally{applyingRemote=false}
 };
+window.__manarFirebaseCanWrite=()=>canWrite();
+window.__manarFirebaseResetSectionCloud=async function(keys){
+  if(!canWrite()) throw new Error('يجب تسجيل الدخول إلى حساب Firebase الذي يملك صلاحية الكتابة قبل التصفير؛ لم تتم مزامنة أي حذف إلى السحابة.');
+  const unique=[...new Set((Array.isArray(keys)?keys:[]).filter(k=>SYNC_KEYS.includes(k)))];
+  if(!unique.length) return true;
+  applyingRemote=true;
+  try{
+    const snap=await get(ref(db,CLOUD_PATH));
+    const nextRoot=snap.exists()&&snap.val()&&typeof snap.val()==='object'?{...snap.val()}:{};
+    for(const k of unique){
+      const value=localValue(k);
+      if(value===null) throw new Error('تعذر قراءة البيانات المحلية للقسم: '+k);
+      nextRoot[k]=value;
+    }
+    // تحديث جميع مفاتيح القسم في عملية سحابية واحدة لتفادي تصفير جزئي.
+    await set(ref(db,CLOUD_PATH),nextRoot);
+    unique.forEach(k=>dirty.delete(k));
+    status('تم تصفير القسم المحدد وحفظ التصفير في قاعدة البيانات السحابية',true);
+    return true;
+  } finally { applyingRemote=false; }
+};
 window.__manarFirebaseHardReset=async function(){
-  if(!canWrite()) throw new Error('سجّل الدخول إلى Firebase أولًا'); applyingRemote=true;
-  try{for(const k of SYNC_KEYS)await set(ref(db,CLOUD_PATH+'/'+k),null);dirty.clear();}
-  finally{applyingRemote=false}
+  if(!canWrite()) throw new Error('يجب تسجيل الدخول إلى حساب Firebase الذي يملك صلاحية الكتابة قبل التصفير الكلي.');
+  applyingRemote=true;
+  try{
+    // حذف جذر بيانات المنصة دفعة واحدة، مع بقاء حسابات Firebase خارج هذا المسار.
+    await set(ref(db,CLOUD_PATH),null);
+    dirty.clear();
+    status('تم حذف بيانات المنصة من قاعدة البيانات السحابية',true);
+    return true;
+  } finally { applyingRemote=false; }
 };
 async function pullAll(){try{applyingRemote=true;let n=0,missing=0;for(const k of SYNC_KEYS){const snap=await get(ref(db,CLOUD_PATH+'/'+k));if(snap.exists()){localStorage.setItem(k,JSON.stringify(snap.val()));n++}else{missing++ /* لا نحذف النسخة المحلية لمجرد غياب المفتاح من السحابة */}}dirty.clear();
 /* مهم: بعد تنزيل بيانات Firebase يجب إعادة تحميل متغير db نفسه؛ وإلا تبقى قوائم الاختيار مرتبطة بالبيانات القديمة الفارغة. */
@@ -17104,7 +17230,38 @@ async function createCloudBackup(testOnly=false){
   alert((testOnly?'نجح الاختبار.':'تم إنشاء النسخة الاحتياطية.')+'\\nرقم النسخة: '+backupId+'\\nالأقسام المحفوظة: '+snapshot.keys+'\\nتمت قراءة النسخة بعد الرفع ومطابقتها.');
   return backupId;
 }
-$('fsCloudBackup')?.addEventListener('click',()=>createCloudBackup(false).catch(e=>{status('تعذر إنشاء النسخة السحابية: '+firebaseErrorMessage(e),false);alert('تعذر إنشاء النسخة السحابية: '+firebaseErrorMessage(e))}));
+function downloadLocalSnapshot(){
+  const snapshot=collectLocalSnapshot();
+  if(!snapshot.keys)throw new Error('لم يتم العثور على بيانات محلية لنسخها.');
+  const blob=new Blob([JSON.stringify(snapshot)],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='المنصة_الرياضية_نسخة_احتياطية_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
+  status('تم تنزيل نسخة احتياطية إلى الهاتف — لم تُستهلك مساحة إضافية في السحابة',true);
+}
+$('fsCloudBackup')?.addEventListener('click',()=>{try{downloadLocalSnapshot()}catch(e){status(e.message||'تعذر إنشاء النسخة المحلية',false);alert(e.message||'تعذر إنشاء النسخة المحلية')}});
+$('fsLocalBackupUploadBtn')?.addEventListener('click',()=>$('fsLocalBackupFile')?.click());
+$('fsLocalBackupFile')?.addEventListener('change',async e=>{
+  const file=e.target.files&&e.target.files[0];if(!file)return;
+  try{
+    const fileText=typeof file.text==='function'?await file.text():await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(new Error('تعذر قراءة ملف النسخة على هذا الهاتف.'));reader.readAsText(file)});const parsed=JSON.parse(fileText);
+    const data=parsed&&parsed.format==='manar-platform-backup-v1'?parsed.data:(parsed&&parsed.storage&&typeof parsed.storage==='object'?parsed.storage:null);
+    if(!data||typeof data!=='object')throw new Error('صيغة النسخة غير معروفة أو الملف غير صالح.');
+    const keys=Object.keys(data).filter(k=>SYNC_KEYS.includes(k));
+    if(!keys.length)throw new Error('لا توجد بيانات منصة معروفة داخل النسخة.');
+    if(!confirm('سيتم استبدال الأقسام الموجودة في النسخة المحددة ('+keys.length+' قسمًا)، مع إبقاء المفاتيح غير الموجودة في الملف كما هي. يُفضّل تنزيل نسخة من الوضع الحالي أولًا. هل تريد المتابعة؟'))return;
+    applyingRemote=true;
+    for(const k of keys){const v=data[k];localStorage.setItem(k,parsed&&parsed.storage===data?(typeof v==='string'?v:JSON.stringify(v)):JSON.stringify(v));}
+    if(canWrite()){
+      status('تم تحميل النسخة إلى الهاتف — جارٍ رفع أقسامها إلى السحابة بسرعة...',true);
+      await pushKeys(keys);
+      status('تمت استعادة النسخة على الهاتف ورفع '+keys.length+' قسمًا إلى السحابة',true);
+    }else status('تمت استعادة النسخة على الهاتف. سجّل الدخول إلى Firebase لرفعها إلى السحابة.',true);
+    try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(_){}
+    dirty.clear();render();alert(canWrite()?'تمت استعادة النسخة على الهاتف ومزامنتها مع السحابة بنجاح.':'تمت استعادة النسخة على الهاتف بنجاح. لرفعها إلى السحابة سجّل الدخول إلى Firebase ثم اضغط رفع بيانات هذا الجهاز.');
+  }catch(err){status('تعذر رفع/استعادة النسخة: '+(err?.message||err),false);alert('تعذر استعادة النسخة: '+(err?.message||err))}
+  finally{applyingRemote=false;e.target.value='';}
+});
 $('fsCloudTest')?.addEventListener('click',()=>createCloudBackup(true).catch(e=>{status('فشل اختبار الرفع: '+firebaseErrorMessage(e),false);alert('فشل اختبار الرفع: '+firebaseErrorMessage(e))}));
 $('fsCloudRestore')?.addEventListener('click',async()=>{
   if(!canWrite()){alert('سجّل الدخول إلى Firebase بحساب لديه صلاحية الكتابة أولًا.');return}
@@ -21275,6 +21432,26 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
 #statsBody table.cards-statistics-table td.cards-team-cell .cards-team-logo img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;}
 #statsBody table.cards-statistics-table td.cards-team-cell b{display:inline!important;vertical-align:middle!important;max-width:none!important;white-space:normal!important;overflow-wrap:break-word!important;word-break:normal!important;font-size:inherit!important;}
 @media(max-width:600px){#statsBody table.cards-statistics-table th{font-size:11px!important;padding:8px 2px!important;}#statsBody table.cards-statistics-table td{font-size:12px!important;padding:7px 2px!important;}#statsBody table.cards-statistics-table td.cards-team-cell .cards-team-logo{width:18px!important;height:18px!important;max-width:18px!important;flex-basis:18px!important;}}
+
+/* تحسين بصري مخصص لقسم الإحصائيات فقط */
+#stats .stats-hero-card{border:1px solid #dbeafe!important;border-radius:22px!important;padding:18px!important;background:linear-gradient(135deg,#ffffff 0%,#f0fdfa 55%,#eff6ff 100%)!important;box-shadow:0 10px 28px rgba(30,64,175,.09)!important;margin-bottom:16px!important;overflow:hidden!important}
+#stats .stats-hero-heading{display:flex!important;align-items:center!important;gap:14px!important;direction:rtl!important;flex-wrap:wrap!important}
+#stats .stats-hero-art{display:flex!important;align-items:center!important;justify-content:center!important;width:76px!important;height:76px!important;flex:0 0 76px!important;border-radius:22px!important;filter:drop-shadow(0 7px 10px rgba(37,99,235,.18))}
+#stats .stats-hero-art svg{display:block!important;width:76px!important;height:76px!important}
+#stats .stats-hero-copy{flex:1 1 190px!important;min-width:0!important}
+#stats .stats-hero-copy h2{margin:0 0 6px!important;color:#123b65!important;font-size:clamp(21px,3vw,28px)!important;font-weight:900!important;line-height:1.35!important}
+#stats .stats-hero-copy p{margin:0!important;color:#52708b!important;font-size:13px!important;line-height:1.8!important}
+#stats .stats-hero-tag{display:inline-flex!important;align-items:center!important;gap:5px!important;background:#dbeafe!important;color:#1d4ed8!important;border:1px solid #bfdbfe!important;border-radius:999px!important;padding:7px 12px!important;font-size:12px!important;font-weight:800!important;white-space:nowrap!important}
+#stats #statsBody{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;align-items:start!important}
+#stats #statsBody>.card,#stats #statsBody>.stats-card,#stats #statsBody>.table-card,#stats #statsBody>.stat-section{min-width:0!important;border:1px solid #e2e8f0!important;border-radius:18px!important;background:#fff!important;box-shadow:0 5px 18px rgba(15,23,42,.055)!important;padding:13px!important;overflow:hidden!important}
+#stats #statsBody h2,#stats #statsBody h3,#stats #statsBody h4{color:#123b65!important;font-weight:900!important;line-height:1.5!important}
+#stats #statsBody table{border-collapse:separate!important;border-spacing:0!important;border-radius:12px!important;overflow:hidden!important;background:#fff!important}
+#stats #statsBody table thead th{background:linear-gradient(135deg,#0f766e,#2563eb)!important;color:#fff!important;font-weight:800!important;border-bottom:0!important;padding:10px 6px!important}
+#stats #statsBody table tbody tr:nth-child(even){background:#f4f8fc!important}
+#stats #statsBody table tbody tr:hover{background:#eaf5ff!important}
+#stats #statsBody table tbody td{border-bottom:1px solid #e8eef5!important;padding:9px 6px!important}
+#stats #statsBody .stat{border:1px solid #dbeafe!important;background:linear-gradient(145deg,#fff,#eff6ff)!important;border-radius:16px!important;box-shadow:0 5px 14px rgba(37,99,235,.07)!important}
+@media(max-width:700px){#stats .stats-hero-card{padding:13px!important;border-radius:17px!important}#stats .stats-hero-art,#stats .stats-hero-art svg{width:60px!important;height:60px!important}#stats .stats-hero-art{flex-basis:60px!important;border-radius:17px!important}#stats .stats-hero-tag{font-size:11px!important;padding:6px 9px!important}#stats #statsBody{grid-template-columns:minmax(0,1fr)!important;gap:11px!important}#stats #statsBody>.card,#stats #statsBody>.stats-card,#stats #statsBody>.table-card,#stats #statsBody>.stat-section{padding:10px!important}}
 </style>
 
 
@@ -21331,6 +21508,20 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
 })();
 </script>
 
+<style id="platform-credit-vivid-background">
+.page > .platform-credit-footer{
+  box-sizing:border-box!important;width:calc(100% - 20px)!important;max-width:760px!important;
+  margin:22px auto 12px!important;padding:0!important;border:2px solid #ffd54a!important;
+  border-radius:16px!important;overflow:hidden!important;text-align:center!important;
+  background:linear-gradient(115deg,#00c6ff 0%,#0878f9 24%,#713bff 51%,#ff3d9a 75%,#ff9f1c 100%)!important;
+  box-shadow:0 7px 18px rgba(30,80,180,.22),inset 0 1px 0 rgba(255,255,255,.45)!important;
+  color:#fff!important;font-family:inherit!important;font-size:clamp(12px,3.5vw,15px)!important;
+  font-weight:900!important;line-height:1.8!important;letter-spacing:.1px!important;
+}
+.page > .platform-credit-footer span{display:block!important;padding:10px 12px!important;color:#fff!important;
+ text-shadow:0 2px 3px rgba(0,0,0,.42)!important;background:linear-gradient(90deg,rgba(0,53,145,.15),rgba(255,255,255,.08),rgba(0,53,145,.15))!important;}
+@media(max-width:380px){.page > .platform-credit-footer{width:calc(100% - 14px)!important;border-radius:12px!important}.page > .platform-credit-footer span{padding:8px!important}}
+</style>
 <script id="platform-credit-footer-script">
 (function(){
   var creditText='تم تصميم وتنفيذ المنصة الرياضية من قبل المهندس خالد الوائلي';
@@ -21452,5 +21643,165 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
 })();
 </script>
 
+
+<style id="stats-professional-layout-final">
+/* تحسين بصري محصور بقسم الإحصائيات فقط */
+#stats .stats-hero-card{border:1px solid #b9e4ef!important;border-radius:24px!important;background:linear-gradient(125deg,#ffffff 0%,#effcff 48%,#f4f0ff 100%)!important;box-shadow:0 12px 30px rgba(24,105,160,.13)!important}
+#stats .stats-hero-heading{display:flex!important;flex-direction:row!important;align-items:center!important;gap:14px!important;flex-wrap:nowrap!important}
+#stats .stats-hero-art{width:68px!important;height:68px!important;flex:0 0 68px!important}
+#stats .stats-hero-copy h2{color:#075985!important;font-weight:950!important;letter-spacing:.1px!important}
+#stats .stats-hero-copy p{color:#486581!important;line-height:1.8!important}
+#stats .stats-hero-tag{margin-inline-start:auto!important;background:linear-gradient(120deg,#dbeafe,#ccfbf1)!important;color:#075985!important;border:1px solid #bae6fd!important;border-radius:999px!important;padding:8px 12px!important;font-weight:900!important}
+#statsBody .stats-summary-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0 20px!important}
+#statsBody .stats-summary-grid .stat{box-sizing:border-box!important;min-width:0!important;min-height:94px!important;display:grid!important;grid-template-columns:52px minmax(0,1fr)!important;grid-template-rows:auto auto!important;grid-template-areas:"ico label" "ico number"!important;align-items:center!important;justify-items:stretch!important;column-gap:11px!important;row-gap:4px!important;text-align:right!important;direction:rtl!important;padding:15px 14px!important;border:1px solid #d5e7f8!important;border-radius:19px!important;background:linear-gradient(135deg,#fff 0%,#f2f8ff 58%,#effcf9 100%)!important;box-shadow:0 7px 18px rgba(37,99,235,.09)!important;position:relative!important;overflow:hidden!important}
+#statsBody .stats-summary-grid .stat:before{content:""!important;position:absolute!important;inset:0 0 0 auto!important;width:5px!important;background:linear-gradient(180deg,#06b6d4,#6366f1,#f59e0b)!important}
+#statsBody .stats-summary-grid .stat .stat-emoji{grid-area:ico!important;display:flex!important;align-items:center!important;justify-content:center!important;width:48px!important;height:48px!important;margin:0!important;border-radius:15px!important;background:linear-gradient(145deg,#dff7ff,#e9e7ff)!important;box-shadow:inset 0 0 0 1px #d3e7f5!important;font-size:27px!important;line-height:1!important}
+#statsBody .stats-summary-grid .stat b{grid-area:number!important;display:block!important;text-align:right!important;font-size:27px!important;line-height:1.1!important;font-weight:1000!important;color:#2457c5!important;margin:0!important}
+#statsBody .stats-summary-grid .stat>span:last-child{grid-area:label!important;display:block!important;text-align:right!important;margin:0!important;color:#263b53!important;font-size:13px!important;line-height:1.5!important;font-weight:900!important;overflow-wrap:anywhere!important}
+#statsBody .stats-ranking-card,#statsBody .stats-card,#statsBody .table-card,#statsBody .stat-section{border-radius:18px!important;box-shadow:0 7px 20px rgba(30,64,175,.07)!important;border-color:#dbeafe!important}
+#statsBody .stats-ranking-card .section-title{background:linear-gradient(100deg,#f0f9ff,#f5f3ff)!important;border-radius:14px!important}
+#statsBody .stats-ranking-card .section-title h3{font-weight:950!important;color:#174a8b!important}
+#statsBody .stats-ranking-card th{background:linear-gradient(110deg,#1677c8,#6557d9)!important;color:#fff!important}
+@media(max-width:520px){
+ #stats .stats-hero-heading{gap:10px!important;flex-wrap:wrap!important}
+ #stats .stats-hero-art{width:56px!important;height:56px!important;flex-basis:56px!important}
+ #stats .stats-hero-art svg{width:56px!important;height:56px!important}
+ #stats .stats-hero-copy{flex:1 1 150px!important;min-width:0!important}
+ #stats .stats-hero-copy h2{font-size:19px!important}
+ #stats .stats-hero-tag{font-size:11px!important;margin-inline-start:0!important}
+ #statsBody .stats-summary-grid{grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+ #statsBody .stats-summary-grid .stat{min-height:82px!important;padding:11px 12px!important;grid-template-columns:48px minmax(0,1fr)!important;column-gap:10px!important;border-radius:17px!important}
+ #statsBody .stats-summary-grid .stat .stat-emoji{width:44px!important;height:44px!important;font-size:25px!important;border-radius:13px!important}
+ #statsBody .stats-summary-grid .stat b{font-size:25px!important}
+ #statsBody .stats-summary-grid .stat>span:last-child{font-size:13px!important}
+}
+
+
+/* تحسين احترافي محصور بقسم الإحصائيات فقط */
+#statsBody .stat{
+  display:grid!important;
+  grid-template-columns:58px minmax(0,1fr)!important;
+  grid-template-areas:"icon value" "icon label";
+  align-items:center!important;
+  column-gap:13px!important;
+  row-gap:5px!important;
+  min-height:112px!important;
+  padding:17px 18px!important;
+  margin:0!important;
+  text-align:right!important;
+  border:1px solid #d7e7f7!important;
+  border-right:6px solid #3989ed!important;
+  border-radius:20px!important;
+  background:linear-gradient(125deg,#ffffff 0%,#f0f7ff 55%,#f4fffb 100%)!important;
+  box-shadow:0 7px 20px rgba(40,100,170,.10)!important;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+#statsBody .stat:nth-child(5n+2){border-right-color:#ffad33!important;background:linear-gradient(125deg,#fff 0%,#fff8e9 100%)!important}
+#statsBody .stat:nth-child(5n+3){border-right-color:#8b65e8!important;background:linear-gradient(125deg,#fff 0%,#f6f1ff 100%)!important}
+#statsBody .stat:nth-child(5n+4){border-right-color:#16a783!important;background:linear-gradient(125deg,#fff 0%,#eafff7 100%)!important}
+#statsBody .stat:nth-child(5n+5){border-right-color:#ed6687!important;background:linear-gradient(125deg,#fff 0%,#fff0f5 100%)!important}
+#statsBody .stat .stat-emoji{grid-area:icon!important;display:flex!important;align-items:center!important;justify-content:center!important;width:56px!important;height:56px!important;border-radius:17px!important;background:linear-gradient(145deg,#dff2ff,#e9fff6)!important;box-shadow:inset 0 0 0 1px #d2e7f1!important;font-size:30px!important;margin:0!important}
+#statsBody .stat b{grid-area:value!important;display:block!important;margin:0!important;font-size:clamp(25px,5vw,34px)!important;line-height:1.1!important;font-weight:900!important;color:#205bc5!important;text-align:right!important}
+#statsBody .stat span:not(.stat-emoji){grid-area:label!important;display:block!important;font-size:clamp(14px,3.5vw,18px)!important;line-height:1.5!important;font-weight:800!important;color:#20354d!important;text-align:right!important}
+#statsBody .stats-grid{gap:13px!important}
+#statsBody h2,#statsBody h3{font-weight:900!important;letter-spacing:0!important}
+#statsBody table{border-collapse:separate!important;border-spacing:0!important;border-radius:14px!important;overflow:hidden!important;box-shadow:0 4px 14px rgba(30,80,130,.08)!important}
+#statsBody table thead th{background:linear-gradient(100deg,#1268bd,#238bd4)!important;color:#fff!important;font-weight:800!important;padding:12px 9px!important}
+#statsBody table tbody tr:nth-child(even){background:#f0f7ff!important}
+#statsBody table tbody tr:nth-child(odd){background:#fff!important}
+#statsBody table td{padding:10px 8px!important;border-color:#e0eaf4!important}
+@media(max-width:600px){
+ #statsBody .stat{grid-template-columns:48px minmax(0,1fr)!important;column-gap:10px!important;min-height:96px!important;padding:13px 12px!important;border-radius:16px!important}
+ #statsBody .stat .stat-emoji{width:46px!important;height:46px!important;font-size:25px!important;border-radius:14px!important}
+ #statsBody .stat b{font-size:27px!important}
+ #statsBody .stat span:not(.stat-emoji){font-size:14px!important}
+}
+
+</style>
+
+<script id="visitorSyncVisibilityFix">
+(function(){
+  function syncVisibility(){
+    var loggedIn = !document.body.classList.contains('viewer') && (document.body.classList.contains('admin') || document.body.classList.contains('editor') || document.body.classList.contains('custom'));
+    var btn=document.getElementById('firebaseSyncFab');
+    var modal=document.getElementById('firebaseSyncModal');
+    if(btn) btn.style.display=loggedIn?'':'none';
+    if(!loggedIn && modal) modal.style.display='none';
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncVisibility); else syncVisibility();
+  new MutationObserver(syncVisibility).observe(document.body,{attributes:true,attributeFilter:['class']});
+})();
+</script>
+\n<script id="platform-section-reset-v2">
+(function(){
+  const sectionConfig={
+    tournaments:{label:'البطولات',arrays:['tournaments'],keys:[]},
+    teams:{label:'الفرق',arrays:['teams'],keys:[]},
+    players:{label:'اللاعبون',arrays:['players'],keys:[]},
+    matches:{label:'المباريات',arrays:['matches'],keys:[]},
+    sheets:{label:'كشوفات المباريات',arrays:[],keys:['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3']},
+    referees:{label:'الحكام',arrays:[],keys:['manar_referees_v1']},
+    archives:{label:'أرشيف البطولات',arrays:['archives'],keys:['manar_tournament_archive_v1']},
+    news:{label:'الأخبار والإعلام',arrays:[],keys:['manar_media_news_v1']},
+    polls:{label:'استطلاعات الرأي',arrays:[],keys:['manar_polls_v1','manar_poll_votes_v1']},
+    audit:{label:'سجل المراجعة',arrays:[],keys:['manar_audit_log_v1']},
+    suspensions:{label:'الإيقافات والإنذارات',arrays:['suspensions'],keys:[]},
+    transfers:{label:'انتقالات اللاعبين',arrays:[],keys:['manar_player_transfers_v1']},
+    officialPlayers:{label:'اللاعبين الرسميين',arrays:['officialPlayers'],keys:[]}
+  };
+  window.resetPlatformSection=async function(){
+    if(typeof currentRole==='undefined'||currentRole!=='admin'){alert('تصفير الأقسام متاح لمدير النظام فقط.');return;}
+    if(typeof window.__manarFirebaseCanWrite!=='function' || !window.__manarFirebaseCanWrite()){
+      alert('لضمان تصفير القسم على الجهاز وقاعدة البيانات السحابية معًا، سجّل الدخول أولًا إلى حساب Firebase المصرّح له بالكتابة. لم يتم حذف أي بيانات.');return;
+    }
+    const sel=document.getElementById('platformResetSection'); const key=sel&&sel.value; const cfg=sectionConfig[key];
+    if(!cfg){alert('يرجى اختيار القسم المراد تصفيره أولاً.');return;}
+    if(!confirm('⚠️ سيتم تصفير قسم «'+cfg.label+'» على الجهاز وقاعدة البيانات السحابية. ستبقى بقية الأقسام دون تغيير. هل تريد المتابعة؟'))return;
+    const check=prompt('للتأكيد، اكتب اسم القسم كما يلي تمامًا:\n'+cfg.label);
+    if(check!==cfg.label){alert('تم إلغاء العملية، ولم تُحذف أي بيانات.');return;}
+    const keysToTouch=[...new Set(['manar_sports_v2',...cfg.keys])];
+    const oldStorage={};
+    keysToTouch.forEach(k=>{oldStorage[k]=localStorage.getItem(k);});
+    let oldDb=null;
+    try{if(typeof db!=='undefined'&&db&&typeof db==='object')oldDb=JSON.parse(JSON.stringify(db));}catch(e){}
+    try{
+      const cloudKeys=[...cfg.keys];
+      if(cfg.arrays.length){
+        if(typeof db==='undefined'||!db||typeof db!=='object')throw new Error('قاعدة بيانات المنصة غير متاحة.');
+        cfg.arrays.forEach(k=>{db[k]=[];});
+        window.db=db;
+        if(typeof save==='function'){
+          const saved=save();
+          if(saved===false)throw new Error('تعذر حفظ التصفير في قاعدة البيانات المحلية.');
+        } else {
+          localStorage.setItem('manar_sports_v2',JSON.stringify(db));
+        }
+        cloudKeys.push('manar_sports_v2');
+      }
+      cfg.keys.forEach(k=>localStorage.setItem(k,JSON.stringify([])));
+      if(key==='sheets'){
+        ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>localStorage.setItem(k,'[]'));
+      }
+      // انتظر نجاح الكتابة السحابية قبل إبلاغ المستخدم بإتمام العملية.
+      await window.__manarFirebaseResetSectionCloud(cloudKeys);
+      if(key==='referees'&&typeof window.renderManarReferees==='function')window.renderManarReferees();
+      if(key==='sheets'&&typeof window.refreshMatchSheets==='function')window.refreshMatchSheets();
+      if(key==='audit'&&typeof window.renderAuditLog==='function')window.renderAuditLog();
+      if(key==='news'&&typeof window.updateHomeNewsTicker==='function')window.updateHomeNewsTicker('home');
+      if(typeof renderAll==='function')try{renderAll()}catch(e){}
+      alert('✅ تم تصفير قسم «'+cfg.label+'» على الجهاز والسحابة بنجاح. بقية الأقسام لم يتم تصفيرها.');
+    }catch(err){
+      // إذا فشل التحديث السحابي، استعد نسخة القسم المحلية حتى لا تختلف المنصة عن السحابة.
+      try{
+        Object.keys(oldStorage).forEach(k=>{if(oldStorage[k]===null)localStorage.removeItem(k);else localStorage.setItem(k,oldStorage[k]);});
+        if(oldDb){db=oldDb;window.db=db;}
+        if(typeof renderAll==='function')renderAll();
+      }catch(restoreErr){console.error('Section reset rollback failed:',restoreErr);}
+      console.error('Section reset error:',err);
+      alert('❌ تعذر تصفير القسم على السحابة؛ تمت استعادة البيانات المحلية السابقة قدر الإمكان. تحقق من الإنترنت وصلاحيات Firebase ثم أعد المحاولة. التفاصيل: '+(err&&err.message?err.message:'خطأ غير معروف'));
+    }
+  };
+})();
+</script>
 </body>
 </html>
