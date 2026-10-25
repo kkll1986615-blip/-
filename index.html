@@ -14227,13 +14227,8 @@ async function resetPlatformAdminOnly(){
   }
 
   try{
-    /*
-      الإصلاح الأساسي:
-      النسخة القديمة كانت تحذف بعض المفاتيح ثم تعيد تحميل الصفحة،
-      بينما loadMainDatabase() يبحث أيضًا في بقية localStorage ويعيد
-      البيانات القديمة منها. لذلك يجب حذف كل مفاتيح بيانات المنصة،
-      ثم كتابة قاعدة فارغة صراحةً في المفتاح الرئيسي قبل إعادة التحميل.
-    */
+    /* قفل المزامنة أثناء التصفير حتى لا تعيد الكتابة المؤجلة إنشاء بيانات سحابية بعد حذفها. */
+    window.__manarFirebaseResetLock=true;
     const keepKeys=new Set(['manar_users_v3']);
 
     const appTerms=[
@@ -14316,6 +14311,7 @@ async function resetPlatformAdminOnly(){
     alert('✅ تم تصفير جميع بيانات المنصة بنجاح على الجهاز والسحابة. سيتم إعادة تحميل المنصة الآن.');
     location.reload();
   }catch(err){
+    window.__manarFirebaseResetLock=false;
     console.error('Platform reset error:',err);
     alert('❌ تعذر تصفير المنصة بالكامل. لم يتم إكمال العملية.');
   }
@@ -17292,7 +17288,7 @@ $('fsCloudRestore')?.addEventListener('click',async()=>{
   finally{applyingRemote=false}
 });
 
-function patchStorage(){if(window.__manarFirebasePatched)return;window.__manarFirebasePatched=true;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){const k=String(key),result=original.call(this,key,value);if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote){dirty.add(k);try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}if(canWrite()){clearTimeout(window.__manarFirebasePushTimer);window.__manarFirebasePushTimer=setTimeout(()=>{ const pending=[...dirty]; if(!pending.length||!canWrite())return; applyingRemote=true; pushKeys(pending).then(()=>status('تم تحديث السحابة فورًا',true)).catch(e=>status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false)).finally(()=>{applyingRemote=false;}); },35)}}return result}}
+function patchStorage(){if(window.__manarFirebasePatched)return;window.__manarFirebasePatched=true;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){const k=String(key),result=original.call(this,key,value);if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote&&!window.__manarFirebaseResetLock){dirty.add(k);try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}if(canWrite()){clearTimeout(window.__manarFirebasePushTimer);window.__manarFirebasePushTimer=setTimeout(()=>{ const pending=[...dirty]; if(!pending.length||!canWrite())return; applyingRemote=true; pushKeys(pending).then(()=>status('تم تحديث السحابة فورًا',true)).catch(e=>status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false)).finally(()=>{applyingRemote=false;}); },35)}}return result}}
 window.__manarFirebaseSaveKey=async function(key){
   if(!SYNC_KEYS.includes(key))return false;
   dirty.add(key);
