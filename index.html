@@ -17126,22 +17126,44 @@ window.__manarFirebaseDeleteTournament=async function(tid){
   }finally{applyingRemote=false}
 };
 window.__manarFirebaseCanWrite=()=>canWrite();
+/* تستخدم عمليات التصفير واجهة Firebase REST مباشرةً بدل دوال SDK التي تُصدر
+   e_checkNotDeleted is not a function في بعض بيئات النشر/التخزين المؤقت. */
+async function resetRestRequest(key, method, value){
+  if(!canWrite()) throw new Error('يجب تسجيل الدخول إلى حساب Firebase الذي يملك صلاحية الكتابة قبل التصفير.');
+  const token=await auth.currentUser.getIdToken(true);
+  const path=[CLOUD_PATH,...(key===null?[]:String(key).split('/'))].map(encodeURIComponent).join('/');
+  const url=FIREBASE_CONFIG.databaseURL.replace(/\/$/,'')+'/'+path+'.json?auth='+encodeURIComponent(token);
+  const options={method,headers:{'Content-Type':'application/json'}};
+  if(method==='PUT') options.body=JSON.stringify(value);
+  const response=await fetch(url,options);
+  const body=await response.text();
+  let parsed=null; try{parsed=body?JSON.parse(body):null}catch(e){}
+  if(!response.ok) throw new Error('رفضت Firebase العملية ('+response.status+'): '+(parsed?.error||body||response.statusText));
+  return parsed;
+}
+function isEmptyCloudValue(v){return v===undefined || v===null || (Array.isArray(v)&&v.length===0) || (v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===0)}
 window.__manarFirebaseResetSectionCloud=async function(keys){
   if(!canWrite()) throw new Error('يجب تسجيل الدخول إلى حساب Firebase الذي يملك صلاحية الكتابة قبل التصفير؛ لم تتم مزامنة أي حذف إلى السحابة.');
   const unique=[...new Set((Array.isArray(keys)?keys:[]).filter(k=>SYNC_KEYS.includes(k)))];
-  if(!unique.length) return true;
+  if(!unique.length) throw new Error('لم يتم تحديد مفاتيح بيانات صالحة للتصفير.');
   applyingRemote=true;
   try{
-    // كتابة المفاتيح المتأثرة مباشرة تحافظ على بقية الأقسام ولا تحتاج صلاحية إعادة كتابة جذر المنصة.
     for(const k of unique){
       const value=localValue(k);
       if(value===null) throw new Error('تعذر قراءة البيانات المحلية للقسم: '+k);
-      const itemRef=ref(db,CLOUD_PATH+'/'+k);
-      await set(itemRef,value);
-      const verify=await get(itemRef);
-      // قد تمثل Firebase المصفوفة الفارغة كمسار غير موجود؛ وهذا يعد تصفيرًا صحيحًا.
-      const emptyArray=Array.isArray(value)&&value.length===0;
-      if((!verify.exists()&&!emptyArray) || (verify.exists()&&JSON.stringify(verify.val())!==JSON.stringify(value))) throw new Error('لم تؤكد Firebase حفظ تصفير المفتاح: '+k);
+      await resetRestRequest(k,'PUT',value);
+      const verify=await resetRestRequest(k,'GET');
+      if(Array.isArray(value)&&value.length===0){
+        if(!isEmptyCloudValue(verify)) throw new Error('لم تؤكد Firebase تصفير القسم: '+k);
+      }else if(value&&typeof value==='object'&&!Array.isArray(value)){
+        if(!verify||typeof verify!=='object') throw new Error('لم تؤكد Firebase حفظ بيانات القسم: '+k);
+        const emptyArrayFields=Object.keys(value).filter(field=>Array.isArray(value[field])&&value[field].length===0);
+        for(const field of emptyArrayFields){
+          if(!isEmptyCloudValue(verify[field])) throw new Error('لم تؤكد Firebase تصفير الحقل '+field+' في '+k);
+        }
+      }else if(JSON.stringify(verify)!==JSON.stringify(value)){
+        throw new Error('لم تؤكد Firebase حفظ التغيير للقسم: '+k);
+      }
     }
     unique.forEach(k=>dirty.delete(k));
     status('تم التحقق من تصفير القسم المحدد في قاعدة البيانات السحابية',true);
@@ -17152,28 +17174,17 @@ window.__manarFirebaseHardReset=async function(){
   if(!canWrite()) throw new Error('يجب تسجيل الدخول إلى حساب Firebase الذي يملك صلاحية الكتابة قبل التصفير الكلي.');
   applyingRemote=true;
   try{
-    const rootRef=ref(db,CLOUD_PATH);
-    const snap=await get(rootRef);
-    const rootValue=snap.exists()?snap.val():null;
-    // حذف كل مفتاح على حدة باستخدام set(path, null) بدل update(rootRef, patch)،
-    // لتجنب خطأ SDK: e_checkNotDeleted is not a function.
-    // حسابات المستخدمين محفوظة عمدًا ولا تدخل في قائمة الحذف.
+    const rootValue=await resetRestRequest(null,'GET');
     const cloudKeys=new Set([...SYNC_KEYS,
       'manar_poll_votes_v1','manar_contact_settings_v1',
       'manar_contact_messages_v1','manar_platform_settings_v1',
       ...((rootValue&&typeof rootValue==='object'&&!Array.isArray(rootValue))?Object.keys(rootValue).filter(k=>k!=='manar_users_v3'):[])
     ]);
     cloudKeys.delete('manar_users_v3');
-    for(const k of cloudKeys){
-      await set(ref(db,CLOUD_PATH+'/'+k),null);
-    }
-    const verify=await get(rootRef);
-    const remaining=verify.exists()?verify.val():null;
+    for(const k of cloudKeys) await resetRestRequest(k,'DELETE');
+    const remaining=await resetRestRequest(null,'GET');
     const remainingKeys=remaining&&typeof remaining==='object'&&!Array.isArray(remaining)?Object.keys(remaining).filter(k=>k!=='manar_users_v3'):[];
-    if(remainingKeys.length){
-      throw new Error('بقيت بيانات في Firebase ولم يكتمل الحذف. تحقق من Database Rules وصلاحية الكتابة. المفاتيح المتبقية: '+remainingKeys.join(', '));
-    }
-    if(verify.exists()&&(!remaining||typeof remaining!=='object')) throw new Error('لم تؤكد Firebase حذف بيانات المنصة بالكامل. تحقق من قواعد قاعدة البيانات.');
+    if(remainingKeys.length) throw new Error('بقيت بيانات في Firebase ولم يكتمل الحذف. تحقق من Database Rules وصلاحية الكتابة. المفاتيح المتبقية: '+remainingKeys.join(', '));
     dirty.clear();
     status('تم التحقق من حذف بيانات المنصة من قاعدة البيانات السحابية',true);
     return true;
@@ -20639,63 +20650,11 @@ window.addEventListener('storage',function(e){if(!e.key||/manar_sports|manar_db|
 
 
 <!-- TEST-DATA-SEED-V1 -->
-<script id="test-data-seed-v1">
-(function(){
-  const SEED_KEY='manar_test_data_seed_v1';
-  function seedTestData(){
-    try{
-      if(localStorage.getItem(SEED_KEY)==='1') return;
-      if(!window.db || typeof window.db!=='object') return;
-      const db=window.db;
-      ['tournaments','teams','players','matches','officialPlayers','archives','suspensions'].forEach(k=>{if(!Array.isArray(db[k]))db[k]=[]});
-      const exists=(arr,id)=>arr.some(x=>String(x?.id)===String(id));
-      const add=(arr,x)=>{if(!exists(arr,x.id))arr.push(x)};
-      const now=new Date().toISOString();
-      const T1='TEST_T_2026_A',T2='TEST_T_2026_B';
-      add(db.tournaments,{id:T1,name:'كأس المنصة الرياضية التجريبي',season:'2026',type:'مجموعات ثم خروج مغلوب',age:'الشباب',startDate:'2026-09-01',endDate:'2026-10-15',groupCount:2,stage:'groups',knockoutAfterGroups:true,champion:'',runnerUp:'',topScorer:'',logo:'',status:'active',createdAt:now});
-      add(db.tournaments,{id:T2,name:'دوري المنصة الصيفي التجريبي',season:'2026',type:'دوري',age:'المفتوح',startDate:'2026-07-01',endDate:'2026-08-30',groupCount:0,stage:'league',knockoutAfterGroups:false,champion:'النسور',runnerUp:'الصقور',topScorer:'أحمد علي',logo:'',status:'ended',createdAt:now});
-      const teams=[
-        ['TEST_TM_01','النسور','A'],['TEST_TM_02','الصقور','A'],['TEST_TM_03','النجوم','B'],['TEST_TM_04','الأبطال','B'],
-        ['TEST_TM_05','الفرسان','A'],['TEST_TM_06','الأسود','A'],['TEST_TM_07','الشعلة','B'],['TEST_TM_08','الزوراء الجديدة','B']
-      ];
-      teams.forEach(([id,name,g],i)=>add(db.teams,{id,name,tournamentId:T1,groupNumber:g==='A'?1:2,groupName:'المجموعة '+g,president:'رئيس '+name,coach:'مدرب '+name,logo:''}));
-      const oldTeams=[['TEST_TM_09','اليرموك'],['TEST_TM_10','الرافدين'],['TEST_TM_11','الوداد'],['TEST_TM_12','النسور'],['TEST_TM_13','الصقور'],['TEST_TM_14','الاتحاد']];
-      oldTeams.forEach(([id,name],i)=>add(db.teams,{id,name,tournamentId:T2,groupNumber:0,groupName:'',president:'إدارة '+name,coach:'مدرب '+name,logo:''}));
-      const allTeams=db.teams.filter(t=>String(t.id).startsWith('TEST_TM_'));
-      allTeams.forEach((tm,ti)=>{for(let j=1;j<=3;j++){const pid='TEST_P_'+tm.id.slice(-2)+'_'+j;add(db.players,{id:pid,name:['أحمد علي','محمد حسن','حسين كريم','علي سعد','مصطفى قاسم','سيف محمد'][((ti*3+j)-1)%6]+' '+tm.name,number:String(j),position:j===1?'حارس':j===2?'مدافع':'مهاجم',teamId:tm.id,goals:j===3?2:0,yellow:j===2?1:0,red:0});}});
-      const p=(teamId,n)=>db.players.find(x=>String(x.teamId)===String(teamId)&&String(x.number)===String(n))?.id||'';
-      const matches=[
-        ['TEST_M_01','TEST_TM_01','TEST_TM_02','2026-09-05','18:00','ملعب المنصة',2,1,'finished'],
-        ['TEST_M_02','TEST_TM_03','TEST_TM_04','2026-09-06','20:00','ملعب الشباب',1,1,'finished'],
-        ['TEST_M_03','TEST_TM_05','TEST_TM_06','2026-09-12','18:30','ملعب النصر',0,2,'finished'],
-        ['TEST_M_04','TEST_TM_07','TEST_TM_08','2026-09-13','20:00','ملعب المدينة',3,2,'finished'],
-        ['TEST_M_05','TEST_TM_01','TEST_TM_03','2026-09-28','18:00','ملعب المنصة',0,0,'scheduled'],
-        ['TEST_M_06','TEST_TM_02','TEST_TM_04','2026-09-29','20:00','ملعب الشباب',0,0,'scheduled'],
-        ['TEST_M_07','TEST_TM_09','TEST_TM_10','2026-07-10','18:00','ملعب الصيف',2,0,'finished'],
-        ['TEST_M_08','TEST_TM_11','TEST_TM_12','2026-07-12','20:00','ملعب الصيف',1,2,'finished'],
-        ['TEST_M_09','TEST_TM_13','TEST_TM_14','2026-07-15','18:00','ملعب الصيف',0,0,'finished']
-      ];
-      matches.forEach(([id,h,a,date,time,stadium,hg,ag,status])=>add(db.matches,{id,tournamentId:id==='TEST_M_07'||id==='TEST_M_08'||id==='TEST_M_09'?T2:T1,home:h,away:a,hg,ag,status,bestPlayerId:'',homeScorers:[],awayScorers:[],goalScorers:[],date,time,stadium,cards:[]}));
-      const sheetsKey='manar_match_sheets_v3';
-      let sheets=[];try{sheets=JSON.parse(localStorage.getItem(sheetsKey)||'[]');if(!Array.isArray(sheets))sheets=[]}catch(e){sheets=[]}
-      const makeSheet=(id,matchNo,hg,ag,hs,as,best,cards,refs)=>{const m=db.matches.find(x=>x.id===id);if(!m)return;if(sheets.some(x=>String(x.matchId)===id))return;sheets.push({id:'TEST_KS_'+matchNo,sheetNumber:matchNo,matchId:id,tournamentId:m.tournamentId,homeTeamId:m.home,awayTeamId:m.away,homeScore:hg,awayScore:ag,homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId:best,bestPlayerName:db.players.find(x=>x.id===best)?.name||'',cards:cards.map(c=>({...c,playerName:db.players.find(x=>x.id===c.playerId)?.name||''})),referees:refs,referee1:refs[0]||'',referee2:refs[1]||'',referee3:refs[2]||'',referee4:refs[3]||'',supervisor:'مشرف تجريبي',penalties:0,images:[],createdAt:now,updatedAt:now});m.status='finished';m.hg=hg;m.ag=ag;};
-      makeSheet('TEST_M_01',1,2,1,[p('TEST_TM_01',2)],[p('TEST_TM_02',3)],p('TEST_TM_01',2),[{playerId:p('TEST_TM_02',2),teamId:'TEST_TM_02',type:'yellow'}],['TEST_REF_01','TEST_REF_02']);
-      makeSheet('TEST_M_02',2,1,1,[p('TEST_TM_03',3)],[p('TEST_TM_04',3)],p('TEST_TM_03',3),[],['TEST_REF_01','TEST_REF_03']);
-      makeSheet('TEST_M_03',3,0,2,[],[p('TEST_TM_06',3)],p('TEST_TM_06',3),[{playerId:p('TEST_TM_05',2),teamId:'TEST_TM_05',type:'yellow'}],['TEST_REF_02','TEST_REF_03']);
-      makeSheet('TEST_M_04',4,3,2,[p('TEST_TM_07',3),p('TEST_TM_07',3)],[p('TEST_TM_08',3)],p('TEST_TM_07',3),[{playerId:p('TEST_TM_08',2),teamId:'TEST_TM_08',type:'red'}],['TEST_REF_01','TEST_REF_04']);
-      localStorage.setItem(sheetsKey,JSON.stringify(sheets));
-      try{localStorage.setItem('manar_match_sheets_v2',JSON.stringify(sheets));}catch(e){}
-      const refKey='manar_referees_v1';let refs=[];try{refs=JSON.parse(localStorage.getItem(refKey)||'[]');if(!Array.isArray(refs))refs=[]}catch(e){refs=[]}
-      [['TEST_REF_01','عمر عبدالكريم',34],['TEST_REF_02','حسن جبار',39],['TEST_REF_03','مرتضى ناظم',31],['TEST_REF_04','سجاد كاظم',36]].forEach(([id,name,age])=>{if(!refs.some(r=>String(r.id)===id))refs.push({id,name,age,photo:''})});
-      localStorage.setItem(refKey,JSON.stringify(refs));
-      if(typeof window.save==='function')window.save();else localStorage.setItem('manar_sports_v2',JSON.stringify(db));
-      localStorage.setItem(SEED_KEY,'1');
-      setTimeout(()=>{try{if(typeof window.renderAll==='function')window.renderAll();if(typeof window.refreshMatchSheets==='function')window.refreshMatchSheets();}catch(e){}},200);
-      console.log('تم إدراج بيانات الفحص التجريبية بنجاح');
-    }catch(e){console.warn('Test data seed failed:',e)}
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(seedTestData,700),{once:true});else setTimeout(seedTestData,700);
-})();
+<script id="test-data-seed-v1-disabled">
+/* تم تعطيل إدراج بيانات الاختبار التجريبية نهائيًا.
+   كانت النسخة السابقة تعيد إنشاء بطولات تجريبية بعد تصفير المنصة.
+   لا تضف هذا الملف أي بطولات أو فرق أو مباريات تجريبية. */
+try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 </script>
 
 <style id="teams-ultimate-list-design">
