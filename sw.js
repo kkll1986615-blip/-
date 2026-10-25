@@ -1,45 +1,71 @@
-/* المنصة الرياضية - Service Worker التحديث التلقائي */
-const VERSION = 'sports-platform-2026.09.25.1';
-const CACHE = VERSION;
+/* PWA shell cache for المنصة الرياضية. Data/API requests are deliberately not cached. */
+'use strict';
+const CACHE_NAME = 'sports-platform-pwa-v20261025';
+const ICONS = [
+  './icons/favicon-32.png?v=20261025',
+  './icons/favicon-48.png?v=20261025',
+  './icons/apple-touch-icon.png?v=20261025',
+  './icons/icon-192.png?v=20261025',
+  './icons/icon-512.png?v=20261025',
+  './icons/icon-192-maskable.png?v=20261025',
+  './icons/icon-512-maskable.png?v=20261025'
+];
+const SHELL = [
+  './index.html',
+  './manifest.webmanifest?v=20261025',
+  ...ICONS
+];
+const INDEX_URL = new URL('./index.html', self.registration.scope).href;
+const SCOPE_URL = new URL(self.registration.scope);
 
 self.addEventListener('install', event => {
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(SHELL);
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
+    await Promise.all(keys.filter(key => key.startsWith('sports-platform-pwa-') && key !== CACHE_NAME).map(key => caches.delete(key)));
     await self.clients.claim();
   })());
 });
 
 self.addEventListener('fetch', event => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin || !url.href.startsWith(SCOPE_URL.href)) return;
 
-  // صفحات HTML: الشبكة أولاً حتى لا تبقى نسخة قديمة مفتوحة.
-  if (req.mode === 'navigate' || req.destination === 'document') {
+  if (request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
-        const fresh = await fetch(req, {cache: 'no-store'});
-        const copy = fresh.clone();
-        caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+        const fresh = await fetch(request);
+        if (fresh && fresh.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(INDEX_URL, fresh.clone());
+        }
         return fresh;
-      } catch (e) {
-        return caches.match(req) || caches.match('./index.html');
+      } catch (error) {
+        return (await caches.match(INDEX_URL)) || Response.error();
       }
     })());
     return;
   }
 
-  // باقي الملفات: استخدم الكاش عند توفره، مع تحديثه من الشبكة.
-  event.respondWith((async () => {
-    const cached = await caches.match(req);
-    const network = fetch(req).then(res => {
-      if (res && res.ok) caches.open(CACHE).then(c => c.put(req, res.clone())).catch(() => {});
-      return res;
-    }).catch(() => null);
-    return cached || await network || Response.error();
-  })());
+  if (url.pathname.includes('/icons/') || url.pathname.endsWith('/manifest.webmanifest')) {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(request);
+      if (cached) return cached;
+      try {
+        const fresh = await fetch(request);
+        if (fresh && fresh.ok) await cache.put(request, fresh.clone());
+        return fresh;
+      } catch (error) { return Response.error(); }
+    })());
+  }
 });
