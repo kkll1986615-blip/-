@@ -20075,7 +20075,7 @@ function install(){
  }catch(e){console.warn('prediction data-driven patch',e)}};
  document.addEventListener('change',e=>{if(e.target?.id==='predictionTournamentV2')setTimeout(run,20)},true);
  window.addEventListener('storage',e=>{if(/^manar_(sports|match_sheets|prediction)/.test(S(e.key)))setTimeout(run,30)});
- setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);setInterval(run,15000);
+ setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);setInterval(run,3000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 window.__getPredictionForMatch=function(m){
@@ -21763,12 +21763,56 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 
 
 <script id="sports-platform-auto-deploy-update-v1">
-/* Stability repair (GitHub Pages): automatic full-page polling/reload disabled.
-   It repeatedly downloaded the entire HTML document and could reload the platform
-   unexpectedly. Updates can be applied with the platform's explicit update control
-   or by refreshing the page manually after deployment. All platform sections/data
-   and Firebase synchronization code are preserved. */
-window.__sportsAutoDeployUpdateDisabled = true;
+(function(){
+  'use strict';
+  // يعمل عند نشر المنصة على HTTP/HTTPS؛ لا يحاول الاتصال عند فتح ملف محلي.
+  if (!/^https?:$/.test(location.protocol) || window.__sportsAutoDeployUpdateStarted) return;
+  window.__sportsAutoDeployUpdateStarted = true;
+  var lastFingerprint = null;
+  var updateDetected = false;
+  var checking = false;
+  function fingerprint(text){
+    var h = 2166136261;
+    for (var i=0;i<text.length;i++){ h ^= text.charCodeAt(i); h = Math.imul(h,16777619); }
+    return (h>>>0).toString(16) + ':' + text.length;
+  }
+  function safeToReload(){
+    var a=document.activeElement;
+    if(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false;
+    if(document.querySelector('dialog[open], [role="dialog"]:not([hidden]), .modal.show, .modal[style*="display: block"], .popup[style*="display: block"]')) return false;
+    return true;
+  }
+  function reloadIfSafe(){
+    if(!updateDetected || !safeToReload()) return;
+    // يتأكد من حفظ التغييرات عبر آليات التخزين الموجودة قبل إعادة تحميل الصفحة.
+    updateDetected=false;
+    location.reload();
+  }
+  async function check(){
+    if(checking || document.visibilityState==='hidden') return;
+    checking=true;
+    try{
+      var u=new URL(location.href);
+      u.searchParams.set('__sports_update_check',String(Date.now()));
+      var response=await fetch(u.href,{cache:'no-store',credentials:'same-origin',redirect:'follow'});
+      if(!response.ok) return;
+      var html=await response.text();
+      var fp=fingerprint(html);
+      if(lastFingerprint===null){lastFingerprint=fp;return;}
+      if(fp!==lastFingerprint){
+        updateDetected=true;
+        reloadIfSafe();
+      }
+    }catch(e){ /* فشل الشبكة مؤقت؛ تتم إعادة المحاولة في الدورة التالية */ }
+    finally{checking=false;}
+  }
+  // أخذ بصمة النسخة المنشورة أولاً، ثم فحص التحديثات دوريًا.
+  check();
+  setInterval(check,60000);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check();});
+  document.addEventListener('focusout',function(){if(updateDetected)setTimeout(reloadIfSafe,1200);},true);
+  window.addEventListener('online',check);
+})();
 </script>
 
 <style id="platform-credit-vivid-background">
@@ -22540,5 +22584,102 @@ body>header #authBar .login-btn:hover,body>header #authBar .logout-btn:hover{tra
 }
 </style>
 
+<script id="login-flow-recovery-final">
+/* إصلاح محصور بمسار تسجيل الدخول: لا تسمح أخطاء التحديثات الجانبية بتعطيل الواجهة. */
+(function(){
+  'use strict';
+  function get(id){return document.getElementById(id)}
+  function showError(message){
+    const e=get('loginError');
+    if(e){e.textContent=message;e.style.display='block';}
+  }
+  function notify(message){
+    try{
+      let n=get('manarLoginNotice');
+      if(!n){
+        n=document.createElement('div');n.id='manarLoginNotice';n.setAttribute('role','status');
+        n.style.cssText='position:fixed;z-index:20000;bottom:18px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 28px);padding:12px 18px;border-radius:13px;background:#075f45;color:#fff;font:700 14px Tahoma,Arial,sans-serif;box-shadow:0 8px 28px #0003;text-align:center;direction:rtl;';
+        document.body.appendChild(n);
+      }
+      n.textContent=message;n.style.display='block';
+      clearTimeout(window.__manarLoginNoticeTimer);
+      window.__manarLoginNoticeTimer=setTimeout(()=>{if(n)n.style.display='none';},3200);
+    }catch(e){console.warn('Login notice skipped:',e)}
+  }
+  function applyRoleFallback(role,account){
+    try{if(typeof currentRole!=='undefined')currentRole=role;}catch(e){}
+    try{if(typeof currentUser!=='undefined')currentUser=String(account.user||'');}catch(e){}
+    try{
+      document.body.classList.remove('viewer','editor','admin','custom');
+      document.body.classList.add(role==='admin'?'admin':role==='editor'?'editor':'custom');
+    }catch(e){}
+    try{const p=get('rolePill');if(p)p.textContent=account.label||account.user||'مستخدم';}catch(e){}
+    try{const b=get('loginBtn');if(b)b.style.display='none';const out=get('logoutBtn');if(out)out.style.display='inline-block';}catch(e){}
+    try{if(typeof applyPermissions==='function')applyPermissions();}catch(e){console.warn('Permission refresh skipped:',e)}
+    try{
+      const permitted=k=>role==='admin'||(typeof hasPermission==='function'&&hasPermission(k));
+      document.querySelectorAll('.admin-only').forEach(el=>el.style.display=permitted('delete')?'':'none');
+      document.querySelectorAll('[data-perm]').forEach(el=>el.style.display=permitted(el.dataset.perm)?'':'none');
+      const backup=get('nav')?.querySelector('[data-page="backup"]');if(backup)backup.style.display=permitted('backup')?'':'none';
+      const audit=get('nav')?.querySelector('[data-page="auditLog"]');if(audit)audit.style.display=permitted('audit')?'':'none';
+    }catch(e){console.warn('Permission visibility fallback skipped:',e)}
+    try{if(typeof updateRefereeAdminForm==='function')updateRefereeAdminForm();}catch(e){}
+    try{if(typeof renderUsers==='function')renderUsers();}catch(e){console.warn('User list refresh skipped:',e)}
+  }
+  function navigateSafely(page){
+    try{
+      let result;
+      if(page==='settings'&&typeof directSettingsAfterLogin==='function')result=directSettingsAfterLogin();
+      else if(typeof window.goPage==='function')result=window.goPage(page);
+      else if(typeof goPage==='function')result=goPage(page);
+      if(result!==false)return;
+    }catch(e){console.warn('Page navigation after login recovered:',e)}
+    try{
+      const target=get(page);
+      if(target){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));target.classList.add('active');if(page==='settings'||page==='backup'||page==='auditLog')target.style.display='block';}
+      document.querySelectorAll('#nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+      if(typeof updateHomeNewsTicker==='function')updateHomeNewsTicker(page);
+      window.scrollTo(0,0);
+    }catch(e){console.warn('Basic page switch skipped:',e)}
+  }
+  window.login=function(){
+    const roleEl=get('loginRole'),userEl=get('loginUser'),passEl=get('loginPass');
+    if(!roleEl||!userEl||!passEl){showError('تعذر العثور على حقول الدخول. أعد تحميل المنصة وحاول مجددًا.');return false;}
+    const role=roleEl.value,user=String(userEl.value||'').trim(),pass=String(passEl.value||'');
+    let account;
+    try{account=(typeof USERS!=='undefined'&&USERS)?USERS[role]:null;}catch(e){account=null;}
+    if(!account||user!==String(account.user||'')||pass!==String(account.pass||'')){
+      showError('اسم المستخدم أو كلمة المرور غير صحيحة.');return false;
+    }
+    const destination=(typeof pendingLoginDestination!=='undefined'&&pendingLoginDestination)||'home';
+    if(destination==='settings'&&role!=='admin'&&!(Array.isArray(account.permissions)&&account.permissions.includes('settings'))){
+      showError('هذا الحساب غير مخوّل للدخول إلى الإعدادات.');return false;
+    }
+    try{if(typeof sessionStorage!=='undefined')sessionStorage.setItem(typeof AUTH_KEY!=='undefined'?AUTH_KEY:'manar_auth_v2',role);}catch(e){console.warn('تعذر حفظ جلسة الدخول؛ سيبقى الدخول فعالًا في الصفحة الحالية.',e)}
+    let roleApplied=false;
+    try{
+      if(typeof window.setRole==='function')window.setRole(role);
+      else if(typeof setRole==='function')setRole(role);
+      else throw new Error('دالة تحديث الصلاحيات غير متاحة');
+      roleApplied=true;
+    }catch(e){console.warn('تحديث الدور تعثر؛ تم تطبيق الصلاحيات بطريقة احتياطية.',e)}
+    if(!roleApplied)applyRoleFallback(role,account);
+    /* تنظيف نافذة الدخول أولًا حتى لا تبقى عالقة عند تعثر أي عملية جانبية. */
+    try{userEl.value='';passEl.value='';}catch(e){}
+    try{const overlay=get('loginOverlay');if(overlay)overlay.style.display='none';if(typeof pendingLoginDestination!=='undefined')pendingLoginDestination='home';}catch(e){}
+    try{if(typeof window.__manarFirebaseSyncAfterPlatformLogin==='function'){const task=window.__manarFirebaseSyncAfterPlatformLogin(role);if(task&&typeof task.catch==='function')task.catch(e=>console.warn('Firebase login sync skipped:',e));}}catch(e){console.warn('Firebase login sync skipped:',e)}
+    try{if(typeof auditAdd==='function')auditAdd('تسجيل الدخول',destination==='settings'?'settings':'login','تم تسجيل دخول المستخدم «'+String(account.user||user)+'».');}catch(e){console.warn('Login audit skipped:',e)}
+    navigateSafely(destination==='settings'?'settings':'home');
+    notify('تم تسجيل الدخول بنجاح — '+String(account.label||account.user||'الحساب').replace(/^.{1,3}\s*/u,''));
+    return true;
+  };
+  /* يعمل زر الدخول أيضًا عند الضغط على Enter من حقول اسم المستخدم أو كلمة المرور. */
+  document.addEventListener('keydown',function(event){
+    if(event.key!=='Enter'||!get('loginOverlay')||get('loginOverlay').style.display!=='flex')return;
+    if(event.target===get('loginUser')||event.target===get('loginPass')){event.preventDefault();window.login();}
+  });
+})();
+
+</script>
 </body>
 </html>
