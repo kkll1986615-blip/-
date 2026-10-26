@@ -16186,27 +16186,17 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     const relSeen=new Set();
     statsAllSheets.forEach(sh=>{
       if(!sh||!sh.matchId)return;
-      let mrec=statsMatches.find(x=>x.id===S(sh.matchId));
-      if(!mrec && typeof sheetFixtureKey==='function'){
-        const fixture=statsMatches.find(x=>{
-          try{return sheetFixtureKey(x.m)===sheetFixtureKey({
-            home:sh.homeTeamId??sh.homeTeam??sh.home,
-            away:sh.awayTeamId??sh.awayTeam??sh.away,
-            date:sh.date,time:sh.time
-          })}catch(e){return false}
-        });
-        if(fixture)mrec=fixture;
-      }
+      // ربط الكشف بالمباراة بمعرّفها فقط؛ لا نربطه بمباراة أخرى عبر تشابه الفرق/التاريخ.
+      // هذا يمنع احتساب كشف قديم أو يتيم بعد حذف المباراة.
+      const mrec=statsMatches.find(x=>x.id===S(sh.matchId));
+      if(!mrec)return;
       const shTour=[sh.tournamentId,sh.tournament,sh.tournamentName,sh.tournament_name,sh.competitionId,sh.competitionName]
         .filter(v=>v!==undefined&&v!==null&&S(v).trim()).map(v=>S(v).trim());
       const belongsBySheet=shTour.some(v=>v===S(tid)||v===S(tourObj?.name).trim());
       const belongsByMatch=!!mrec && belongs(mrec.m,tid);
-      /* لا تُحتسب أي كشوفات لمباراة محذوفة من سجل المباريات.
-         يجب أن يكون للكشف تطابق فعلي مع مباراة موجودة حاليًا، ثم تُحدد البطولة
-         من المباراة نفسها أو من بيانات الكشف. */
-      if(mrec && (belongsBySheet||belongsByMatch)){
-        const key=S(mrec.id);
-        if(!relSeen.has(key)){rel.push({m:mrec.m,i:mrec.i,sh});relSeen.add(key);}
+      if((belongsBySheet||belongsByMatch)){
+        const key=S(sh.matchId);
+        if(!relSeen.has(key)){rel.push({m:mrec?.m||{},i:mrec?.i??0,sh});relSeen.add(key);}
       }
     });
     /* دعم الكشوفات القديمة التي لا تحمل معرف البطولة داخل الكشف. */
@@ -16308,9 +16298,9 @@ window.addEventListener('load',function(){document.documentElement.classList.add
         else if(q.hg<q.ag){a.w++;a.pts+=3;h.l++;}
         else{h.d++;a.d++;h.pts++;a.pts++;}
       }
-      A(sh.homeScorers).forEach(id=>{if(id&&A(dbx().players).some(p=>S(p.id)===S(id)))scorers[id]=(scorers[id]||0)+1;});
-      A(sh.awayScorers).forEach(id=>{if(id&&A(dbx().players).some(p=>S(p.id)===S(id)))scorers[id]=(scorers[id]||0)+1;});
-      if(sh.bestPlayerId&&A(dbx().players).some(p=>S(p.id)===S(sh.bestPlayerId)))best[sh.bestPlayerId]=(best[sh.bestPlayerId]||0)+1;
+      A(sh.homeScorers).forEach(id=>{if(id)scorers[id]=(scorers[id]||0)+1;});
+      A(sh.awayScorers).forEach(id=>{if(id)scorers[id]=(scorers[id]||0)+1;});
+      if(sh.bestPlayerId)best[sh.bestPlayerId]=(best[sh.bestPlayerId]||0)+1;
 
       // الإنذارات لا تُحسب من إحصائيات اللاعب أو من جدول آخر؛ مصدرها كشف المباراة نفسه.
       // تمت إزالة الحساب من داخل rel حتى لا يؤثر شرط حالة المباراة على ظهور بطاقات الكشف.
@@ -16349,11 +16339,9 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       const shVals=[sh.tournamentId,sh.tournament,sh.tournamentName,sh.tournament_name,sh.competitionId,sh.competitionName]
         .filter(v=>v!==undefined&&v!==null&&S(v).trim())
         .map(v=>S(v).trim().toLowerCase());
-      /* لا تدخل أي كشوفات يتيمة في الإحصائيات: يجب أن تكون المباراة موجودة حاليًا.
-         هذا يمنع بقاء البطاقات والأهداف والعقوبات بعد حذف المباراة، حتى لو بقي الكشف
-         في مفاتيح التخزين القديمة أو السحابية. */
+      // لا تُحسب البطاقات إلا إذا كانت المباراة الأصلية موجودة بمعرّفها الحالي.
       const mm=A(dbx().matches).find((mx,mi)=>matchKey(mx,mi)===S(sh.matchId));
-      if(!mm) return;
+      if(!mm)return;
       const mVals=[mm.tournamentId,mm.tournament,mm.tournamentName,mm.tournament_name,mm.competitionId,mm.competitionName]
         .filter(v=>v!==undefined&&v!==null&&S(v).trim()).map(v=>S(v).trim().toLowerCase());
       if(shVals.some(v=>wantedValues.has(v))||mVals.some(v=>wantedValues.has(v))) cardReports.push({sh,m:mm});
@@ -16362,10 +16350,6 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       const sourceCards=A(sh.cards).length?A(sh.cards):A(m.cards);
       sourceCards.forEach(c=>{
         if(!c)return;
-        /* استبعاد بطاقة لاعب محذوف أو فريق محذوف من الإحصائيات. */
-        if(c.playerId && !A(dbx().players).some(p=>S(p.id)===S(c.playerId))) return;
-        const cardTeamRaw=S(c.teamId??c.team??'').trim();
-        if(cardTeamRaw && !A(dbx().teams).some(t=>S(t.id)===cardTeamRaw || S(t.name).trim()===cardTeamRaw)) return;
         const type=S(c.type||c.cardType||c.kind).trim().toLowerCase();
         const isYellow=c.yellow===true||c.isYellow===true||type==='yellow'||/صفراء|انذار|إنذار/.test(type);
         const isRed=c.red===true||c.isRed===true||type==='red'||/حمراء|طرد/.test(type);
@@ -23155,5 +23139,46 @@ body>header #authBar .login-btn:hover,body>header #authBar .logout-btn:hover{tra
 }
 
 </style>
+
+<script id="stats-accurate-live-refresh-v1">
+(function(){
+  'use strict';
+  var lastSignature = '';
+  function statsIsVisible(){
+    var page=document.getElementById('stats');
+    return !!(page && (page.classList.contains('active') || page.offsetParent!==null));
+  }
+  function currentSignature(){
+    try{
+      var db=(typeof dbx==='function')?dbx():{};
+      var matches=Array.isArray(db.matches)?db.matches:[];
+      var reports=(typeof sheets==='function')?sheets():[];
+      return JSON.stringify([matches,reports,db.teams||[],db.players||[],db.tournaments||[]]);
+    }catch(e){return '';}
+  }
+  function refreshIfChanged(force){
+    if(!statsIsVisible() || typeof window.renderStats!=='function')return;
+    var sig=currentSignature();
+    if(force || (sig && sig!==lastSignature)){
+      lastSignature=sig;
+      try{window.renderStats();}catch(e){console.warn('Stats refresh failed',e);}
+    }
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){refreshIfChanged(true);},250);
+    setInterval(function(){refreshIfChanged(false);},1200);
+  },{once:true});
+  window.addEventListener('storage',function(e){
+    if(!e.key || /manar_|firebase|match|tournament|player|team/i.test(e.key)){lastSignature='';setTimeout(function(){refreshIfChanged(true);},80);}
+  });
+  window.addEventListener('focus',function(){lastSignature='';refreshIfChanged(true);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){lastSignature='';refreshIfChanged(true);}});
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.closest && e.target.closest('#nav button, [data-page="stats"]')){
+      setTimeout(function(){lastSignature='';refreshIfChanged(true);},180);
+    }
+  },true);
+})();
+</script>
 </body>
 </html>
