@@ -22490,5 +22490,25 @@ body>header #authBar .login-btn:hover,body>header #authBar .logout-btn:hover{tra
 }
 </style>
 
+
+<!-- Login modal stability fix only; does not alter other platform sections -->
+<style id="login-cross-device-layout-stability-fix">
+#loginOverlay{box-sizing:border-box;align-items:center;justify-content:center;padding:clamp(10px,3vw,22px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#loginOverlay[style*="display: flex"],#loginOverlay[style*="display:flex"]{display:flex!important}
+#loginOverlay .login-box{box-sizing:border-box;width:min(440px,100%);max-width:100%;max-height:calc(100dvh - 24px);overflow-y:auto;margin:auto;padding:clamp(16px,4vw,25px);border-radius:20px;flex:0 1 auto}
+#loginOverlay .login-box *{box-sizing:border-box}
+#loginOverlay .grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;width:100%;margin-top:12px}
+#loginOverlay .grid>div{min-width:0;width:100%}
+#loginOverlay label{display:block;margin-bottom:6px;line-height:1.5}
+#loginOverlay input,#loginOverlay select{display:block;width:100%;max-width:100%;min-width:0;min-height:46px;padding:11px 12px;font:inherit;font-size:16px;line-height:1.4;border-radius:11px;box-sizing:border-box;touch-action:manipulation}
+#loginOverlay input[type="password"]{letter-spacing:.04em}
+#loginOverlay .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+#loginOverlay .actions .btn{flex:1 1 120px;min-width:0;min-height:46px;white-space:normal}
+#loginError{overflow-wrap:anywhere;line-height:1.6}
+@media(max-width:380px){#loginOverlay{padding:8px}#loginOverlay .login-box{max-height:calc(100dvh - 16px);padding:15px;border-radius:16px}#loginOverlay .login-box h2{font-size:20px}#loginOverlay .actions .btn{flex-basis:100%}}
+@media(max-height:560px){#loginOverlay{align-items:flex-start}#loginOverlay .login-box{margin:auto;max-height:calc(100dvh - 16px)}}
+@supports not (height:100dvh){#loginOverlay .login-box{max-height:calc(100vh - 24px)}}
+</style>
+
 </body>
 </html>
