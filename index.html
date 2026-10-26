@@ -5774,6 +5774,14 @@ img{content-visibility:auto;}
 @media(max-width:600px){.final-sheet-images{grid-template-columns:1fr}.final-sheet-images img{max-height:220px}}
 
 
+/* قرار إداري للكشوفات: تنسيق محدود داخل قسم الكشوفات فقط */
+#matchSheetsSection .ks-admin-decision-box{margin:12px 0;padding:12px;border:1px solid #f0c36d;border-radius:14px;background:linear-gradient(135deg,#fffaf0,#fff)}
+#matchSheetsSection .ks-admin-decision-box #ksAdminDecisionToggle{width:100%;font-weight:900}
+#matchSheetsSection .ks-admin-decision-box label{display:block;margin:8px 0;font-weight:900;color:#754b00}
+#matchSheetsSection .ks-admin-decision-box select{width:100%;min-height:44px;border:1px solid #e7c77f;border-radius:10px;padding:8px;background:#fff}
+#matchSheetsSection .ks-admin-decision-box small{display:block;margin-top:8px;line-height:1.7;color:#765b2a}
+#matchSheetsSection #ksEditor.admin-decision-active .ks-step{display:none!important}
+#matchSheetsSection #ksEditor.admin-decision-active #ksAdminDecisionBox{border-color:#c18a20;background:linear-gradient(135deg,#fff4d6,#fff)}
 /* الزائر يشاهد الكشوفات فقط */
 body.viewer #matchSheetsSection #ksNew,
 body.viewer #matchSheetsSection #ksPending,
@@ -10838,6 +10846,291 @@ img { decoding: async; }
 @media(max-width:480px){#managedUsersList .account-edit-table th,#managedUsersList .account-edit-row td{padding:8px 6px}#managedUsersList .account-edit-input{padding:10px 7px;font-size:14px}}
 </style>
 
+
+<style id="knockout-round-professional-style">
+#matchKnockoutRoundWrap{padding:12px 14px;border:1px solid #c7d2fe;border-right:5px solid #7c3aed;border-radius:14px;background:linear-gradient(135deg,#f5f3ff,#eff6ff);grid-column:1/-1}
+#matchKnockoutRoundWrap label{color:#5b21b6;font-weight:900}
+#matchKnockoutRound{border:2px solid #a78bfa!important;background:#fff!important;font-weight:800}
+#statsBody .stats-ranking-card:has(table) table tbody tr:has(td b){transition:background .15s}
+#statsBody .stats-ranking-card table tbody td b{font-weight:900}
+</style>
+
+
+<style id="knockout-round-visibility-fix">
+#matchKnockoutRoundWrap[hidden]{display:none!important}
+#matchKnockoutRoundWrap:not([hidden]){display:block!important;visibility:visible!important;opacity:1!important;position:relative;z-index:2;min-width:0;box-sizing:border-box}
+#matchKnockoutRoundWrap select{display:block!important;width:100%;min-height:52px;margin-top:8px;padding:10px 12px;border:2px solid #8b5cf6!important;border-radius:12px;background:#fff!important;color:#241044;font-size:16px;font-weight:800}
+#matchKnockoutRoundWrap small{display:block;margin-top:7px;color:#5b21b6;font-weight:700}
+</style>
+
+
+<style id="knockout-mobile-readable-fix">
+/* تحسين عرض جدول خروج المغلوب فقط */
+#statsBody table.knockout-results-table{width:100%;table-layout:auto;border-collapse:separate;border-spacing:0;border:1px solid #b6dff0;border-radius:14px;overflow:hidden;background:#fff}
+#statsBody table.knockout-results-table th{writing-mode:horizontal-tb!important;text-orientation:mixed!important;transform:none!important;white-space:normal!important;min-width:0!important;height:auto!important;padding:12px 8px!important;text-align:center!important;background:linear-gradient(120deg,#087f8c,#2563eb)!important;color:#fff!important;line-height:1.35!important;vertical-align:middle!important}
+#statsBody table.knockout-results-table td{padding:12px 8px!important;text-align:center!important;vertical-align:middle!important;white-space:normal!important;overflow-wrap:anywhere;word-break:normal;line-height:1.4;font-weight:700}
+#statsBody table.knockout-results-table tbody tr:nth-child(odd){background:#effaff}
+#statsBody table.knockout-results-table .knockout-round-badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#fff0c2;color:#7a4200;border:1px solid #ffc857;font-weight:900}
+#statsBody table.knockout-results-table .knockout-score{display:inline-block;min-width:64px;padding:7px 10px;border-radius:9px;background:#d0ebff;border:1px solid #74c0fc;color:#084298;font-weight:900;white-space:nowrap}
+@media(max-width:600px){#statsBody table.knockout-results-table th,#statsBody table.knockout-results-table td{padding:9px 5px!important;font-size:13px!important}}
+</style>
+
+<style id="knockout-final-reference-design">
+/* تنسيق مرئي خاص ببطاقات مباريات خروج المغلوب فقط */
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr{transition:transform .18s ease,box-shadow .18s ease}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(1) td{background:linear-gradient(135deg,#f8fbff,#e6f0ff)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(2) td{background:linear-gradient(135deg,#fbfffc,#e5f8ed)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(3) td{background:linear-gradient(135deg,#fffdf9,#fff0df)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(4) td{background:linear-gradient(135deg,#fff,#f0e8ff)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(5) td{background:linear-gradient(135deg,#fffaff,#ffe8f2)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(6) td{background:linear-gradient(135deg,#f9ffff,#e0f7f8)!important}
+#statsBody .stats-ranking-card table.knockout-results-table td.ko-home,
+#statsBody .stats-ranking-card table.knockout-results-table td.ko-away{font-weight:950!important;color:#142d4b!important}
+#statsBody .stats-ranking-card table.knockout-results-table .knockout-score{min-width:70px!important;padding:9px 10px!important;border-radius:13px!important;font-size:17px!important;letter-spacing:.3px!important;box-shadow:0 5px 13px #1648a52b!important}
+#statsBody .stats-ranking-card table.knockout-results-table td.ko-number span{min-width:30px!important;min-height:30px!important;border-radius:10px!important;font-size:15px!important}
+#statsBody .stats-ranking-card table.knockout-results-table td.ko-round .knockout-round-badge{padding:7px 10px!important;font-size:13px!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child{outline:3px solid #f8bd20!important;outline-offset:-3px!important;border-radius:16px!important;box-shadow:0 9px 24px #9a67004a!important;background:#151515!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td{background:linear-gradient(135deg,#ffe889,#ffc21b 55%,#ffdc62)!important;color:#291d00!important;border-color:#e9aa00!important;font-weight:950!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-number{background:linear-gradient(135deg,#181818,#343434)!important;color:#ffd64d!important;border:1px solid #f8c52d!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-number span{background:linear-gradient(145deg,#ffc928,#e8a400)!important;color:#211600!important;border:1px solid #fff0a6!important;box-shadow:0 3px 9px #0004!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-round,
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-date{background:linear-gradient(145deg,#101820,#252525)!important;color:#ffdc58!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-round .knockout-round-badge{background:linear-gradient(135deg,#b91c1c,#ef4444)!important;color:#fff!important;border:1px solid #ffe08a!important;box-shadow:0 3px 9px #0004!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-home,
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-away{text-shadow:0 1px #fff4bd!important;color:#241900!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child .knockout-score{background:linear-gradient(145deg,#111,#343434)!important;color:#ffdf62!important;border:2px solid #ffe16b!important;min-width:82px!important;font-size:19px!important;box-shadow:0 4px 13px #5b420055!important}
+@media(max-width:600px){
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr{border-radius:17px!important;padding:14px 10px 10px!important;box-shadow:0 6px 15px #17436b1c!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child{background:linear-gradient(120deg,#111820 0%,#202020 17%,#ffc928 17%,#ffe889 50%,#ffc21b 82%,#111820 82%,#252525 100%)!important;border:2px solid #eeb21b!important;outline:0!important;box-shadow:0 9px 23px #a56a003f!important;padding:16px 10px 11px!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-number{top:12px!important;right:11px!important;background:linear-gradient(145deg,#ffc928,#e8a400)!important;color:#211600!important;border:1px solid #fff0a6!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-round{padding-top:2px!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-home,
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-away{color:#171717!important;text-shadow:0 1px #fff7d4!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-date{color:#ffdc58!important;border-top:1px dashed #f8d65e!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child .knockout-score{min-width:78px!important;font-size:18px!important}
+}
+</style>
+
+
+<style id="knockout-results-visual-redesign">
+/* Redesign scoped only to the knockout results table */
+#statsBody .stats-ranking-card:has(table.knockout-results-table){border:1px solid #b7dff2!important;border-radius:22px!important;overflow:hidden!important;background:linear-gradient(145deg,#fff,#f4faff)!important;box-shadow:0 12px 30px rgba(15,75,125,.12)!important}
+#statsBody .stats-ranking-card:has(table.knockout-results-table)>.section-title{padding:16px 18px!important;margin:0!important;background:linear-gradient(110deg,#0759d8,#078eae 55%,#18b9c8)!important;color:#fff!important}
+#statsBody .stats-ranking-card:has(table.knockout-results-table)>.section-title h3{color:#fff!important;font-weight:900!important}
+#statsBody .knockout-results-wrap{padding:12px!important;overflow-x:auto!important}
+#statsBody table.knockout-results-table{width:100%!important;min-width:660px!important;table-layout:auto!important;border-collapse:separate!important;border-spacing:0 9px!important;border:0!important;background:transparent!important;overflow:visible!important}
+#statsBody table.knockout-results-table thead th{padding:13px 9px!important;color:#fff!important;background:linear-gradient(120deg,#0759d8,#079bb4)!important;font-weight:900!important;text-align:center!important;white-space:normal!important;border:0!important}
+#statsBody table.knockout-results-table thead th:first-child{border-radius:0 12px 12px 0!important}#statsBody table.knockout-results-table thead th:last-child{border-radius:12px 0 0 12px!important}
+#statsBody table.knockout-results-table tbody tr.knockout-match-row{filter:drop-shadow(0 4px 5px rgba(22,55,90,.10))}
+#statsBody table.knockout-results-table tbody tr.knockout-match-row td{padding:14px 9px!important;text-align:center!important;vertical-align:middle!important;border-top:1px solid #dbe8f4!important;border-bottom:1px solid #dbe8f4!important;border-left:0!important;border-right:0!important;color:#142b43!important;font-weight:800!important;line-height:1.35!important;white-space:normal!important;overflow-wrap:anywhere!important;background:#f1f7ff!important}
+#statsBody table.knockout-results-table tbody tr.knockout-match-row td:first-child{border-right:1px solid #dbe8f4!important;border-radius:0 13px 13px 0!important}#statsBody table.knockout-results-table tbody tr.knockout-match-row td:last-child{border-left:1px solid #dbe8f4!important;border-radius:13px 0 0 13px!important}
+#statsBody table.knockout-results-table .ko-number span{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 8px;border-radius:11px;color:#fff;font-weight:900;background:linear-gradient(145deg,#0759d8,#2488ff);box-shadow:0 4px 9px #0759d82b}
+#statsBody table.knockout-results-table .knockout-round-badge{display:inline-block;padding:8px 11px;border-radius:11px;font-weight:900;color:#0759d8;background:#dcecff;border:1px solid #b7d6ff}
+#statsBody table.knockout-results-table .ko-home,#statsBody table.knockout-results-table .ko-away{font-weight:900}
+#statsBody table.knockout-results-table .knockout-score{display:inline-block;min-width:82px;padding:9px 10px;border-radius:13px;background:linear-gradient(135deg,#0759d8,#1644c7);color:#fff;font-size:18px;font-weight:1000;white-space:nowrap;box-shadow:0 5px 12px rgba(7,89,216,.22)}
+#statsBody table.knockout-results-table .ko-date{color:#274765;font-weight:800}
+#statsBody table.knockout-results-table tbody tr.knockout-round-semi td{background:#f5edff!important;border-color:#e1d0ff!important}
+#statsBody table.knockout-results-table tbody tr.knockout-round-semi .ko-number span,#statsBody table.knockout-results-table tbody tr.knockout-round-semi .knockout-score{background:linear-gradient(135deg,#9333ea,#6d28d9);box-shadow:0 5px 12px #7e22ce2b}
+#statsBody table.knockout-results-table tbody tr.knockout-round-semi .knockout-round-badge{color:#6d28d9;background:#eadcff;border-color:#d8bfff}
+#statsBody table.knockout-results-table tbody tr.knockout-round-final td{color:#fff!important;background:linear-gradient(110deg,#10151d,#29251a 25%,#f6bd25 50%,#302718 72%,#090d13)!important;border-top:2px solid #f5bd26!important;border-bottom:2px solid #f5bd26!important}
+#statsBody table.knockout-results-table tbody tr.knockout-round-final td:first-child{border-right:2px solid #f5bd26!important}#statsBody table.knockout-results-table tbody tr.knockout-round-final td:last-child{border-left:2px solid #f5bd26!important}
+#statsBody table.knockout-results-table tbody tr.knockout-round-final .ko-number span{color:#1c1608;background:linear-gradient(135deg,#fff0a6,#e9a900);box-shadow:0 0 12px #ffc92877}
+#statsBody table.knockout-results-table tbody tr.knockout-round-final .knockout-round-badge{color:#201700;background:linear-gradient(135deg,#fff0a6,#e9a900);border-color:#ffdf72}
+#statsBody table.knockout-results-table tbody tr.knockout-round-final .knockout-score{color:#ffcf36;background:linear-gradient(135deg,#10151d,#29251a);border:2px solid #f5bd26;box-shadow:0 0 14px #ffc9284a}
+#statsBody table.knockout-results-table tbody tr.knockout-round-final .ko-date{color:#fff1b4}
+@media(max-width:600px){#statsBody .knockout-results-wrap{padding:8px!important;overflow:visible!important}#statsBody table.knockout-results-table{min-width:0!important;width:100%!important;border-spacing:0 10px!important}#statsBody table.knockout-results-table thead{display:none!important}#statsBody table.knockout-results-table,#statsBody table.knockout-results-table tbody{display:block!important}#statsBody table.knockout-results-table tbody tr.knockout-match-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:0!important;border:1px solid #c9e1f5!important;border-radius:17px!important;overflow:hidden!important;margin:0 0 10px!important;background:#fff!important}#statsBody table.knockout-results-table tbody tr.knockout-match-row td{display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;padding:11px 7px!important;border:0!important;border-radius:0!important;font-size:14px!important;overflow-wrap:anywhere!important}#statsBody table.knockout-results-table tbody tr.knockout-match-row td:nth-child(1){grid-column:1;grid-row:1}#statsBody table.knockout-results-table tbody tr.knockout-match-row td:nth-child(2){grid-column:2;grid-row:1}#statsBody table.knockout-results-table tbody tr.knockout-match-row td:nth-child(3){grid-column:1;grid-row:2;min-height:50px}#statsBody table.knockout-results-table tbody tr.knockout-match-row td:nth-child(4){grid-column:1 / -1;grid-row:3;padding:12px!important}#statsBody table.knockout-results-table tbody tr.knockout-match-row td:nth-child(5){grid-column:2;grid-row:2;min-height:50px}#statsBody table.knockout-results-table tbody tr.knockout-match-row td:nth-child(6){grid-column:1 / -1;grid-row:4;border-top:1px solid #dbe8f4!important}#statsBody table.knockout-results-table .knockout-score{min-width:100px;font-size:20px}#statsBody table.knockout-results-table tbody tr.knockout-round-final{border:2px solid #f2b91f!important;box-shadow:0 0 0 3px #ffdf7955,0 10px 22px #34260c24!important}}
+</style>
+
+<style id="knockout-match-cards-professional">
+/* بطاقات خروج المغلوب فقط: لا تستهدف أنماط الأقسام الأخرى */
+#statsBody .ko-results-panel{margin:16px 0 20px;padding:0;overflow:hidden;border:1px solid #c9dff0;border-radius:22px;background:linear-gradient(145deg,#fff,#f5faff);box-shadow:0 12px 30px rgba(20,65,110,.12)}
+#statsBody .ko-results-heading{display:flex;align-items:center;gap:12px;padding:17px 18px;color:#fff;background:linear-gradient(115deg,#074dcc,#078aa8 58%,#19b9c5)}
+#statsBody .ko-heading-icon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border-radius:15px;background:#ffffff22;border:1px solid #ffffff50;font-size:25px}
+#statsBody .ko-results-heading h3{margin:0;color:#fff;font-size:17px;font-weight:900;line-height:1.4}
+#statsBody .ko-results-heading p{margin:4px 0 0;color:#e4f8ff;font-size:12px;font-weight:700}
+#statsBody .ko-results-count{margin-right:auto;flex:0 0 auto;border:1px solid #ffffff55;background:#ffffff20;border-radius:999px;padding:7px 10px;font-weight:900;font-size:12px}
+#statsBody .ko-match-cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px;padding:15px}
+#statsBody .ko-match-card{position:relative;min-width:0;overflow:hidden;border:1px solid #c9ddf5;border-radius:19px;background:linear-gradient(140deg,#fff 0%,#f0f6ff 100%);box-shadow:0 7px 17px rgba(20,55,90,.10);transition:transform .18s ease,box-shadow .18s ease}
+#statsBody .ko-match-card:hover{transform:translateY(-2px);box-shadow:0 12px 23px rgba(20,55,90,.15)}
+#statsBody .ko-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 14px;background:linear-gradient(100deg,#e2efff,#f4f9ff);border-bottom:1px solid #d5e6fa}
+#statsBody .ko-round-title{font-weight:900;font-size:14px;color:#1254bd}
+#statsBody .ko-match-number{font-size:11px;font-weight:900;white-space:nowrap;padding:5px 9px;border-radius:999px;color:#1453ac;background:#fff;border:1px solid #c4daf9}
+#statsBody .ko-card-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(88px,.8fr) minmax(0,1fr);align-items:center;gap:6px;padding:17px 10px 14px}
+#statsBody .ko-card-team{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-width:0;text-align:center}
+#statsBody .ko-team-logo{display:block;width:62px;height:62px;max-width:100%;object-fit:contain;padding:5px;border-radius:18px;background:#fff;border:1px solid #d9e7f4;box-shadow:0 5px 12px rgba(17,54,95,.10)}
+#statsBody .ko-team-logo-fallback{display:grid;place-items:center;font-size:31px;background:linear-gradient(145deg,#f1f7ff,#fff)}
+#statsBody .ko-team-name{display:block;width:100%;font-size:14px;line-height:1.45;font-weight:900;color:#172d47;overflow-wrap:anywhere}
+#statsBody .ko-result{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+#statsBody .ko-score-value{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-width:84px;padding:11px 7px;border-radius:15px;color:#fff;background:linear-gradient(135deg,#0757d8,#1a80f5);box-shadow:0 7px 15px rgba(7,87,216,.25);font-size:22px;line-height:1;font-weight:1000;white-space:nowrap;direction:ltr}
+#statsBody .ko-score-value i{font-style:normal;color:#cce5ff}
+#statsBody .ko-vs{font-size:11px;font-weight:1000;color:#1768c8;letter-spacing:1px}
+#statsBody .ko-card-meta{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;background:#f6faff;border-top:1px solid #e1edf8;color:#587089;font-size:12px;font-weight:800}
+#statsBody .ko-meta-date,#statsBody .ko-meta-time{overflow-wrap:anywhere}
+#statsBody .ko-no-matches{grid-column:1/-1;text-align:center;padding:28px 15px;color:#718096;background:#f8fbff;border:1px dashed #cad9e7;border-radius:15px;font-weight:800}
+#statsBody .ko-results-footnote{margin:0 15px 15px;padding:11px 13px;border-radius:12px;background:#e9f4ff;color:#1358a8;font-size:12px;font-weight:800;text-align:center}
+/* نصف النهائي: بنفسجي واضح */
+#statsBody .ko-match-card.ko-semi{border-color:#d9c2ff;background:linear-gradient(140deg,#fff,#f7f0ff)}
+#statsBody .ko-match-card.ko-semi .ko-card-top{background:linear-gradient(100deg,#eee3ff,#faf6ff);border-color:#e5d4ff}
+#statsBody .ko-match-card.ko-semi .ko-round-title,#statsBody .ko-match-card.ko-semi .ko-match-number{color:#7029c5}
+#statsBody .ko-match-card.ko-semi .ko-match-number{border-color:#d9c2ff}
+#statsBody .ko-match-card.ko-semi .ko-score-value{background:linear-gradient(135deg,#7c2bd1,#ab46e8);box-shadow:0 7px 15px #7c2bd133}
+#statsBody .ko-match-card.ko-semi .ko-vs{color:#7c2bd1}
+/* النهائي: بطاقة الذهب والأسود */
+#statsBody .ko-match-card.ko-final{border:2px solid #e9b52a;background:radial-gradient(circle at 50% 0%,#55421b 0%,#171a20 46%,#0a0d12 100%);box-shadow:0 0 0 3px #f8d97945,0 12px 26px #2118052b}
+#statsBody .ko-match-card.ko-final:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,transparent 20%,#ffdc6c13 50%,transparent 80%)}
+#statsBody .ko-match-card.ko-final .ko-card-top{position:relative;background:linear-gradient(100deg,#201b10,#5b4317,#201b10);border-bottom:1px solid #8c6a1e}
+#statsBody .ko-match-card.ko-final .ko-round-title{color:#ffe08a}
+#statsBody .ko-match-card.ko-final .ko-match-number{color:#241804;background:linear-gradient(135deg,#fff1a9,#eab52b);border-color:#ffdc69}
+#statsBody .ko-match-card.ko-final .ko-card-main{position:relative}
+#statsBody .ko-match-card.ko-final .ko-team-logo{border:2px solid #e6bd4b;box-shadow:0 0 15px #e6bd4b22}
+#statsBody .ko-match-card.ko-final .ko-team-name{color:#fff1bd}
+#statsBody .ko-match-card.ko-final .ko-score-value{color:#ffd95f;background:linear-gradient(135deg,#0b0e13,#29251b);border:2px solid #d9a91d;box-shadow:0 0 17px #efc33b35}
+#statsBody .ko-match-card.ko-final .ko-score-value i{color:#fff0ad}
+#statsBody .ko-match-card.ko-final .ko-vs{color:#ffdc70}
+#statsBody .ko-match-card.ko-final .ko-card-meta{position:relative;background:#14171b;border-top-color:#6d541d;color:#f5d77f}
+@media(max-width:520px){
+ #statsBody .ko-results-heading{padding:14px 12px;gap:9px}
+ #statsBody .ko-results-heading h3{font-size:15px}
+ #statsBody .ko-heading-icon{width:38px;height:38px;flex-basis:38px;font-size:21px;border-radius:12px}
+ #statsBody .ko-results-count{font-size:10px;padding:6px 8px}
+ #statsBody .ko-match-cards-grid{grid-template-columns:minmax(0,1fr);padding:10px;gap:12px}
+ #statsBody .ko-card-main{grid-template-columns:minmax(0,1fr) minmax(78px,.72fr) minmax(0,1fr);gap:4px;padding:15px 8px 13px}
+ #statsBody .ko-team-logo{width:56px;height:56px;border-radius:15px}
+ #statsBody .ko-team-name{font-size:13px}
+ #statsBody .ko-score-value{min-width:76px;padding:11px 5px;font-size:20px;border-radius:13px}
+ #statsBody .ko-results-footnote{margin:0 10px 10px;font-size:11px}
+}
+</style>
+
+
+<style id="final-match-vibrant-redesign">
+/* إعادة تصميم بطاقة النهائي فقط؛ بقية مراحل وأقسام المنصة تبقى كما هي */
+#statsBody .ko-match-card.ko-final {
+  isolation:isolate !important;
+  position:relative !important;
+  overflow:hidden !important;
+  border:2px solid #ffc928 !important;
+  border-radius:22px !important;
+  color:#fff !important;
+  background:
+    radial-gradient(ellipse at 50% 110%,rgba(0,224,255,.30),transparent 42%),
+    radial-gradient(ellipse at 15% 50%,rgba(255,177,0,.23),transparent 32%),
+    linear-gradient(115deg,#071b4a 0%,#102b69 34%,#07172e 62%,#073b51 100%) !important;
+  box-shadow:0 0 0 3px rgba(255,207,54,.22),0 13px 30px rgba(4,25,67,.27),inset 0 0 28px rgba(67,201,255,.10) !important;
+}
+#statsBody .ko-match-card.ko-final:before {
+  content:"✦  ✧  ✦     ✧     ✦  ✧  ✦" !important;
+  position:absolute !important; inset:0 0 auto 0 !important; height:100% !important;
+  display:flex !important; align-items:flex-start !important; justify-content:space-around !important;
+  padding-top:8px !important; box-sizing:border-box !important;
+  color:#ffdc65 !important; font-size:17px !important; letter-spacing:8px !important;
+  opacity:.72 !important; pointer-events:none !important; z-index:0 !important;
+  background:
+    radial-gradient(circle at 8% 75%,#ffd34d 0 2px,transparent 3px),
+    radial-gradient(circle at 91% 22%,#40e7ff 0 2px,transparent 3px),
+    radial-gradient(circle at 73% 88%,#ffd34d 0 2px,transparent 3px) !important;
+}
+#statsBody .ko-match-card.ko-final:after {
+  content:"🏆" !important;
+  position:absolute !important; z-index:0 !important;
+  left:50% !important; top:50% !important; transform:translate(-50%,-50%) !important;
+  font-size:clamp(48px,9vw,88px) !important; line-height:1 !important;
+  opacity:.13 !important; filter:drop-shadow(0 0 14px #ffc928) !important;
+  pointer-events:none !important;
+}
+#statsBody .ko-match-card.ko-final .ko-card-top {
+  position:relative !important; z-index:1 !important;
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  gap:12px !important; flex-wrap:wrap !important;
+  padding:13px 14px !important;
+  background:linear-gradient(100deg,#ffbd24 0%,#fff0a2 24%,#ffcf3b 52%,#ff9f0a 100%) !important;
+  border-bottom:2px solid #fff0a2 !important;
+  box-shadow:0 4px 14px rgba(255,180,0,.22) !important;
+}
+#statsBody .ko-match-card.ko-final .ko-round-title {
+  color:#17254b !important; font-size:clamp(17px,3.6vw,22px) !important;
+  font-weight:1000 !important; text-shadow:0 1px 0 #fff8ce !important;
+}
+#statsBody .ko-match-card.ko-final .ko-round-title:before { content:"👑  " !important; }
+#statsBody .ko-match-card.ko-final .ko-match-number {
+  color:#fff !important; background:linear-gradient(135deg,#ff6b00,#e52d27) !important;
+  border:1px solid #fff0a6 !important; box-shadow:0 3px 10px #9a2d1644 !important;
+}
+#statsBody .ko-match-card.ko-final .ko-card-main {
+  position:relative !important; z-index:1 !important;
+  grid-template-columns:minmax(0,1fr) minmax(112px,.9fr) minmax(0,1fr) !important;
+  gap:10px !important; padding:22px 14px 18px !important;
+}
+#statsBody .ko-match-card.ko-final .ko-card-team { gap:10px !important; }
+#statsBody .ko-match-card.ko-final .ko-team-logo {
+  width:clamp(62px,11vw,84px) !important; height:clamp(62px,11vw,84px) !important;
+  padding:5px !important; border-radius:50% !important; object-fit:contain !important;
+  background:linear-gradient(145deg,#fff,#d9f7ff) !important;
+  border:3px solid #ffda57 !important;
+  box-shadow:0 0 0 4px rgba(255,214,70,.16),0 0 22px rgba(0,210,255,.32) !important;
+}
+#statsBody .ko-match-card.ko-final .ko-team-name {
+  color:#fff !important; font-size:clamp(14px,3.2vw,19px) !important;
+  font-weight:1000 !important; text-shadow:0 2px 5px #0009 !important;
+}
+#statsBody .ko-match-card.ko-final .ko-score-value {
+  min-width:clamp(100px,19vw,150px) !important; padding:13px 10px !important;
+  border-radius:17px !important; color:#fff1a0 !important;
+  background:linear-gradient(145deg,#07152d,#153e70) !important;
+  border:3px solid #ffcf36 !important; font-size:clamp(25px,5vw,38px) !important;
+  font-weight:1000 !important; letter-spacing:2px !important;
+  box-shadow:0 0 0 3px rgba(255,205,42,.13),0 0 25px rgba(255,199,32,.30),inset 0 0 14px #41d8ff22 !important;
+}
+#statsBody .ko-match-card.ko-final .ko-score-value i { color:#fff !important; }
+#statsBody .ko-match-card.ko-final .ko-vs {
+  color:#5ff2ff !important; font-size:16px !important; font-weight:1000 !important;
+  text-shadow:0 0 12px #00c8ff !important;
+}
+#statsBody .ko-match-card.ko-final .ko-card-meta {
+  position:relative !important; z-index:1 !important;
+  display:flex !important; justify-content:center !important; align-items:center !important;
+  gap:12px !important; flex-wrap:wrap !important; padding:11px 12px !important;
+  color:#fff2a9 !important; background:linear-gradient(90deg,#0b2047,#102e55,#09283b) !important;
+  border-top:1px solid #ffcf36 !important; font-weight:900 !important;
+}
+#statsBody .ko-match-card.ko-final .ko-meta-date,
+#statsBody .ko-match-card.ko-final .ko-meta-time {
+  color:#fff2a9 !important; font-weight:900 !important;
+}
+@media(max-width:520px) {
+  #statsBody .ko-match-card.ko-final { border-radius:18px !important; }
+  #statsBody .ko-match-card.ko-final .ko-card-top { padding:11px 8px !important; gap:7px !important; }
+  #statsBody .ko-match-card.ko-final .ko-card-main {
+    grid-template-columns:minmax(0,1fr) minmax(94px,.82fr) minmax(0,1fr) !important;
+    gap:3px !important; padding:18px 6px 14px !important;
+  }
+  #statsBody .ko-match-card.ko-final .ko-team-logo {
+    width:54px !important; height:54px !important; padding:4px !important;
+  }
+  #statsBody .ko-match-card.ko-final .ko-team-name { font-size:12px !important; overflow-wrap:anywhere !important; }
+  #statsBody .ko-match-card.ko-final .ko-score-value {
+    min-width:88px !important; padding:12px 4px !important; font-size:23px !important;
+  }
+  #statsBody .ko-match-card.ko-final .ko-card-meta { font-size:12px !important; }
+}
+@media(prefers-reduced-motion:no-preference) {
+  #statsBody .ko-match-card.ko-final .ko-score-value { animation:final-score-glow 2.8s ease-in-out infinite alternate; }
+  @keyframes final-score-glow {
+    from { box-shadow:0 0 0 3px rgba(255,205,42,.10),0 0 14px rgba(255,199,32,.20),inset 0 0 14px #41d8ff22; }
+    to { box-shadow:0 0 0 4px rgba(255,205,42,.20),0 0 25px rgba(255,199,32,.42),inset 0 0 18px #41d8ff35; }
+  }
+}
+</style>
+
+
+<style id="tournament-completion-button-style">
+.tournament-completion-action{font-weight:900!important;border-radius:12px!important;min-height:40px!important;box-shadow:0 4px 12px rgba(20,60,90,.13)!important}
+.current-card-admin-actions .tournament-completion-action,
+.ended-card-admin-actions .tournament-completion-action{background:linear-gradient(135deg,#087f5b,#16a34a)!important;color:#fff!important;border:1px solid #0b8f64!important}
+.current-card-admin-actions .tournament-completion-action.btn.warn,
+.ended-card-admin-actions .tournament-completion-action.btn.warn{background:linear-gradient(135deg,#f59e0b,#ea580c)!important;color:#fff!important;border-color:#fbbf24!important}
+</style>
+
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -10890,6 +11183,7 @@ img { decoding: async; }
 <div><label>⏰ الوقت</label><input id="matchTime" type="time"/></div>
 <div><label>🏟️ الملعب</label><select id="matchStadium" onchange="toggleOtherStadium()"><option value="ملعب المنار الرئيسي" selected>ملعب المنار الرئيسي</option><option value="ملعب آخر">ملعب آخر</option></select><div id="otherStadiumWrap" style="display:none;margin-top:8px"><input id="matchOtherStadium" placeholder="اكتب اسم الملعب الآخر" type="text"/></div></div>
 <div><label>📌 حالة المباراة</label><select id="matchStatus"><option value="scheduled">📅 مجدولة</option><option value="finished">✅ منتهية</option></select></div>
+<div id="matchKnockoutRoundWrap" style="display:none"><label>🏆 نوع مباراة خروج المغلوب</label><select id="matchKnockoutRound"><option value="">اختر نوع المباراة</option><option value="ربع النهائي">🏆 ربع النهائي</option><option value="نصف النهائي">🥈 نصف النهائي</option><option value="النهائي">🥇 النهائي</option></select><small>يظهر هذا الخيار عند بدء مرحلة خروج المغلوب في بطولة المجموعات.</small></div>
 </div><div class="actions"><button class="btn" onclick="addMatch()">💾 حفظ المباراة</button></div></div><div class="card match-view-selector-card"><div class="section-title"><div><h2>📋 عرض المباريات</h2><small>اختر البطولة أولاً، ثم اختر نوع المباريات التي تريد عرضها.</small></div><span class="badge">👁️ متاح للجميع</span></div><div class="grid match-view-selectors"><div><label>🏆 اسم البطولة</label><select id="matchViewTournament" onchange="refreshMatchViewStatus()"><option value="">— اختر البطولة —</option></select></div><div><label>📌 نوع المباريات</label><select disabled="" id="matchViewFilter" onchange="renderMatchView()"><option value="">— اختر نوع المباريات —</option><option value="scheduled">📅 المباريات المجدولة</option><option value="finished">✅ المباريات المنتهية</option></select></div></div><div class="match-view-help" id="matchViewHelp">🏆 اختر اسم البطولة لعرض خيارات المباريات.</div></div><div class="card"><div id="matchViewList"><div class="upcoming-empty">🏆 اختر اسم البطولة أولاً.</div></div></div><div id="upcomingMatches" style="display:none"></div><div id="matchList" style="display:none"></div></section><section class="page" id="overallRanking"><div class="card overall-ranking-new"><div class="section-title"><div><h2>🏆 التصنيف العام</h2><small>ترتيب نتائج الفرق في جميع البطولات الرسمية في المنار</small></div><span class="badge">جميع البطولات الرسمية</span></div><div class="notice overall-ranking-note">
       يتم جمع نتائج المباريات المنتهية للفرق المسجلة في البطولات الرسمية وعرضها في جدول واحد.
     </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card stats-hero-card"><div class="stats-hero-heading"><span class="stats-hero-art" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-label="رسم بياني للإحصائيات"><defs><linearGradient id="statsIconGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c1c3"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect x="8" y="8" width="80" height="80" rx="23" fill="url(#statsIconGradient)"/><path d="M25 68V51h10v17M43 68V38h10v30M61 68V26h10v42" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 74h52" stroke="#dff7ff" stroke-width="4" stroke-linecap="round"/></svg></span><div class="stats-hero-copy"><h2>إحصائيات البطولة</h2><p>قراءة واضحة لأرقام البطولة وأداء الفرق واللاعبين</p></div><span class="stats-hero-tag">📊 تحليل الأداء</span></div><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings"><div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>تغيير اسم المستخدم وكلمة المرور الخاصة بالمنصة.</small></div><span class="badge">Admin فقط</span></div><div class="card settings-card" data-perm="settings"><h2>🔐 تغيير اسم المستخدم وكلمة المرور</h2><div class="notice">يمكن للمدير تحديث بيانات الدخول. تُحفظ بيانات الحساب محليًا؛ المزامنة السحابية للحسابات غير مفعلة في النظام الحالي.</div><div class="user-management-block" style="margin-top:14px;border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🖼️ شعار المنصة</h3><small>اختر صورة جديدة لتظهر في ترويسة المنصة والقائمة الجانبية على هذا الجهاز.</small></div><img id="platformLogoPreview" alt="معاينة شعار المنصة" style="width:64px;height:64px;object-fit:contain;border-radius:50%;border:2px solid #d5e8df;background:#fff;padding:3px"/ loading="lazy" decoding="async"></div><div class="actions" style="margin-top:12px"><button class="btn blue" type="button" onclick="document.getElementById('platformLogoFile').click()">🖼️ تغيير شعار المنصة</button><button class="btn secondary" type="button" onclick="resetPlatformLogo()">↩️ استعادة الشعار الافتراضي</button><input id="platformLogoFile" type="file" accept="image/*" style="display:none" onchange="changePlatformLogo(event)"/></div><div id="platformLogoMessage" style="font-size:13px;margin-top:8px;color:#0b5d3b" role="status"></div></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input autocomplete="username" id="newAdminUser" placeholder="أدخل اسم المستخدم الجديد"/></div><div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div><div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div><div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div></div><div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div><div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ بيانات الدخول الجديدة</button></div></div><div class="card settings-card" data-perm="settings"><div class="section-title"><h2>⚙️ الإعدادات</h2><span class="badge">مدير النظام</span></div><div class="notice">إدارة الحسابات والصلاحيات بشكل منظم. الزائر يبقى مشاهدًا دون تسجيل دخول.</div><div class="user-management-block audit-shortcut-block" style="border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🧾 سجل المراجعة</h3><small>المدير لديه صلاحية تلقائية، ويمكنه منح «سجل المراجعة» لأي حساب من قائمة الصلاحيات. مسح السجل متاح للمدير فقط.</small></div><span class="badge">🔐 المدير أو من يخوله</span></div><div class="actions"><button class="btn" type="button" onclick="openAuditLog()">🧾 فتح سجل المراجعة</button></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">👤 الحسابات الحالية</h3><span class="badge">الحسابات</span></div><div class="table-wrap" id="managedUsersList"></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">➕ إنشاء حساب جديد</h3><span class="badge">الخطوة 1</span></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input id="newManagedUser" placeholder="مثال: مسؤول المباريات"/></div><div><label>كلمة المرور</label><input id="newManagedPass" placeholder="كلمة مرور الحساب" type="password"/></div></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">🔐 الصلاحيات</h3><span class="badge">الخطوة 2</span></div><div class="permission-tools"><button class="btn secondary" onclick="setAllManagedPermissions(true)" type="button">☑️ تحديد الكل</button><button class="btn secondary" onclick="setAllManagedPermissions(false)" type="button">☐ إلغاء الكل</button></div><div class="permission-grid" id="userPermissions"></div></div><div class="actions"><button class="btn btn-primary" onclick="addManagedUser()">➕ إنشاء الحساب بالصلاحيات المحددة</button></div><div class="card settings-card platform-reset-card" data-platform-reset="admin-only"><div class="section-title"><h2>⚠️ تصفير المنصة</h2><span class="badge">المدير فقط</span></div><div class="platform-reset-warning">
@@ -10897,7 +11191,12 @@ img { decoding: async; }
   <div class="grid" style="margin:12px 0">
     <div><label for="platformResetSection">🧩 اختر القسم المراد تصفيره</label><select id="platformResetSection"><option value="">— اختر القسم —</option><option value="tournaments">🏆 البطولات</option><option value="teams">⚽ الفرق</option><option value="players">👤 اللاعبون</option><option value="matches">📅 المباريات</option><option value="sheets">📋 كشوفات المباريات</option><option value="referees">⚖️ الحكام</option><option value="archives">🗄️ أرشيف البطولات</option><option value="news">📰 الأخبار والإعلام</option><option value="polls">🗳️ استطلاعات الرأي</option><option value="audit">🧾 سجل المراجعة</option><option value="suspensions">🟥 الإيقافات والإنذارات</option><option value="transfers">🔁 انتقالات اللاعبين</option><option value="officialPlayers">🪪 اللاعبين الرسميين</option></select></div>
   </div>
-  <div class="actions"><button class="btn warn platform-reset-only" onclick="resetPlatformSection()" type="button">🧹 تصفير القسم المحدد</button><button class="btn danger platform-reset-only" onclick="resetPlatformAdminOnly()" type="button">⚠️ تصفير المنصة بالكامل</button></div></div></div></section><section class="page audit-page-standalone" data-perm="audit" id="auditLog"><div class="card audit-card"><div class="section-title"><h2>🧾 سجل المراجعة</h2><span class="badge">للمدير أو من يخوله</span></div><div class="viewer-note">🔐 الوصول متاح لمدير النظام أو للحساب الذي منحه المدير صلاحية «سجل المراجعة». يمكن للمخول عرض السجل والبحث والتصفية؛ أما مسح السجل فمتاح للمدير فقط. يتم تسجيل الإضافات والتعديلات والحذف وإدارة الحسابات.</div><div class="audit-toolbar"><div><label>تصفية القسم</label><select id="auditSectionFilter"><option value="">كل الأقسام</option></select></div><div><label>تصفية العملية</label><select id="auditActionFilter"><option value="">كل العمليات</option><option value="إضافة">إضافة</option><option value="تعديل">تعديل</option><option value="حذف">حذف</option><option value="إدارة الحسابات">إدارة الحسابات</option><option value="حفظ بيانات">حفظ بيانات</option><option value="تسجيل الدخول">تسجيل الدخول</option><option value="تسجيل الخروج">تسجيل الخروج</option></select></div><div class="audit-search"><label>بحث</label><input id="auditSearch" placeholder="ابحث باسم المستخدم أو التفاصيل"/></div><div class="actions audit-actions"><button class="btn secondary" type="button" onclick="goPage('settings')">↩️ الإعدادات</button><button class="btn secondary" type="button" onclick="openAuditLog()">🔄 عرض الكل</button><button class="btn secondary" type="button" onclick="renderAuditLog()">🔄 تحديث</button><button class="btn danger audit-clear-admin-only" type="button" onclick="clearAuditLog()">🗑️ مسح السجل</button></div></div><div class="table-wrap" id="auditLogList"></div></div></section><div class="card admin-only" id="platformMaintenanceBox" style="margin-top:16px"><div class="section-title"><h2>🛠️ صيانة المنصة</h2><span class="badge">المدير فقط</span></div><div class="notice">فحص وإصلاح مشاكل بيانات المنصة بعد النشر أو التحديث. يتم إنشاء نسخة احتياطية قبل الإصلاح.</div><div class="actions" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn blue" onclick="platformMaintenanceCheck()" type="button">🔍 فحص المنصة</button><button class="btn" onclick="platformMaintenanceRepair()" type="button">🔧 إصلاح تلقائي</button><button class="btn secondary" onclick="platformMaintenanceReload()" type="button">🔄 إعادة تشغيل</button></div><div id="maintenanceStatus" style="margin-top:12px;padding:12px;border-radius:12px;background:#f4f6f8;font-weight:800">جاهز للفحص.</div><div id="maintenanceReport" style="margin-top:10px;display:grid;gap:8px"></div></div><section class="page" id="backup"><div class="card"><h2>حفظ واستعادة البيانات</h2><div class="notice">البيانات تحفظ تلقائيًا على الجهاز. استخدم النسخ الاحتياطي قبل حذف المتصفح أو تغيير الهاتف.</div><div class="actions"><button class="btn blue admin-only" onclick="downloadBackup()">⬇️ تصدير نسخة احتياطية</button><label class="btn secondary admin-only" style="display:inline-block">⬆️ استعادة نسخة<input accept=".json" onchange="restoreBackup(event)" style="display:none" type="file"/></label><button class="btn danger admin-only" onclick="clearAll()">حذف جميع البيانات</button></div></div></section><section class="page" id="matchSheetsSection"><div class="card ks-root"><div class="section-title"><h2>📋 كشوفات المباريات</h2><span class="badge">سجل رسمي للمباراة</span></div><div class="ks-note">🔐 الإدخال والتعديل والحذف للمدير أو من يملك صلاحية «كشوفات المباريات». الزوار يشاهدون ملخصات الكشوفات فقط.</div><div class="ks-toolbar"><div><label>🏆 البطولة</label><select id="ksTournament"><option value="">اختر البطولة</option></select></div><div><label>⚽ المباراة</label><select disabled="" id="ksMatch"><option value="">اختر البطولة أولاً</option></select></div><button class="btn blue" id="ksNew" type="button">➕ إنشاء كشف</button></div><div class="ks-list" id="ksPending"></div><div class="ks-editor" id="ksEditor" style="display:none"><div class="ks-editor-head"><div><b id="ksEditorTitle">📝 إنشاء كشف مباراة</b><small id="ksNumber">رقم الكشف: تلقائي</small></div><button class="btn secondary" id="ksClose" type="button">إغلاق</button></div><div class="ks-match-info" id="ksMatchInfo"></div><div class="ks-step"><h3>1️⃣ نتيجة المباراة</h3><div class="ks-score"><div><label id="ksHomeLabel">الفريق الأول</label><input id="ksHomeScore" inputmode="numeric" min="0" type="number"/></div><strong>×</strong><div><label id="ksAwayLabel">الفريق الثاني</label><input id="ksAwayScore" inputmode="numeric" min="0" type="number"/></div></div></div><div class="ks-step"><h3>2️⃣ مسجلو الأهداف</h3><div class="ks-two"><div><b id="ksHomeGoalsTitle">الفريق الأول</b><div class="ks-dynamic" id="ksHomeGoals"></div></div><div><b id="ksAwayGoalsTitle">الفريق الثاني</b><div class="ks-dynamic" id="ksAwayGoals"></div></div></div><small>تظهر خانات المسجلين حسب عدد الأهداف، ولا يتم تسجيل الدقيقة أو الشوط.</small></div><div class="ks-step"><h3>3️⃣ الإنذارات والبطاقات</h3><div class="ks-card-entry"><select id="ksCardTeam"><option value="">اختر الفريق</option></select><select disabled="" id="ksCardPlayer"><option value="">اختر اللاعب</option></select><select id="ksCardType"><option value="yellow">🟨 صفراء</option><option value="red">🟥 حمراء</option></select><button class="btn warn" id="ksAddCard" type="button">إضافة البطاقة</button></div><div class="ks-events" id="ksCards"></div></div><div class="ks-step"><h3>4️⃣ أفضل لاعب</h3><div class="ks-grid"><div><label>أفضل لاعب *</label><select id="ksBestPlayer"><option value="">اختر اللاعب</option></select></div></div></div><div class="ks-step"><h3>5️⃣ الحكام والمشرف</h3><div class="ks-grid"><div><label>الحكم الأول *</label><select id="ksRef1"></select></div><div><label>الحكم الثاني *</label><select id="ksRef2"></select></div><div><label>الحكم الثالث *</label><select id="ksRef3"></select></div><div><label>الحكم الرابع</label><select id="ksRef4"></select></div><div><label>مشرف المباراة</label><input id="ksSupervisor" placeholder="اسم المشرف"/></div></div></div><div class="ks-step"><h3>6️⃣ ضربات الجزاء</h3><div class="ks-grid"><div><label>هل توجد ضربات جزاء؟</label><select id="ksPenYes"><option value="no">لا</option><option value="yes">نعم</option></select></div><div><label>العدد</label><input id="ksPenalties" min="0" type="number" value="0"/></div></div></div><div class="ks-step"><h3>7️⃣ صورة الكشف <small>(اختياري)</small></h3><input accept="image/*" id="ksImage" type="file"/><div id="ksImagePreview"></div></div><div class="ks-actions"><button class="btn primary" id="ksSave" type="button">💾 حفظ الكشف</button><button class="btn secondary" id="ksCancel" type="button">إلغاء</button></div><div class="ks-status" id="ksStatus"></div></div><div class="ks-public"><div class="section-title"><h3>📋 الكشوفات المدخلة</h3><span class="badge">المشاهدة للجميع</span></div><div id="ksReportsList"></div></div></div></section><section class="page" id="contactUs" style="display:none"><div class="section-page-title"><h2>📞 تواصل معنا</h2><span class="badge">نحن هنا لخدمتكم</span></div><div class="card"><div class="section-title"><h2>💬 تواصل معنا</h2><small>يسعدنا استقبال استفساراتكم وملاحظاتكم</small></div><div class="grid"><div class="card" style="margin:0"><h3>📞 الهاتف</h3><p>يمكنك إضافة رقم الهاتف هنا.</p></div><div class="card" style="margin:0"><h3>📱 واتساب</h3><p>يمكنك إضافة رقم الواتساب هنا.</p></div><div class="card" style="margin:0"><h3>📧 البريد الإلكتروني</h3><p>يمكنك إضافة البريد الإلكتروني هنا.</p></div><div class="card" style="margin:0"><h3>📍 العنوان</h3><p>يمكنك إضافة عنوان المنصة هنا.</p></div></div></div></section></main><section class="page" id="headToHeadSection">
+  <div class="actions"><button class="btn warn platform-reset-only" onclick="resetPlatformSection()" type="button">🧹 تصفير القسم المحدد</button><button class="btn danger platform-reset-only" onclick="resetPlatformAdminOnly()" type="button">⚠️ تصفير المنصة بالكامل</button></div></div></div></section><section class="page audit-page-standalone" data-perm="audit" id="auditLog"><div class="card audit-card"><div class="section-title"><h2>🧾 سجل المراجعة</h2><span class="badge">للمدير أو من يخوله</span></div><div class="viewer-note">🔐 الوصول متاح لمدير النظام أو للحساب الذي منحه المدير صلاحية «سجل المراجعة». يمكن للمخول عرض السجل والبحث والتصفية؛ أما مسح السجل فمتاح للمدير فقط. يتم تسجيل الإضافات والتعديلات والحذف وإدارة الحسابات.</div><div class="audit-toolbar"><div><label>تصفية القسم</label><select id="auditSectionFilter"><option value="">كل الأقسام</option></select></div><div><label>تصفية العملية</label><select id="auditActionFilter"><option value="">كل العمليات</option><option value="إضافة">إضافة</option><option value="تعديل">تعديل</option><option value="حذف">حذف</option><option value="إدارة الحسابات">إدارة الحسابات</option><option value="حفظ بيانات">حفظ بيانات</option><option value="تسجيل الدخول">تسجيل الدخول</option><option value="تسجيل الخروج">تسجيل الخروج</option></select></div><div class="audit-search"><label>بحث</label><input id="auditSearch" placeholder="ابحث باسم المستخدم أو التفاصيل"/></div><div class="actions audit-actions"><button class="btn secondary" type="button" onclick="goPage('settings')">↩️ الإعدادات</button><button class="btn secondary" type="button" onclick="openAuditLog()">🔄 عرض الكل</button><button class="btn secondary" type="button" onclick="renderAuditLog()">🔄 تحديث</button><button class="btn danger audit-clear-admin-only" type="button" onclick="clearAuditLog()">🗑️ مسح السجل</button></div></div><div class="table-wrap" id="auditLogList"></div></div></section><div class="card admin-only" id="platformMaintenanceBox" style="margin-top:16px"><div class="section-title"><h2>🛠️ صيانة المنصة</h2><span class="badge">المدير فقط</span></div><div class="notice">فحص وإصلاح مشاكل بيانات المنصة بعد النشر أو التحديث. يتم إنشاء نسخة احتياطية قبل الإصلاح.</div><div class="actions" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn blue" onclick="platformMaintenanceCheck()" type="button">🔍 فحص المنصة</button><button class="btn" onclick="platformMaintenanceRepair()" type="button">🔧 إصلاح تلقائي</button><button class="btn secondary" onclick="platformMaintenanceReload()" type="button">🔄 إعادة تشغيل</button></div><div id="maintenanceStatus" style="margin-top:12px;padding:12px;border-radius:12px;background:#f4f6f8;font-weight:800">جاهز للفحص.</div><div id="maintenanceReport" style="margin-top:10px;display:grid;gap:8px"></div></div><section class="page" id="backup"><div class="card"><h2>حفظ واستعادة البيانات</h2><div class="notice">البيانات تحفظ تلقائيًا على الجهاز. استخدم النسخ الاحتياطي قبل حذف المتصفح أو تغيير الهاتف.</div><div class="actions"><button class="btn blue admin-only" onclick="downloadBackup()">⬇️ تصدير نسخة احتياطية</button><label class="btn secondary admin-only" style="display:inline-block">⬆️ استعادة نسخة<input accept=".json" onchange="restoreBackup(event)" style="display:none" type="file"/></label><button class="btn danger admin-only" onclick="clearAll()">حذف جميع البيانات</button></div></div></section><section class="page" id="matchSheetsSection"><div class="card ks-root"><div class="section-title"><h2>📋 كشوفات المباريات</h2><span class="badge">سجل رسمي للمباراة</span></div><div class="ks-note">🔐 الإدخال والتعديل والحذف للمدير أو من يملك صلاحية «كشوفات المباريات». الزوار يشاهدون ملخصات الكشوفات فقط.</div><div class="ks-toolbar"><div><label>🏆 البطولة</label><select id="ksTournament"><option value="">اختر البطولة</option></select></div><div><label>⚽ المباراة</label><select disabled="" id="ksMatch"><option value="">اختر البطولة أولاً</option></select></div><button class="btn blue" id="ksNew" type="button">➕ إنشاء كشف</button></div><div class="ks-list" id="ksPending"></div><div class="ks-editor" id="ksEditor" style="display:none"><div class="ks-editor-head"><div><b id="ksEditorTitle">📝 إنشاء كشف مباراة</b><small id="ksNumber">رقم الكشف: تلقائي</small></div><button class="btn secondary" id="ksClose" type="button">إغلاق</button></div><div class="ks-match-info" id="ksMatchInfo"></div>
+<div class="ks-admin-decision-box" id="ksAdminDecisionBox">
+<button class="btn warn" id="ksAdminDecisionToggle" type="button" aria-pressed="false">⚖️ قرار إداري: غير مفعل</button>
+<div id="ksAdminDecisionOptions" style="display:none;margin-top:10px"><label for="ksWithdrawnTeam">الفريق المنسحب (يُمنح الفوز 3-0)</label><select id="ksWithdrawnTeam"><option value="">اختر الفريق المنسحب</option></select><small>عند تفعيل القرار الإداري تُلغى تفاصيل الكشف وتُحفظ النتيجة 3-0 لصالح الفريق المنسحب.</small></div>
+</div>
+<div class="ks-step"><h3>1️⃣ نتيجة المباراة</h3><div class="ks-score"><div><label id="ksHomeLabel">الفريق الأول</label><input id="ksHomeScore" inputmode="numeric" min="0" type="number"/></div><strong>×</strong><div><label id="ksAwayLabel">الفريق الثاني</label><input id="ksAwayScore" inputmode="numeric" min="0" type="number"/></div></div></div><div class="ks-step"><h3>2️⃣ مسجلو الأهداف</h3><div class="ks-two"><div><b id="ksHomeGoalsTitle">الفريق الأول</b><div class="ks-dynamic" id="ksHomeGoals"></div></div><div><b id="ksAwayGoalsTitle">الفريق الثاني</b><div class="ks-dynamic" id="ksAwayGoals"></div></div></div><small>تظهر خانات المسجلين حسب عدد الأهداف، ولا يتم تسجيل الدقيقة أو الشوط.</small></div><div class="ks-step"><h3>3️⃣ الإنذارات والبطاقات</h3><div class="ks-card-entry"><select id="ksCardTeam"><option value="">اختر الفريق</option></select><select disabled="" id="ksCardPlayer"><option value="">اختر اللاعب</option></select><select id="ksCardType"><option value="yellow">🟨 صفراء</option><option value="red">🟥 حمراء</option></select><button class="btn warn" id="ksAddCard" type="button">إضافة البطاقة</button></div><div class="ks-events" id="ksCards"></div></div><div class="ks-step"><h3>4️⃣ أفضل لاعب</h3><div class="ks-grid"><div><label>أفضل لاعب *</label><select id="ksBestPlayer"><option value="">اختر اللاعب</option></select></div></div></div><div class="ks-step"><h3>5️⃣ الحكام والمشرف</h3><div class="ks-grid"><div><label>الحكم الأول *</label><select id="ksRef1"></select></div><div><label>الحكم الثاني *</label><select id="ksRef2"></select></div><div><label>الحكم الثالث *</label><select id="ksRef3"></select></div><div><label>الحكم الرابع</label><select id="ksRef4"></select></div><div><label>مشرف المباراة</label><input id="ksSupervisor" placeholder="اسم المشرف"/></div></div></div><div class="ks-step"><h3>6️⃣ ضربات الجزاء</h3><div class="ks-grid"><div><label>هل توجد ضربات جزاء؟</label><select id="ksPenYes"><option value="no">لا</option><option value="yes">نعم</option></select></div><div><label>العدد</label><input id="ksPenalties" min="0" type="number" value="0"/></div></div></div><div class="ks-step"><h3>7️⃣ صورة الكشف <small>(اختياري)</small></h3><input accept="image/*" id="ksImage" type="file"/><div id="ksImagePreview"></div></div><div class="ks-actions"><button class="btn primary" id="ksSave" type="button">💾 حفظ الكشف</button><button class="btn secondary" id="ksCancel" type="button">إلغاء</button></div><div class="ks-status" id="ksStatus"></div></div><div class="ks-public"><div class="section-title"><h3>📋 الكشوفات المدخلة</h3><span class="badge">المشاهدة للجميع</span></div><div id="ksReportsList"></div></div></div></section><section class="page" id="contactUs" style="display:none"><div class="section-page-title"><h2>📞 تواصل معنا</h2><span class="badge">نحن هنا لخدمتكم</span></div><div class="card"><div class="section-title"><h2>💬 تواصل معنا</h2><small>يسعدنا استقبال استفساراتكم وملاحظاتكم</small></div><div class="grid"><div class="card" style="margin:0"><h3>📞 الهاتف</h3><p>يمكنك إضافة رقم الهاتف هنا.</p></div><div class="card" style="margin:0"><h3>📱 واتساب</h3><p>يمكنك إضافة رقم الواتساب هنا.</p></div><div class="card" style="margin:0"><h3>📧 البريد الإلكتروني</h3><p>يمكنك إضافة البريد الإلكتروني هنا.</p></div><div class="card" style="margin:0"><h3>📍 العنوان</h3><p>يمكنك إضافة عنوان المنصة هنا.</p></div></div></div></section></main><section class="page" id="headToHeadSection">
   <div class="section-page-title"><h2>⚔️ تاريخ المواجهات</h2><span class="badge">جميع البطولات المسجلة</span></div>
   <div class="card h2h-card">
     <div class="section-title">
@@ -11619,13 +11918,13 @@ function openNativeCalendar(inputId){
     try{el.showPicker()}catch(e){el.focus()}
   }
 }
-function tourStatus(t){let today=new Date().toISOString().slice(0,10);if(t.status==='archived')return 'archived';if(t.endDate&&today>t.endDate)return 'ended';if(t.startDate&&today<t.startDate)return 'upcoming';return 'active'}
+function tourStatus(t){let today=new Date().toISOString().slice(0,10);if(t.status==='archived')return 'archived';if(t.completionState==='ended'||t.status==='ended')return 'ended';if(t.completionState==='active'||t.status==='active')return 'active';if(t.endDate&&today>t.endDate)return 'ended';if(t.startDate&&today<t.startDate)return 'upcoming';return 'active'}
 function archiveEndedTournaments(){
   /* لا تتم الأرشفة تلقائيًا. البطولة تنتقل إلى «البطولات المنتهية» أولًا،
      ولا يُنشأ ملف PDF إلا بعد ضغط المدير على «أرشفة PDF». */
   let changed=false;
   (db.tournaments||[]).forEach(t=>{
-    if(!tournamentIsArchived(t) && t.endDate && new Date().toISOString().slice(0,10)>String(t.endDate) && t.status!=='ended'){
+    if(!tournamentIsArchived(t) && t.completionState!=='active' && t.endDate && new Date().toISOString().slice(0,10)>String(t.endDate) && t.status!=='ended'){
       t.status='ended'; changed=true;
     }
   });
@@ -11749,10 +12048,20 @@ function addMatch(){
   const ht=db.teams.find(x=>String(x.id)===String(h)), at=db.teams.find(x=>String(x.id)===String(a));
   if(!ht||!at||String(ht.tournamentId)!==String(t)||String(at.tournamentId)!==String(t))return alert('الفريقان يجب أن يكونا من البطولة المختارة');
   const tour=(db.tournaments||[]).find(x=>String(x.id)===String(t));
+  const knockoutMode=!!tour && isGroupTournament(tour) && (String(tour.stage||'')==='knockout' || tour.knockoutAfterGroups===true);
+  const knockoutWrap=document.getElementById('matchKnockoutRoundWrap');
+  const knockoutSelect=document.getElementById('matchKnockoutRound');
+  if(knockoutMode && knockoutWrap){knockoutWrap.hidden=false;knockoutWrap.style.setProperty('display','block','important');}
+  const knockoutRound=knockoutMode ? String(knockoutSelect?.value||'') : '';
+  if(knockoutMode&&!['ربع النهائي','نصف النهائي','النهائي'].includes(knockoutRound)){
+    if(knockoutWrap){knockoutWrap.hidden=false;knockoutWrap.style.setProperty('display','block','important');}
+    if(knockoutSelect){knockoutSelect.focus();knockoutSelect.scrollIntoView({behavior:'smooth',block:'center'});}
+    return alert('ظهر حقل نوع مباراة خروج المغلوب. اختر ربع النهائي أو نصف النهائي أو النهائي ثم احفظ المباراة.');
+  }
   const samePair=(m)=>{const sameOrder=String(m.home)===String(h)&&String(m.away)===String(a);const reverse=String(m.home)===String(a)&&String(m.away)===String(h);return sameOrder||reverse;};
-  const duplicate=(db.matches||[]).some(m=>String(m.tournamentId)===String(t)&&samePair(m)&&((String(tour?.type||'')==='دوري ذهاب وإياب')?String(m.home)===String(h)&&String(m.away)===String(a):true));
+  const duplicate=(db.matches||[]).some(m=>String(m.tournamentId)===String(t)&&samePair(m)&&((knockoutRound && (m.knockoutRound||m.matchStage==='knockout')) ? String(m.knockoutRound||'')===knockoutRound : (knockoutRound ? false : ((String(tour?.type||'')==='دوري ذهاب وإياب')?String(m.home)===String(h)&&String(m.away)===String(a):true))));
   if(duplicate)return alert('هذه المباراة مسجلة مسبقًا لنفس الفريقين في هذه البطولة.');
-  db.matches.push({id:uid('M'),tournamentId:t,home:h,away:a,hg:0,ag:0,status,bestPlayerId:'',homeScorers:[],awayScorers:[],goalScorers:[],date,time,stadium});
+  db.matches.push({id:uid('M'),tournamentId:t,home:h,away:a,hg:0,ag:0,status,bestPlayerId:'',homeScorers:[],awayScorers:[],goalScorers:[],date,time,stadium,...(knockoutRound?{knockoutRound,matchStage:'knockout'}:{})});
   document.getElementById('matchDate').value='';document.getElementById('matchTime').value='';document.getElementById('matchStadium').value='';
   document.getElementById('homeTeam').value='';document.getElementById('awayTeam').value='';
   save();renderAll();alert(status==='finished'?'تم تسجيل المباراة المنتهية بنجاح':'تمت جدولة المباراة بنجاح');
@@ -11849,10 +12158,27 @@ function refreshCardMatchTeams(){let m=db.matches.find(x=>x.id===cardMatch?.valu
 function refreshCardPlayers(){let m=db.matches.find(x=>x.id===cardMatch?.value),t=cardTeam.value;let players=db.players.filter(p=>p.teamId===t && (!m || [m.home,m.away].includes(p.teamId)));cardPlayer.innerHTML=opts(players,t?'اختر اللاعب':'اختر الفريق أولاً')}
 function addCard(){if(!requirePermission('cards'))return;let tid=cardTour.value,mid=cardMatch.value,team=cardTeam.value,player=cardPlayer.value,type=cardType.value;if(!tid)return alert('اختر البطولة أولاً');if(!mid)return alert('اختر مباراة منتهية أولاً');if(!team)return alert('اختر الفريق أولاً');if(!player)return alert('اختر اللاعب');let m=db.matches.find(x=>x.id===mid),p=db.players.find(x=>x.id===player&&x.teamId===team);if(!m||m.tournamentId!==tid||(m.status||'finished')!=='finished')return alert('يجب اختيار مباراة منتهية ضمن البطولة المختارة');if(!p||![m.home,m.away].includes(team))return alert('اللاعب غير موجود ضمن أحد فريقي المباراة');if(!Array.isArray(m.cards))m.cards=[];m.cards.push({id:uid('C'),playerId:player,teamId:team,type});if(type==='yellow')p.yellow=(+p.yellow||0)+1;else p.red=(+p.red||0)+1;save();alert('تم تسجيل الإنذار في المباراة بنجاح')}
 
-function refreshMatchTeams(){const hs=document.getElementById('homeTeam'),as=document.getElementById('awayTeam');if(!hs||!as)return;const teams=Array.isArray(db.teams)?db.teams:[];const opts='<option value="">— اختر الفريق —</option>'+teams.map(t=>`<option value="${esc(t.id)}">${esc(t.name||'فريق')}</option>`).join('');hs.innerHTML=opts;as.innerHTML=opts;}
+function refreshMatchTeams(){
+  const hs=document.getElementById('homeTeam'),as=document.getElementById('awayTeam');
+  if(!hs||!as)return;
+  const teams=Array.isArray(db.teams)?db.teams:[];
+  const opts='<option value="">— اختر الفريق —</option>'+teams.map(t=>`<option value="${esc(t.id)}">${esc(t.name||'فريق')}</option>`).join('');
+  hs.innerHTML=opts;as.innerHTML=opts;
+  const tid=String(document.getElementById('matchTour')?.value||'');
+  const tour=(db.tournaments||[]).find(t=>String(t.id)===tid);
+  const show=!!tour && isGroupTournament(tour) && (String(tour.stage||'')==='knockout' || tour.knockoutAfterGroups===true);
+  const wrap=document.getElementById('matchKnockoutRoundWrap');
+  const round=document.getElementById('matchKnockoutRound');
+  if(wrap){wrap.hidden=!show;wrap.style.setProperty('display',show?'block':'none','important');}
+  if(round){
+    if(!show)round.value='';
+    round.required=show;
+  }
+}
 function publicTournamentStatus(t){
-  if(t.status==='ended'||t.status==='archived'||t.archived===true)return 'ended';
-  if(t.status==='active')return 'active';
+  if(t.status==='archived'||t.archived===true)return 'ended';
+  if(t.completionState==='ended'||t.status==='ended')return 'ended';
+  if(t.completionState==='active'||t.status==='active')return 'active';
   try{const s=tourStatus(t);return ['active','upcoming','ended'].includes(s)?s:'upcoming'}catch(e){return 'upcoming'}
 }
 function renderPublicTeamsByGroup(t,teams){
@@ -11923,6 +12249,10 @@ function switchTournamentTab(tab){
 function tournamentIsEnded(t){
   // انتقال البطولة بين الجاريـة والمنتهية يعتمد على تاريخ النهاية فقط.
   // تبقى البطولة ظاهرة في البطولات الجارية حتى نهاية يوم endDate، ثم تنتقل تلقائياً للمنتهية.
+  if(!t)return false;
+  if(t.completionState==='ended')return true;
+  if(t.completionState==='active')return false;
+  if(t.status==='ended')return true;
   if(!t?.endDate)return false;
   const end=String(t.endDate).slice(0,10);
   const today=new Date().toISOString().slice(0,10);
@@ -11952,11 +12282,17 @@ function tournamentCardHtml(t,ended=false){
   if(!ended){
     let completedIds=new Set();
     try{(typeof uniqueMatchSheets==='function'?uniqueMatchSheets():[]).forEach(sh=>{if(sh?.matchId!=null)completedIds.add(String(sh.matchId));});}catch(e){}
-    const completedMatches=matches.filter(m=>completedIds.has(String(m.id))).length;
+    const completedMatches=matches.filter(m=>{
+      const status=String(m?.status||'').toLowerCase();
+      const isFinished=['finished','completed','منتهية','منتهي','انتهت','مكتملة'].includes(status);
+      const hasRecordedResult=(m?.hg!=null&&m?.ag!=null)||(m?.homeScore!=null&&m?.awayScore!=null);
+      return isFinished||completedIds.has(String(m.id))||(hasRecordedResult&&m?.played===true);
+    }).length;
     const progress=Math.max(0,Math.min(100,matches.length?Math.round((completedMatches/matches.length)*100):0));
     const start=t.startDate||t.start||'—';
     const end=t.endDate||t.end||'—';
-    const currentActions=hasPermission('tournaments')?`<div class="current-card-admin-actions"><button type="button" class="btn blue" onclick="editTournament('${t.id}')">✏️ تعديل البطولة</button>${hasPermission('delete')?`<button type="button" class="btn danger" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}</div>`:'';
+    const completionAction=currentRole==='admin'?`<button type="button" class="btn ${t.completionState==='ended'||t.status==='ended'?'success':'warn'} tournament-completion-action" onclick="toggleTournamentCompletion('${t.id}')">${t.completionState==='ended'||t.status==='ended'?'🔴 OFF · البطولة منتهية':'🟢 ON · البطولة مفعلة'}</button>`:'';
+    const currentActions=(hasPermission('tournaments')||completionAction)?`<div class="current-card-admin-actions">${hasPermission('tournaments')?`<button type="button" class="btn blue" onclick="editTournament('${t.id}')">✏️ تعديل البطولة</button>${hasPermission('delete')?`<button type="button" class="btn danger" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}`:''}${completionAction}</div>`:'';
     return `<article class="current-tournament-card">
       <div class="current-card-hero">
         <div class="current-card-status">● جارية</div>
@@ -11979,7 +12315,8 @@ function tournamentCardHtml(t,ended=false){
       ${currentActions?`<div class="current-card-admin-footer">${currentActions}</div>`:''}
     </article>`;
   }
-  const actions=hasPermission('tournaments')?`<div class="ended-card-admin-actions"><button type="button" class="btn blue" onclick="editTournament('${t.id}')">✏️ تعديل</button>${hasPermission('delete')?`<button type="button" class="btn danger" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}${archive?`<button type="button" class="btn warn" onclick="unarchiveTournament('${t.id}')">↩️ التراجع عن الأرشفة</button>`:`<button type="button" class="btn success" onclick="archiveTournamentToPDF('${t.id}')">📄 أرشفة البطولة PDF</button>`}</div>`:'';
+  const completionAction=currentRole==='admin'?`<button type="button" class="btn ${t.completionState==='active'?'warn':'success'} tournament-completion-action" onclick="toggleTournamentCompletion('${t.id}')">${t.completionState==='active'?'🟢 ON · البطولة مفعلة':'🔴 OFF · البطولة منتهية'}</button>`:'';
+  const actions=(hasPermission('tournaments')||completionAction)?`<div class="ended-card-admin-actions">${hasPermission('tournaments')?`<button type="button" class="btn blue" onclick="editTournament('${t.id}')">✏️ تعديل</button>${hasPermission('delete')?`<button type="button" class="btn danger" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}${archive?`<button type="button" class="btn warn" onclick="unarchiveTournament('${t.id}')">↩️ التراجع عن الأرشفة</button>`:`<button type="button" class="btn success" onclick="archiveTournamentToPDF('${t.id}')">📄 أرشفة البطولة PDF</button>`}`:''}${completionAction}</div>`:'';
   const teamSequence=teams.length?`<details class="ended-team-sequence ended-card-team-sequence"><summary><span>⚽ الفرق المشاركة</span><b>${teams.length} فريق</b><i aria-hidden="true">⌄</i></summary><div class="ended-team-sequence-list">${teams.map((x,i)=>`<div class="ended-team-sequence-item"><span class="ended-team-number">${i+1}</span><span class="ended-team-sequence-logo">${logoHtml(x.id,true)}</span><strong>${esc(x.name||'فريق')}</strong></div>`).join('')}</div></details>`:'';
   return `<article class="ended-tournament-card-wrap ended-tournament-card-reference">
     <div class="ended-card-color-bar"></div>
@@ -12033,6 +12370,32 @@ function showPublicTournamentFromCurrent(id){
     if(box)box.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){}
 }
+
+function toggleTournamentCompletion(id){
+  if(currentRole!=='admin'){alert('هذا الإجراء متاح لمدير المنصة فقط.');return;}
+  const t=(db.tournaments||[]).find(x=>String(x.id)===String(id));
+  if(!t){alert('لم يتم العثور على البطولة.');return;}
+  const isEnded=t.completionState==='ended'||(t.completionState!=='active'&&t.status==='ended')||tournamentIsEnded(t);
+  const action=isEnded?'إعادة تفعيل':'إنهاء';
+  if(!confirm(`هل تريد ${action} البطولة «${t.name||'بدون اسم'}»؟\n${isEnded?'ستعود البطولة إلى قائمة البطولات الجارية.':'سيتم اعتبار جميع فعاليات هذه البطولة منتهية.'}`))return;
+  if(isEnded){
+    t.completionState='active';
+    t.status='active';
+    delete t.completedAt;
+  }else{
+    t.completionState='ended';
+    t.status='ended';
+    t.completedAt=new Date().toISOString();
+  }
+  if(typeof save==='function'){
+    const ok=save();
+    if(ok)alert(isEnded?'تمت إعادة تفعيل البطولة بنجاح.':'تم إنهاء البطولة وجميع فعالياتها بنجاح.');
+  }else{
+    try{localStorage.setItem(KEY,JSON.stringify(db));if(typeof renderAll==='function')renderAll();alert(isEnded?'تمت إعادة تفعيل البطولة.':'تم إنهاء البطولة.');}
+    catch(e){alert('تعذر حفظ حالة البطولة.');}
+  }
+}
+window.toggleTournamentCompletion=toggleTournamentCompletion;
 
 function renderCurrentTournaments(){
   const box=document.getElementById('currentTournamentList'),count=document.getElementById('currentTournamentCount'); if(!box)return;
@@ -13857,7 +14220,7 @@ function modernMatchCardHtml(m,finished=false){
   const status=finished?'مباراة منتهية':'مباراة فعالة';
   const score=finished?`${Number(m.hg)||0} - ${Number(m.ag)||0}`:'VS';
   return `<article class="upcoming-match modern-match-card">
-    <div class="modern-match-top"><span class="match-tournament">🏆 ${esc(tourName(m.tournamentId))}</span><span class="match-status">● ${status}</span></div>
+    <div class="modern-match-top"><span class="match-tournament">🏆 ${esc(tourName(m.tournamentId))}${m.knockoutRound?` · ${esc(m.knockoutRound)}`:''}</span><span class="match-status">● ${status}</span></div>
     <div class="modern-match-main">
       <div class="modern-match-teams">
         <div class="modern-match-team"><div class="modern-match-logo">${homeLogo}</div><div class="modern-match-team-name">${esc(teamName(m.home))}</div></div>
@@ -13946,12 +14309,10 @@ function renderMatchView(){
   const rows=[...(Array.isArray(db.matches)?db.matches:[])].filter(m=>{
     const mtid=String(m.tournamentId??m.tournament??m.tournamentID??'');
     if(mtid!==String(tid))return false;
-    /* إظهار المباريات المنتهية حتى إذا أُدخل لها كشف رسمي؛
-       وجود الكشف لا ينبغي أن يخفي نتيجة المباراة من هذه القائمة. */
-    const status=String(m.status||'finished').trim().toLowerCase();
-    const isFinished=['finished','منتهية','منتهي','completed','complete','final','انتهت','مكتملة','مكتمل'].includes(status);
-    const isScheduled=['scheduled','مجدولة','مجدول','upcoming'].includes(status);
-    return filter==='finished' ? isFinished : isScheduled;
+    /* المباراة التي أصبح لها كشف رسمي تنتقل إلى قسم الكشوفات،
+       ولا تظهر مرة أخرى ضمن قائمة المباريات المنتهية. */
+    if(filter==='finished' && matchHasSheet(m.id))return false;
+    return String(m.status||'finished')===filter;
   }).sort((a,b)=>{
     const da=new Date(`${a.date||'2999-12-31'}T${a.time||'23:59'}`).getTime();
     const dbb=new Date(`${b.date||'2999-12-31'}T${b.time||'23:59'}`).getTime();
@@ -15772,8 +16133,9 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     const isStandings=String(title).includes('ترتيب الفرق') || String(title).includes('جدول ترتيب المجموعة');
     const isCardsTable=String(title).includes('فرق البطولة حسب البطاقات');
     const isAttackDefenseTable=String(title).includes('أفضل 4 فرق هجوميًا') || String(title).includes('أفضل 4 فرق دفاعيًا');
-    const tableClass=(isStandings?' standings-mobile-table':'')+(isCardsTable?' cards-statistics-table':'')+(isAttackDefenseTable?' team-column-wide-table':'');
-    const wrapClass=isCardsTable?'table-wrap cards-statistics-wrap':'table-wrap';
+    const isKnockoutTable=String(title).includes('نتائج مباريات خروج المغلوب');
+    const tableClass=(isStandings?' standings-mobile-table':'')+(isCardsTable?' cards-statistics-table':'')+(isAttackDefenseTable?' team-column-wide-table':'')+(isKnockoutTable?' knockout-results-table':'');
+    const wrapClass=isKnockoutTable?'table-wrap knockout-results-wrap':(isCardsTable?'table-wrap cards-statistics-wrap':'table-wrap');
     const headHtml=headers.map((h,i)=>{
       const headerText=String(h).trim();
       const titleText=String(title);
@@ -15916,7 +16278,8 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       const q=score(m,sh);
       const homeId=m.home||m.homeTeamId||m.teamAId||sh.homeTeamId||sh.homeTeam;
       const awayId=m.away||m.awayTeamId||m.teamBId||sh.awayTeamId||sh.awayTeam;
-      const h=ensure(homeId),a=ensure(awayId);
+      const isKnockoutMatch=!!(m.knockoutRound || m.matchStage==='knockout' || sh.knockoutRound || sh.matchStage==='knockout');
+      const h=isKnockoutMatch?null:ensure(homeId),a=isKnockoutMatch?null:ensure(awayId);
       if(h){h.p++;h.gf+=q.hg;h.ga+=q.ag;}
       if(a){a.p++;a.gf+=q.ag;a.ga+=q.hg;}
       totalGoals+=q.hg+q.ag;
@@ -16038,6 +16401,48 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       ${isGroupTournament(tourObj) ? `<div class="stats-stage-control"><div><b>🏆 مرحلة البطولة:</b> ${tourObj.stage==='knockout'?'خروج المغلوب':'المجموعات'}</div><div class="stats-stage-note">${tourObj.stage==='knockout'?'تم الانتقال إلى مرحلة خروج المغلوب. تبقى بيانات المجموعات محفوظة.':'بعد انتهاء مرحلة المجموعات يمكن الانتقال إلى خروج المغلوب.'}</div>${currentRole!=='viewer' ? `<button type="button" class="btn primary" onclick="toggleTournamentKnockoutStage('${esc(tid)}')">${tourObj.stage==='knockout'?'↩️ العودة إلى المجموعات':'🏁 بدء خروج المغلوب'}</button>`:''}</div>` : ''}
       <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">🏟️</span><b>${totalTournamentMatches}</b><span>عدد المباريات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalFinished}</b><span>الكشوفات المدخلة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>عدد الأهداف المسجلة في البطولة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>عدد ركلات الجزاء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>عدد البطاقات الصفراء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>عدد البطاقات الحمراء</span></div></div>
       ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=Object.values(tm).filter(x=>{const tt=teamObjForStats(x.id);return Number(tt?.groupNumber||0)===gi;}).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق / المجموعة','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد مباريات مكتملة لهذه البطولة.')}
+      ${(()=>{
+        const roundOf=({m,sh})=>String(m?.knockoutRound||sh?.knockoutRound||m?.roundName||sh?.roundName||m?.stageName||sh?.stageName||m?.matchStage||sh?.matchStage||'').trim();
+        const norm=r=>r.replace(/\s+/g,' ').replace(/^مرحلة\s*/,'');
+        const koSource=[...rel];
+        statsMatches.forEach(({m,i,id})=>{
+          if(!belongs(m,tid))return;
+          const sh=statsAllSheets.find(x=>S(x.matchId)===S(id))||{};
+          if(!koSource.some(x=>S(x.m?.id)===S(id)))koSource.push({m,i,sh});
+        });
+        const ko=koSource.filter(x=>{
+          const r=norm(roundOf(x));
+          return ['ربع النهائي','نصف النهائي','النهائي'].includes(r)||/knockout|quarter|semi.?final|final/i.test(r);
+        });
+        const order={'ربع النهائي':1,'نصف النهائي':2,'النهائي':3};
+        ko.sort((a,b)=>(order[norm(roundOf(a))]||9)-(order[norm(roundOf(b))]||9)||String(a.m.date||'').localeCompare(String(b.m.date||'')));
+        const cards=ko.map(({m,sh},i)=>{
+          const q=score(m,sh);
+          const round=norm(String(m.knockoutRound||sh?.knockoutRound||m.roundName||sh?.roundName||m.stageName||sh?.stageName||m.matchStage||sh?.matchStage||'خروج المغلوب').trim());
+          const hi=m.home||m.homeTeamId||m.teamAId||sh.homeTeamId||sh.homeTeam;
+          const ai=m.away||m.awayTeamId||m.teamBId||sh.awayTeamId||sh.awayTeam;
+          const cls=round==='النهائي'?'ko-final':(round==='نصف النهائي'?'ko-semi':'ko-quarter');
+          const logo=(id)=>{const u=teamLogo(id);return u?`<img class="ko-team-logo" loading="lazy" decoding="async" src="${esc(u)}" alt="شعار ${esc(teamName(id))}">`:'<span class="ko-team-logo ko-team-logo-fallback" aria-hidden="true">⚽</span>';};
+          const date=m.date||sh?.date||'';
+          const time=m.time||sh?.time||'';
+          const dateLabel=date?esc(date):'التاريخ غير محدد';
+          const timeLabel=time?`<span class="ko-meta-time">◷ ${esc(time)}</span>`:'';
+          return `<article class="ko-match-card ${cls}">
+            <div class="ko-card-top"><span class="ko-round-title">${round==='النهائي'?'🏆 المباراة النهائية':round==='نصف النهائي'?'🥈 نصف النهائي':'🏆 ربع النهائي'}</span><span class="ko-match-number">مباراة ${i+1}</span></div>
+            <div class="ko-card-main">
+              <div class="ko-card-team ko-team-home">${logo(hi)}<span class="ko-team-name">${esc(teamName(hi))}</span></div>
+              <div class="ko-result"><span class="ko-score-value">${esc(q.hg)} <i>–</i> ${esc(q.ag)}</span><span class="ko-vs">VS</span></div>
+              <div class="ko-card-team ko-team-away">${logo(ai)}<span class="ko-team-name">${esc(teamName(ai))}</span></div>
+            </div>
+            <div class="ko-card-meta"><span class="ko-meta-date">▦ ${dateLabel}</span>${timeLabel}</div>
+          </article>`;
+        }).join('');
+        return `<section class="ko-results-panel">
+          <div class="ko-results-heading"><span class="ko-heading-icon" aria-hidden="true">🏆</span><div><h3>نتائج مباريات خروج المغلوب في ${esc(name)}</h3><p>ربع النهائي · نصف النهائي · النهائي</p></div><span class="ko-results-count">${ko.length} مباريات</span></div>
+          <div class="ko-match-cards-grid">${cards||'<div class="ko-no-matches">🏟️ لم تسجل نتائج لمباريات خروج المغلوب بعد.</div>'}</div>
+          <div class="ko-results-footnote">ℹ️ تظهر شعارات الفرق المسجلة في المنصة، وتُعرض النتائج وفق بيانات المباريات المحفوظة.</div>
+        </section>`;
+      })()}
       ${addTable(`أفضل 5 هدافين في ${name}`,'⚽',['ت','اللاعب','الفريق','عدد الأهداف'],topScorers.map((x,i)=>`<tr><td><b>${i+1}</b></td><td style="text-align:right;font-weight:800">${esc(x.p.name)}</td><td>${esc(teamName(x.p.teamId))}</td><td><b>${x.n}</b></td></tr>`),'لا توجد أهداف مسجلة في الكشوفات.')}
       ${addTable(`أفضل 4 فرق هجوميًا في ${name}`,'🔥',['ت','الفريق','الأهداف المسجلة'],attack.map((x,i)=>`<tr><td><b>${i+1}</b></td><td style="text-align:right;font-weight:800"><span class="stats-team-identity">${logoHtml(x.id,true)}<span>${esc(x.name)}</span></span></td><td><b>${x.gf}</b></td></tr>`),'لا توجد بيانات هجومية كافية.')}
       ${addTable(`أفضل 4 فرق دفاعيًا في ${name}`,'🛡️',['ت','الفريق','الأهداف المستقبلة'],defense.map((x,i)=>`<tr><td><b>${i+1}</b></td><td style="text-align:right;font-weight:800"><span class="stats-team-identity">${logoHtml(x.id,true)}<span>${esc(x.name)}</span></span></td><td><b>${x.ga}</b></td></tr>`),'لا توجد بيانات دفاعية كافية.')}
@@ -16915,8 +17320,23 @@ function renderTeams(m,saved){const h=teamId(m,'home'),a=teamId(m,'away'),sel=$(
 function renderPlayers(){const tid=S($('ksCardTeam')?.value),sel=$('ksCardPlayer');if(!sel)return;sel.innerHTML='<option value="">اختر اللاعب</option>'+teamPlayers(tid).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('');sel.disabled=!tid}
 function renderCards(){const b=$('ksCards');if(!b)return;b.innerHTML=cards.length?cards.map((c,i)=>'<div class="ks-event"><span>'+(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(tName(c.teamId)||c.teamName)+'</span><button type="button" data-ks-del="'+i+'">حذف</button></div>').join(''):'<div class="ks-empty">لا توجد بطاقات مسجلة.</div>'}
 function renderGoals(saved){const m=matches().find((x,i)=>mid(x,i)===active),hg=Number($('ksHomeScore').value)||0,ag=Number($('ksAwayScore').value)||0;const make=(box,side,n,vals,tid)=>{const b=$(box);b.innerHTML='';const ps=teamPlayers(tid);for(let i=0;i<n;i++){const row=document.createElement('div');row.className='ks-scorer';row.innerHTML='<span>'+(i+1)+'</span><select><option value="">اختر مسجل الهدف</option>'+ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('')+'</select>';b.appendChild(row);if(vals?.[i])row.querySelector('select').value=S(vals[i])}};make('ksHomeGoals','home',hg,saved?.homeScorers,teamId(m,'home'));make('ksAwayGoals','away',ag,saved?.awayScorers,teamId(m,'away'))}
-function open(id){if(!canManage())return alert('التعديل متاح للمدير أو من يملك صلاحية كشوفات المباريات.');const m=matches().find((x,i)=>mid(x,i)===S(id));if(!m)return alert('لم يتم العثور على المباراة.');active=S(id);const sh=findSheet(id);editing=!!sh;cards=A(sh?.cards).map(c=>({...c}));$('ksEditorTitle').textContent=sh?'✏️ تعديل كشف المباراة':'📝 إنشاء كشف المباراة';$('ksNumber').textContent='رقم الكشف: '+(sh?.sheetNumber||nextNo());$('ksEditor').style.display='block';$('ksMatchInfo').innerHTML=esc(tName(teamId(m,'home')))+' <b> '+Number(sh?.homeScore??m.hg??m.homeGoals??0)+' — '+Number(sh?.awayScore??m.ag??m.awayGoals??0)+' </b> '+esc(tName(teamId(m,'away')))+'<div class="ks-meta">📅 '+esc(m.date||'—')+' &nbsp; ⏰ '+esc(m.time||'—')+'</div>';$('ksHomeLabel').textContent=tName(teamId(m,'home'));$('ksAwayLabel').textContent=tName(teamId(m,'away'));$('ksHomeGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'home'));$('ksAwayGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'away'));$('ksHomeScore').value=sh?.homeScore??m.hg??m.homeGoals??0;$('ksAwayScore').value=sh?.awayScore??m.ag??m.awayGoals??0;renderGoals(sh);$('ksBestPlayer').innerHTML='<option value="">اختر اللاعب من الفريقين</option>'+[...teamPlayers(teamId(m,'home')),...teamPlayers(teamId(m,'away'))].map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+' — '+esc(tName(p.teamId))+'</option>').join('');$('ksBestPlayer').value=S(sh?.bestPlayerId||'');fillRefs(sh);$('ksSupervisor').value=S(sh?.supervisor);$('ksPenYes').value=Number(sh?.penalties||0)>0?'yes':'no';$('ksPenalties').value=Number(sh?.penalties||0);renderTeams(m,sh);renderCards();$('ksStatus').classList.remove('show');$('ksEditor').scrollIntoView({behavior:'smooth',block:'start'})}
+function open(id){if(!canManage())return alert('التعديل متاح للمدير أو من يملك صلاحية كشوفات المباريات.');const m=matches().find((x,i)=>mid(x,i)===S(id));if(!m)return alert('لم يتم العثور على المباراة.');active=S(id);const sh=findSheet(id);fillWithdrawnTeamOptions(m);setAdminDecisionMode(!!sh?.administrativeDecision,sh?.withdrawnTeamId||'');editing=!!sh;cards=A(sh?.cards).map(c=>({...c}));$('ksEditorTitle').textContent=sh?'✏️ تعديل كشف المباراة':'📝 إنشاء كشف المباراة';$('ksNumber').textContent='رقم الكشف: '+(sh?.sheetNumber||nextNo());$('ksEditor').style.display='block';$('ksMatchInfo').innerHTML=esc(tName(teamId(m,'home')))+' <b> '+Number(sh?.homeScore??m.hg??m.homeGoals??0)+' — '+Number(sh?.awayScore??m.ag??m.awayGoals??0)+' </b> '+esc(tName(teamId(m,'away')))+'<div class="ks-meta">📅 '+esc(m.date||'—')+' &nbsp; ⏰ '+esc(m.time||'—')+'</div>';$('ksHomeLabel').textContent=tName(teamId(m,'home'));$('ksAwayLabel').textContent=tName(teamId(m,'away'));$('ksHomeGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'home'));$('ksAwayGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'away'));$('ksHomeScore').value=sh?.homeScore??m.hg??m.homeGoals??0;$('ksAwayScore').value=sh?.awayScore??m.ag??m.awayGoals??0;renderGoals(sh);$('ksBestPlayer').innerHTML='<option value="">اختر اللاعب من الفريقين</option>'+[...teamPlayers(teamId(m,'home')),...teamPlayers(teamId(m,'away'))].map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+' — '+esc(tName(p.teamId))+'</option>').join('');$('ksBestPlayer').value=S(sh?.bestPlayerId||'');fillRefs(sh);$('ksSupervisor').value=S(sh?.supervisor);$('ksPenYes').value=Number(sh?.penalties||0)>0?'yes':'no';$('ksPenalties').value=Number(sh?.penalties||0);renderTeams(m,sh);renderCards();$('ksStatus').classList.remove('show');$('ksEditor').scrollIntoView({behavior:'smooth',block:'start'})}
 async function imageData(){const f=$('ksImage')?.files?.[0];if(!f)return '';return await new Promise(res=>{const r=new FileReader();r.onload=()=>res(S(r.result));r.onerror=()=>res('');r.readAsDataURL(f)})}
+let adminDecisionMode=false;
+function fillWithdrawnTeamOptions(m){
+ const sel=$('ksWithdrawnTeam');if(!sel||!m)return;
+ const old=sel.value,home=S(teamId(m,'home')),away=S(teamId(m,'away'));
+ sel.innerHTML='<option value="">اختر الفريق المنسحب</option><option value="'+esc(home)+'">'+esc(tName(home))+'</option><option value="'+esc(away)+'">'+esc(tName(away))+'</option>';
+ if([home,away].includes(old))sel.value=old;
+}
+function setAdminDecisionMode(enabled,withdrawn=''){
+ adminDecisionMode=!!enabled;
+ const editor=$('ksEditor'),btn=$('ksAdminDecisionToggle'),opts=$('ksAdminDecisionOptions'),sel=$('ksWithdrawnTeam');
+ if(editor)editor.classList.toggle('admin-decision-active',adminDecisionMode);
+ if(btn){btn.textContent=adminDecisionMode?'⚖️ قرار إداري: مفعل':'⚖️ قرار إداري: غير مفعل';btn.setAttribute('aria-pressed',adminDecisionMode?'true':'false');btn.classList.toggle('danger',adminDecisionMode);btn.classList.toggle('warn',!adminDecisionMode);}
+ if(opts)opts.style.display=adminDecisionMode?'block':'none';
+ if(sel&&withdrawn)sel.value=withdrawn;
+}
 async function save(){if(!canManage())return alert('لا تملك صلاحية إدارة كشوفات المباريات.');if(!active)return alert('اختر المباراة أولاً.');const m=matches().find((x,i)=>mid(x,i)===active);
 /* منع تكرار مواجهة نفس الفريقين داخل دور المجموعات. يسمح بالتعديل على الكشف نفسه،
    ويمنع إنشاء كشف ثانٍ لنفس الزوج في نفس البطولة والمجموعة حتى لو تبدل الملعب (home/away). */
@@ -16953,6 +17373,15 @@ if(m){
     }
   }
 }
+if(adminDecisionMode){
+ const withdrawn=S($('ksWithdrawnTeam')?.value),home=S(teamId(m,'home')),away=S(teamId(m,'away'));
+ if(!withdrawn||![home,away].includes(withdrawn))return alert('اختر الفريق المنسحب لتحديد نتيجة القرار الإداري.');
+ const hg=withdrawn===home?3:0,ag=withdrawn===away?3:0,old=findSheet(active),now=new Date().toISOString();
+ const sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeScorers:[],awayScorers:[],goalScorers:[],bestPlayerId:'',bestPlayerName:'',cards:[],referees:[],referee1:'',referee2:'',referee3:'',referee4:'',supervisor:'',penalties:0,images:[],administrativeDecision:true,withdrawnTeamId:withdrawn,withdrawnTeamName:tName(withdrawn),decisionText:'فوز إداري 3-0 للفريق المنسحب بسبب الانسحاب',createdAt:old?.createdAt||now,updatedAt:now};
+ const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);
+ if(m){m.status='finished';m.hg=hg;m.ag=ag;try{window.db=db;}catch(e){}try{if(typeof window.save==='function')window.save();}catch(e){console.warn('Match status save skipped:',e);}}
+ showStatus('تم حفظ القرار الإداري والنتيجة 3-0');fillMatches();renderPending();renderSaved();close();return;
+}
 const hg=Math.max(0,Number($('ksHomeScore').value)||0),ag=Math.max(0,Number($('ksAwayScore').value)||0);const hs=[...$('ksHomeGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean),as=[...$('ksAwayGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean);if(hs.length!==hg||as.length!==ag)return alert('يجب اختيار لاعب لكل هدف مسجل.');if(!$('ksRef1').value||!$('ksRef2').value||!$('ksRef3').value)return alert('يجب اختيار الحكام الأول والثاني والثالث.');if(!validateReferees())return alert('لا يجوز تكرار الحكم نفسه في كشف المباراة. اختر حكامًا مختلفين.');if(!$('ksBestPlayer').value)return alert('اختر أفضل لاعب في المباراة.');if(cards.some(c=>!c.playerId||!c.teamId||!c.type))return alert('يوجد إنذار غير مكتمل.');const redThenYellow=cards.find(c=>c.type==='yellow'&&cards.some(d=>S(d.playerId)===S(c.playerId)&&d.type==='red'));if(redThenYellow)return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');const duplicateCard=cards.find((c,i)=>cards.some((d,j)=>i!==j&&S(c.playerId)===S(d.playerId)&&S(c.type)===S(d.type)));if(duplicateCard)return alert(duplicateCard.type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');const totalGoals=hg+ag;const penalties=$('ksPenYes').value==='yes'?Math.max(0,Number($('ksPenalties').value)||0):0;if(penalties>totalGoals)return alert('عدد ركلات الجزاء لا يجوز أن يتجاوز مجموع أهداف الفريقين ('+totalGoals+').');const old=findSheet(active),now=new Date().toISOString(),img=await imageData(),sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId:S($('ksBestPlayer').value),bestPlayerName:pName($('ksBestPlayer').value),cards:cards.map(c=>({playerId:S(c.playerId),playerName:S(c.playerName||pName(c.playerId)),teamId:S(c.teamId),teamName:S(c.teamName||tName(c.teamId)),type:c.type==='red'?'red':'yellow'})),referees:[1,2,3,4].map(i=>S($('ksRef'+i).value)).filter(Boolean),referee1:S($('ksRef1').value),referee2:S($('ksRef2').value),referee3:S($('ksRef3').value),referee4:S($('ksRef4').value),supervisor:S($('ksSupervisor').value).trim(),penalties:$('ksPenYes').value==='yes'?Math.min(Math.max(0,Number($('ksPenalties').value)||0),hg+ag):0,images:img?[img]:(old?.images||[]),createdAt:old?.createdAt||now,updatedAt:now};const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);
 /* أي كشف محفوظ يجعل المباراة منتهية فورًا، دون النظر إلى تاريخ المباراة.
    نحدّث سجل المباراة الرئيسي أيضًا حتى لا تعود إلى «مجدولة» بعد إعادة التحميل أو المزامنة. */
@@ -16965,7 +17394,7 @@ if(m){
 }
 showStatus('تم الحفظ بنجاح');fillMatches();renderPending();renderSaved();close()}
 function showStatus(msg){const e=$('ksStatus');if(e){e.textContent='✅ '+msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500)}}
-function close(){active='';cards=[];editing=false;$('ksEditor').style.display='none';const b=$('ksNew');if(b)b.textContent='➕ إنشاء كشف'}
+function close(){active='';cards=[];editing=false;setAdminDecisionMode(false);$('ksEditor').style.display='none';const b=$('ksNew');if(b)b.textContent='➕ إنشاء كشف'}
 function renderSaved(){
   const b=$('ksReportsList'),tid=S($('ksTournament')?.value);
   if(!b)return;
@@ -16983,6 +17412,13 @@ function renderSaved(){
     const allSc=A(sh.goalScorers).length?A(sh.goalScorers).map(id=>pName(id)).filter(Boolean):[...homeSc,...awaySc];
     const refereeNames=A(sh.referees).map(id=>{const r=refs().find(x=>S(x.id)===S(id)||S(x.name)===S(id));return r?.name||S(id)}).filter(Boolean);
     const score=Number(sh.homeScore||0)+' - '+Number(sh.awayScore||0);
+     if(sh.administrativeDecision){
+       const withdrawnName=esc(sh.withdrawnTeamName||tName(sh.withdrawnTeamId)||'الفريق المنسحب');
+       const winnerName=esc(sh.withdrawnTeamName||tName(sh.withdrawnTeamId)||'الفريق المنسحب');
+       const decisionActions=canManage()?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل القرار الإداري</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
+       return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+score+'</b> '+esc(a)+'</div>'+(canManage()?'<span class="badge">⚖️ قرار إداري</span>':'')+'</div><div class="ks-public-summary"><div class="pub-row"><span class="pub-title">⚖️ القرار الإداري:</span> فوز الفريق المنسحب 3-0</div><div class="pub-row"><span class="pub-title">الفريق المنسحب:</span> '+withdrawnName+'</div><div class="pub-row"><span class="pub-title">الفريق الفائز:</span> '+winnerName+'</div></div>'+decisionActions+'</div>';
+     }
+
     const cardsText=cs.length?cs.map(c=>(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(c.teamName||tName(c.teamId))).join('، '):'لا توجد إنذارات';
     const scorersText=allSc.length?allSc.map(n=>'⚽ '+esc(n)).join('، '):'لا توجد أهداف مسجلة';
     const refsText=refereeNames.length?refereeNames.map(n=>'<span class="pub-referee">⚖️ '+esc(n)+'</span>').join(''):'لا توجد بيانات حكام';
@@ -17003,7 +17439,7 @@ $('ksNew')?.addEventListener('click',()=>{
   if(!id)return alert('اختر المباراة أولاً.');
   open(id);
   const b=$('ksNew');if(b)b.textContent='✖️ إخفاء الخانات';
-});$('ksCardTeam')?.addEventListener('change',renderPlayers);$('ksAddCard')?.addEventListener('click',()=>{const tid=S($('ksCardTeam').value),pid=S($('ksCardPlayer').value),p=pObj(pid),type=S($('ksCardType').value)==='red'?'red':'yellow';if(!tid||!p)return alert('اختر الفريق واللاعب.');if(!active)return alert('اختر المباراة أولاً.');const m=matches().find((x,i)=>mid(x,i)===active);if(!m||![teamId(m,'home'),teamId(m,'away')].map(S).includes(tid))return alert('اللاعب يجب أن يكون من أحد فريقي المباراة.');if(type==='yellow'&&cards.some(c=>S(c.playerId)===pid&&S(c.type)==='red'))return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');if(cards.some(c=>S(c.playerId)===pid&&S(c.type)===type))return alert(type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');cards.push({playerId:pid,playerName:p.name,teamId:tid,teamName:tName(tid),type});renderCards();$('ksCardPlayer').value=''});$('ksHomeScore')?.addEventListener('input',()=>renderGoals(findSheet(active)));$('ksAwayScore')?.addEventListener('input',()=>renderGoals(findSheet(active)));$('ksSave')?.addEventListener('click',save);$('ksClose')?.addEventListener('click',close);$('ksCancel')?.addEventListener('click',close);document.addEventListener('click',e=>{const o=e.target.closest('[data-ks-open]');if(o)open(o.dataset.ksOpen);const ed=e.target.closest('[data-ks-edit]');if(ed)open(ed.dataset.ksEdit);const d=e.target.closest('[data-ks-delete]');if(d){if(!canManage())return alert('الحذف غير متاح.');const id=d.dataset.ksDelete;if(confirm('هل تريد حذف هذا الكشف نهائيًا؟')){write(rows().filter(s=>S(s.matchId)!==S(id)));fillMatches();renderPending();renderSaved();renderMatchView();if(typeof renderMatches==='function')renderMatches()}}const dc=e.target.closest('[data-ks-del]');if(dc){cards.splice(Number(dc.dataset.ksDel),1);renderCards()}});window.refreshMatchSheets=()=>{fillTours();fillMatches();renderPending();renderSaved()};window.startNewMatchSheet=()=>{const id=$('ksMatch')?.value;if(id)open(id);else alert('اختر المباراة أولاً.')};window.editMatchSheet=open;window.deleteMatchSheet=id=>{if(confirm('حذف الكشف نهائيًا؟')){write(rows().filter(s=>S(s.matchId)!==S(id)));fillMatches();renderPending();renderSaved();if(typeof renderMatchView==='function')renderMatchView();if(typeof renderMatches==='function')renderMatches()}}}
+});$('ksCardTeam')?.addEventListener('change',renderPlayers);$('ksAddCard')?.addEventListener('click',()=>{const tid=S($('ksCardTeam').value),pid=S($('ksCardPlayer').value),p=pObj(pid),type=S($('ksCardType').value)==='red'?'red':'yellow';if(!tid||!p)return alert('اختر الفريق واللاعب.');if(!active)return alert('اختر المباراة أولاً.');const m=matches().find((x,i)=>mid(x,i)===active);if(!m||![teamId(m,'home'),teamId(m,'away')].map(S).includes(tid))return alert('اللاعب يجب أن يكون من أحد فريقي المباراة.');if(type==='yellow'&&cards.some(c=>S(c.playerId)===pid&&S(c.type)==='red'))return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');if(cards.some(c=>S(c.playerId)===pid&&S(c.type)===type))return alert(type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');cards.push({playerId:pid,playerName:p.name,teamId:tid,teamName:tName(tid),type});renderCards();$('ksCardPlayer').value=''});$('ksHomeScore')?.addEventListener('input',()=>renderGoals(findSheet(active)));$('ksAwayScore')?.addEventListener('input',()=>renderGoals(findSheet(active)));$('ksAdminDecisionToggle')?.addEventListener('click',()=>{if(!canManage())return alert('لا تملك صلاحية إصدار قرار إداري.');const m=matches().find((x,i)=>mid(x,i)===active);if(!m)return alert('اختر المباراة أولاً.');fillWithdrawnTeamOptions(m);setAdminDecisionMode(!adminDecisionMode);});$('ksSave')?.addEventListener('click',save);$('ksClose')?.addEventListener('click',close);$('ksCancel')?.addEventListener('click',close);document.addEventListener('click',e=>{const o=e.target.closest('[data-ks-open]');if(o)open(o.dataset.ksOpen);const ed=e.target.closest('[data-ks-edit]');if(ed)open(ed.dataset.ksEdit);const d=e.target.closest('[data-ks-delete]');if(d){if(!canManage())return alert('الحذف غير متاح.');const id=d.dataset.ksDelete;if(confirm('هل تريد حذف هذا الكشف نهائيًا؟')){write(rows().filter(s=>S(s.matchId)!==S(id)));fillMatches();renderPending();renderSaved();renderMatchView();if(typeof renderMatches==='function')renderMatches()}}const dc=e.target.closest('[data-ks-del]');if(dc){cards.splice(Number(dc.dataset.ksDel),1);renderCards()}});window.refreshMatchSheets=()=>{fillTours();fillMatches();renderPending();renderSaved()};window.startNewMatchSheet=()=>{const id=$('ksMatch')?.value;if(id)open(id);else alert('اختر المباراة أولاً.')};window.editMatchSheet=open;window.deleteMatchSheet=id=>{if(confirm('حذف الكشف نهائيًا؟')){write(rows().filter(s=>S(s.matchId)!==S(id)));fillMatches();renderPending();renderSaved();if(typeof renderMatchView==='function')renderMatchView();if(typeof renderMatches==='function')renderMatches()}}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script><script id="tournament-selector-active-fix">
@@ -19311,34 +19747,74 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const v=S(t?.type).toLowerCase();
     return (v.includes('دوري')||v.includes('league'))?'league':'groups';
   }
+  function suspensionRules(tour){
+    const saved=tour?.suspensionRules||{};
+    const fallback=(S(tour?.type).toLowerCase().includes('دوري')||S(tour?.type).toLowerCase().includes('league'))?4:2;
+    return {threshold:Math.max(1,Math.min(99,parseInt(saved.threshold,10)||fallback)),mode:saved.mode==='consecutive'?'consecutive':'scattered',reset:saved.reset==='round'?'round':'continuous'};
+  }
+  function roundKey(m){
+    const fields=['stageName','stage','phaseName','phase','roundName','round','matchday','matchDay','week','leg'];
+    for(const k of fields){const v=S(m?.[k]);if(v)return v.toLowerCase();}
+    return 'all';
+  }
+  function saveSuspensionRules(){
+    const tid=S(document.getElementById('suspRuleTournament')?.value); if(!tid)return alert('اختر البطولة أولاً.');
+    const tour=A(DB().tournaments).find(t=>S(t.id)===tid);if(!tour)return;
+    const threshold=Math.max(1,Math.min(99,parseInt(document.getElementById('suspRuleThreshold')?.value,10)||1));
+    const mode=S(document.getElementById('suspRuleMode')?.value)==='consecutive'?'consecutive':'scattered';
+    const reset=S(document.getElementById('suspRuleReset')?.value)==='round'?'round':'continuous';
+    tour.suspensionRules={threshold,mode,reset};
+    try{if(typeof window.save==='function')window.save();else if(typeof save==='function')save();}catch(e){}
+    alert('تم حفظ إعدادات إيقاف البطاقات لهذه البطولة.');
+    window.renderSuspendedPlayers();
+  }
+  function fillSuspensionRules(){
+    const sel=document.getElementById('suspRuleTournament');if(!sel)return;
+    const db=DB(),old=S(sel.value);
+    sel.innerHTML='<option value="">اختر البطولة</option>'+A(db.tournaments).map(t=>`<option value="${S(t.id).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">${S(t.name||'بطولة').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
+    if(A(db.tournaments).some(t=>S(t.id)===old))sel.value=old;
+    const t=A(db.tournaments).find(x=>S(x.id)===S(sel.value));const r=suspensionRules(t);
+    const n=document.getElementById('suspRuleThreshold'),m=document.getElementById('suspRuleMode'),z=document.getElementById('suspRuleReset');
+    if(n)n.value=r.threshold;if(m)m.value=r.mode;if(z)z.value=r.reset;
+  }
+  window.saveSuspensionRules=saveSuspensionRules;
+  window.fillSuspensionRules=fillSuspensionRules;
   window.automaticSuspensions=function(){
-    const db=DB(), sheets=allSheetsSafe(), events={};
+    const db=DB(),sheets=allSheetsSafe(),events={};
     sheets.forEach(sh=>{
-      const m=A(db.matches).find(x=>S(x.id)===S(sh?.matchId)); if(!m)return;
-      const tid=tournamentId(sh,m); if(!tid)return;
-      const tour=A(db.tournaments).find(t=>S(t.id)===tid); if(!tour)return;
+      const m=A(db.matches).find(x=>S(x.id)===S(sh?.matchId));if(!m||!played(m))return;
+      const tid=tournamentId(sh,m);if(!tid)return;
+      const tour=A(db.tournaments).find(t=>S(t.id)===tid);if(!tour)return;
       cardsFor(sh,m).forEach(c=>{
-        const type=cardType(c),pid=S(c?.playerId); if(!type||!pid)return;
-        const p=A(db.players).find(x=>S(x.id)===pid); if(!p)return;
-        const teamId=S(c?.teamId)||S(p.teamId)||((sideId(m,'home')===S(p.teamId))?S(p.teamId):S(p.teamId));
-        const key=pid+'|'+tid;
-        (events[key]||(events[key]=[])).push({m,sh,c,type,p,tour,tid,teamId});
+        const type=cardType(c),pid=S(c?.playerId);if(!type||!pid)return;
+        const p=A(db.players).find(x=>S(x.id)===pid);if(!p)return;
+        const teamId=S(c?.teamId)||S(p.teamId),key=pid+'|'+tid;
+        (events[key]||(events[key]={player:p,tour,tid,teamId,events:[]})).events.push({m,sh,c,type,p,tour,tid,teamId});
       });
     });
     const out=[];
-    Object.values(events).forEach(ev=>{
-      ev.sort((a,b)=>(Number.isFinite(dateMs(a.m))?dateMs(a.m):Infinity)-(Number.isFinite(dateMs(b.m))?dateMs(b.m):Infinity)||S(a.m.id).localeCompare(S(b.m.id)));
-      let y=0;
-      ev.forEach(e=>{
-        if(!played(e.m))return;
-        const tm=teamMatches(e.teamId,e.tid),ix=tm.findIndex(m=>S(m.id)===S(e.m.id)),next=ix>=0?tm[ix+1]:null;
-        if(e.type==='red'){
-          out.push({id:'AUTO_RED_'+S(e.m.id)+'_'+S(e.p.id),playerId:S(e.p.id),tournamentId:e.tid,type:'cards',reason:'بطاقة حمراء من كشف المباراة',matches:1,triggerMatchId:S(e.m.id),triggerLabel:label(e.m),nextMatchId:S(next?.id),nextMatchNo:ix>=0?ix+2:null,automatic:true,source:'match-sheet'});
-        }else{
-          y++;
-          const threshold=tourType(e.tour)==='league'?4:2;
-          if(y%threshold===0)out.push({id:'AUTO_YEL_'+S(e.m.id)+'_'+S(e.p.id),playerId:S(e.p.id),tournamentId:e.tid,type:'cards',reason:`تراكم ${threshold} بطاقات صفراء من كشوفات المباريات`,matches:1,triggerMatchId:S(e.m.id),triggerLabel:label(e.m),nextMatchId:S(next?.id),nextMatchNo:ix>=0?ix+2:null,automatic:true,source:'match-sheet'});
-        }
+    Object.values(events).forEach(group=>{
+      const ev=group.events.sort((a,b)=>(Number.isFinite(dateMs(a.m))?dateMs(a.m):Infinity)-(Number.isFinite(dateMs(b.m))?dateMs(b.m):Infinity)||S(a.m.id).localeCompare(S(b.m.id)));
+      const rules=suspensionRules(group.tour),tm=teamMatches(group.teamId,group.tid);
+      let yellowCount=0,lastRound='';
+      const byMatch=new Map();ev.forEach(e=>{const k=S(e.m.id);if(!byMatch.has(k))byMatch.set(k,[]);byMatch.get(k).push(e)});
+      const orderedMatches=tm.filter(played).sort((a,b)=>(Number.isFinite(dateMs(a))?dateMs(a):Infinity)-(Number.isFinite(dateMs(b))?dateMs(b):Infinity)||S(a.id).localeCompare(S(b.id)));
+      orderedMatches.forEach(m=>{
+        const rk=roundKey(m);if(rules.reset==='round'&&lastRound&&rk!==lastRound)yellowCount=0;lastRound=rk;
+        const matchEvents=byMatch.get(S(m.id))||[],yellowEvents=matchEvents.filter(e=>e.type==='yellow');
+        if(rules.mode==='consecutive'&&yellowEvents.length===0)yellowCount=0;
+        matchEvents.filter(e=>e.type==='red').forEach(e=>{
+          const ix=tm.findIndex(x=>S(x.id)===S(m.id)),next=ix>=0?tm[ix+1]:null;
+          out.push({id:'AUTO_RED_'+S(m.id)+'_'+S(e.p.id),playerId:S(e.p.id),tournamentId:e.tid,type:'cards',reason:'بطاقة حمراء من كشف المباراة',matches:1,triggerMatchId:S(m.id),triggerLabel:label(m),nextMatchId:S(next?.id),nextMatchNo:ix>=0?ix+2:null,automatic:true,source:'match-sheet'});
+        });
+        yellowEvents.forEach(e=>{
+          yellowCount++;
+          if(yellowCount>=rules.threshold){
+            const ix=tm.findIndex(x=>S(x.id)===S(m.id)),next=ix>=0?tm[ix+1]:null;
+            out.push({id:'AUTO_YEL_'+S(m.id)+'_'+S(e.p.id)+'_'+yellowCount,playerId:S(e.p.id),tournamentId:e.tid,type:'cards',reason:`تراكم ${rules.threshold} بطاقات صفراء (${rules.mode==='consecutive'?'متتالية':'متفرقة'})`,matches:1,triggerMatchId:S(m.id),triggerLabel:label(m),nextMatchId:S(next?.id),nextMatchNo:ix>=0?ix+2:null,automatic:true,source:'match-sheet'});
+            yellowCount=0;
+          }
+        });
       });
     });
     return out;
@@ -19357,12 +19833,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }).filter(Boolean);
   };
   window.renderSuspendedPlayers=function(){
+    const panel=document.getElementById('suspendedPlayersPanel');
+    if(panel&&!document.getElementById('suspensionRulesPanel')){
+      panel.insertAdjacentHTML('afterbegin',`<div class="card viewer-hide" data-perm="players" id="suspensionRulesPanel" style="margin:0 0 12px"><div class="section-title"><h4 style="margin:0">⚙️ إعدادات الإيقاف التلقائي</h4><span class="badge">حسب البطولة</span></div><div class="grid"><div><label>🏆 البطولة</label><select id="suspRuleTournament" onchange="fillSuspensionRules()"><option value="">اختر البطولة</option></select></div><div><label>🟨 عدد البطاقات الصفراء للإيقاف</label><input id="suspRuleThreshold" type="number" min="1" max="99" value="2"/></div><div><label>طريقة احتساب البطاقات</label><select id="suspRuleMode"><option value="scattered">متفرقة — تُجمع حتى بلوغ العدد</option><option value="consecutive">متتالية — في مباريات متتالية فقط</option></select></div><div><label>متى يُصفّر الرصيد؟</label><select id="suspRuleReset"><option value="continuous">مستمر طوال البطولة</option><option value="round">ينتهي مع نهاية كل دور/مرحلة</option></select><small>تصفير رصيد كل دور يعتمد على وجود اسم المرحلة/الدور في بيانات المباراة.</small></div></div><div class="actions"><button class="btn primary" type="button" onclick="saveSuspensionRules()">💾 حفظ إعدادات الإيقاف</button></div></div>`);
+      fillSuspensionRules();
+    }else if(document.getElementById('suspRuleTournament'))fillSuspensionRules();
     const box=document.getElementById('suspendedPlayersBody'); if(!box)return;
     const all=window.suspensionCurrentState(),active=all.filter(x=>x.active),auto=all.filter(x=>x.automatic),manual=all.filter(x=>!x.automatic);
     const db=DB(),tn=id=>(A(db.teams).find(t=>S(t.id)===S(id))?.name||'—'),tour=id=>(A(db.tournaments).find(t=>S(t.id)===S(id))?.name||'—');
     const esc2=typeof esc==='function'?esc:v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
     const row=x=>`<tr><td>${esc2(x.p?.name||'—')}</td><td>${esc2(tn(x.p?.teamId))}</td><td>${esc2(tour(x.tournamentId))}</td><td>${esc2(x.reason||'عقوبة')}</td><td>${esc2(x.nextMatches?.[0]?label(x.nextMatches[0]):'بانتظار المباراة القادمة')}</td></tr>`;
-    box.innerHTML=`<div class="suspension-section"><div class="suspension-section-title"><span>🚫</span><div><strong>اللاعبون الموقوفون الآن</strong><small>يتم الحساب من بيانات الكشوفات والمباريات الموجودة دون تعديلها</small></div><b>${active.length}</b></div>${active.length?`<div class="table-wrap"><table><thead><tr><th>اللاعب</th><th>الفريق</th><th>البطولة</th><th>سبب الإيقاف</th><th>المباراة الموقوف عنها</th></tr></thead><tbody>${active.map(row).join('')}</tbody></table></div>`:'<div class="empty">لا يوجد لاعبون موقوفون حاليًا.</div>'}</div><div class="suspension-section"><div class="suspension-section-title"><span>🟨🟥</span><div><strong>العقوبات المحسوبة تلقائيًا</strong><small>الأحمر = مباراة واحدة، وكل بطاقتين صفراء في المجموعات/خروج المغلوب، وكل أربع صفراء في الدوري</small></div><b>${auto.length}</b></div>${auto.length?`<div class="table-wrap"><table><thead><tr><th>اللاعب</th><th>الفريق</th><th>البطولة</th><th>السبب</th><th>المباراة التالية</th></tr></thead><tbody>${auto.map(row).join('')}</tbody></table></div>`:'<div class="empty">لا توجد عقوبات تلقائية محسوبة.</div>'}</div>`;
+    box.innerHTML=`<div class="suspension-section"><div class="suspension-section-title"><span>🚫</span><div><strong>اللاعبون الموقوفون الآن</strong><small>يتم الحساب من بيانات الكشوفات والمباريات الموجودة دون تعديلها</small></div><b>${active.length}</b></div>${active.length?`<div class="table-wrap"><table><thead><tr><th>اللاعب</th><th>الفريق</th><th>البطولة</th><th>سبب الإيقاف</th><th>المباراة الموقوف عنها</th></tr></thead><tbody>${active.map(row).join('')}</tbody></table></div>`:'<div class="empty">لا يوجد لاعبون موقوفون حاليًا.</div>'}</div><div class="suspension-section"><div class="suspension-section-title"><span>🟨🟥</span><div><strong>العقوبات المحسوبة تلقائيًا</strong><small>الأحمر = مباراة واحدة؛ وعدد البطاقات وطريقة جمعها ونهاية الرصيد تُحدد من إعدادات البطولة</small></div><b>${auto.length}</b></div>${auto.length?`<div class="table-wrap"><table><thead><tr><th>اللاعب</th><th>الفريق</th><th>البطولة</th><th>السبب</th><th>المباراة التالية</th></tr></thead><tbody>${auto.map(row).join('')}</tbody></table></div>`:'<div class="empty">لا توجد عقوبات تلقائية محسوبة.</div>'}</div>`;
     if(typeof applyPermissions==='function')try{applyPermissions()}catch(e){}
   };
   function refresh(){try{window.renderSuspendedPlayers()}catch(e){console.warn('suspension render',e)}}
@@ -22504,5 +22985,164 @@ body>header #authBar .login-btn:hover,body>header #authBar .logout-btn:hover{tra
 }
 </style>
 
+
+
+<style id="knockout-results-table-final-fix">
+/* إصلاح عرض جدول مباريات خروج المغلوب فقط؛ قواعد عامة الأقسام الأخرى لا تتغير. */
+#statsBody .stats-ranking-card .knockout-results-wrap{
+  width:100%!important;max-width:100%!important;min-width:0!important;margin:12px 0!important;
+  overflow-x:auto!important;overflow-y:visible!important;border-radius:14px!important;
+}
+#statsBody .stats-ranking-card table.knockout-results-table{
+  display:table!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  table-layout:fixed!important;direction:rtl!important;border-collapse:separate!important;border-spacing:0!important;
+  border:1px solid #b8d9ee!important;border-radius:14px!important;background:#fff!important;
+}
+#statsBody .stats-ranking-card table.knockout-results-table thead th,
+#statsBody .stats-ranking-card table.knockout-results-table tbody td{
+  box-sizing:border-box!important;min-width:0!important;white-space:normal!important;word-break:normal!important;
+  overflow-wrap:break-word!important;text-align:center!important;vertical-align:middle!important;
+}
+#statsBody .stats-ranking-card table.knockout-results-table thead th{
+  padding:12px 5px!important;line-height:1.4!important;font-size:12px!important;color:#fff!important;
+  background:linear-gradient(120deg,#087f8c,#2563eb)!important;border-left:1px solid #ffffff38!important;
+}
+#statsBody .stats-ranking-card table.knockout-results-table th:nth-child(1),
+#statsBody .stats-ranking-card table.knockout-results-table td:nth-child(1){width:7%!important;}
+#statsBody .stats-ranking-card table.knockout-results-table th:nth-child(2),
+#statsBody .stats-ranking-card table.knockout-results-table td:nth-child(2){width:17%!important;}
+#statsBody .stats-ranking-card table.knockout-results-table th:nth-child(3),
+#statsBody .stats-ranking-card table.knockout-results-table td:nth-child(3){width:22%!important;}
+#statsBody .stats-ranking-card table.knockout-results-table th:nth-child(4),
+#statsBody .stats-ranking-card table.knockout-results-table td:nth-child(4){width:12%!important;}
+#statsBody .stats-ranking-card table.knockout-results-table th:nth-child(5),
+#statsBody .stats-ranking-card table.knockout-results-table td:nth-child(5){width:22%!important;}
+#statsBody .stats-ranking-card table.knockout-results-table th:nth-child(6),
+#statsBody .stats-ranking-card table.knockout-results-table td:nth-child(6){width:20%!important;}
+#statsBody .stats-ranking-card table.knockout-results-table tbody td{padding:11px 5px!important;line-height:1.5!important;font-size:13px!important;color:#203447!important;border-bottom:1px solid #e1edf5!important;}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(odd) td{background:#f1faff!important;}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(even) td{background:#fff!important;}
+#statsBody .stats-ranking-card table.knockout-results-table td.ko-number{font-weight:900!important;color:#155e75!important;}
+#statsBody .stats-ranking-card table.knockout-results-table .knockout-round-badge{display:inline-block;max-width:100%;padding:5px 7px;border-radius:999px;background:#fff0c2!important;color:#7a4200!important;border:1px solid #ffc857;font-weight:900;line-height:1.35;white-space:normal;}
+#statsBody .stats-ranking-card table.knockout-results-table .knockout-score{display:inline-flex;align-items:center;justify-content:center;min-width:58px;padding:7px 6px;border-radius:9px;background:#d8efff!important;border:1px solid #7dbce8;color:#084298!important;font-weight:900;white-space:nowrap!important;font-variant-numeric:tabular-nums;}
+#statsBody .stats-ranking-card table.knockout-results-table td.ko-date{white-space:nowrap!important;direction:ltr!important;font-variant-numeric:tabular-nums;font-size:12px!important;color:#52697a!important;}
+@media(max-width:600px){
+  #statsBody .stats-ranking-card .knockout-results-wrap{overflow:visible!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;}
+  #statsBody .stats-ranking-card table.knockout-results-table{
+    display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;table-layout:auto!important;
+    overflow:visible!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;
+  }
+  #statsBody .stats-ranking-card table.knockout-results-table thead{
+    position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+    overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+  }
+  #statsBody .stats-ranking-card table.knockout-results-table tbody{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;width:100%!important;}
+  #statsBody .stats-ranking-card table.knockout-results-table tbody tr{
+    position:relative!important;display:grid!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;
+    grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr)!important;
+    grid-template-areas:"round round round" "away score home" "date date date"!important;
+    align-items:center!important;gap:8px 5px!important;padding:12px 9px 9px!important;margin:0!important;
+    direction:ltr!important;border:1px solid #c9dfed!important;border-radius:15px!important;
+    background:linear-gradient(135deg,#ffffff 0%,#f3faff 100%)!important;box-shadow:0 4px 12px rgba(31,92,125,.08)!important;
+  }
+  #statsBody .stats-ranking-card table.knockout-results-table tbody tr:has(.stats-empty-cell){display:block!important;padding:0!important;}
+  #statsBody .stats-ranking-card table.knockout-results-table tbody td{
+    display:block!important;box-sizing:border-box!important;width:auto!important;min-width:0!important;max-width:100%!important;
+    padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
+    white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;text-align:center!important;
+    vertical-align:middle!important;line-height:1.5!important;color:#203447!important;-webkit-text-fill-color:#203447!important;
+  }
+  /* إزالة ألوان وحدود خلايا الجدول التقليدي داخل بطاقات الهاتف */
+  #statsBody .stats-ranking-card table.knockout-results-table.stats-unified-table tbody tr:nth-child(odd) td,
+  #statsBody .stats-ranking-card table.knockout-results-table.stats-unified-table tbody tr:nth-child(even) td{
+    width:auto!important;border:0!important;background:transparent!important;box-shadow:none!important;
+  }
+  #statsBody .stats-ranking-card table.knockout-results-table td.ko-number{
+    position:absolute!important;top:10px!important;right:9px!important;z-index:2!important;display:flex!important;
+    align-items:center!important;justify-content:center!important;width:27px!important;height:27px!important;
+    border-radius:9px!important;background:#e0f2fe!important;border:1px solid #bae6fd!important;color:#075985!important;
+    font-size:12px!important;font-weight:900!important;padding:0!important;
+  }
+  #statsBody .stats-ranking-card table.knockout-results-table td.ko-number span{display:block!important;line-height:1!important;}
+  #statsBody .stats-ranking-card table.knockout-results-table td.ko-round{grid-area:round!important;width:auto!important;justify-self:stretch!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;padding:0 34px 2px!important;direction:rtl!important;}
+  #statsBody .stats-ranking-card table.knockout-results-table .knockout-round-badge{font-size:12px!important;padding:5px 12px!important;}
+  #statsBody .stats-ranking-card table.knockout-results-table td.ko-home{
+    grid-area:home!important;width:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;
+    direction:rtl!important;font-size:14px!important;font-weight:900!important;line-height:1.55!important;min-height:36px!important;
+  }
+  #statsBody .stats-ranking-card table.knockout-results-table td.ko-away{
+    grid-area:away!important;width:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;
+    direction:rtl!important;font-size:14px!important;font-weight:900!important;line-height:1.55!important;min-height:36px!important;
+  }
+  #statsBody .stats-ranking-card table.knockout-results-table td.ko-score-cell{grid-area:score!important;width:auto!important;align-self:center!important;}
+  #statsBody .stats-ranking-card table.knockout-results-table .knockout-score{min-width:62px!important;font-size:14px!important;padding:7px 4px!important;border-radius:10px!important;}
+  #statsBody .stats-ranking-card table.knockout-results-table td.ko-date{
+    grid-area:date!important;width:100%!important;margin-top:2px!important;padding-top:7px!important;
+    border-top:1px dashed #dbe7ef!important;direction:ltr!important;white-space:nowrap!important;font-size:11px!important;color:#64748b!important;
+  }
+  #statsBody .stats-ranking-card table.knockout-results-table td.ko-date:before{content:"📅 ";}
+  #statsBody .stats-ranking-card table.knockout-results-table tbody td.stats-empty-cell{
+    position:static!important;display:block!important;grid-area:auto!important;width:100%!important;padding:16px 10px!important;
+    text-align:center!important;border:1px dashed #c9dfed!important;border-radius:12px!important;background:#f7fbff!important;
+  }
+  /* تجاوز حدود الخلايا الموروثة من التنسيق العام لجداول الإحصائيات */
+  body #stats #statsBody .stats-ranking-card table.knockout-results-table.stats-unified-table tbody tr td{
+    border:0!important;border-left:0!important;border-right:0!important;border-top:0!important;
+    background:transparent!important;box-shadow:none!important;outline:0!important;
+  }
+  body #stats #statsBody .stats-ranking-card table.knockout-results-table.stats-unified-table tbody tr td.ko-number{
+    width:27px!important;min-width:27px!important;max-width:27px!important;flex:0 0 27px!important;
+    background:#e0f2fe!important;border:1px solid #bae6fd!important;
+  }
+  body #stats #statsBody .stats-ranking-card table.knockout-results-table.stats-unified-table tbody tr td.ko-round{
+    display:flex!important;justify-content:center!important;text-align:center!important;
+  }
+}
+
+/* تحسين بصري خاص بجدول خروج المغلوب فقط */
+#statsBody .stats-ranking-card .knockout-results-wrap{padding:10px!important;border:1px solid #d5e8f7!important;border-radius:20px!important;background:linear-gradient(145deg,#f8fcff,#edf6ff)!important;box-shadow:0 10px 26px rgba(15,77,125,.10)!important}
+#statsBody .stats-ranking-card table.knockout-results-table{border:0!important;border-radius:16px!important;overflow:hidden!important;box-shadow:0 5px 18px rgba(20,65,115,.10)!important}
+#statsBody .stats-ranking-card table.knockout-results-table thead th{background:linear-gradient(110deg,#1748d4 0%,#087fb9 48%,#05a6a6 100%)!important;color:#fff!important;font-size:13px!important;font-weight:900!important;text-shadow:0 1px 2px #123a6644!important;border-bottom:3px solid #f6c445!important;padding:13px 6px!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(1) td{background-color:#edf5ff!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(2) td{background-color:#edfbf4!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(3) td{background-color:#fff5e9!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(4) td{background-color:#f5efff!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(5) td{background-color:#f2efff!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(6) td{background-color:#eafaff!important}
+#statsBody .stats-ranking-card table.knockout-results-table td.ko-number span{display:inline-flex;align-items:center;justify-content:center;min-width:27px;min-height:27px;border-radius:9px;background:linear-gradient(145deg,#1263e8,#273bd5);color:#fff;padding:3px 6px;box-shadow:0 3px 8px #1d4ed833}
+#statsBody .stats-ranking-card table.knockout-results-table td.ko-round .knockout-round-badge{background:linear-gradient(135deg,#fff2b9,#ffd45c)!important;color:#784100!important;border:1px solid #f4b72b!important;box-shadow:0 3px 8px #d89c2226!important}
+#statsBody .stats-ranking-card table.knockout-results-table .knockout-score{min-width:68px!important;padding:8px 10px!important;border:0!important;border-radius:12px!important;background:linear-gradient(135deg,#145be8,#147fd0)!important;color:#fff!important;font-size:16px!important;font-weight:950!important;box-shadow:0 5px 12px #1357c52e!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(2) .knockout-score{background:linear-gradient(135deg,#079653,#16b66a)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(3) .knockout-score{background:linear-gradient(135deg,#f07808,#ffad18)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(4) .knockout-score,
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(5) .knockout-score{background:linear-gradient(135deg,#6d28d9,#a044ed)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(6) .knockout-score{background:linear-gradient(135deg,#0789a8,#14b8a6)!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child{outline:3px solid #f5b51b!important;outline-offset:-3px!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td{background:linear-gradient(120deg,#fff0a8 0%,#ffc928 42%,#ffdf72 100%)!important;color:#392300!important;border-bottom-color:#e6a700!important;font-weight:900!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-number span{background:linear-gradient(145deg,#171717,#424242)!important;color:#ffd54a!important;border:1px solid #f4bf24!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-round .knockout-round-badge{background:linear-gradient(135deg,#181818,#343434)!important;color:#ffdf60!important;border:1px solid #f4bf24!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child .knockout-score{background:linear-gradient(145deg,#171717,#3b3422)!important;color:#ffe16b!important;border:2px solid #ffd34e!important;box-shadow:0 4px 12px #68460035!important}
+#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-date{color:#573800!important}
+@media(max-width:600px){
+ #statsBody .stats-ranking-card .knockout-results-wrap{padding:0!important;background:transparent!important;box-shadow:none!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr{border:1px solid #d5e5f7!important;box-shadow:0 6px 16px rgba(28,72,125,.12)!important;background:linear-gradient(135deg,#fff,#f1f7ff)!important;padding:13px 10px 10px!important;gap:9px 5px!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(1){background:linear-gradient(135deg,#fff,#eaf3ff)!important;border-color:#b7d5ff!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(2){background:linear-gradient(135deg,#fff,#e9fbf1)!important;border-color:#b7ebd0!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(3){background:linear-gradient(135deg,#fff,#fff3e5)!important;border-color:#ffd8ac!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(4){background:linear-gradient(135deg,#fff,#f3eaff)!important;border-color:#d9c4ff!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(5){background:linear-gradient(135deg,#fff,#f1eaff)!important;border-color:#d8c6ff!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:nth-child(6){background:linear-gradient(135deg,#fff,#e6faff)!important;border-color:#b8eaf5!important}
+ #statsBody .stats-ranking-card table.knockout-results-table td.ko-home,#statsBody .stats-ranking-card table.knockout-results-table td.ko-away{font-size:14px!important;font-weight:950!important;color:#152d49!important}
+ #statsBody .stats-ranking-card table.knockout-results-table td.ko-date{font-size:12px!important;font-weight:800!important;color:#46627f!important;border-top:1px dashed #c5d8ec!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child{background:linear-gradient(125deg,#181818 0%,#292929 18%,#ffd447 18%,#ffbe16 80%,#191919 80%,#303030 100%)!important;border:2px solid #f4b719!important;box-shadow:0 9px 22px rgba(150,99,0,.25)!important;padding:15px 10px 10px!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-home,#statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-away{color:#171717!important;text-shadow:0 1px 0 #fff6c9!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-date{color:#ffe58a!important;border-top:1px dashed #f8d65e!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-number{background:linear-gradient(135deg,#ffc928,#e9a600)!important;color:#251800!important;border:1px solid #fff0a6!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-number span{background:linear-gradient(145deg,#ffc928,#e8a400)!important;color:#211600!important;border:1px solid #fff0a6!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child td.ko-round .knockout-round-badge{background:linear-gradient(135deg,#b91c1c,#ef4444)!important;color:#fff!important;border:1px solid #ffe08a!important;box-shadow:0 3px 8px #0003!important}
+ #statsBody .stats-ranking-card table.knockout-results-table tbody tr:last-child .knockout-score{background:linear-gradient(145deg,#161616,#343434)!important;color:#ffdf62!important;border:2px solid #ffe16b!important;min-width:74px!important;font-size:16px!important}
+}
+
+</style>
 </body>
 </html>
