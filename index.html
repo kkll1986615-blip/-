@@ -16201,9 +16201,12 @@ window.addEventListener('load',function(){document.documentElement.classList.add
         .filter(v=>v!==undefined&&v!==null&&S(v).trim()).map(v=>S(v).trim());
       const belongsBySheet=shTour.some(v=>v===S(tid)||v===S(tourObj?.name).trim());
       const belongsByMatch=!!mrec && belongs(mrec.m,tid);
-      if((belongsBySheet||belongsByMatch)){
-        const key=S(sh.matchId);
-        if(!relSeen.has(key)){rel.push({m:mrec?.m||{},i:mrec?.i??0,sh});relSeen.add(key);}
+      /* لا تُحتسب أي كشوفات لمباراة محذوفة من سجل المباريات.
+         يجب أن يكون للكشف تطابق فعلي مع مباراة موجودة حاليًا، ثم تُحدد البطولة
+         من المباراة نفسها أو من بيانات الكشف. */
+      if(mrec && (belongsBySheet||belongsByMatch)){
+        const key=S(mrec.id);
+        if(!relSeen.has(key)){rel.push({m:mrec.m,i:mrec.i,sh});relSeen.add(key);}
       }
     });
     /* دعم الكشوفات القديمة التي لا تحمل معرف البطولة داخل الكشف. */
@@ -16305,9 +16308,9 @@ window.addEventListener('load',function(){document.documentElement.classList.add
         else if(q.hg<q.ag){a.w++;a.pts+=3;h.l++;}
         else{h.d++;a.d++;h.pts++;a.pts++;}
       }
-      A(sh.homeScorers).forEach(id=>{if(id)scorers[id]=(scorers[id]||0)+1;});
-      A(sh.awayScorers).forEach(id=>{if(id)scorers[id]=(scorers[id]||0)+1;});
-      if(sh.bestPlayerId)best[sh.bestPlayerId]=(best[sh.bestPlayerId]||0)+1;
+      A(sh.homeScorers).forEach(id=>{if(id&&A(dbx().players).some(p=>S(p.id)===S(id)))scorers[id]=(scorers[id]||0)+1;});
+      A(sh.awayScorers).forEach(id=>{if(id&&A(dbx().players).some(p=>S(p.id)===S(id)))scorers[id]=(scorers[id]||0)+1;});
+      if(sh.bestPlayerId&&A(dbx().players).some(p=>S(p.id)===S(sh.bestPlayerId)))best[sh.bestPlayerId]=(best[sh.bestPlayerId]||0)+1;
 
       // الإنذارات لا تُحسب من إحصائيات اللاعب أو من جدول آخر؛ مصدرها كشف المباراة نفسه.
       // تمت إزالة الحساب من داخل rel حتى لا يؤثر شرط حالة المباراة على ظهور بطاقات الكشف.
@@ -16346,15 +16349,23 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       const shVals=[sh.tournamentId,sh.tournament,sh.tournamentName,sh.tournament_name,sh.competitionId,sh.competitionName]
         .filter(v=>v!==undefined&&v!==null&&S(v).trim())
         .map(v=>S(v).trim().toLowerCase());
+      /* لا تدخل أي كشوفات يتيمة في الإحصائيات: يجب أن تكون المباراة موجودة حاليًا.
+         هذا يمنع بقاء البطاقات والأهداف والعقوبات بعد حذف المباراة، حتى لو بقي الكشف
+         في مفاتيح التخزين القديمة أو السحابية. */
       const mm=A(dbx().matches).find((mx,mi)=>matchKey(mx,mi)===S(sh.matchId));
-      const mVals=mm?[mm.tournamentId,mm.tournament,mm.tournamentName,mm.tournament_name,mm.competitionId,mm.competitionName]
-        .filter(v=>v!==undefined&&v!==null&&S(v).trim()).map(v=>S(v).trim().toLowerCase()):[];
-      if(shVals.some(v=>wantedValues.has(v))||mVals.some(v=>wantedValues.has(v))) cardReports.push({sh,m:mm||{}});
+      if(!mm) return;
+      const mVals=[mm.tournamentId,mm.tournament,mm.tournamentName,mm.tournament_name,mm.competitionId,mm.competitionName]
+        .filter(v=>v!==undefined&&v!==null&&S(v).trim()).map(v=>S(v).trim().toLowerCase());
+      if(shVals.some(v=>wantedValues.has(v))||mVals.some(v=>wantedValues.has(v))) cardReports.push({sh,m:mm});
     });
     cardReports.forEach(({sh,m})=>{
       const sourceCards=A(sh.cards).length?A(sh.cards):A(m.cards);
       sourceCards.forEach(c=>{
         if(!c)return;
+        /* استبعاد بطاقة لاعب محذوف أو فريق محذوف من الإحصائيات. */
+        if(c.playerId && !A(dbx().players).some(p=>S(p.id)===S(c.playerId))) return;
+        const cardTeamRaw=S(c.teamId??c.team??'').trim();
+        if(cardTeamRaw && !A(dbx().teams).some(t=>S(t.id)===cardTeamRaw || S(t.name).trim()===cardTeamRaw)) return;
         const type=S(c.type||c.cardType||c.kind).trim().toLowerCase();
         const isYellow=c.yellow===true||c.isYellow===true||type==='yellow'||/صفراء|انذار|إنذار/.test(type);
         const isRed=c.red===true||c.isRed===true||type==='red'||/حمراء|طرد/.test(type);
