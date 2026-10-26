@@ -20075,7 +20075,7 @@ function install(){
  }catch(e){console.warn('prediction data-driven patch',e)}};
  document.addEventListener('change',e=>{if(e.target?.id==='predictionTournamentV2')setTimeout(run,20)},true);
  window.addEventListener('storage',e=>{if(/^manar_(sports|match_sheets|prediction)/.test(S(e.key)))setTimeout(run,30)});
- setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);setInterval(run,3000);
+ setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);setInterval(run,15000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 window.__getPredictionForMatch=function(m){
@@ -21763,56 +21763,12 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 
 
 <script id="sports-platform-auto-deploy-update-v1">
-(function(){
-  'use strict';
-  // يعمل عند نشر المنصة على HTTP/HTTPS؛ لا يحاول الاتصال عند فتح ملف محلي.
-  if (!/^https?:$/.test(location.protocol) || window.__sportsAutoDeployUpdateStarted) return;
-  window.__sportsAutoDeployUpdateStarted = true;
-  var lastFingerprint = null;
-  var updateDetected = false;
-  var checking = false;
-  function fingerprint(text){
-    var h = 2166136261;
-    for (var i=0;i<text.length;i++){ h ^= text.charCodeAt(i); h = Math.imul(h,16777619); }
-    return (h>>>0).toString(16) + ':' + text.length;
-  }
-  function safeToReload(){
-    var a=document.activeElement;
-    if(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false;
-    if(document.querySelector('dialog[open], [role="dialog"]:not([hidden]), .modal.show, .modal[style*="display: block"], .popup[style*="display: block"]')) return false;
-    return true;
-  }
-  function reloadIfSafe(){
-    if(!updateDetected || !safeToReload()) return;
-    // يتأكد من حفظ التغييرات عبر آليات التخزين الموجودة قبل إعادة تحميل الصفحة.
-    updateDetected=false;
-    location.reload();
-  }
-  async function check(){
-    if(checking || document.visibilityState==='hidden') return;
-    checking=true;
-    try{
-      var u=new URL(location.href);
-      u.searchParams.set('__sports_update_check',String(Date.now()));
-      var response=await fetch(u.href,{cache:'no-store',credentials:'same-origin',redirect:'follow'});
-      if(!response.ok) return;
-      var html=await response.text();
-      var fp=fingerprint(html);
-      if(lastFingerprint===null){lastFingerprint=fp;return;}
-      if(fp!==lastFingerprint){
-        updateDetected=true;
-        reloadIfSafe();
-      }
-    }catch(e){ /* فشل الشبكة مؤقت؛ تتم إعادة المحاولة في الدورة التالية */ }
-    finally{checking=false;}
-  }
-  // أخذ بصمة النسخة المنشورة أولاً، ثم فحص التحديثات دوريًا.
-  check();
-  setInterval(check,60000);
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check();});
-  document.addEventListener('focusout',function(){if(updateDetected)setTimeout(reloadIfSafe,1200);},true);
-  window.addEventListener('online',check);
-})();
+/* Stability repair (GitHub Pages): automatic full-page polling/reload disabled.
+   It repeatedly downloaded the entire HTML document and could reload the platform
+   unexpectedly. Updates can be applied with the platform's explicit update control
+   or by refreshing the page manually after deployment. All platform sections/data
+   and Firebase synchronization code are preserved. */
+window.__sportsAutoDeployUpdateDisabled = true;
 </script>
 
 <style id="platform-credit-vivid-background">
