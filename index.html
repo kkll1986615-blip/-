@@ -12645,7 +12645,17 @@ function buildDetailedArchiveReport(ar){
     });
     const standing=[...teamStats.values()].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
     const topBy=(map)=>[...map.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar'));
-    const winner=t.champion||t.winner||t.tournamentChampion||'غير محدد';
+    const finalMatch=matches.find(m=>/^(النهائي|نهائي|final)$/i.test(S(m.knockoutRound||m.roundName||m.stageName||m.matchStage||'')) && S(m.status||'').toLowerCase()==='finished')
+      || [...matches].reverse().find(m=>/^(النهائي|نهائي|final)$/i.test(S(m.knockoutRound||m.roundName||m.stageName||m.matchStage||'')));
+    const finalSheet=finalMatch?shMap.get(S(finalMatch.id)):null;
+    const finalHome=finalMatch?matchTeam(finalMatch,'home'):'', finalAway=finalMatch?matchTeam(finalMatch,'away'):'';
+    const finalHG=finalMatch?score(finalMatch,finalSheet,'home'):0, finalAG=finalMatch?score(finalMatch,finalSheet,'away'):0;
+    const winner=finalMatch?(finalHG>finalAG?teamName(teams,finalHome):finalAG>finalHG?teamName(teams,finalAway):'لم يُحسم البطل — تعادل في النهائي'):(t.champion||t.winner||t.tournamentChampion||'غير محدد');
+    const runner=finalMatch?(finalHG>finalAG?teamName(teams,finalAway):finalAG>finalHG?teamName(teams,finalHome):'غير محدد'):(t.runnerUp||t.runnerUpName||'غير محدد');
+    const roundOf=m=>S(m?.knockoutRound||m?.roundName||m?.stageName||m?.matchStage||m?.round||'');
+    const knockoutMatches=matches.filter(m=>/ربع|نصف|نهائي|quarter|semi|final/i.test(roundOf(m)));
+    const knockoutRows=knockoutMatches.map((m,i)=>{const sh=shMap.get(S(m.id));return `<tr><td>${i+1}</td><td>${esc(roundOf(m)||'خروج المغلوب')}</td><td>${esc(teamName(teams,matchTeam(m,'home')))}</td><td><b>${score(m,sh,'home')} - ${score(m,sh,'away')}</b></td><td>${esc(teamName(teams,matchTeam(m,'away')))}</td></tr>`}).join('');
+    const knockoutPage=`<div class="archive-report-page"><div class="section"><h2>🏆 نتائج الأدوار الإقصائية</h2><table class="archive-unified-table"><thead><tr><th>#</th><th>الدور</th><th>الفريق الأول</th><th>النتيجة</th><th>الفريق الثاني</th></tr></thead><tbody>${knockoutRows||'<tr><td colspan="5">لا توجد مباريات إقصائية مسجلة.</td></tr>'}</tbody></table><div class="archive-honors"><b>🥇 البطل: ${esc(winner)}</b><b>🥈 الوصيف: ${esc(runner)}</b></div></div><div class="archive-report-footer">أرشيف البطولة — المنصة الرياضية</div></div>`;
 
     // جدول النتائج يبقى مختصرًا؛ كل تفاصيل المباراة الرسمية تظهر مرة واحدة داخل كشف المباراة أدناه.
     const matchRows=matches.map((m,i)=>{
@@ -12719,16 +12729,16 @@ function buildDetailedArchiveReport(ar){
     });
     /* تقسيم نتائج المباريات إلى 3 نتائج فقط في كل صفحة PDF، مع تكرار عنوان الجدول في كل صفحة. */
     const resultPageChunks=[];
-    for(let ri=0;ri<resultsRows.length;ri+=3) resultPageChunks.push(resultsRows.slice(ri,ri+3));
+    for(let ri=0;ri<resultsRows.length;ri+=4) resultPageChunks.push(resultsRows.slice(ri,ri+4));
     if(!resultPageChunks.length) resultPageChunks.push([]);
     const resultsPages=resultPageChunks.map((chunk,pageNo)=>{
-      const start=pageNo*3+1;
-      const end=pageNo*3+chunk.length;
+      const start=pageNo*4+1;
+      const end=pageNo*4+chunk.length;
       const rangeLabel=chunk.length?(start===end?`النتيجة ${start}`:`النتائج ${start}–${end}`):'لا توجد نتائج';
       const body=chunk.length?chunk.join(''):'<tbody><tr><td colspan="6" class="results-empty">لا توجد مباريات مسجلة.</td></tr></tbody>';
       return `<div class="archive-report-page archive-results-page">
         <div class="section results-section">
-          <div class="results-section-head"><div><h2 class="archive-arabic-table-title" dir="rtl">جدول المباريات</h2><p>عرض ${rangeLabel} — ثلاث نتائج كحد أقصى في كل صفحة، مع تفاصيل المباراة أسفل نتيجتها.</p></div><span class="results-count-badge">${chunk.length} من ${matches.length}</span></div>
+          <div class="results-section-head"><div><h2 class="archive-arabic-table-title" dir="rtl">جدول المباريات</h2><p>عرض ${rangeLabel} — أربع مباريات كحد أقصى في كل صفحة، مع تفاصيل المباراة أسفل نتيجتها.</p></div><span class="results-count-badge">${chunk.length} من ${matches.length}</span></div>
           <table class="official-results-table"><thead><tr><th>ت</th><th>التاريخ والوقت</th><th>الفريق الأول</th><th>النتيجة</th><th>الفريق الثاني</th><th>الملعب</th></tr></thead>${body}</table>
         </div>
         <div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>
@@ -12799,8 +12809,8 @@ function buildDetailedArchiveReport(ar){
       });
       if(!sheetsHtml.length)return '<div class="empty">لا توجد كشوفات محفوظة.</div>';
       const pages=[];
-      for(let i=0;i<sheetsHtml.length;i+=2){
-        pages.push(`<div class="archive-report-page archive-sheet-report-page"><div class="archive-sheet-pair">${sheetsHtml.slice(i,i+2).join('')}</div><div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div></div>`);
+      for(let i=0;i<sheetsHtml.length;i+=4){
+        pages.push(`<div class="archive-report-page archive-sheet-report-page"><div class="archive-sheet-pair">${sheetsHtml.slice(i,i+4).join('')}</div><div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div></div>`);
       }
       return pages.join('');
     })();
@@ -12815,7 +12825,7 @@ function buildDetailedArchiveReport(ar){
     .archive-report-page, .archive-sheet-page{position:relative;isolation:isolate;}
     .archive-report-page{
       width:200mm;max-width:200mm;min-height:287mm;margin:6px auto;
-      padding:3mm;background:#fff;box-shadow:0 3px 18px rgba(0,0,0,.10);
+      padding:2mm;background:#fff;box-shadow:none;
       border:1px solid #dce7e2;overflow:hidden;
     }
     .cover{
@@ -13399,6 +13409,8 @@ function buildDetailedArchiveReport(ar){
       <div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>
     </div>
 
+    ${knockoutPage}
+
     ${resultsPages}
 
     ${sheetRows}
@@ -13516,6 +13528,14 @@ async function createTournamentArchivePdf(snapshot){
     }
     #archivePdfRenderHost table{direction:rtl!important;}
     #archivePdfRenderHost th,#archivePdfRenderHost td{unicode-bidi:normal!important;letter-spacing:normal!important;}
+    #archivePdfRenderHost .archive-sheet-pair{display:grid!important;grid-template-columns:1fr 1fr!important;grid-template-rows:1fr 1fr!important;gap:3mm!important;height:270mm!important;min-height:270mm!important;overflow:hidden!important;}
+    #archivePdfRenderHost .archive-match-sheet{height:133mm!important;min-height:0!important;max-height:133mm!important;overflow:hidden!important;margin:0!important;padding:2mm!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+    #archivePdfRenderHost .archive-sheet-head{padding:2mm!important;gap:2mm!important;}
+    #archivePdfRenderHost .archive-sheet-grid{gap:1.5mm!important;margin-top:2mm!important;}
+    #archivePdfRenderHost .archive-sheet-grid>div{padding:1.5mm!important;}
+    #archivePdfRenderHost .archive-sheet-grid>div b{font-size:8pt!important;}
+    #archivePdfRenderHost .archive-sheet-grid>div span{font-size:7.5pt!important;line-height:1.25!important;}
+    #archivePdfRenderHost .archive-sheet-credit{margin-top:1mm!important;font-size:7pt!important;}
   `;
   host.insertBefore(fixStyle,host.firstChild);
 
@@ -13582,6 +13602,7 @@ async function createTournamentArchivePdf(snapshot){
       const drawH=Math.min(contentH,naturalH);
       const drawY=margin;
       pdf.addImage(img,'JPEG',margin,drawY,contentW,drawH,'ARCHIVE_PAGE_'+pageIndex,'FAST');
+      pdf.setFontSize(9); pdf.setTextColor(20,90,65); pdf.text(`صفحة ${pageIndex+1} من ${pages.length}`,pageW-margin,pageH-2,{align:'right'});
     }
 
     updatePdfGenerationProgress(94,'جاري حفظ ملف PDF العربي...');
@@ -13607,6 +13628,15 @@ async function archiveTournamentToPDF(tid){
   if(tournamentArchiveRecord(tid)){alert('البطولة مؤرشفة مسبقًا. استخدم «إلغاء الأرشفة والتعديل» ثم أنشئ الملف الجديد.');return;}
   if(!confirm(`سيتم إنشاء ملف PDF للبطولة «${t.name}» وحفظه ضمن البطولات المنتهية. هل تريد المتابعة؟`))return;
   const snapshot=archivePdfSnapshot(tid); if(!snapshot)return;
+  try{
+    const ms=(snapshot.matches||[]).filter(m=>/^(النهائي|نهائي|final)$/i.test(String(m.knockoutRound||m.roundName||m.stageName||m.matchStage||'')));
+    const fm=ms.find(m=>String(m.status||'').toLowerCase()==='finished')||ms[ms.length-1];
+    if(fm){
+      const nm=id=>(snapshot.teams||[]).find(x=>String(x.id)===String(id))?.name||String(id||'غير محدد');
+      const hg=Number(fm.hg??fm.homeScore??0)||0, ag=Number(fm.ag??fm.awayScore??0)||0;
+      if(hg!==ag){snapshot.champion=hg>ag?nm(fm.home):nm(fm.away);snapshot.runnerUp=hg>ag?nm(fm.away):nm(fm.home);}
+    }
+  }catch(e){}
   showPdfGenerationProgress('جاري تجهيز أرشيف البطولة...');
   const oldText=document.activeElement?.textContent; try{
     const pdfData=await createTournamentArchivePdf(snapshot);
