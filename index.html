@@ -12144,7 +12144,7 @@ async function del(type,id){
     }
     removeAllDataForDeletedMatch(id,m);
   }
-  db[type]=db[type].filter(x=>x.id!==id);
+  db[type]=db[type].filter(x=>String(x.id)!==String(id));
   if(type==='teams'){db.players=db.players.filter(p=>p.teamId!==id);db.officialPlayers=db.officialPlayers.filter(p=>p.teamId!==id);db.matches=db.matches.filter(m=>m.home!==id&&m.away!==id)}
   if(type==='tournaments'){
     const teams=db.teams.filter(t=>String(t.tournamentId)===String(id)).map(t=>String(t.id));
@@ -14477,26 +14477,48 @@ function syncMatchStatusesFromSheets(persist){
   }
   return changed;
 }
-function editMatch(id){if(!hasPermission('matches')){alert('تعديل المباريات متاح للمدير أو منحه المدير صلاحية المباريات.');return;}let m=db.matches.find(x=>x.id===id);if(!m)return;let finished=(m.status||'finished')==='finished';let status=prompt('حالة المباراة: اكتب 1 للمجدولة أو 2 للمنتهية',finished?'2':'1');if(status===null)return;status=status.trim()==='2'?'finished':status.trim()==='1'?'scheduled':null;if(!status)return alert('اختر 1 للمجدولة أو 2 للمنتهية');let date=prompt('تاريخ المباراة',m.date||'');if(date===null)return;let time=prompt('وقت المباراة',m.time||'');if(time===null)return;let stadium=prompt('الملعب: اكتب اسم الملعب أو اختر من القائمة\n1 - ملعب المنار الرئيسي\n2 - ملعب آخر',m.stadium||'ملعب المنار الرئيسي');if(stadium===null)return;stadium=stadium.trim()||'ملعب المنار الرئيسي';let hg=Number(m.hg)||0,ag=Number(m.ag)||0;if(status==='finished'){let hs=prompt('أهداف الفريق الأول',String(hg));if(hs===null)return;let as=prompt('أهداف الفريق الثاني',String(ag));if(as===null)return;hg=Math.max(0,parseInt(hs,10)||0);ag=Math.max(0,parseInt(as,10)||0)}else{hg=0;ag=0}let oldStatus=(m.status||'finished')==='finished';m.status=status;m.date=date.trim();m.time=time.trim();m.stadium=stadium.trim();m.hg=hg;m.ag=ag;
-try{
-  const sheetKeys=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
-  sheetKeys.forEach(key=>{
-    const rows=JSON.parse(localStorage.getItem(key)||'[]');
-    if(!Array.isArray(rows))return;
-    let changed=false;
-    rows.forEach(sh=>{
-      if(String(sh?.matchId??'')!==String(id))return;
-      sh.date=m.date;sh.time=m.time;sh.stadium=m.stadium;
-      sh.homeScore=hg;sh.awayScore=ag;sh.updatedAt=new Date().toISOString();
-      changed=true;
-    });
-    if(changed){
-      localStorage.setItem(key,JSON.stringify(rows));
-      try{if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(key)}catch(e){}
-    }
-  });
-}catch(e){console.warn('تعذر تحديث بيانات الكشف المرتبط بالمباراة:',e)}
-if(oldStatus!== (status==='finished')){if(oldStatus){getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=Math.max(0,(+p.goals||0)-1)})}else{getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=(+p.goals||0)+1})}}save();renderMatches();if(typeof renderUpcoming==='function')renderUpcoming();if(typeof renderHome==='function')renderHome();alert('تم تعديل المباراة بنجاح')}
+function editMatch(id){
+  if(!hasPermission('matches')){alert('تعديل المباريات متاح للمدير أو منحه المدير صلاحية المباريات.');return;}
+  const m=db.matches.find(x=>String(x.id)===String(id)); if(!m)return;
+  document.getElementById('matchEditModal')?.remove();
+  const modal=document.createElement('div'); modal.id='matchEditModal';
+  modal.innerHTML=`<div class="match-edit-backdrop"><form class="match-edit-panel" id="matchEditForm">
+    <div class="match-edit-head"><div><small>إدارة المباريات</small><h2>✏️ تعديل بيانات المباراة</h2></div><button type="button" class="match-edit-close" id="matchEditClose" aria-label="إغلاق">✕</button></div>
+    <div class="match-edit-teams"><div>⚽ ${esc(teamName(m.home))}</div><span>VS</span><div>⚽ ${esc(teamName(m.away))}</div></div>
+    <div class="match-edit-grid">
+      <label>حالة المباراة<select name="status"><option value="scheduled" ${m.status==='scheduled'?'selected':''}>📅 مجدولة</option><option value="finished" ${(m.status||'finished')==='finished'?'selected':''}>✅ منتهية</option></select></label>
+      <label>تاريخ المباراة<input name="date" type="date" value="${esc(m.date||'')}"></label>
+      <label>وقت المباراة<input name="time" type="time" value="${esc(m.time||'')}"></label>
+      <label class="match-edit-wide">الملعب<input name="stadium" maxlength="100" value="${esc(m.stadium||'')}" placeholder="اسم الملعب"></label>
+      <label>أهداف ${esc(teamName(m.home))}<input name="hg" type="number" min="0" max="99" inputmode="numeric" value="${Number(m.hg)||0}"></label>
+      <label>أهداف ${esc(teamName(m.away))}<input name="ag" type="number" min="0" max="99" inputmode="numeric" value="${Number(m.ag)||0}"></label>
+    </div><div class="match-edit-hint">سيتم حفظ آخر تعديل وتحديث بيانات المباراة والكشف المرتبط بها والإحصائيات.</div>
+    <div class="match-edit-actions"><button type="button" class="btn secondary" id="matchEditCancel">إلغاء</button><button type="submit" class="btn">💾 حفظ التعديلات</button></div>
+  </form></div>`;
+  if(!document.getElementById('match-edit-styles')){
+    const st=document.createElement('style');st.id='match-edit-styles';st.textContent=`.match-edit-backdrop{position:fixed;inset:0;z-index:99999;background:#09251ed9;display:flex;align-items:center;justify-content:center;padding:14px}.match-edit-panel{width:min(560px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;padding:18px;box-shadow:0 25px 80px #0005;border:1px solid #d8e9e1}.match-edit-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #e7efeb;padding-bottom:12px}.match-edit-head small{color:#0a8f62;font-weight:800}.match-edit-head h2{margin:4px 0 0;color:#075f45;font-size:20px}.match-edit-close{border:0;border-radius:10px;background:#ffe8e8;color:#b42318;width:38px;height:38px;font-size:18px}.match-edit-teams{display:flex;align-items:center;justify-content:space-around;gap:8px;margin:14px 0;padding:12px;background:linear-gradient(135deg,#e9f9f1,#f0f6ff);border-radius:13px;font-weight:900;text-align:center}.match-edit-teams span{background:#fff;color:#7b8790;border-radius:8px;padding:5px 8px;font-size:11px}.match-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.match-edit-grid label{display:block;font-size:13px}.match-edit-grid input,.match-edit-grid select{margin-top:5px;width:100%;min-width:0}.match-edit-wide{grid-column:1/-1}.match-edit-hint{margin-top:13px;padding:10px;border-radius:10px;background:#fff7df;color:#795500;font-size:12px;line-height:1.6}.match-edit-actions{display:flex;gap:9px;margin-top:15px}.match-edit-actions button{flex:1}@media(max-width:380px){.match-edit-grid{grid-template-columns:1fr}.match-edit-wide{grid-column:auto}}`;
+    document.head.appendChild(st);
+  }
+  document.body.appendChild(modal);
+  const close=()=>modal.remove();
+  modal.querySelector('#matchEditClose').onclick=close;modal.querySelector('#matchEditCancel').onclick=close;
+  modal.querySelector('.match-edit-backdrop').addEventListener('click',e=>{if(e.target===e.currentTarget)close()});
+  modal.querySelector('#matchEditForm').onsubmit=async e=>{
+    e.preventDefault();const f=new FormData(e.currentTarget);
+    const status=String(f.get('status')||'scheduled');
+    const hg=Math.max(0,Math.min(99,parseInt(f.get('hg'),10)||0)),ag=Math.max(0,Math.min(99,parseInt(f.get('ag'),10)||0));
+    if(status==='scheduled' && matchHasSheet(m.id) && !confirm('هذه المباراة مرتبطة بكشف محفوظ. هل تريد تغيير حالتها إلى مجدولة مع تحديث النتيجة في الكشف؟'))return;
+    m.status=status;m.date=String(f.get('date')||'').trim();m.time=String(f.get('time')||'').trim();m.stadium=String(f.get('stadium')||'').trim();m.hg=status==='finished'?hg:0;m.ag=status==='finished'?ag:0;
+    try{
+      ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(key=>{
+        const rows=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(rows))return;let changed=false;
+        rows.forEach(sh=>{if(String(sh?.matchId??'')===String(id)){sh.date=m.date;sh.time=m.time;sh.stadium=m.stadium;sh.homeScore=m.hg;sh.awayScore=m.ag;sh.homeGoals=m.hg;sh.awayGoals=m.ag;sh.updatedAt=new Date().toISOString();changed=true;}});
+        if(changed){localStorage.setItem(key,JSON.stringify(rows));if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(key);}
+      });
+    }catch(err){console.error('Match sheet update:',err)}
+    close();save();renderAll();if(typeof renderStats==='function')renderStats();if(typeof renderMatches==='function')renderMatches();alert('تم حفظ آخر تعديل للمباراة بنجاح.');
+  };
+}
 function renderMatches(){syncMatchStatusesFromSheets(true);let a=[...db.matches].sort((x,y)=>(y.date||'').localeCompare(x.date||''));a=a.filter(m=>!matchHasSheet(m.id));matchList.innerHTML=a.length?`<table><tr><th>الحالة</th><th>التاريخ</th><th>المباراة</th><th>النتيجة</th><th>الملعب</th><th>إجراء</th></tr>${a.map(m=>{let finished=(m.status||'finished')==='finished';return `<tr class="${finished?(m.hg>m.ag?'match-win':m.hg===m.ag?'match-draw':'match-loss'):''}"><td><b>${finished?'✅ منتهية':'📅 مجدولة'}</b></td><td>${esc(m.date||'—')}<br>${esc(m.time||'')}</td><td>${esc(teamName(m.home))}<br>×<br>${esc(teamName(m.away))}</td><td>${finished?`<b>${m.hg} - ${m.ag}</b>`:'<span class="badge">لم تبدأ بعد</span>'}</td><td>${esc(m.stadium||'—')}</td><td><button class="btn primary manager-only" onclick="editMatch('${m.id}')">✏️ تعديل</button><button class="btn danger manager-only" onclick="del('matches','${m.id}')">🗑️ حذف</button></td></tr>`}).join('')}</table>`:'<div class="empty">لا توجد مباريات</div>';applyPermissions()}
 function calcOverallRanking(){
   const byName={};
