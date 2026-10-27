@@ -11131,6 +11131,22 @@ img { decoding: async; }
 .ended-card-admin-actions .tournament-completion-action.btn.warn{background:linear-gradient(135deg,#f59e0b,#ea580c)!important;color:#fff!important;border-color:#fbbf24!important}
 </style>
 
+
+<style id="knockout-stage-on-off-switch">
+.stats-stage-control .stage-toggle-switch{display:inline-flex;align-items:center;justify-content:space-between;gap:14px;width:100%;max-width:310px;min-height:58px;padding:10px 14px;border:1px solid #d8def0;border-radius:16px;background:#fff;color:#172033;font:inherit;font-weight:900;cursor:pointer;box-shadow:0 5px 14px rgba(35,45,80,.09);transition:background .2s,border-color .2s,transform .15s;touch-action:manipulation}
+.stats-stage-control .stage-toggle-switch:active{transform:scale(.985)}
+.stats-stage-control .stage-toggle-label{font-size:15px;white-space:nowrap}
+.stats-stage-control .stage-toggle-track{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 92px;width:92px;height:38px;padding:0 8px;border-radius:999px;box-sizing:border-box;transition:background .2s}
+.stats-stage-control .stage-toggle-state{position:relative;z-index:1;color:#fff;font-size:12px;font-weight:1000;letter-spacing:.6px}
+.stats-stage-control .stage-toggle-knob{position:absolute;top:4px;width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 2px 7px #0003;transition:left .2s,right .2s}
+.stats-stage-control .stage-toggle-switch.is-on{border-color:#16a34a;background:linear-gradient(135deg,#f0fdf4,#fff)}
+.stats-stage-control .stage-toggle-switch.is-on .stage-toggle-track{background:#16a34a}
+.stats-stage-control .stage-toggle-switch.is-on .stage-toggle-knob{right:4px}
+.stats-stage-control .stage-toggle-switch.is-off{border-color:#cbd5e1;background:linear-gradient(135deg,#f8fafc,#fff)}
+.stats-stage-control .stage-toggle-switch.is-off .stage-toggle-track{background:#64748b}
+.stats-stage-control .stage-toggle-switch.is-off .stage-toggle-knob{left:4px}
+@media(max-width:480px){.stats-stage-control .stage-toggle-switch{max-width:100%;min-height:56px}}
+</style>
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -12066,13 +12082,68 @@ function addMatch(){
   document.getElementById('homeTeam').value='';document.getElementById('awayTeam').value='';
   save();renderAll();alert(status==='finished'?'تم تسجيل المباراة المنتهية بنجاح':'تمت جدولة المباراة بنجاح');
 }
+
+/* تنظيف كل البيانات المرتبطة بالمباراة عند حذفها فقط، مع إبقاء بقية الأقسام كما هي. */
+function removeAllDataForDeletedMatch(matchId, matchObj){
+  const id=String(matchId||'');
+  if(!id)return;
+  const keys=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
+  /* إزالة كشوف المباراة من جميع إصدارات التخزين حتى لا تعود من نسخة قديمة. */
+  keys.forEach(key=>{
+    try{
+      const value=JSON.parse(localStorage.getItem(key)||'[]');
+      if(Array.isArray(value)){
+        const next=value.filter(row=>String(row?.matchId??'')!==id);
+        if(next.length!==value.length){
+          localStorage.setItem(key,JSON.stringify(next));
+          try{if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(key)}catch(e){}
+        }
+      }
+    }catch(e){}
+  });
+  /* حذف توقع المباراة المحفوظ باستخدام المفتاح المعروف في قسم التوقعات. */
+  try{
+    const key='manar_prediction_history_v1';
+    const history=JSON.parse(localStorage.getItem(key)||'{}');
+    if(history&&typeof history==='object'&&!Array.isArray(history)&&Object.prototype.hasOwnProperty.call(history,id)){
+      delete history[id];
+      localStorage.setItem(key,JSON.stringify(history));
+      try{if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(key)}catch(e){}
+    }
+  }catch(e){}
+  /* إزالة أي سجل إضافي واضح الارتباط بالمباراة من مخازن المباريات فقط. */
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(!key||keys.includes(key)||key==='manar_prediction_history_v1')continue;
+      if(!/match|sheet|prediction|suspension|card|history/i.test(key))continue;
+      let value;
+      try{value=JSON.parse(localStorage.getItem(key)||'null')}catch(e){continue}
+      if(Array.isArray(value)){
+        const next=value.filter(row=>!(row&&typeof row==='object'&&String(row.matchId??row.matchID??row.match_id??'')===id));
+        if(next.length!==value.length){
+          localStorage.setItem(key,JSON.stringify(next));
+          try{if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(key)}catch(e){}
+        }
+      }
+    }
+  }catch(e){}
+}
+
 async function del(type,id){
   if(type==='tournaments' && (!hasPermission('tournaments') || !hasPermission('delete'))){if(currentRole==='viewer')openLogin();else alert('حذف البطولات متاح للمدير أو للحساب الذي منحه المدير صلاحية البطولات والحذف.');return}
   if(type==='matches'&&(!hasPermission('matches')||!hasPermission('delete'))){alert('حذف المباريات متاح للمدير أو منحه المدير صلاحية المباريات والحذف.');return}
   let perm=type==='officialPlayers'?'officialPlayers':type==='matches'?'matches':type==='players'?'players':type==='teams'?'teams':type==='tournaments'?'tournaments':'delete';
   if(type==='players'){if(!hasPermission('players')){alert('ليس لديك صلاحية إدارة قسم اللاعبين.');return}}else if(!hasPermission('delete')){alert('الحذف متاح فقط للمدير أو للحسابات التي منحها المدير صلاحية الحذف.');return}
   if(!confirm('هل تريد الحذف؟'))return;
-  if(type==='matches'){let m=db.matches.find(x=>x.id===id);if(m){getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=Math.max(0,(+p.goals||0)-1)});(m.cards||[]).forEach(c=>{let p=db.players.find(x=>x.id===c.playerId);if(p){if(c.type==='yellow')p.yellow=Math.max(0,(+p.yellow||0)-1);else p.red=Math.max(0,(+p.red||0)-1)}})}}
+  if(type==='matches'){
+    const m=db.matches.find(x=>String(x.id)===String(id));
+    if(m){
+      getMatchScorers(m).forEach(pid=>{const p=db.players.find(x=>String(x.id)===String(pid));if(p)p.goals=Math.max(0,(+p.goals||0)-1)});
+      (m.cards||[]).forEach(c=>{const p=db.players.find(x=>String(x.id)===String(c.playerId));if(p){if(c.type==='yellow')p.yellow=Math.max(0,(+p.yellow||0)-1);else p.red=Math.max(0,(+p.red||0)-1)}});
+    }
+    removeAllDataForDeletedMatch(id,m);
+  }
   db[type]=db[type].filter(x=>x.id!==id);
   if(type==='teams'){db.players=db.players.filter(p=>p.teamId!==id);db.officialPlayers=db.officialPlayers.filter(p=>p.teamId!==id);db.matches=db.matches.filter(m=>m.home!==id&&m.away!==id)}
   if(type==='tournaments'){
@@ -14406,7 +14477,26 @@ function syncMatchStatusesFromSheets(persist){
   }
   return changed;
 }
-function editMatch(id){if(!hasPermission('matches')){alert('تعديل المباريات متاح للمدير أو منحه المدير صلاحية المباريات.');return;}let m=db.matches.find(x=>x.id===id);if(!m)return;let finished=(m.status||'finished')==='finished';let status=prompt('حالة المباراة: اكتب 1 للمجدولة أو 2 للمنتهية',finished?'2':'1');if(status===null)return;status=status.trim()==='2'?'finished':status.trim()==='1'?'scheduled':null;if(!status)return alert('اختر 1 للمجدولة أو 2 للمنتهية');let date=prompt('تاريخ المباراة',m.date||'');if(date===null)return;let time=prompt('وقت المباراة',m.time||'');if(time===null)return;let stadium=prompt('الملعب: اكتب اسم الملعب أو اختر من القائمة\n1 - ملعب المنار الرئيسي\n2 - ملعب آخر',m.stadium||'ملعب المنار الرئيسي');if(stadium===null)return;stadium=stadium.trim()||'ملعب المنار الرئيسي';let hg=Number(m.hg)||0,ag=Number(m.ag)||0;if(status==='finished'){let hs=prompt('أهداف الفريق الأول',String(hg));if(hs===null)return;let as=prompt('أهداف الفريق الثاني',String(ag));if(as===null)return;hg=Math.max(0,parseInt(hs,10)||0);ag=Math.max(0,parseInt(as,10)||0)}else{hg=0;ag=0}let oldStatus=(m.status||'finished')==='finished';m.status=status;m.date=date.trim();m.time=time.trim();m.stadium=stadium.trim();m.hg=hg;m.ag=ag;if(oldStatus!== (status==='finished')){if(oldStatus){getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=Math.max(0,(+p.goals||0)-1)})}else{getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=(+p.goals||0)+1})}}save();renderMatches();if(typeof renderUpcoming==='function')renderUpcoming();if(typeof renderHome==='function')renderHome();alert('تم تعديل المباراة بنجاح')}
+function editMatch(id){if(!hasPermission('matches')){alert('تعديل المباريات متاح للمدير أو منحه المدير صلاحية المباريات.');return;}let m=db.matches.find(x=>x.id===id);if(!m)return;let finished=(m.status||'finished')==='finished';let status=prompt('حالة المباراة: اكتب 1 للمجدولة أو 2 للمنتهية',finished?'2':'1');if(status===null)return;status=status.trim()==='2'?'finished':status.trim()==='1'?'scheduled':null;if(!status)return alert('اختر 1 للمجدولة أو 2 للمنتهية');let date=prompt('تاريخ المباراة',m.date||'');if(date===null)return;let time=prompt('وقت المباراة',m.time||'');if(time===null)return;let stadium=prompt('الملعب: اكتب اسم الملعب أو اختر من القائمة\n1 - ملعب المنار الرئيسي\n2 - ملعب آخر',m.stadium||'ملعب المنار الرئيسي');if(stadium===null)return;stadium=stadium.trim()||'ملعب المنار الرئيسي';let hg=Number(m.hg)||0,ag=Number(m.ag)||0;if(status==='finished'){let hs=prompt('أهداف الفريق الأول',String(hg));if(hs===null)return;let as=prompt('أهداف الفريق الثاني',String(ag));if(as===null)return;hg=Math.max(0,parseInt(hs,10)||0);ag=Math.max(0,parseInt(as,10)||0)}else{hg=0;ag=0}let oldStatus=(m.status||'finished')==='finished';m.status=status;m.date=date.trim();m.time=time.trim();m.stadium=stadium.trim();m.hg=hg;m.ag=ag;
+try{
+  const sheetKeys=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
+  sheetKeys.forEach(key=>{
+    const rows=JSON.parse(localStorage.getItem(key)||'[]');
+    if(!Array.isArray(rows))return;
+    let changed=false;
+    rows.forEach(sh=>{
+      if(String(sh?.matchId??'')!==String(id))return;
+      sh.date=m.date;sh.time=m.time;sh.stadium=m.stadium;
+      sh.homeScore=hg;sh.awayScore=ag;sh.updatedAt=new Date().toISOString();
+      changed=true;
+    });
+    if(changed){
+      localStorage.setItem(key,JSON.stringify(rows));
+      try{if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(key)}catch(e){}
+    }
+  });
+}catch(e){console.warn('تعذر تحديث بيانات الكشف المرتبط بالمباراة:',e)}
+if(oldStatus!== (status==='finished')){if(oldStatus){getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=Math.max(0,(+p.goals||0)-1)})}else{getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=(+p.goals||0)+1})}}save();renderMatches();if(typeof renderUpcoming==='function')renderUpcoming();if(typeof renderHome==='function')renderHome();alert('تم تعديل المباراة بنجاح')}
 function renderMatches(){syncMatchStatusesFromSheets(true);let a=[...db.matches].sort((x,y)=>(y.date||'').localeCompare(x.date||''));a=a.filter(m=>!matchHasSheet(m.id));matchList.innerHTML=a.length?`<table><tr><th>الحالة</th><th>التاريخ</th><th>المباراة</th><th>النتيجة</th><th>الملعب</th><th>إجراء</th></tr>${a.map(m=>{let finished=(m.status||'finished')==='finished';return `<tr class="${finished?(m.hg>m.ag?'match-win':m.hg===m.ag?'match-draw':'match-loss'):''}"><td><b>${finished?'✅ منتهية':'📅 مجدولة'}</b></td><td>${esc(m.date||'—')}<br>${esc(m.time||'')}</td><td>${esc(teamName(m.home))}<br>×<br>${esc(teamName(m.away))}</td><td>${finished?`<b>${m.hg} - ${m.ag}</b>`:'<span class="badge">لم تبدأ بعد</span>'}</td><td>${esc(m.stadium||'—')}</td><td><button class="btn primary manager-only" onclick="editMatch('${m.id}')">✏️ تعديل</button><button class="btn danger manager-only" onclick="del('matches','${m.id}')">🗑️ حذف</button></td></tr>`}).join('')}</table>`:'<div class="empty">لا توجد مباريات</div>';applyPermissions()}
 function calcOverallRanking(){
   const byName={};
@@ -16433,7 +16523,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     const name=esc(tourName(tid));
 
     box.innerHTML=`
-      ${isGroupTournament(tourObj) ? `<div class="stats-stage-control"><div><b>🏆 مرحلة البطولة:</b> ${tourObj.stage==='knockout'?'خروج المغلوب':'المجموعات'}</div><div class="stats-stage-note">${tourObj.stage==='knockout'?'تم الانتقال إلى مرحلة خروج المغلوب. تبقى بيانات المجموعات محفوظة.':'بعد انتهاء مرحلة المجموعات يمكن الانتقال إلى خروج المغلوب.'}</div>${currentRole!=='viewer' ? `<button type="button" class="btn primary" onclick="toggleTournamentKnockoutStage('${esc(tid)}')">${tourObj.stage==='knockout'?'↩️ العودة إلى المجموعات':'🏁 بدء خروج المغلوب'}</button>`:''}</div>` : ''}
+      ${isGroupTournament(tourObj) ? `<div class="stats-stage-control"><div><b>🏆 مرحلة البطولة:</b> ${tourObj.stage==='knockout'?'خروج المغلوب':'المجموعات'}</div><div class="stats-stage-note">${tourObj.stage==='knockout'?'تم الانتقال إلى مرحلة خروج المغلوب. تبقى بيانات المجموعات محفوظة.':'بعد انتهاء مرحلة المجموعات يمكن الانتقال إلى خروج المغلوب.'}</div>${currentRole!=='viewer' ? `<button type="button" class="stage-toggle-switch ${tourObj.stage==='knockout'?'is-on':'is-off'}" role="switch" aria-checked="${tourObj.stage==='knockout'?'true':'false'}" aria-label="تحويل البطولة إلى خروج المغلوب" onclick="toggleTournamentKnockoutStage('${esc(tid)}')"><span class="stage-toggle-label">خروج المغلوب</span><span class="stage-toggle-track"><span class="stage-toggle-state">${tourObj.stage==='knockout'?'ON':'OFF'}</span><span class="stage-toggle-knob"></span></span></button>`:''}</div>` : ''}
       <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">🏟️</span><b>${totalTournamentMatches}</b><span>عدد المباريات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalFinished}</b><span>الكشوفات المدخلة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>عدد الأهداف المسجلة في البطولة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>عدد ركلات الجزاء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>عدد البطاقات الصفراء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>عدد البطاقات الحمراء</span></div></div>
       ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=Object.values(tm).filter(x=>{const tt=teamObjForStats(x.id);return Number(tt?.groupNumber||0)===gi;}).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق / المجموعة','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد مباريات مكتملة لهذه البطولة.')}
       ${(()=>{
