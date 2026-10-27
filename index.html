@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48.png?v=20261025" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon.png?v=20261025" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v4-clean-final" name="manar-sync-version"/>
+<meta content="firebase-sync-v5-batched-fast" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -17705,12 +17705,16 @@ async function pushKeys(keys){
   if(window.__manarFirebaseResetLock)return false;
   if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');
   const unique=[...new Set(keys)].filter(k=>SYNC_KEYS.includes(k));
-  /* حافظ على مسار كل مفتاح كما هو، لكن ارفع المفاتيح بالتوازي بدل انتظار كل طلب */
-  const snapshot=unique.map(key=>({key,value:localValue(key)}));
-  const results=await Promise.allSettled(snapshot.map(item=>set(ref(db,CLOUD_PATH+'/'+item.key),item.value)));
-  const failed=[];
-  results.forEach((result,i)=>{if(result.status==='fulfilled')dirty.delete(snapshot[i].key);else failed.push(snapshot[i].key)});
-  if(failed.length)throw new Error('تعذر رفع بعض الأقسام: '+failed.join('، '));
+  if(!unique.length)return true;
+  /*
+   * رفع دفعة واحدة إلى المسارات نفسها يقلل عدد طلبات الشبكة ويحافظ على
+   * بنية قاعدة البيانات والصلاحيات الحالية. نلتقط القيم قبل الإرسال حتى
+   * لا تختلط التعديلات التي تصل أثناء الرفع.
+   */
+  const payload={};
+  unique.forEach(key=>{payload[key]=localValue(key)});
+  await update(ref(db,CLOUD_PATH),payload);
+  unique.forEach(key=>dirty.delete(key));
   return true;
 }
 async function pushAll(){
@@ -20581,6 +20585,9 @@ function install(){
  const sec=document.getElementById('predictionsSection');if(!sec)return;
  let last='';
  const run=()=>{try{
+   // لا تحسب بصمة كل المباريات والكشوفات ما دام قسم التوقعات مخفيًا.
+   const page=document.getElementById('predictionsSection');
+   if(document.visibilityState==='hidden' || !page || !page.classList.contains('active')) return;
    const sel=document.getElementById('predictionTournamentV2'),sig=(sel?.value||'')+'|'+JSON.stringify(matches().map(m=>[m.id,m.tournamentId,m.home,m.away,m.date,m.time]))+'|'+getSheets().map(s=>[s.matchId,s.homeScore,s.awayScore,s.updatedAt]).flat();
    if(sig!==last){last=sig;patchCurrentUI()}
  }catch(e){console.warn('prediction data-driven patch',e)}};
@@ -22276,10 +22283,10 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 <script id="sports-platform-auto-deploy-update-v2">
 (function(){
   'use strict';
-  // يتحقق من نسخة HTML المنشورة ويحدّث الصفحات المفتوحة دون لمس بيانات المستخدم.
+  // يكتشف تحديثات النشر بأقل نقل ممكن للبيانات، ولا يلمس بيانات المستخدم.
   if (!/^https?:$/.test(location.protocol) || window.__sportsAutoDeployUpdateStarted) return;
   window.__sportsAutoDeployUpdateStarted = true;
-  var lastFingerprint = null, updateDetected = false, checking = false, reloading = false;
+  var lastValidator = null, lastBodyFingerprint = null, updateDetected = false, checking = false, reloading = false;
   function fingerprint(text){
     var h=2166136261;
     for(var i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}
@@ -22322,16 +22329,31 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     try{
       var u=new URL(location.href);
       u.searchParams.set('__sports_update_check',String(Date.now()));
+      // HEAD يقرأ معلومات النسخة فقط، بدل تنزيل ملف HTML الكامل في كل فحص.
+      try{
+        var head=await fetch(u.href,{method:'HEAD',cache:'no-store',credentials:'same-origin',redirect:'follow'});
+        if(head.ok){
+          var etag=head.headers.get('ETag')||'';
+          var modified=head.headers.get('Last-Modified')||'';
+          var validator=etag ? 'etag:'+etag : (modified ? 'modified:'+modified+'|'+(head.headers.get('Content-Length')||'') : '');
+          if(validator){
+            if(lastValidator===null) lastValidator=validator;
+            else if(validator!==lastValidator){lastValidator=validator;updateDetected=true;await reloadIfSafe();}
+            return;
+          }
+        }
+      }catch(headError){ /* بعض الخوادم لا تدعم HEAD؛ نستخدم الفحص الكامل كبديل */ }
+      // بديل متوافق مع الخوادم التي لا توفر ETag أو Last-Modified.
       var response=await fetch(u.href,{cache:'no-store',credentials:'same-origin',redirect:'follow'});
       if(!response.ok) return;
       var html=await response.text(), fp=fingerprint(html);
-      if(lastFingerprint===null){lastFingerprint=fp;return;}
-      if(fp!==lastFingerprint){lastFingerprint=fp;updateDetected=true;await reloadIfSafe();}
+      if(lastBodyFingerprint===null){lastBodyFingerprint=fp;return;}
+      if(fp!==lastBodyFingerprint){lastBodyFingerprint=fp;updateDetected=true;await reloadIfSafe();}
     }catch(e){ /* يعاود المحاولة تلقائيًا عند عودة الاتصال */ }
     finally{checking=false;}
   }
   check();
-  // فحص سريع للنسخة المنشورة، مع إعادة الفحص فور عودة الصفحة أو الشبكة.
+  // فحص سريع للترويسات، مع إعادة الفحص فور عودة الصفحة أو الشبكة.
   setInterval(check,15000);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check();});
   document.addEventListener('focusout',function(){if(updateDetected)setTimeout(reloadIfSafe,500);},true);
@@ -23294,7 +23316,7 @@ body>header #authBar .login-btn:hover,body>header #authBar .logout-btn:hover{tra
   }
   document.addEventListener('DOMContentLoaded',function(){
     setTimeout(function(){refreshIfChanged(true);},250);
-    setInterval(function(){refreshIfChanged(false);},1200);
+    setInterval(function(){refreshIfChanged(false);},4000);
   },{once:true});
   window.addEventListener('storage',function(e){
     if(!e.key || /manar_|firebase|match|tournament|player|team/i.test(e.key)){lastSignature='';setTimeout(function(){refreshIfChanged(true);},80);}
