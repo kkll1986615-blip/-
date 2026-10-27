@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48.png?v=20261025" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon.png?v=20261025" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v5-batched-fast" name="manar-sync-version"/>
+<meta content="firebase-sync-v4-clean-final" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -5781,8 +5781,6 @@ img{content-visibility:auto;}
 #matchSheetsSection .ks-admin-decision-box select{width:100%;min-height:44px;border:1px solid #e7c77f;border-radius:10px;padding:8px;background:#fff}
 #matchSheetsSection .ks-admin-decision-box small{display:block;margin-top:8px;line-height:1.7;color:#765b2a}
 #matchSheetsSection #ksEditor.admin-decision-active .ks-step{display:none!important}
-/* إبقاء قسم الحكام ظاهرًا عند تفعيل القرار الإداري */
-#matchSheetsSection #ksEditor.admin-decision-active .ks-step:has(#ksRef1){display:block!important}
 #matchSheetsSection #ksEditor.admin-decision-active #ksAdminDecisionBox{border-color:#c18a20;background:linear-gradient(135deg,#fff4d6,#fff)}
 /* الزائر يشاهد الكشوفات فقط */
 body.viewer #matchSheetsSection #ksNew,
@@ -11178,14 +11176,14 @@ img { decoding: async; }
   </div>
 </div>
 </section><section class="page" id="teams"><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>⚽ الفرق</h2><button class="btn" onclick="toggleTeamRegistration()" type="button">➕ إضافة فريق</button></div><div id="teamRegistrationPanel" style="display:none"><div class="notice">📝 أدخل بيانات الفريق ثم اضغط «إضافة فريق».</div><div class="grid"><div><label>🏆 البطولة</label><select id="teamTour" onchange="refreshTeamGroupSelector();refreshTeamRegistrationSummary()"></select><small>اختر البطولة أولاً، وستظهر الفرق المسجلة وعدد الفرق المشاركة تلقائيًا.</small></div><div class="team-registration-summary" id="teamRegistrationSummary" style="display:none"><div class="team-summary-count"><span>👥 عدد الفرق المشاركة</span><b id="teamParticipantCount">0</b></div><div><strong>⚽ الفرق المسجلة في البطولة</strong><div class="team-registered-names" id="teamRegisteredNames"></div></div></div><div id="teamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="teamGroup"><option value="">اختر المجموعة</option></select><small>يتم توزيع الفرق يدويًا: اختر المجموعة A أو B أو C ثم سجل الفريق.</small></div><div><label>⚽ اسم الفريق</label><input id="teamNameInput" maxlength="60" placeholder="اكتب اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="teamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="teamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="teamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="addTeam()">➕ إضافة فريق</button><button class="btn secondary" onclick="toggleTeamRegistration(false)" type="button">إلغاء</button></div></div></div><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>🛠️ إدارة الفرق المسجلة</h2><button class="btn secondary" onclick="toggleTeamEdit()" type="button">✏️ تعديل الفرق المسجلة</button></div><div id="teamEditPanel" style="display:none"><div class="notice">🔎 اختر البطولة أولاً، ثم اختر الفريق المسجل لتظهر بياناته وتعديلها.</div><div class="grid"><div><label>🏆 اختيار البطولة</label><select id="editTeamTourFilter" onchange="refreshTeamsForEdit()"><option value="">اختر البطولة</option></select></div><div><label>⚽ الفرق المسجلة</label><select id="editTeamSelect" onchange="loadTeamForEdit()"><option value="">اختر البطولة أولاً</option></select></div><div id="editTeamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="editTeamGroup"><option value="">اختر المجموعة</option></select><small>يمكن تغيير مجموعة الفريق يدويًا.</small></div><div><label>اسم الفريق</label><input id="editTeamName" maxlength="60" placeholder="اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="editTeamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="editTeamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="editTeamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="updateTeam()">💾 حفظ التغييرات</button><button class="btn secondary" onclick="toggleTeamEdit(false)" type="button">إلغاء</button></div></div></div><div class="card"><div class="section-title"><div><h2>⚽ الفرق المسجلة</h2><small>👁️ الزائر يختار البطولة فقط لعرض الفرق المسجلة.</small></div><span class="badge">متاح للجميع</span></div><div class="grid"><div><label>🏆 اختر البطولة</label><select id="publicTeamTour" onchange="renderPublicTeams()"><option value="">اختر البطولة أولاً</option></select></div></div><div id="publicTeamList"><div class="empty">اختر اسم البطولة لعرض الفرق المسجلة تلقائيًا.</div></div></div></section><section class="page" id="players"><div class="card"><div class="section-title"><h2>👥 اللاعبون</h2><span class="badge">اختر الفريق لعرض لاعبيه</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0"><button class="btn primary" onclick="toggleSuspendedPlayers()" type="button">⛔ اللاعبين الموقوفين</button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة</option></select></div><div><label>اللاعب</label><select id="manualSuspPlayer"><option value="">اختر البطولة أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
-<div><label>🏆 اسم البطولة</label><select id="matchTour" onchange="refreshMatchTeams()"><option value="">اختر البطولة أولاً</option></select></div><div id="matchKnockoutToggleWrap" style="display:none;grid-column:1/-1"><button id="matchKnockoutToggleBtn" type="button" class="btn secondary" onclick="toggleSelectedMatchTournamentKnockout()">🏁 تفعيل خروج المغلوب</button><small id="matchKnockoutToggleHint" style="display:block;margin-top:6px">عند التفعيل تظهر خيارات ربع النهائي ونصف النهائي والنهائي ضمن تسجيل المباريات فقط.</small></div>
+<div><label>🏆 اسم البطولة</label><select id="matchTour" onchange="refreshMatchTeams()"><option value="">اختر البطولة أولاً</option></select></div>
 <div><label>🥅 الفريق الأول</label><select id="homeTeam"><option value="">اختر الفريق</option></select></div>
 <div><label>🥅 الفريق الثاني</label><select id="awayTeam"><option value="">اختر الفريق</option></select></div>
 <div><label>📅 التاريخ</label><input id="matchDate" type="date"/></div>
 <div><label>⏰ الوقت</label><input id="matchTime" type="time"/></div>
 <div><label>🏟️ الملعب</label><select id="matchStadium" onchange="toggleOtherStadium()"><option value="ملعب المنار الرئيسي" selected>ملعب المنار الرئيسي</option><option value="ملعب آخر">ملعب آخر</option></select><div id="otherStadiumWrap" style="display:none;margin-top:8px"><input id="matchOtherStadium" placeholder="اكتب اسم الملعب الآخر" type="text"/></div></div>
 <div><label>📌 حالة المباراة</label><select id="matchStatus"><option value="scheduled">📅 مجدولة</option><option value="finished">✅ منتهية</option></select></div>
-<div id="matchKnockoutRoundWrap" style="display:none"><label>🏆 نوع مباراة خروج المغلوب</label><select id="matchKnockoutRound"><option value="">اختر نوع المباراة</option><option value="ربع النهائي">🏆 ربع النهائي</option><option value="نصف النهائي">🥈 نصف النهائي</option><option value="النهائي">🥇 النهائي</option></select><small>تظهر هذه الخيارات عند تفعيل زر خروج المغلوب ضمن تسجيل المباريات.</small></div>
+<div id="matchKnockoutRoundWrap" style="display:none"><label>🏆 نوع مباراة خروج المغلوب</label><select id="matchKnockoutRound"><option value="">اختر نوع المباراة</option><option value="ربع النهائي">🏆 ربع النهائي</option><option value="نصف النهائي">🥈 نصف النهائي</option><option value="النهائي">🥇 النهائي</option></select><small>يظهر هذا الخيار عند بدء مرحلة خروج المغلوب في بطولة المجموعات.</small></div>
 </div><div class="actions"><button class="btn" onclick="addMatch()">💾 حفظ المباراة</button></div></div><div class="card match-view-selector-card"><div class="section-title"><div><h2>📋 عرض المباريات</h2><small>اختر البطولة أولاً، ثم اختر نوع المباريات التي تريد عرضها.</small></div><span class="badge">👁️ متاح للجميع</span></div><div class="grid match-view-selectors"><div><label>🏆 اسم البطولة</label><select id="matchViewTournament" onchange="refreshMatchViewStatus()"><option value="">— اختر البطولة —</option></select></div><div><label>📌 نوع المباريات</label><select disabled="" id="matchViewFilter" onchange="renderMatchView()"><option value="">— اختر نوع المباريات —</option><option value="scheduled">📅 المباريات المجدولة</option><option value="finished">✅ المباريات المنتهية</option></select></div></div><div class="match-view-help" id="matchViewHelp">🏆 اختر اسم البطولة لعرض خيارات المباريات.</div></div><div class="card"><div id="matchViewList"><div class="upcoming-empty">🏆 اختر اسم البطولة أولاً.</div></div></div><div id="upcomingMatches" style="display:none"></div><div id="matchList" style="display:none"></div></section><section class="page" id="overallRanking"><div class="card overall-ranking-new"><div class="section-title"><div><h2>🏆 التصنيف العام</h2><small>ترتيب نتائج الفرق في جميع البطولات الرسمية في المنار</small></div><span class="badge">جميع البطولات الرسمية</span></div><div class="notice overall-ranking-note">
       يتم جمع نتائج المباريات المنتهية للفرق المسجلة في البطولات الرسمية وعرضها في جدول واحد.
     </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card stats-hero-card"><div class="stats-hero-heading"><span class="stats-hero-art" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-label="رسم بياني للإحصائيات"><defs><linearGradient id="statsIconGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c1c3"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect x="8" y="8" width="80" height="80" rx="23" fill="url(#statsIconGradient)"/><path d="M25 68V51h10v17M43 68V38h10v30M61 68V26h10v42" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 74h52" stroke="#dff7ff" stroke-width="4" stroke-linecap="round"/></svg></span><div class="stats-hero-copy"><h2>إحصائيات البطولة</h2><p>قراءة واضحة لأرقام البطولة وأداء الفرق واللاعبين</p></div><span class="stats-hero-tag">📊 تحليل الأداء</span></div><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings"><div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>تغيير اسم المستخدم وكلمة المرور الخاصة بالمنصة.</small></div><span class="badge">Admin فقط</span></div><div class="card settings-card" data-perm="settings"><h2>🔐 تغيير اسم المستخدم وكلمة المرور</h2><div class="notice">يمكن للمدير تحديث بيانات الدخول. تُحفظ بيانات الحساب محليًا؛ المزامنة السحابية للحسابات غير مفعلة في النظام الحالي.</div><div class="user-management-block" style="margin-top:14px;border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🖼️ شعار المنصة</h3><small>اختر صورة جديدة لتظهر في ترويسة المنصة والقائمة الجانبية على هذا الجهاز.</small></div><img id="platformLogoPreview" alt="معاينة شعار المنصة" style="width:64px;height:64px;object-fit:contain;border-radius:50%;border:2px solid #d5e8df;background:#fff;padding:3px"/ loading="lazy" decoding="async"></div><div class="actions" style="margin-top:12px"><button class="btn blue" type="button" onclick="document.getElementById('platformLogoFile').click()">🖼️ تغيير شعار المنصة</button><button class="btn secondary" type="button" onclick="resetPlatformLogo()">↩️ استعادة الشعار الافتراضي</button><input id="platformLogoFile" type="file" accept="image/*" style="display:none" onchange="changePlatformLogo(event)"/></div><div id="platformLogoMessage" style="font-size:13px;margin-top:8px;color:#0b5d3b" role="status"></div></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input autocomplete="username" id="newAdminUser" placeholder="أدخل اسم المستخدم الجديد"/></div><div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div><div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div><div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div></div><div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div><div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ بيانات الدخول الجديدة</button></div></div><div class="card settings-card" data-perm="settings"><div class="section-title"><h2>⚙️ الإعدادات</h2><span class="badge">مدير النظام</span></div><div class="notice">إدارة الحسابات والصلاحيات بشكل منظم. الزائر يبقى مشاهدًا دون تسجيل دخول.</div><div class="user-management-block audit-shortcut-block" style="border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🧾 سجل المراجعة</h3><small>المدير لديه صلاحية تلقائية، ويمكنه منح «سجل المراجعة» لأي حساب من قائمة الصلاحيات. مسح السجل متاح للمدير فقط.</small></div><span class="badge">🔐 المدير أو من يخوله</span></div><div class="actions"><button class="btn" type="button" onclick="openAuditLog()">🧾 فتح سجل المراجعة</button></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">👤 الحسابات الحالية</h3><span class="badge">الحسابات</span></div><div class="table-wrap" id="managedUsersList"></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">➕ إنشاء حساب جديد</h3><span class="badge">الخطوة 1</span></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input id="newManagedUser" placeholder="مثال: مسؤول المباريات"/></div><div><label>كلمة المرور</label><input id="newManagedPass" placeholder="كلمة مرور الحساب" type="password"/></div></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">🔐 الصلاحيات</h3><span class="badge">الخطوة 2</span></div><div class="permission-tools"><button class="btn secondary" onclick="setAllManagedPermissions(true)" type="button">☑️ تحديد الكل</button><button class="btn secondary" onclick="setAllManagedPermissions(false)" type="button">☐ إلغاء الكل</button></div><div class="permission-grid" id="userPermissions"></div></div><div class="actions"><button class="btn btn-primary" onclick="addManagedUser()">➕ إنشاء الحساب بالصلاحيات المحددة</button></div><div class="card settings-card platform-reset-card" data-platform-reset="admin-only"><div class="section-title"><h2>⚠️ تصفير المنصة</h2><span class="badge">المدير فقط</span></div><div class="platform-reset-warning">
@@ -12050,17 +12048,15 @@ function addMatch(){
   const ht=db.teams.find(x=>String(x.id)===String(h)), at=db.teams.find(x=>String(x.id)===String(a));
   if(!ht||!at||String(ht.tournamentId)!==String(t)||String(at.tournamentId)!==String(t))return alert('الفريقان يجب أن يكونا من البطولة المختارة');
   const tour=(db.tournaments||[]).find(x=>String(x.id)===String(t));
-  const knockoutSelect=document.getElementById('matchKnockoutRound');
-  const selectedKnockoutRound=String(knockoutSelect?.value||'');
-  const knockoutMode=!!tour && !!(window.__matchKnockoutEnabledTours && window.__matchKnockoutEnabledTours[String(t)]);
+  const knockoutMode=!!tour && isGroupTournament(tour) && (String(tour.stage||'')==='knockout' || tour.knockoutAfterGroups===true);
   const knockoutWrap=document.getElementById('matchKnockoutRoundWrap');
+  const knockoutSelect=document.getElementById('matchKnockoutRound');
   if(knockoutMode && knockoutWrap){knockoutWrap.hidden=false;knockoutWrap.style.setProperty('display','block','important');}
-  /* يتحكم زر تسجيل المباراة محليًا في إظهار أدوار خروج المغلوب؛ لا يغيّر مرحلة البطولة أو بقية الأقسام. */
-  const knockoutRound=knockoutMode && ['ربع النهائي','نصف النهائي','النهائي'].includes(selectedKnockoutRound) ? selectedKnockoutRound : '';
-  if(knockoutMode&&!knockoutRound){
+  const knockoutRound=knockoutMode ? String(knockoutSelect?.value||'') : '';
+  if(knockoutMode&&!['ربع النهائي','نصف النهائي','النهائي'].includes(knockoutRound)){
     if(knockoutWrap){knockoutWrap.hidden=false;knockoutWrap.style.setProperty('display','block','important');}
     if(knockoutSelect){knockoutSelect.focus();knockoutSelect.scrollIntoView({behavior:'smooth',block:'center'});}
-    return alert('اختر ربع النهائي أو نصف النهائي أو النهائي ثم احفظ المباراة.');
+    return alert('ظهر حقل نوع مباراة خروج المغلوب. اختر ربع النهائي أو نصف النهائي أو النهائي ثم احفظ المباراة.');
   }
   const samePair=(m)=>{const sameOrder=String(m.home)===String(h)&&String(m.away)===String(a);const reverse=String(m.home)===String(a)&&String(m.away)===String(h);return sameOrder||reverse;};
   const duplicate=(db.matches||[]).some(m=>String(m.tournamentId)===String(t)&&samePair(m)&&((knockoutRound && (m.knockoutRound||m.matchStage==='knockout')) ? String(m.knockoutRound||'')===knockoutRound : (knockoutRound ? false : ((String(tour?.type||'')==='دوري ذهاب وإياب')?String(m.home)===String(h)&&String(m.away)===String(a):true))));
@@ -12075,61 +12071,17 @@ async function del(type,id){
   if(type==='matches'&&(!hasPermission('matches')||!hasPermission('delete'))){alert('حذف المباريات متاح للمدير أو منحه المدير صلاحية المباريات والحذف.');return}
   let perm=type==='officialPlayers'?'officialPlayers':type==='matches'?'matches':type==='players'?'players':type==='teams'?'teams':type==='tournaments'?'tournaments':'delete';
   if(type==='players'){if(!hasPermission('players')){alert('ليس لديك صلاحية إدارة قسم اللاعبين.');return}}else if(!hasPermission('delete')){alert('الحذف متاح فقط للمدير أو للحسابات التي منحها المدير صلاحية الحذف.');return}
-  const targetId=String(id??'');
-  if(!targetId)return alert('تعذر تحديد السجل المطلوب حذفه.');
-  const list=Array.isArray(db[type])?db[type]:[];
-  const exists=list.some(x=>String(x?.id??'')===targetId);
-  if(!exists)return alert(type==='matches'?'لم يتم العثور على المباراة؛ حدّث قائمة المباريات ثم أعد المحاولة.':'لم يتم العثور على السجل المطلوب.');
-  if(!confirm(type==='matches'?'هل تريد حذف هذه المباراة نهائيًا؟ سيتم تحديث إحصائيات المباريات بعد الحذف.':'هل تريد الحذف؟'))return;
-
-  let relatedSheetKeys=[];
-  if(type==='matches'){
-    const m=list.find(x=>String(x?.id??'')===targetId);
-    // احذف المباراة بمقارنة المعرّف كنص لتجنب فشل الحذف عند اختلاف نوع المعرّف.
-    db.matches=list.filter(x=>String(x?.id??'')!==targetId);
-    // إزالة بيانات البطاقات المرتبطة بالمباراة من العدادات المجمعة إن كانت محفوظة على اللاعب.
-    if(m){
-      const scorerIds=typeof getMatchScorers==='function'?getMatchScorers(m):[];
-      scorerIds.forEach(pid=>{const p=db.players.find(x=>String(x.id)===String(pid));if(p)p.goals=Math.max(0,(+p.goals||0)-1)});
-      (Array.isArray(m.cards)?m.cards:[]).forEach(c=>{const p=db.players.find(x=>String(x.id)===String(c.playerId));if(p){if(c.type==='yellow')p.yellow=Math.max(0,(+p.yellow||0)-1);else if(c.type==='red')p.red=Math.max(0,(+p.red||0)-1)}});
-    }
-    // لا تترك كشوفًا مرتبطة بمعرّف مباراة محذوفة كي لا تعيد إظهارها أو تحتسبها الإحصائيات.
-    for(const key of ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1']){
-      let rows=[];try{const parsed=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(parsed))rows=parsed}catch(e){}
-      const filtered=rows.filter(sh=>String(sh?.matchId??'')!==targetId);
-      if(filtered.length!==rows.length){localStorage.setItem(key,JSON.stringify(filtered));relatedSheetKeys.push(key)}
-    }
-  }else{
-    db[type]=list.filter(x=>String(x?.id??'')!==targetId);
-    if(type==='teams'){
-      db.players=db.players.filter(p=>String(p.teamId)!==targetId);db.officialPlayers=db.officialPlayers.filter(p=>String(p.teamId)!==targetId);db.matches=db.matches.filter(m=>String(m.home)!==targetId&&String(m.away)!==targetId)
-    }
-    if(type==='tournaments'){
-      const teams=db.teams.filter(t=>String(t.tournamentId)===targetId).map(t=>String(t.id));
-      db.teams=db.teams.filter(t=>String(t.tournamentId)!==targetId);db.players=db.players.filter(p=>!teams.includes(String(p.teamId)));db.officialPlayers=db.officialPlayers.filter(p=>!teams.includes(String(p.teamId)));db.matches=db.matches.filter(m=>String(m.tournamentId)!==targetId);db.archives=(db.archives||[]).filter(a=>String(a?.tournament?.id||a?.original?.id||'')!==targetId);
-    }
-  }
-
-  const saved=save();
-  if(saved===false)return;
-  // ارفع أحدث حالة إلى Firebase بعد حفظ الحذف محليًا، حتى لا تعود المباراة من نسخة سحابية قديمة.
-  const cloudKeys=[...(type==='matches'?['manar_sports_v2',...relatedSheetKeys]:[])];
-  if(type==='tournaments')cloudKeys.push('manar_sports_v2');
-  let cloudFailed=false;
-  for(const key of [...new Set(cloudKeys)]){
-    try{if(typeof window.__manarFirebaseSaveKey==='function'){const ok=await window.__manarFirebaseSaveKey(key);if(ok===false)cloudFailed=true;}}
-    catch(e){cloudFailed=true;console.warn('Cloud delete sync failed:',key,e)}
-  }
+  if(!confirm('هل تريد الحذف؟'))return;
+  if(type==='matches'){let m=db.matches.find(x=>x.id===id);if(m){getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=Math.max(0,(+p.goals||0)-1)});(m.cards||[]).forEach(c=>{let p=db.players.find(x=>x.id===c.playerId);if(p){if(c.type==='yellow')p.yellow=Math.max(0,(+p.yellow||0)-1);else p.red=Math.max(0,(+p.red||0)-1)}})}}
+  db[type]=db[type].filter(x=>x.id!==id);
+  if(type==='teams'){db.players=db.players.filter(p=>p.teamId!==id);db.officialPlayers=db.officialPlayers.filter(p=>p.teamId!==id);db.matches=db.matches.filter(m=>m.home!==id&&m.away!==id)}
   if(type==='tournaments'){
-    try{if(typeof window.__manarFirebaseDeleteTournament==='function')await window.__manarFirebaseDeleteTournament(targetId)}catch(e){cloudFailed=true;console.error('Tournament cloud delete:',e)}
+    const teams=db.teams.filter(t=>String(t.tournamentId)===String(id)).map(t=>String(t.id));
+    db.teams=db.teams.filter(t=>String(t.tournamentId)!==String(id));db.players=db.players.filter(p=>!teams.includes(String(p.teamId)));db.officialPlayers=db.officialPlayers.filter(p=>!teams.includes(String(p.teamId)));db.matches=db.matches.filter(m=>String(m.tournamentId)!==String(id));db.archives=(db.archives||[]).filter(a=>String(a?.tournament?.id||a?.original?.id||'')!==String(id));
   }
-  // تحديث الإحصائيات والعدادات من قاعدة البيانات بعد الحذف مباشرة.
-  try{if(typeof renderAll==='function')renderAll();if(typeof renderMatches==='function'&&type==='matches')renderMatches();if(typeof renderStats==='function'&&type==='matches')renderStats();if(typeof window.updateHomeCounters==='function')window.updateHomeCounters()}catch(e){console.warn('Post-delete refresh:',e)}
-  if(type==='matches'&&!db.matches.some(x=>String(x?.id??'')===targetId)){
-    alert(cloudFailed?'تم حذف المباراة وتحديث الإحصائيات على هذا الجهاز، لكن تعذرت مزامنة الحذف إلى السحابة. تحقق من الاتصال وتسجيل الدخول.':'تم حذف المباراة بنجاح، وتم تحديث إحصائيات المباريات تلقائيًا.');
-  }else{
-    alert(type==='tournaments'?'تم حذف البطولة وجميع بياناتها نهائيًا.':'تم الحذف بنجاح.');
-  }
+  save();
+  try{if(type==='tournaments'&&typeof window.__manarFirebaseDeleteTournament==='function')await window.__manarFirebaseDeleteTournament(String(id));}catch(e){console.error('Tournament cloud delete:',e)}
+  renderAll();alert(type==='tournaments'?'تم حذف البطولة وجميع بياناتها نهائيًا.':'تم الحذف بنجاح.');
 }
 function opts(list,placeholder){return `<option value="">${placeholder}</option>`+list.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}
 function refreshPlayerRegistrationTeams(){
@@ -12214,34 +12166,15 @@ function refreshMatchTeams(){
   hs.innerHTML=opts;as.innerHTML=opts;
   const tid=String(document.getElementById('matchTour')?.value||'');
   const tour=(db.tournaments||[]).find(t=>String(t.id)===tid);
-  /* زر خروج المغلوب ضمن تسجيل المباريات متاح لأي بطولة محددة؛ الأدوار تظهر فقط عند تفعيل الزر. */
-  const hasTournament=!!tour;
-  window.__matchKnockoutEnabledTours=window.__matchKnockoutEnabledTours||{};
-  const knockoutStage=hasTournament && !!window.__matchKnockoutEnabledTours[tid];
+  const show=!!tour && isGroupTournament(tour) && (String(tour.stage||'')==='knockout' || tour.knockoutAfterGroups===true);
   const wrap=document.getElementById('matchKnockoutRoundWrap');
   const round=document.getElementById('matchKnockoutRound');
-  const toggleWrap=document.getElementById('matchKnockoutToggleWrap');
-  const toggleBtn=document.getElementById('matchKnockoutToggleBtn');
-  if(toggleWrap)toggleWrap.style.display=hasTournament?'block':'none';
-  if(toggleBtn){
-    toggleBtn.textContent=knockoutStage?'↩️ إلغاء تفعيل خروج المغلوب':'🏁 تفعيل خروج المغلوب';
-    toggleBtn.className=knockoutStage?'btn primary':'btn secondary';
-  }
-  if(wrap){wrap.hidden=!knockoutStage;wrap.style.setProperty('display',knockoutStage?'block':'none','important');}
+  if(wrap){wrap.hidden=!show;wrap.style.setProperty('display',show?'block':'none','important');}
   if(round){
-    if(!knockoutStage)round.value='';
-    round.required=!!knockoutStage;
+    if(!show)round.value='';
+    round.required=show;
   }
 }
-window.toggleSelectedMatchTournamentKnockout=function(){
-  const tid=String(document.getElementById('matchTour')?.value||'');
-  if(!tid)return alert('اختر البطولة أولاً.');
-  const tour=(db.tournaments||[]).find(t=>String(t.id)===tid);
-  if(!tour)return alert('اختر البطولة أولاً.');
-  window.__matchKnockoutEnabledTours=window.__matchKnockoutEnabledTours||{};
-  window.__matchKnockoutEnabledTours[tid]=!window.__matchKnockoutEnabledTours[tid];
-  refreshMatchTeams();
-};
 function publicTournamentStatus(t){
   if(t.status==='archived'||t.archived===true)return 'ended';
   if(t.completionState==='ended'||t.status==='ended')return 'ended';
@@ -16262,7 +16195,6 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     const t=A(dbx().tournaments).find(x=>S(x.id)===S(tid));
     if(!t||!isGroupTournament(t))return;
     t.stage=t.stage==='knockout'?'groups':'knockout';
-    t.knockoutAfterGroups=t.stage==='knockout';
     save();
     if(typeof renderStats==='function')renderStats();
     
@@ -17480,10 +17412,7 @@ if(adminDecisionMode){
  const withdrawn=S($('ksWithdrawnTeam')?.value),home=S(teamId(m,'home')),away=S(teamId(m,'away'));
  if(!withdrawn||![home,away].includes(withdrawn))return alert('اختر الفريق المنسحب لتحديد نتيجة القرار الإداري.');
  const hg=withdrawn===home?3:0,ag=withdrawn===away?3:0,old=findSheet(active),now=new Date().toISOString();
- const savedRefs=[1,2,3,4].map(i=>S($('ksRef'+i)?.value)||S(old?.['referee'+i]??old?.referees?.[i-1]));
- const savedRefList=savedRefs.filter(Boolean);
- const savedSupervisor=S($('ksSupervisor')?.value).trim()||S(old?.supervisor);
- const sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeScorers:[],awayScorers:[],goalScorers:[],bestPlayerId:'',bestPlayerName:'',cards:[],referees:savedRefList,referee1:savedRefs[0],referee2:savedRefs[1],referee3:savedRefs[2],referee4:savedRefs[3],supervisor:savedSupervisor,penalties:0,images:old?.images||[],administrativeDecision:true,withdrawnTeamId:withdrawn,withdrawnTeamName:tName(withdrawn),decisionText:'فوز إداري 3-0 للفريق المنسحب بسبب الانسحاب',createdAt:old?.createdAt||now,updatedAt:now};
+ const sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeScorers:[],awayScorers:[],goalScorers:[],bestPlayerId:'',bestPlayerName:'',cards:[],referees:[],referee1:'',referee2:'',referee3:'',referee4:'',supervisor:'',penalties:0,images:[],administrativeDecision:true,withdrawnTeamId:withdrawn,withdrawnTeamName:tName(withdrawn),decisionText:'فوز إداري 3-0 للفريق المنسحب بسبب الانسحاب',createdAt:old?.createdAt||now,updatedAt:now};
  const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);
  if(m){m.status='finished';m.hg=hg;m.ag=ag;try{window.db=db;}catch(e){}try{if(typeof window.save==='function')window.save();}catch(e){console.warn('Match status save skipped:',e);}}
  showStatus('تم حفظ القرار الإداري والنتيجة 3-0');fillMatches();renderPending();renderSaved();close();return;
@@ -17522,10 +17451,7 @@ function renderSaved(){
        const withdrawnName=esc(sh.withdrawnTeamName||tName(sh.withdrawnTeamId)||'الفريق المنسحب');
        const winnerName=esc(sh.withdrawnTeamName||tName(sh.withdrawnTeamId)||'الفريق المنسحب');
        const decisionActions=canManage()?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل القرار الإداري</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
-       const decisionRefIds=A(sh.referees).length?A(sh.referees):[sh.referee1,sh.referee2,sh.referee3,sh.referee4].filter(Boolean);
-       const decisionRefNames=decisionRefIds.map(id=>{const rr=refs().find(x=>S(x.id)===S(id)||S(x.name)===S(id));return rr?.name||S(id)}).filter(Boolean);
-       const decisionRefsHtml=decisionRefNames.length?decisionRefNames.map(n=>'<span class="pub-referee">⚖️ '+esc(n)+'</span>').join('، '):'لا توجد بيانات حكام';
-       return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+score+'</b> '+esc(a)+'</div>'+(canManage()?'<span class="badge">⚖️ قرار إداري</span>':'')+'</div><div class="ks-public-summary"><div class="pub-row"><span class="pub-title">⚖️ القرار الإداري:</span> فوز الفريق المنسحب 3-0</div><div class="pub-row"><span class="pub-title">الفريق المنسحب:</span> '+withdrawnName+'</div><div class="pub-row"><span class="pub-title">الفريق الفائز:</span> '+winnerName+'</div><div class="pub-row"><span class="pub-title">⚖️ الحكام:</span><div class="pub-referees">'+decisionRefsHtml+'</div></div></div>'+decisionActions+'</div>';
+       return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+score+'</b> '+esc(a)+'</div>'+(canManage()?'<span class="badge">⚖️ قرار إداري</span>':'')+'</div><div class="ks-public-summary"><div class="pub-row"><span class="pub-title">⚖️ القرار الإداري:</span> فوز الفريق المنسحب 3-0</div><div class="pub-row"><span class="pub-title">الفريق المنسحب:</span> '+withdrawnName+'</div><div class="pub-row"><span class="pub-title">الفريق الفائز:</span> '+winnerName+'</div></div>'+decisionActions+'</div>';
      }
 
     const cardsText=cs.length?cs.map(c=>(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(c.teamName||tName(c.teamId))).join('، '):'لا توجد إنذارات';
@@ -17705,16 +17631,12 @@ async function pushKeys(keys){
   if(window.__manarFirebaseResetLock)return false;
   if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');
   const unique=[...new Set(keys)].filter(k=>SYNC_KEYS.includes(k));
-  if(!unique.length)return true;
-  /*
-   * رفع دفعة واحدة إلى المسارات نفسها يقلل عدد طلبات الشبكة ويحافظ على
-   * بنية قاعدة البيانات والصلاحيات الحالية. نلتقط القيم قبل الإرسال حتى
-   * لا تختلط التعديلات التي تصل أثناء الرفع.
-   */
-  const payload={};
-  unique.forEach(key=>{payload[key]=localValue(key)});
-  await update(ref(db,CLOUD_PATH),payload);
-  unique.forEach(key=>dirty.delete(key));
+  /* حافظ على مسار كل مفتاح كما هو، لكن ارفع المفاتيح بالتوازي بدل انتظار كل طلب */
+  const snapshot=unique.map(key=>({key,value:localValue(key)}));
+  const results=await Promise.allSettled(snapshot.map(item=>set(ref(db,CLOUD_PATH+'/'+item.key),item.value)));
+  const failed=[];
+  results.forEach((result,i)=>{if(result.status==='fulfilled')dirty.delete(snapshot[i].key);else failed.push(snapshot[i].key)});
+  if(failed.length)throw new Error('تعذر رفع بعض الأقسام: '+failed.join('، '));
   return true;
 }
 async function pushAll(){
@@ -18107,8 +18029,7 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
           try{db=loadMainDatabase();window.db=db;__manarDataVersion++}catch(e){console.warn('Database reload after realtime update failed:',e)}
         }
         scheduleRender();
-        try{window.dispatchEvent(new CustomEvent('manar:remote-update',{detail:{key:k,at:Date.now()}}));}catch(e){}
-        status(snap.exists()?'وصل تحديث جديد من السحابة وتم تحديث الأقسام تلقائيًا':'تم حذف التحديث من السحابة وتحديث الأقسام تلقائيًا',true);
+        status(snap.exists()?'وصل تحديث جديد من السحابة':'تم حذف التحديث من السحابة',true);
       }finally{applyingRemote=false}
     }
   },err=>status('خطأ قراءة Firebase: '+(err?.message||err),false))
@@ -20585,9 +20506,6 @@ function install(){
  const sec=document.getElementById('predictionsSection');if(!sec)return;
  let last='';
  const run=()=>{try{
-   // لا تحسب بصمة كل المباريات والكشوفات ما دام قسم التوقعات مخفيًا.
-   const page=document.getElementById('predictionsSection');
-   if(document.visibilityState==='hidden' || !page || !page.classList.contains('active')) return;
    const sel=document.getElementById('predictionTournamentV2'),sig=(sel?.value||'')+'|'+JSON.stringify(matches().map(m=>[m.id,m.tournamentId,m.home,m.away,m.date,m.time]))+'|'+getSheets().map(s=>[s.matchId,s.homeScore,s.awayScore,s.updatedAt]).flat();
    if(sig!==last){last=sig;patchCurrentUI()}
  }catch(e){console.warn('prediction data-driven patch',e)}};
@@ -22283,10 +22201,10 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 <script id="sports-platform-auto-deploy-update-v2">
 (function(){
   'use strict';
-  // يكتشف تحديثات النشر بأقل نقل ممكن للبيانات، ولا يلمس بيانات المستخدم.
+  // يتحقق من نسخة HTML المنشورة ويحدّث الصفحات المفتوحة دون لمس بيانات المستخدم.
   if (!/^https?:$/.test(location.protocol) || window.__sportsAutoDeployUpdateStarted) return;
   window.__sportsAutoDeployUpdateStarted = true;
-  var lastValidator = null, lastBodyFingerprint = null, updateDetected = false, checking = false, reloading = false;
+  var lastFingerprint = null, updateDetected = false, checking = false, reloading = false;
   function fingerprint(text){
     var h=2166136261;
     for(var i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}
@@ -22329,31 +22247,16 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     try{
       var u=new URL(location.href);
       u.searchParams.set('__sports_update_check',String(Date.now()));
-      // HEAD يقرأ معلومات النسخة فقط، بدل تنزيل ملف HTML الكامل في كل فحص.
-      try{
-        var head=await fetch(u.href,{method:'HEAD',cache:'no-store',credentials:'same-origin',redirect:'follow'});
-        if(head.ok){
-          var etag=head.headers.get('ETag')||'';
-          var modified=head.headers.get('Last-Modified')||'';
-          var validator=etag ? 'etag:'+etag : (modified ? 'modified:'+modified+'|'+(head.headers.get('Content-Length')||'') : '');
-          if(validator){
-            if(lastValidator===null) lastValidator=validator;
-            else if(validator!==lastValidator){lastValidator=validator;updateDetected=true;await reloadIfSafe();}
-            return;
-          }
-        }
-      }catch(headError){ /* بعض الخوادم لا تدعم HEAD؛ نستخدم الفحص الكامل كبديل */ }
-      // بديل متوافق مع الخوادم التي لا توفر ETag أو Last-Modified.
       var response=await fetch(u.href,{cache:'no-store',credentials:'same-origin',redirect:'follow'});
       if(!response.ok) return;
       var html=await response.text(), fp=fingerprint(html);
-      if(lastBodyFingerprint===null){lastBodyFingerprint=fp;return;}
-      if(fp!==lastBodyFingerprint){lastBodyFingerprint=fp;updateDetected=true;await reloadIfSafe();}
+      if(lastFingerprint===null){lastFingerprint=fp;return;}
+      if(fp!==lastFingerprint){lastFingerprint=fp;updateDetected=true;await reloadIfSafe();}
     }catch(e){ /* يعاود المحاولة تلقائيًا عند عودة الاتصال */ }
     finally{checking=false;}
   }
   check();
-  // فحص سريع للترويسات، مع إعادة الفحص فور عودة الصفحة أو الشبكة.
+  // فحص سريع للنسخة المنشورة، مع إعادة الفحص فور عودة الصفحة أو الشبكة.
   setInterval(check,15000);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check();});
   document.addEventListener('focusout',function(){if(updateDetected)setTimeout(reloadIfSafe,500);},true);
@@ -23316,7 +23219,7 @@ body>header #authBar .login-btn:hover,body>header #authBar .logout-btn:hover{tra
   }
   document.addEventListener('DOMContentLoaded',function(){
     setTimeout(function(){refreshIfChanged(true);},250);
-    setInterval(function(){refreshIfChanged(false);},4000);
+    setInterval(function(){refreshIfChanged(false);},1200);
   },{once:true});
   window.addEventListener('storage',function(e){
     if(!e.key || /manar_|firebase|match|tournament|player|team/i.test(e.key)){lastSignature='';setTimeout(function(){refreshIfChanged(true);},80);}
