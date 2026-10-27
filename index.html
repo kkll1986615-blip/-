@@ -11178,14 +11178,14 @@ img { decoding: async; }
   </div>
 </div>
 </section><section class="page" id="teams"><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>⚽ الفرق</h2><button class="btn" onclick="toggleTeamRegistration()" type="button">➕ إضافة فريق</button></div><div id="teamRegistrationPanel" style="display:none"><div class="notice">📝 أدخل بيانات الفريق ثم اضغط «إضافة فريق».</div><div class="grid"><div><label>🏆 البطولة</label><select id="teamTour" onchange="refreshTeamGroupSelector();refreshTeamRegistrationSummary()"></select><small>اختر البطولة أولاً، وستظهر الفرق المسجلة وعدد الفرق المشاركة تلقائيًا.</small></div><div class="team-registration-summary" id="teamRegistrationSummary" style="display:none"><div class="team-summary-count"><span>👥 عدد الفرق المشاركة</span><b id="teamParticipantCount">0</b></div><div><strong>⚽ الفرق المسجلة في البطولة</strong><div class="team-registered-names" id="teamRegisteredNames"></div></div></div><div id="teamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="teamGroup"><option value="">اختر المجموعة</option></select><small>يتم توزيع الفرق يدويًا: اختر المجموعة A أو B أو C ثم سجل الفريق.</small></div><div><label>⚽ اسم الفريق</label><input id="teamNameInput" maxlength="60" placeholder="اكتب اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="teamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="teamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="teamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="addTeam()">➕ إضافة فريق</button><button class="btn secondary" onclick="toggleTeamRegistration(false)" type="button">إلغاء</button></div></div></div><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>🛠️ إدارة الفرق المسجلة</h2><button class="btn secondary" onclick="toggleTeamEdit()" type="button">✏️ تعديل الفرق المسجلة</button></div><div id="teamEditPanel" style="display:none"><div class="notice">🔎 اختر البطولة أولاً، ثم اختر الفريق المسجل لتظهر بياناته وتعديلها.</div><div class="grid"><div><label>🏆 اختيار البطولة</label><select id="editTeamTourFilter" onchange="refreshTeamsForEdit()"><option value="">اختر البطولة</option></select></div><div><label>⚽ الفرق المسجلة</label><select id="editTeamSelect" onchange="loadTeamForEdit()"><option value="">اختر البطولة أولاً</option></select></div><div id="editTeamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="editTeamGroup"><option value="">اختر المجموعة</option></select><small>يمكن تغيير مجموعة الفريق يدويًا.</small></div><div><label>اسم الفريق</label><input id="editTeamName" maxlength="60" placeholder="اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="editTeamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="editTeamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="editTeamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="updateTeam()">💾 حفظ التغييرات</button><button class="btn secondary" onclick="toggleTeamEdit(false)" type="button">إلغاء</button></div></div></div><div class="card"><div class="section-title"><div><h2>⚽ الفرق المسجلة</h2><small>👁️ الزائر يختار البطولة فقط لعرض الفرق المسجلة.</small></div><span class="badge">متاح للجميع</span></div><div class="grid"><div><label>🏆 اختر البطولة</label><select id="publicTeamTour" onchange="renderPublicTeams()"><option value="">اختر البطولة أولاً</option></select></div></div><div id="publicTeamList"><div class="empty">اختر اسم البطولة لعرض الفرق المسجلة تلقائيًا.</div></div></div></section><section class="page" id="players"><div class="card"><div class="section-title"><h2>👥 اللاعبون</h2><span class="badge">اختر الفريق لعرض لاعبيه</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0"><button class="btn primary" onclick="toggleSuspendedPlayers()" type="button">⛔ اللاعبين الموقوفين</button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة</option></select></div><div><label>اللاعب</label><select id="manualSuspPlayer"><option value="">اختر البطولة أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
-<div><label>🏆 اسم البطولة</label><select id="matchTour" onchange="refreshMatchTeams()"><option value="">اختر البطولة أولاً</option></select></div><div id="matchKnockoutToggleWrap" style="display:none;grid-column:1/-1"><button id="matchKnockoutToggleBtn" type="button" class="btn secondary" onclick="toggleSelectedMatchTournamentKnockout()">🏁 تفعيل خروج المغلوب</button><small id="matchKnockoutToggleHint" style="display:block;margin-top:6px">عند التفعيل تظهر خيارات ربع النهائي ونصف النهائي والنهائي.</small></div>
+<div><label>🏆 اسم البطولة</label><select id="matchTour" onchange="refreshMatchTeams()"><option value="">اختر البطولة أولاً</option></select></div><div id="matchKnockoutToggleWrap" style="display:none;grid-column:1/-1"><button id="matchKnockoutToggleBtn" type="button" class="btn secondary" onclick="toggleSelectedMatchTournamentKnockout()">🏁 تفعيل خروج المغلوب</button><small id="matchKnockoutToggleHint" style="display:block;margin-top:6px">عند التفعيل تظهر خيارات ربع النهائي ونصف النهائي والنهائي ضمن تسجيل المباريات فقط.</small></div>
 <div><label>🥅 الفريق الأول</label><select id="homeTeam"><option value="">اختر الفريق</option></select></div>
 <div><label>🥅 الفريق الثاني</label><select id="awayTeam"><option value="">اختر الفريق</option></select></div>
 <div><label>📅 التاريخ</label><input id="matchDate" type="date"/></div>
 <div><label>⏰ الوقت</label><input id="matchTime" type="time"/></div>
 <div><label>🏟️ الملعب</label><select id="matchStadium" onchange="toggleOtherStadium()"><option value="ملعب المنار الرئيسي" selected>ملعب المنار الرئيسي</option><option value="ملعب آخر">ملعب آخر</option></select><div id="otherStadiumWrap" style="display:none;margin-top:8px"><input id="matchOtherStadium" placeholder="اكتب اسم الملعب الآخر" type="text"/></div></div>
 <div><label>📌 حالة المباراة</label><select id="matchStatus"><option value="scheduled">📅 مجدولة</option><option value="finished">✅ منتهية</option></select></div>
-<div id="matchKnockoutRoundWrap" style="display:none"><label>🏆 نوع مباراة خروج المغلوب</label><select id="matchKnockoutRound"><option value="">اختر نوع المباراة</option><option value="ربع النهائي">🏆 ربع النهائي</option><option value="نصف النهائي">🥈 نصف النهائي</option><option value="النهائي">🥇 النهائي</option></select><small>يمكن اختيار دور خروج المغلوب دون الحاجة إلى تفعيل زر المرحلة أولًا.</small></div>
+<div id="matchKnockoutRoundWrap" style="display:none"><label>🏆 نوع مباراة خروج المغلوب</label><select id="matchKnockoutRound"><option value="">اختر نوع المباراة</option><option value="ربع النهائي">🏆 ربع النهائي</option><option value="نصف النهائي">🥈 نصف النهائي</option><option value="النهائي">🥇 النهائي</option></select><small>تظهر هذه الخيارات عند تفعيل زر خروج المغلوب ضمن تسجيل المباريات.</small></div>
 </div><div class="actions"><button class="btn" onclick="addMatch()">💾 حفظ المباراة</button></div></div><div class="card match-view-selector-card"><div class="section-title"><div><h2>📋 عرض المباريات</h2><small>اختر البطولة أولاً، ثم اختر نوع المباريات التي تريد عرضها.</small></div><span class="badge">👁️ متاح للجميع</span></div><div class="grid match-view-selectors"><div><label>🏆 اسم البطولة</label><select id="matchViewTournament" onchange="refreshMatchViewStatus()"><option value="">— اختر البطولة —</option></select></div><div><label>📌 نوع المباريات</label><select disabled="" id="matchViewFilter" onchange="renderMatchView()"><option value="">— اختر نوع المباريات —</option><option value="scheduled">📅 المباريات المجدولة</option><option value="finished">✅ المباريات المنتهية</option></select></div></div><div class="match-view-help" id="matchViewHelp">🏆 اختر اسم البطولة لعرض خيارات المباريات.</div></div><div class="card"><div id="matchViewList"><div class="upcoming-empty">🏆 اختر اسم البطولة أولاً.</div></div></div><div id="upcomingMatches" style="display:none"></div><div id="matchList" style="display:none"></div></section><section class="page" id="overallRanking"><div class="card overall-ranking-new"><div class="section-title"><div><h2>🏆 التصنيف العام</h2><small>ترتيب نتائج الفرق في جميع البطولات الرسمية في المنار</small></div><span class="badge">جميع البطولات الرسمية</span></div><div class="notice overall-ranking-note">
       يتم جمع نتائج المباريات المنتهية للفرق المسجلة في البطولات الرسمية وعرضها في جدول واحد.
     </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card stats-hero-card"><div class="stats-hero-heading"><span class="stats-hero-art" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-label="رسم بياني للإحصائيات"><defs><linearGradient id="statsIconGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c1c3"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect x="8" y="8" width="80" height="80" rx="23" fill="url(#statsIconGradient)"/><path d="M25 68V51h10v17M43 68V38h10v30M61 68V26h10v42" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 74h52" stroke="#dff7ff" stroke-width="4" stroke-linecap="round"/></svg></span><div class="stats-hero-copy"><h2>إحصائيات البطولة</h2><p>قراءة واضحة لأرقام البطولة وأداء الفرق واللاعبين</p></div><span class="stats-hero-tag">📊 تحليل الأداء</span></div><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings"><div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>تغيير اسم المستخدم وكلمة المرور الخاصة بالمنصة.</small></div><span class="badge">Admin فقط</span></div><div class="card settings-card" data-perm="settings"><h2>🔐 تغيير اسم المستخدم وكلمة المرور</h2><div class="notice">يمكن للمدير تحديث بيانات الدخول. تُحفظ بيانات الحساب محليًا؛ المزامنة السحابية للحسابات غير مفعلة في النظام الحالي.</div><div class="user-management-block" style="margin-top:14px;border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🖼️ شعار المنصة</h3><small>اختر صورة جديدة لتظهر في ترويسة المنصة والقائمة الجانبية على هذا الجهاز.</small></div><img id="platformLogoPreview" alt="معاينة شعار المنصة" style="width:64px;height:64px;object-fit:contain;border-radius:50%;border:2px solid #d5e8df;background:#fff;padding:3px"/ loading="lazy" decoding="async"></div><div class="actions" style="margin-top:12px"><button class="btn blue" type="button" onclick="document.getElementById('platformLogoFile').click()">🖼️ تغيير شعار المنصة</button><button class="btn secondary" type="button" onclick="resetPlatformLogo()">↩️ استعادة الشعار الافتراضي</button><input id="platformLogoFile" type="file" accept="image/*" style="display:none" onchange="changePlatformLogo(event)"/></div><div id="platformLogoMessage" style="font-size:13px;margin-top:8px;color:#0b5d3b" role="status"></div></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input autocomplete="username" id="newAdminUser" placeholder="أدخل اسم المستخدم الجديد"/></div><div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div><div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div><div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div></div><div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div><div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ بيانات الدخول الجديدة</button></div></div><div class="card settings-card" data-perm="settings"><div class="section-title"><h2>⚙️ الإعدادات</h2><span class="badge">مدير النظام</span></div><div class="notice">إدارة الحسابات والصلاحيات بشكل منظم. الزائر يبقى مشاهدًا دون تسجيل دخول.</div><div class="user-management-block audit-shortcut-block" style="border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🧾 سجل المراجعة</h3><small>المدير لديه صلاحية تلقائية، ويمكنه منح «سجل المراجعة» لأي حساب من قائمة الصلاحيات. مسح السجل متاح للمدير فقط.</small></div><span class="badge">🔐 المدير أو من يخوله</span></div><div class="actions"><button class="btn" type="button" onclick="openAuditLog()">🧾 فتح سجل المراجعة</button></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">👤 الحسابات الحالية</h3><span class="badge">الحسابات</span></div><div class="table-wrap" id="managedUsersList"></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">➕ إنشاء حساب جديد</h3><span class="badge">الخطوة 1</span></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input id="newManagedUser" placeholder="مثال: مسؤول المباريات"/></div><div><label>كلمة المرور</label><input id="newManagedPass" placeholder="كلمة مرور الحساب" type="password"/></div></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">🔐 الصلاحيات</h3><span class="badge">الخطوة 2</span></div><div class="permission-tools"><button class="btn secondary" onclick="setAllManagedPermissions(true)" type="button">☑️ تحديد الكل</button><button class="btn secondary" onclick="setAllManagedPermissions(false)" type="button">☐ إلغاء الكل</button></div><div class="permission-grid" id="userPermissions"></div></div><div class="actions"><button class="btn btn-primary" onclick="addManagedUser()">➕ إنشاء الحساب بالصلاحيات المحددة</button></div><div class="card settings-card platform-reset-card" data-platform-reset="admin-only"><div class="section-title"><h2>⚠️ تصفير المنصة</h2><span class="badge">المدير فقط</span></div><div class="platform-reset-warning">
@@ -12052,11 +12052,10 @@ function addMatch(){
   const tour=(db.tournaments||[]).find(x=>String(x.id)===String(t));
   const knockoutSelect=document.getElementById('matchKnockoutRound');
   const selectedKnockoutRound=String(knockoutSelect?.value||'');
-  const knockoutMode=!!tour && isGroupTournament(tour) && String(tour.stage||'')==='knockout';
+  const knockoutMode=!!tour && !!(window.__matchKnockoutEnabledTours && window.__matchKnockoutEnabledTours[String(t)]);
   const knockoutWrap=document.getElementById('matchKnockoutRoundWrap');
   if(knockoutMode && knockoutWrap){knockoutWrap.hidden=false;knockoutWrap.style.setProperty('display','block','important');}
-  /* يمكن تسجيل مباريات ربع/نصف النهائي والنهائي حتى قبل تفعيل زر تحويل مرحلة البطولة.
-     يبقى اختيار الدور اختياريًا أثناء المجموعات، لكنه إلزامي إذا فُعّلت مرحلة خروج المغلوب. */
+  /* يتحكم زر تسجيل المباراة محليًا في إظهار أدوار خروج المغلوب؛ لا يغيّر مرحلة البطولة أو بقية الأقسام. */
   const knockoutRound=knockoutMode && ['ربع النهائي','نصف النهائي','النهائي'].includes(selectedKnockoutRound) ? selectedKnockoutRound : '';
   if(knockoutMode&&!knockoutRound){
     if(knockoutWrap){knockoutWrap.hidden=false;knockoutWrap.style.setProperty('display','block','important');}
@@ -12076,17 +12075,61 @@ async function del(type,id){
   if(type==='matches'&&(!hasPermission('matches')||!hasPermission('delete'))){alert('حذف المباريات متاح للمدير أو منحه المدير صلاحية المباريات والحذف.');return}
   let perm=type==='officialPlayers'?'officialPlayers':type==='matches'?'matches':type==='players'?'players':type==='teams'?'teams':type==='tournaments'?'tournaments':'delete';
   if(type==='players'){if(!hasPermission('players')){alert('ليس لديك صلاحية إدارة قسم اللاعبين.');return}}else if(!hasPermission('delete')){alert('الحذف متاح فقط للمدير أو للحسابات التي منحها المدير صلاحية الحذف.');return}
-  if(!confirm('هل تريد الحذف؟'))return;
-  if(type==='matches'){let m=db.matches.find(x=>x.id===id);if(m){getMatchScorers(m).forEach(pid=>{let p=db.players.find(x=>x.id===pid);if(p)p.goals=Math.max(0,(+p.goals||0)-1)});(m.cards||[]).forEach(c=>{let p=db.players.find(x=>x.id===c.playerId);if(p){if(c.type==='yellow')p.yellow=Math.max(0,(+p.yellow||0)-1);else p.red=Math.max(0,(+p.red||0)-1)}})}}
-  db[type]=db[type].filter(x=>x.id!==id);
-  if(type==='teams'){db.players=db.players.filter(p=>p.teamId!==id);db.officialPlayers=db.officialPlayers.filter(p=>p.teamId!==id);db.matches=db.matches.filter(m=>m.home!==id&&m.away!==id)}
-  if(type==='tournaments'){
-    const teams=db.teams.filter(t=>String(t.tournamentId)===String(id)).map(t=>String(t.id));
-    db.teams=db.teams.filter(t=>String(t.tournamentId)!==String(id));db.players=db.players.filter(p=>!teams.includes(String(p.teamId)));db.officialPlayers=db.officialPlayers.filter(p=>!teams.includes(String(p.teamId)));db.matches=db.matches.filter(m=>String(m.tournamentId)!==String(id));db.archives=(db.archives||[]).filter(a=>String(a?.tournament?.id||a?.original?.id||'')!==String(id));
+  const targetId=String(id??'');
+  if(!targetId)return alert('تعذر تحديد السجل المطلوب حذفه.');
+  const list=Array.isArray(db[type])?db[type]:[];
+  const exists=list.some(x=>String(x?.id??'')===targetId);
+  if(!exists)return alert(type==='matches'?'لم يتم العثور على المباراة؛ حدّث قائمة المباريات ثم أعد المحاولة.':'لم يتم العثور على السجل المطلوب.');
+  if(!confirm(type==='matches'?'هل تريد حذف هذه المباراة نهائيًا؟ سيتم تحديث إحصائيات المباريات بعد الحذف.':'هل تريد الحذف؟'))return;
+
+  let relatedSheetKeys=[];
+  if(type==='matches'){
+    const m=list.find(x=>String(x?.id??'')===targetId);
+    // احذف المباراة بمقارنة المعرّف كنص لتجنب فشل الحذف عند اختلاف نوع المعرّف.
+    db.matches=list.filter(x=>String(x?.id??'')!==targetId);
+    // إزالة بيانات البطاقات المرتبطة بالمباراة من العدادات المجمعة إن كانت محفوظة على اللاعب.
+    if(m){
+      const scorerIds=typeof getMatchScorers==='function'?getMatchScorers(m):[];
+      scorerIds.forEach(pid=>{const p=db.players.find(x=>String(x.id)===String(pid));if(p)p.goals=Math.max(0,(+p.goals||0)-1)});
+      (Array.isArray(m.cards)?m.cards:[]).forEach(c=>{const p=db.players.find(x=>String(x.id)===String(c.playerId));if(p){if(c.type==='yellow')p.yellow=Math.max(0,(+p.yellow||0)-1);else if(c.type==='red')p.red=Math.max(0,(+p.red||0)-1)}});
+    }
+    // لا تترك كشوفًا مرتبطة بمعرّف مباراة محذوفة كي لا تعيد إظهارها أو تحتسبها الإحصائيات.
+    for(const key of ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1']){
+      let rows=[];try{const parsed=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(parsed))rows=parsed}catch(e){}
+      const filtered=rows.filter(sh=>String(sh?.matchId??'')!==targetId);
+      if(filtered.length!==rows.length){localStorage.setItem(key,JSON.stringify(filtered));relatedSheetKeys.push(key)}
+    }
+  }else{
+    db[type]=list.filter(x=>String(x?.id??'')!==targetId);
+    if(type==='teams'){
+      db.players=db.players.filter(p=>String(p.teamId)!==targetId);db.officialPlayers=db.officialPlayers.filter(p=>String(p.teamId)!==targetId);db.matches=db.matches.filter(m=>String(m.home)!==targetId&&String(m.away)!==targetId)
+    }
+    if(type==='tournaments'){
+      const teams=db.teams.filter(t=>String(t.tournamentId)===targetId).map(t=>String(t.id));
+      db.teams=db.teams.filter(t=>String(t.tournamentId)!==targetId);db.players=db.players.filter(p=>!teams.includes(String(p.teamId)));db.officialPlayers=db.officialPlayers.filter(p=>!teams.includes(String(p.teamId)));db.matches=db.matches.filter(m=>String(m.tournamentId)!==targetId);db.archives=(db.archives||[]).filter(a=>String(a?.tournament?.id||a?.original?.id||'')!==targetId);
+    }
   }
-  save();
-  try{if(type==='tournaments'&&typeof window.__manarFirebaseDeleteTournament==='function')await window.__manarFirebaseDeleteTournament(String(id));}catch(e){console.error('Tournament cloud delete:',e)}
-  renderAll();alert(type==='tournaments'?'تم حذف البطولة وجميع بياناتها نهائيًا.':'تم الحذف بنجاح.');
+
+  const saved=save();
+  if(saved===false)return;
+  // ارفع أحدث حالة إلى Firebase بعد حفظ الحذف محليًا، حتى لا تعود المباراة من نسخة سحابية قديمة.
+  const cloudKeys=[...(type==='matches'?['manar_sports_v2',...relatedSheetKeys]:[])];
+  if(type==='tournaments')cloudKeys.push('manar_sports_v2');
+  let cloudFailed=false;
+  for(const key of [...new Set(cloudKeys)]){
+    try{if(typeof window.__manarFirebaseSaveKey==='function'){const ok=await window.__manarFirebaseSaveKey(key);if(ok===false)cloudFailed=true;}}
+    catch(e){cloudFailed=true;console.warn('Cloud delete sync failed:',key,e)}
+  }
+  if(type==='tournaments'){
+    try{if(typeof window.__manarFirebaseDeleteTournament==='function')await window.__manarFirebaseDeleteTournament(targetId)}catch(e){cloudFailed=true;console.error('Tournament cloud delete:',e)}
+  }
+  // تحديث الإحصائيات والعدادات من قاعدة البيانات بعد الحذف مباشرة.
+  try{if(typeof renderAll==='function')renderAll();if(typeof renderMatches==='function'&&type==='matches')renderMatches();if(typeof renderStats==='function'&&type==='matches')renderStats();if(typeof window.updateHomeCounters==='function')window.updateHomeCounters()}catch(e){console.warn('Post-delete refresh:',e)}
+  if(type==='matches'&&!db.matches.some(x=>String(x?.id??'')===targetId)){
+    alert(cloudFailed?'تم حذف المباراة وتحديث الإحصائيات على هذا الجهاز، لكن تعذرت مزامنة الحذف إلى السحابة. تحقق من الاتصال وتسجيل الدخول.':'تم حذف المباراة بنجاح، وتم تحديث إحصائيات المباريات تلقائيًا.');
+  }else{
+    alert(type==='tournaments'?'تم حذف البطولة وجميع بياناتها نهائيًا.':'تم الحذف بنجاح.');
+  }
 }
 function opts(list,placeholder){return `<option value="">${placeholder}</option>`+list.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}
 function refreshPlayerRegistrationTeams(){
@@ -12171,14 +12214,15 @@ function refreshMatchTeams(){
   hs.innerHTML=opts;as.innerHTML=opts;
   const tid=String(document.getElementById('matchTour')?.value||'');
   const tour=(db.tournaments||[]).find(t=>String(t.id)===tid);
-  /* لا تظهر أدوار ربع النهائي ونصف النهائي والنهائي إلا بعد تفعيل خروج المغلوب للبطولة المحددة. */
-  const isGroup=!!tour && isGroupTournament(tour);
-  const knockoutStage=isGroup && String(tour.stage||'')==='knockout';
+  /* زر خروج المغلوب ضمن تسجيل المباريات متاح لأي بطولة محددة؛ الأدوار تظهر فقط عند تفعيل الزر. */
+  const hasTournament=!!tour;
+  window.__matchKnockoutEnabledTours=window.__matchKnockoutEnabledTours||{};
+  const knockoutStage=hasTournament && !!window.__matchKnockoutEnabledTours[tid];
   const wrap=document.getElementById('matchKnockoutRoundWrap');
   const round=document.getElementById('matchKnockoutRound');
   const toggleWrap=document.getElementById('matchKnockoutToggleWrap');
   const toggleBtn=document.getElementById('matchKnockoutToggleBtn');
-  if(toggleWrap)toggleWrap.style.display=isGroup?'block':'none';
+  if(toggleWrap)toggleWrap.style.display=hasTournament?'block':'none';
   if(toggleBtn){
     toggleBtn.textContent=knockoutStage?'↩️ إلغاء تفعيل خروج المغلوب':'🏁 تفعيل خروج المغلوب';
     toggleBtn.className=knockoutStage?'btn primary':'btn secondary';
@@ -12192,8 +12236,10 @@ function refreshMatchTeams(){
 window.toggleSelectedMatchTournamentKnockout=function(){
   const tid=String(document.getElementById('matchTour')?.value||'');
   if(!tid)return alert('اختر البطولة أولاً.');
-  if(typeof toggleTournamentKnockoutStage!=='function')return alert('تعذر تفعيل خروج المغلوب.');
-  toggleTournamentKnockoutStage(tid);
+  const tour=(db.tournaments||[]).find(t=>String(t.id)===tid);
+  if(!tour)return alert('اختر البطولة أولاً.');
+  window.__matchKnockoutEnabledTours=window.__matchKnockoutEnabledTours||{};
+  window.__matchKnockoutEnabledTours[tid]=!window.__matchKnockoutEnabledTours[tid];
   refreshMatchTeams();
 };
 function publicTournamentStatus(t){
