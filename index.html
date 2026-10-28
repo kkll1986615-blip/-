@@ -16428,12 +16428,18 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       refs[name]=(refs[name]||0)+1;
     };
 
+    const isEliminationFixture=(m,sh)=>{
+      const stage=S(m?.matchStage||sh?.matchStage||'').trim().toLowerCase();
+      const round=S(m?.knockoutRound||sh?.knockoutRound||m?.roundName||sh?.roundName||m?.stageName||sh?.stageName||'').trim().replace(/\s+/g,' ');
+      if(stage==='groups'||round==='دوري المجموعات')return false;
+      return stage==='knockout'||['ربع النهائي','نصف النهائي','النهائي'].includes(round)||/quarter|semi.?final|knockout|final/i.test(round);
+    };
     rel.forEach(({m,sh})=>{
       if(!sh)return;
       const q=score(m,sh);
       const homeId=m.home||m.homeTeamId||m.teamAId||sh.homeTeamId||sh.homeTeam;
       const awayId=m.away||m.awayTeamId||m.teamBId||sh.awayTeamId||sh.awayTeam;
-      const isKnockoutMatch=!!(m.knockoutRound || m.matchStage==='knockout' || sh.knockoutRound || sh.matchStage==='knockout');
+      const isKnockoutMatch=isEliminationFixture(m,sh);
       const h=isKnockoutMatch?null:ensure(homeId),a=isKnockoutMatch?null:ensure(awayId);
       if(h){h.p++;h.gf+=q.hg;h.ga+=q.ag;}
       if(a){a.p++;a.gf+=q.ag;a.ga+=q.hg;}
@@ -16576,6 +16582,9 @@ window.addEventListener('load',function(){document.documentElement.classList.add
         if(!sh||typeof sh!=='object')return;
         const matchEntry=statsMatches.find(x=>x.id===S(sh.matchId));
         const m=matchEntry?.m||{};
+        /* مباريات ربع النهائي والنصف النهائي والنهائي لا تدخل في ترتيب المجموعات؛
+           تبقى معروضة في قسم نتائج مباريات خروج المغلوب أدناه. */
+        if(isEliminationFixture(m,sh))return;
         const sheetTourValues=[sh.tournamentId,sh.tournament,sh.tournamentName,sh.tournament_name,sh.competitionId,sh.competitionName]
           .filter(v=>v!==undefined&&v!==null&&S(v).trim())
           .map(v=>S(v).trim().toLocaleLowerCase());
