@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48.png?v=20261025" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon.png?v=20261025" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v5-fast-visitor-refresh" name="manar-sync-version"/>
+<meta content="firebase-sync-v5-live-visitor-sync" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -17553,7 +17553,18 @@ function renderPlayers(){const tid=S($('ksCardTeam')?.value),sel=$('ksCardPlayer
 function renderCards(){const b=$('ksCards');if(!b)return;b.innerHTML=cards.length?cards.map((c,i)=>'<div class="ks-event"><span>'+(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(tName(c.teamId)||c.teamName)+'</span><button type="button" data-ks-del="'+i+'">حذف</button></div>').join(''):'<div class="ks-empty">لا توجد بطاقات مسجلة.</div>'}
 function renderGoals(saved){const m=matches().find((x,i)=>mid(x,i)===active),hg=Number($('ksHomeScore').value)||0,ag=Number($('ksAwayScore').value)||0;const make=(box,side,n,vals,tid)=>{const b=$(box);b.innerHTML='';const ps=teamPlayers(tid);for(let i=0;i<n;i++){const row=document.createElement('div');row.className='ks-scorer';row.innerHTML='<span>'+(i+1)+'</span><select><option value="">اختر مسجل الهدف</option>'+ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('')+'</select>';b.appendChild(row);if(vals?.[i])row.querySelector('select').value=S(vals[i])}};make('ksHomeGoals','home',hg,saved?.homeScorers,teamId(m,'home'));make('ksAwayGoals','away',ag,saved?.awayScorers,teamId(m,'away'))}
 function open(id){if(!canManage())return alert('التعديل متاح للمدير أو من يملك صلاحية كشوفات المباريات.');const m=matches().find((x,i)=>mid(x,i)===S(id));if(!m)return alert('لم يتم العثور على المباراة.');active=S(id);const sh=findSheet(id);fillWithdrawnTeamOptions(m);setAdminDecisionMode(!!sh?.administrativeDecision,sh?.withdrawnTeamId||'');editing=!!sh;cards=A(sh?.cards).map(c=>({...c}));$('ksEditorTitle').textContent=sh?'✏️ تعديل كشف المباراة':'📝 إنشاء كشف المباراة';$('ksNumber').textContent='رقم الكشف: '+(sh?.sheetNumber||nextNo());$('ksEditor').style.display='block';$('ksMatchInfo').innerHTML=esc(tName(teamId(m,'home')))+' <b> '+Number(sh?.homeScore??m.hg??m.homeGoals??0)+' — '+Number(sh?.awayScore??m.ag??m.awayGoals??0)+' </b> '+esc(tName(teamId(m,'away')))+'<div class="ks-meta">📅 '+esc(m.date||'—')+' &nbsp; ⏰ '+esc(m.time||'—')+'</div>';$('ksHomeLabel').textContent=tName(teamId(m,'home'));$('ksAwayLabel').textContent=tName(teamId(m,'away'));$('ksHomeGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'home'));$('ksAwayGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'away'));$('ksHomeScore').value=sh?.homeScore??m.hg??m.homeGoals??0;$('ksAwayScore').value=sh?.awayScore??m.ag??m.awayGoals??0;renderGoals(sh);$('ksBestPlayer').innerHTML='<option value="">اختر اللاعب من الفريقين</option>'+[...teamPlayers(teamId(m,'home')),...teamPlayers(teamId(m,'away'))].map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+' — '+esc(tName(p.teamId))+'</option>').join('');$('ksBestPlayer').value=S(sh?.bestPlayerId||'');fillRefs(sh);$('ksSupervisor').value=S(sh?.supervisor);$('ksPenYes').value=Number(sh?.penalties||0)>0?'yes':'no';$('ksPenalties').value=Number(sh?.penalties||0);renderTeams(m,sh);renderCards();$('ksStatus').classList.remove('show');$('ksEditor').scrollIntoView({behavior:'smooth',block:'start'})}
-async function imageData(){const f=$('ksImage')?.files?.[0];if(!f)return '';return await new Promise(res=>{const r=new FileReader();r.onload=()=>res(S(r.result));r.onerror=()=>res('');r.readAsDataURL(f)})}
+async function imageData(){
+ const f=$('ksImage')?.files?.[0];if(!f)return '';
+ const readDataUrl=file=>new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(S(r.result));r.onerror=()=>reject(new Error('تعذر قراءة صورة الكشف'));r.readAsDataURL(file)});
+ try{
+   const source=await readDataUrl(f);
+   const img=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('تعذر فتح صورة الكشف'));im.src=source;});
+   const maxSide=1200,scale=Math.min(1,maxSide/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));canvas.height=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+   const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return source;ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+   const compressed=canvas.toDataURL('image/jpeg',0.76);return compressed.length<source.length?compressed:source;
+ }catch(e){try{return await readDataUrl(f)}catch(_){return ''}}
+}
 let adminDecisionMode=false;
 function fillWithdrawnTeamOptions(m){
  const sel=$('ksWithdrawnTeam');if(!sel||!m)return;
@@ -17799,12 +17810,13 @@ const SYNC_KEYS=[
  'manar_media_news_v1','manar_player_management_windows_v1','manar_player_transfers_v1',
  'manar_contact_settings_v1','manar_contact_messages_v1','manar_polls_v1','manar_poll_votes_v1'
 ];
-let app,auth,db,applyingRemote=false,initialReady=0,initialDone=false,started=false,authStateReadyDone=false;
+let app,auth,db,applyingRemote=false,initialDone=false,started=false,authStateReadyDone=false;
 let resolveFirebaseInit;
 const firebaseInitReady=new Promise(resolve=>{resolveFirebaseInit=resolve});
 let resolveAuthStateReady;
 const authStateReady=new Promise(resolve=>{resolveAuthStateReady=resolve});
-const initialValues={},dirty=new Set();
+const initialValues={},initialReceived=new Set(),dirty=new Set();
+let initialLocalMain=null,initialLocalMainCaptured=false;
 let renderTimer=null;
 function scheduleRender(){clearTimeout(renderTimer);renderTimer=setTimeout(()=>{renderTimer=null;render()},60)}
 const $=id=>document.getElementById(id);
@@ -17823,6 +17835,24 @@ $('firebaseSyncFab')?.addEventListener('click',openModal);$('fsClose')?.addEvent
 function localManagerRole(){try{const role=sessionStorage.getItem('manar_auth_v2')||'';return role==='admin'||role==='editor'}catch(e){return false}}
 function canWrite(){return !!auth?.currentUser && !auth.currentUser.isAnonymous}
 function localValue(key){try{const raw=localStorage.getItem(key);return raw===null?null:JSON.parse(raw)}catch(e){return null}}
+function captureInitialLocalMain(){if(!initialLocalMainCaptured){initialLocalMain=localValue('manar_sports_v2');initialLocalMainCaptured=true;}return initialLocalMain}
+function applyVisitorCloudKey(key){
+  if(window.__manarFirebaseResetLock||!initialReceived.has('manar_sports_v2'))return false;
+  const cloudMain=initialValues['manar_sports_v2'];
+  const localMain=captureInitialLocalMain();
+  const value=initialValues[key];
+  const hasValue=value!==null&&value!==undefined;
+  const mustClear=!hasValue&&key!=='manar_sports_v2'&&cloudResetAppliesToStorageKey(cloudMain,localMain,key);
+  if(!hasValue&&!mustClear)return false;
+  const wasApplying=applyingRemote;applyingRemote=true;
+  try{
+    localStorage.setItem(key,JSON.stringify(hasValue?value:emptyValueForResetKey(key)));
+    dirty.delete(key);
+    if(key==='manar_sports_v2'){try{db=loadMainDatabase();window.db=db;if(typeof __manarDataVersion!=='undefined')__manarDataVersion++;}catch(e){console.warn('Database reload after visitor cloud update failed:',e);}}
+  }finally{applyingRemote=wasApplying;}
+  scheduleRender();
+  return true;
+}
 async function pushKey(key){if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');await set(ref(db,CLOUD_PATH+'/'+key),localValue(key));dirty.delete(key)}
 async function pushKeys(keys){
   if(window.__manarFirebaseResetLock)return false;
@@ -18156,12 +18186,23 @@ function emptyValueForResetKey(key){return key==='manar_player_management_window
 async function initialSync(){
   if(initialDone)return;
   initialDone=true;
+  captureInitialLocalMain();
   const hasCloud=SYNC_KEYS.some(k=>initialValues[k]!==null);
   const localHasData=hasLocalData();
   const signedIn=canWrite();
+  const isVisitor=!signedIn&&!localManagerRole();
+
+  /* الزائر يعتمد السحابة مصدرًا للحقيقة، وتُستخدم اللقطات التي استلمها المستمع بالفعل دون طلب GET مكرر. */
+  if(isVisitor&&hasCloud){
+    for(const k of SYNC_KEYS)if(initialReceived.has(k))applyVisitorCloudKey(k);
+    try{db=loadMainDatabase();window.db=db;if(typeof __manarDataVersion!=='undefined')__manarDataVersion++;}catch(e){}
+    dirty.clear();render();
+    status('تمت مزامنة بيانات الزائر مباشرة من Firebase — التحديثات ستصل تلقائيًا',true);
+    return;
+  }
 
   /* إذا كانت السحابة تحمل تصفيرًا أحدث، فاسحب حالتها أولًا ولا ترفع ذاكرة الجهاز القديمة فوقها. */
-  if(cloudResetMarkerIsNewer(initialValues['manar_sports_v2'],localValue('manar_sports_v2'))){
+  if(cloudResetMarkerIsNewer(initialValues['manar_sports_v2'],initialLocalMain)){
     await pullAll();
     status('تم اعتماد حالة التصفير الأحدث من Firebase ومنع استرجاع البيانات المحلية القديمة',true);
     return;
@@ -18173,36 +18214,6 @@ async function initialSync(){
     إذا كانت هناك بيانات محلية، فهي المصدر الأول. تُرفع للسحابة عند تسجيل
     الدخول، أما إذا لم يوجد تسجيل دخول فتبقى محفوظة محليًا ولا تُحذف.
   */
-  if(localHasData && !signedIn && hasCloud){
-    /*
-      الزائر قد يملك نسخة محلية قديمة من زيارة سابقة؛ لا نجعلها تمنع التحديث.
-      نعتمد القيم السحابية التي وصلت بالفعل عبر onValue بدل إجراء طلبات get إضافية،
-      ونحدث التخزين المحلي تلقائيًا دون مطالبة الزائر بمسح بيانات التصفح.
-      المفاتيح الغائبة تبقى كما هي ما لم يثبت ختم التصفير أنها حُذفت عمدًا.
-    */
-    applyingRemote=true;
-    try{
-      const cloudMain=initialValues['manar_sports_v2'];
-      const localMain=localValue('manar_sports_v2');
-      let updated=0,cleared=0;
-      for(const k of SYNC_KEYS){
-        const value=initialValues[k];
-        if(value!==null && value!==undefined){
-          const serialized=JSON.stringify(value);
-          if(localStorage.getItem(k)!==serialized){localStorage.setItem(k,serialized);updated++;}
-        }else if(k!=='manar_sports_v2' && cloudResetAppliesToStorageKey(cloudMain,localMain,k)){
-          const empty=JSON.stringify(emptyValueForResetKey(k));
-          if(localStorage.getItem(k)!==empty){localStorage.setItem(k,empty);cleared++;}
-        }
-      }
-      dirty.clear();
-      try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){}
-      render();
-      status('تم تحديث بيانات الزائر تلقائيًا من السحابة ('+updated+' قسمًا'+(cleared?'، وتصفير '+cleared+' قسمًا':'')+') — لا حاجة لمسح بيانات التصفح',true);
-    }finally{applyingRemote=false;}
-    return;
-  }
-
   if(localHasData){
     for(const k of SYNC_KEYS){
       if(localStorage.getItem(k)!==null)dirty.add(k);
@@ -18238,17 +18249,24 @@ async function initialSync(){
 }
 async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);try{await setPersistence(auth,browserLocalPersistence)}catch(persistenceError){console.warn('Firebase session persistence unavailable:',persistenceError)}db=getDatabase(app);resolveFirebaseInit(true);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction};patchStorage();const saved=localStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
  if(!auth.currentUser){signInAnonymously(auth).catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
-  onAuthStateChanged(auth,async user=>{if(!authStateReadyDone){authStateReadyDone=true;resolveAuthStateReady(user)}if(user){status(user.isAnonymous?'Firebase جاهز للقراءة — سجّل دخول حساب المزامنة للكتابة':'تم التعرّف على حساب Firebase — '+(user.email||''),!user.isAnonymous);if(initialDone&&localManagerRole()&&canWrite()){try{await pushAll();await pullAll()}catch(autoLoginSyncErr){status('تعذر إكمال المزامنة التلقائية: '+firebaseErrorMessage(autoLoginSyncErr),false)}}if(initialDone&&dirty.size&&canWrite()){try{const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+firebaseErrorMessage(e),false)}}else if(initialDone){try{await pullAll()}catch(e){}}}else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
+  onAuthStateChanged(auth,async user=>{if(!authStateReadyDone){authStateReadyDone=true;resolveAuthStateReady(user)}if(user){status(user.isAnonymous?'Firebase جاهز للقراءة — سجّل دخول حساب المزامنة للكتابة':'تم التعرّف على حساب Firebase — '+(user.email||''),!user.isAnonymous);if(initialDone&&localManagerRole()&&canWrite()){try{await pushAll();await pullAll()}catch(autoLoginSyncErr){status('تعذر إكمال المزامنة التلقائية: '+firebaseErrorMessage(autoLoginSyncErr),false)}}if(initialDone&&dirty.size&&canWrite()){try{const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+firebaseErrorMessage(e),false)}}else if(initialDone&&!user.isAnonymous){try{await pullAll()}catch(e){}}}else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
  for(const k of SYNC_KEYS){
   onValue(ref(db,CLOUD_PATH+'/'+k),async snap=>{
+    const mainWasReceived=initialReceived.has('manar_sports_v2');
     initialValues[k]=snap.exists()?snap.val():null;
-    initialReady++;
-    if(initialReady===SYNC_KEYS.length){
+    initialReceived.add(k);
+    const isVisitorNow=!canWrite()&&!localManagerRole();
+    if(!initialDone&&isVisitorNow&&initialReceived.has('manar_sports_v2')&&!window.__manarFirebaseResetLock){
+      /* طبّق كل اللقطات التي وصلت فور وصول قاعدة البيانات الرئيسية، ثم كل قسم فور وصوله؛ لا تنتظر أكبر قسم. */
+      if(k==='manar_sports_v2'&&!mainWasReceived){for(const readyKey of initialReceived)applyVisitorCloudKey(readyKey);}
+      else applyVisitorCloudKey(k);
+    }
+    if(!initialDone&&initialReceived.size===SYNC_KEYS.length){
       await initialSync();
     }else if(initialDone&&!applyingRemote&&!window.__manarFirebaseResetLock){
       applyingRemote=true;
       try{
-        /* نعالج الإضافة/التعديل وكذلك الحذف من السحابة. */
+        /* نعالج الإضافة/التعديل وكذلك الحذف من السحابة، ولا نستدعي GET إضافيًا. */
         if(snap.exists()) localStorage.setItem(k,JSON.stringify(snap.val()));
         else localStorage.removeItem(k);
         dirty.delete(k);
@@ -18256,10 +18274,14 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
           try{db=loadMainDatabase();window.db=db;__manarDataVersion++}catch(e){console.warn('Database reload after realtime update failed:',e)}
         }
         scheduleRender();
-        status(snap.exists()?'وصل تحديث جديد من السحابة':'تم حذف التحديث من السحابة',true);
+        status(snap.exists()?'وصل تحديث جديد من السحابة':'تم استقبال حالة حذف من السحابة',true);
       }finally{applyingRemote=false}
     }
-  },err=>status('خطأ قراءة Firebase: '+(err?.message||err),false))
+  },err=>{
+    status('خطأ قراءة Firebase: '+(err?.message||err),false);
+    if(!initialReceived.has(k)){initialValues[k]=null;initialReceived.add(k);}
+    if(!initialDone&&initialReceived.size===SYNC_KEYS.length)initialSync();
+  })
 }
  }catch(e){resolveFirebaseInit(false);status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
 start();
@@ -22432,10 +22454,13 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   if (!/^https?:$/.test(location.protocol) || window.__sportsAutoDeployUpdateStarted) return;
   window.__sportsAutoDeployUpdateStarted = true;
   var lastFingerprint = null, updateDetected = false, checking = false, reloading = false;
-  function fingerprint(text){
-    var h=2166136261;
-    for(var i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}
-    return (h>>>0).toString(16)+':'+text.length;
+  function fingerprint(response){
+    // الترويسات تكشف النشر الجديد دون تنزيل ملف الصفحة الكبير في كل فحص.
+    var etag=response.headers.get('etag')||'';
+    var modified=response.headers.get('last-modified')||'';
+    var size=response.headers.get('content-length')||'';
+    var fp=[etag,modified,size].join('|');
+    return fp.replace(/\|/g,'')?fp:null;
   }
   function safeToReload(){
     var a=document.activeElement;
@@ -22473,10 +22498,13 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     checking=true;
     try{
       var u=new URL(location.href);
+      u.searchParams.delete('__sports_app_version');
+      u.searchParams.delete('__sports_update_check');
       u.searchParams.set('__sports_update_check',String(Date.now()));
-      var response=await fetch(u.href,{cache:'no-store',credentials:'same-origin',redirect:'follow'});
+      var response=await fetch(u.href,{method:'HEAD',cache:'no-store',credentials:'same-origin',redirect:'follow'});
       if(!response.ok) return;
-      var html=await response.text(), fp=fingerprint(html);
+      var fp=fingerprint(response);
+      if(!fp)return;
       if(lastFingerprint===null){lastFingerprint=fp;return;}
       if(fp!==lastFingerprint){lastFingerprint=fp;updateDetected=true;await reloadIfSafe();}
     }catch(e){ /* يعاود المحاولة تلقائيًا عند عودة الاتصال */ }
@@ -22484,7 +22512,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   }
   check();
   // فحص سريع للنسخة المنشورة، مع إعادة الفحص فور عودة الصفحة أو الشبكة.
-  setInterval(check,15000);
+  setInterval(check,60000);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check();});
   document.addEventListener('focusout',function(){if(updateDetected)setTimeout(reloadIfSafe,500);},true);
   window.addEventListener('online',check);
