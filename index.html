@@ -16350,7 +16350,20 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       if(!sh||!sh.matchId)return;
       // ربط الكشف بالمباراة بمعرّفها فقط؛ لا نربطه بمباراة أخرى عبر تشابه الفرق/التاريخ.
       // هذا يمنع احتساب كشف قديم أو يتيم بعد حذف المباراة.
-      const mrec=statsMatches.find(x=>x.id===S(sh.matchId));
+      let mrec=statsMatches.find(x=>x.id===S(sh.matchId));
+      /* إصلاح قراءة الكشوفات القديمة/المستوردة: قد يختلف معرّف الكشف عن معرّف المباراة،
+         لذلك نعيد ربطه بالمباراة المطابقة للفرق والتاريخ عند تعذّر الربط بالمعرّف. */
+      if(!mrec && typeof sheetFixtureKey==='function'){
+        try{
+          const fixture=sheetFixtureKey({
+            home:sh.homeTeamId??sh.homeTeam??sh.home,
+            away:sh.awayTeamId??sh.awayTeam??sh.away,
+            date:sh.date??sh.matchDate,
+            time:sh.time
+          });
+          if(fixture) mrec=statsMatches.find(x=>sheetFixtureKey(x.m)===fixture);
+        }catch(e){}
+      }
       if(!mrec)return;
       const shTour=[sh.tournamentId,sh.tournament,sh.tournamentName,sh.tournament_name,sh.competitionId,sh.competitionName]
         .filter(v=>v!==undefined&&v!==null&&S(v).trim()).map(v=>S(v).trim());
@@ -16364,7 +16377,21 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     /* دعم الكشوفات القديمة التي لا تحمل معرف البطولة داخل الكشف. */
     statsMatches.forEach(({m,i,id})=>{
       if(!belongs(m,tid)||relSeen.has(id))return;
-      const sh=statsAllSheets.find(x=>S(x.matchId)===id);
+      let sh=statsAllSheets.find(x=>S(x.matchId)===id);
+      /* إعادة قراءة الكشف بمفتاح المباراة عند اختلاف المعرّف فقط. */
+      if(!sh && typeof sheetFixtureKey==='function'){
+        try{
+          const fixture=sheetFixtureKey(m);
+          sh=statsAllSheets.find(x=>{
+            try{return sheetFixtureKey({
+              home:x.homeTeamId??x.homeTeam??x.home,
+              away:x.awayTeamId??x.awayTeam??x.away,
+              date:x.date??x.matchDate,
+              time:x.time
+            })===fixture}catch(e){return false}
+          });
+        }catch(e){}
+      }
       if(sh){rel.push({m,i,sh});relSeen.add(id);}
     });
     const tournamentTeamIds=new Set();
