@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48.png?v=20261025" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon.png?v=20261025" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v4-clean-final" name="manar-sync-version"/>
+<meta content="firebase-sync-v5-fast-visitor-refresh" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -18173,6 +18173,36 @@ async function initialSync(){
     إذا كانت هناك بيانات محلية، فهي المصدر الأول. تُرفع للسحابة عند تسجيل
     الدخول، أما إذا لم يوجد تسجيل دخول فتبقى محفوظة محليًا ولا تُحذف.
   */
+  if(localHasData && !signedIn && hasCloud){
+    /*
+      الزائر قد يملك نسخة محلية قديمة من زيارة سابقة؛ لا نجعلها تمنع التحديث.
+      نعتمد القيم السحابية التي وصلت بالفعل عبر onValue بدل إجراء طلبات get إضافية،
+      ونحدث التخزين المحلي تلقائيًا دون مطالبة الزائر بمسح بيانات التصفح.
+      المفاتيح الغائبة تبقى كما هي ما لم يثبت ختم التصفير أنها حُذفت عمدًا.
+    */
+    applyingRemote=true;
+    try{
+      const cloudMain=initialValues['manar_sports_v2'];
+      const localMain=localValue('manar_sports_v2');
+      let updated=0,cleared=0;
+      for(const k of SYNC_KEYS){
+        const value=initialValues[k];
+        if(value!==null && value!==undefined){
+          const serialized=JSON.stringify(value);
+          if(localStorage.getItem(k)!==serialized){localStorage.setItem(k,serialized);updated++;}
+        }else if(k!=='manar_sports_v2' && cloudResetAppliesToStorageKey(cloudMain,localMain,k)){
+          const empty=JSON.stringify(emptyValueForResetKey(k));
+          if(localStorage.getItem(k)!==empty){localStorage.setItem(k,empty);cleared++;}
+        }
+      }
+      dirty.clear();
+      try{if(typeof window.db!=='undefined'){db=loadMainDatabase();window.db=db;}}catch(e){}
+      render();
+      status('تم تحديث بيانات الزائر تلقائيًا من السحابة ('+updated+' قسمًا'+(cleared?'، وتصفير '+cleared+' قسمًا':'')+') — لا حاجة لمسح بيانات التصفح',true);
+    }finally{applyingRemote=false;}
+    return;
+  }
+
   if(localHasData){
     for(const k of SYNC_KEYS){
       if(localStorage.getItem(k)!==null)dirty.add(k);
