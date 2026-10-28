@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48.png?v=20261025" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon.png?v=20261025" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v7-upload-failure-preserve-local" name="manar-sync-version"/>
+<meta content="firebase-sync-v8-public-read-priority" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -18174,6 +18174,22 @@ async function initialSync(){
     الدخول، أما إذا لم يوجد تسجيل دخول فتبقى محفوظة محليًا ولا تُحذف.
   */
   if(localHasData){
+    /*
+      فصل مسار الزائر عن مسار المدير:
+      لا يجوز أن تمنع بيانات قديمة مخزنة على جهاز الزائر تنزيل أحدث نسخة من Firebase،
+      كما لا يجوز لجهاز زائر أن يرفع بياناته المحلية فوق قاعدة البيانات المشتركة.
+      الرفع مسموح فقط عند وجود دور إدارة محلي وتسجيل دخول Firebase غير مجهول.
+    */
+    if(!localManagerRole()){
+      if(hasCloud){
+        await pullAll();
+        status('تم تحميل بيانات المنصة المشتركة من Firebase للزائر',true);
+      }else{
+        render();
+        status('لا توجد بيانات منشورة في Firebase حتى الآن؛ البيانات المحلية لم تُرفع من جهاز الزائر',false);
+      }
+      return;
+    }
     for(const k of SYNC_KEYS){
       if(localStorage.getItem(k)!==null)dirty.add(k);
     }
@@ -18186,10 +18202,10 @@ async function initialSync(){
         applyingRemote=false;
       }
       await pullAll();
-      status('تم حفظ البيانات المحلية ومزامنتها مع السحابة',true);
+      status('تم حفظ بيانات المدير ومزامنتها مع السحابة',true);
     }else{
       render();
-      status(signedIn?'تم الإبقاء على البيانات المحلية قبل المزامنة':'تم الحفظ محليًا — سجّل دخول Firebase لمزامنتها مع الأجهزة الأخرى',true);
+      status('تم الإبقاء على بيانات المدير محليًا — سجّل دخول Firebase لمزامنتها مع الأجهزة الأخرى',true);
     }
     return;
   }
