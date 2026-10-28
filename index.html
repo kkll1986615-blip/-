@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48.png?v=20261025" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon.png?v=20261025" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v8-public-read-priority" name="manar-sync-version"/>
+<meta content="firebase-sync-v7-upload-failure-preserve-local" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -17854,7 +17854,7 @@ async function pushAll(){
     await pushKeys(present);
     status('تم رفع '+present.length+' قسمًا محفوظًا محليًا إلى السحابة؛ لم تُحذف المفاتيح المحلية الغائبة',true);
     return true;
-  }catch(e){status('فشل المزامنة: '+firebaseErrorMessage(e),false);return false}
+  }catch(e){window.__manarFirebaseLastSyncError=e;status('فشل المزامنة: '+firebaseErrorMessage(e),false);return false}
   finally{applyingRemote=false}
 }
 /* يبدأ التحقق والمزامنة تلقائيًا بعد نجاح تسجيل الدخول المحلي للمدير أو أي حساب مخوّل. لا يرفع البيانات إلا بعد مصادقة Firebase ذات صلاحية كتابة. */
@@ -18003,7 +18003,27 @@ function firebaseErrorMessage(e){const code=e?.code||'';const map={
  'auth/network-request-failed':'تعذر الاتصال بالإنترنت أو بخدمة Firebase.',
  'auth/email-already-in-use':'هذا البريد مستخدم بالفعل.',
  'PERMISSION_DENIED':'رفضت قواعد Firebase العملية؛ تحقق من Database Rules وصلاحيات الحساب.'};return (map[code]||e?.message||'خطأ غير معروف')+(code?' ['+code+']':'')}
-async function finishFirebaseEmailLogin(email){localStorage.setItem('manar_firebase_email',email);if($('fsAuthPassword'))$('fsAuthPassword').value='';status('تم التحقق من حساب Firebase — جارٍ رفع بيانات هذا الجهاز...',true);const pushed=await pushAll();if(!pushed){status('تم تسجيل الدخول إلى Firebase لكن رفع البيانات لم ينجح. احتفظنا بالبيانات المحلية ولم ننزّل بيانات السحابة حتى لا تُستبدل بيانات المدير. اضغط رفع بيانات هذا الجهاز أو افحص قواعد Firebase.',false);throw new Error('تم تسجيل الدخول لكن رفع البيانات إلى السحابة فشل. لم يتم تنزيل بيانات السحابة حفاظًا على بيانات الجهاز.');}const pulled=await pullAll();if(!pulled){status('تم رفع البيانات، لكن تعذّر التحقق من تنزيلها. افحص صلاحيات القراءة في Firebase.',false);throw new Error('تم رفع البيانات لكن تعذرت قراءة السحابة للتحقق.');}status('اكتملت المزامنة: تم رفع بيانات الجهاز ثم التحقق منها من السحابة.',true)}
+async function finishFirebaseEmailLogin(email){
+  localStorage.setItem('manar_firebase_email',email);
+  if($('fsAuthPassword'))$('fsAuthPassword').value='';
+  status('تم تسجيل الدخول إلى Firebase — جارٍ مزامنة البيانات...',true);
+  const pushed=await pushAll();
+  if(!pushed){
+    /* لا نصف المشكلة بأنها فشل تسجيل دخول: المصادقة نجحت، والفشل في عملية المزامنة نفسها. */
+    const detail=window.__manarFirebaseLastSyncError||'لم تُقبل عملية الرفع؛ تحقق من صلاحيات القراءة والكتابة في Realtime Database.';
+    status('تم تسجيل الدخول بنجاح، لكن فشلت مزامنة البيانات: '+firebaseErrorMessage(detail),false);
+    alert('تم تسجيل الدخول إلى Firebase بنجاح، لكن مزامنة البيانات فشلت.\n\nالتفاصيل: '+firebaseErrorMessage(detail)+'\n\nاحتفظنا بالبيانات المحلية ولم نستبدلها ببيانات السحابة.');
+    return false;
+  }
+  const pulled=await pullAll();
+  if(!pulled){
+    status('تم رفع البيانات، لكن تعذرت قراءتها للتحقق. افحص صلاحيات القراءة في Firebase.',false);
+    alert('تم رفع البيانات إلى Firebase، لكن تعذرت قراءتها للتحقق. افحص صلاحيات القراءة في Realtime Database.');
+    return false;
+  }
+  status('اكتملت المزامنة: تم رفع بيانات الجهاز ثم التحقق منها من السحابة.',true);
+  return true;
+}
 window.__manarFirebaseLoginHandlerAttached=true;
 $('fsLogin')?.addEventListener('click',async()=>{
  const email=($('fsAuthEmail')?.value||'').trim().toLowerCase(),pass=$('fsAuthPassword')?.value;
@@ -18019,7 +18039,7 @@ $('fsLogin')?.addEventListener('click',async()=>{
    if(!ready||!auth)throw new Error('لم تكتمل تهيئة Firebase خلال 12 ثانية. تحقق من الإنترنت وتحميل gstatic.com ثم أعد تحميل الصفحة.');
    await signInWithEmailAndPassword(auth,email,pass);
    await finishFirebaseEmailLogin(email);
- }catch(e){const msg=firebaseErrorMessage(e);status('فشل تسجيل الدخول: '+msg,false);alert('تعذر تسجيل الدخول إلى حساب المزامنة:\n'+msg+'\n\nتحقق من البريد وكلمة المرور، وتفعيل Email/Password في Firebase Authentication، وإضافة نطاق الموقع إلى Authorized domains.');}
+ }catch(e){const msg=firebaseErrorMessage(e);status('فشل تسجيل الدخول إلى Firebase: '+msg,false);alert('تعذر تسجيل الدخول إلى Firebase:\n'+msg+'\n\nتحقق من البريد وكلمة المرور، وتفعيل Email/Password في Firebase Authentication، وإضافة نطاق الموقع إلى Authorized domains.');}
  finally{if(btn){btn.disabled=false;btn.textContent='🔐 تسجيل الدخول إلى Firebase'}}
 });
 $('fsCreateAccount')?.addEventListener('click',async()=>{const email=($('fsAuthEmail')?.value||'').trim().toLowerCase(),pass=$('fsAuthPassword')?.value;if(!email||!pass){alert('أدخل البريد وكلمة مرور قوية (8 أحرف على الأقل) لإنشاء حساب المزامنة.');return}if(pass.length<8){alert('استخدم كلمة مرور لا تقل عن 8 أحرف.');return}if(!confirm('إنشاء حساب Firebase للمزامنة بالبريد '+email+'؟ إذا كان الحساب موجودًا بالفعل فلن يتم إنشاء حساب مكرر.'))return;const btn=$('fsCreateAccount');if(btn)btn.disabled=true;try{await createUserWithEmailAndPassword(auth,email,pass);await finishFirebaseEmailLogin(email);alert('تم إنشاء حساب المزامنة وتسجيل الدخول. إذا تعذر رفع البيانات فالمتبقي هو ضبط صلاحيات Firebase Realtime Database.')}catch(e){const msg=firebaseErrorMessage(e);status('تعذر إنشاء حساب المزامنة: '+msg,false);alert('تعذر إنشاء الحساب:\n'+msg+'\n\nإذا كان البريد مستخدمًا بالفعل، سجّل الدخول بدل إنشاء حساب جديد. وإذا كان إنشاء الحساب غير مسموح، فعّل Email/Password من Firebase Authentication.')}finally{if(btn)btn.disabled=false}});
@@ -18175,10 +18195,9 @@ async function initialSync(){
   */
   if(localHasData){
     /*
-      فصل مسار الزائر عن مسار المدير:
-      لا يجوز أن تمنع بيانات قديمة مخزنة على جهاز الزائر تنزيل أحدث نسخة من Firebase،
-      كما لا يجوز لجهاز زائر أن يرفع بياناته المحلية فوق قاعدة البيانات المشتركة.
-      الرفع مسموح فقط عند وجود دور إدارة محلي وتسجيل دخول Firebase غير مجهول.
+      الزائر لا يملك حق رفع البيانات المشتركة: إذا كانت هناك بيانات سحابية،
+      تُحمّل فوق النسخة المحلية القديمة حتى تظهر بيانات المدير على أجهزة الزوار.
+      الرفع من هذا المسار محصور بدور الإدارة المحلي مع حساب Firebase موثّق.
     */
     if(!localManagerRole()){
       if(hasCloud){
@@ -18186,7 +18205,7 @@ async function initialSync(){
         status('تم تحميل بيانات المنصة المشتركة من Firebase للزائر',true);
       }else{
         render();
-        status('لا توجد بيانات منشورة في Firebase حتى الآن؛ البيانات المحلية لم تُرفع من جهاز الزائر',false);
+        status('لا توجد بيانات منشورة في Firebase حتى الآن؛ لم تُرفع البيانات المحلية لجهاز الزائر',false);
       }
       return;
     }
@@ -18205,7 +18224,7 @@ async function initialSync(){
       status('تم حفظ بيانات المدير ومزامنتها مع السحابة',true);
     }else{
       render();
-      status('تم الإبقاء على بيانات المدير محليًا — سجّل دخول Firebase لمزامنتها مع الأجهزة الأخرى',true);
+      status(signedIn?'تم الإبقاء على بيانات المدير قبل المزامنة':'تم الحفظ محليًا — سجّل دخول Firebase لمزامنتها مع الأجهزة الأخرى',true);
     }
     return;
   }
