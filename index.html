@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function(){
       return;
     }
 
-    const ps=(db.players||[]).filter(p=>String(p.teamId)===String(id));
+    const ps=(db.players||[]).filter(p=>playerIsInTeam(p,team));
     const edit=hasEdit(), del=hasDelete();
 
     if(!ps.length){
@@ -8156,22 +8156,7 @@ body.admin #predictionsSection{display:block}
     return out.sort((x,y)=>String(y.d).localeCompare(String(x.d)));
   }
   function fill(){const a=document.getElementById('h2hTeamA'),b=document.getElementById('h2hTeamB');if(!a||!b)return;const oldA=str(a.value),oldB=str(b.value),list=teams(),html='<option value="">— اختر الفريق —</option>'+list.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');if(a.innerHTML!==html)a.innerHTML=html;if(b.innerHTML!==html)b.innerHTML=html;if(list.includes(oldA))a.value=oldA;if(list.includes(oldB))b.value=oldB;}
-  function render(){
-    const a=document.getElementById('h2hTeamA'),b=document.getElementById('h2hTeamB'),box=document.getElementById('h2hResults'),sum=document.getElementById('h2hSummary');
-    if(!a||!b||!box||!sum)return;
-    const A=norm(a.value),B=norm(b.value);
-    if(!A||!B){sum.textContent='اختر الفريقين لعرض تاريخ المواجهات.';box.innerHTML='<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>اختر اسم الفريقين أولاً</strong><span>سيظهر سجل المواجهات هنا.</span></div>';return;}
-    if(A===B){sum.textContent='';box.innerHTML='<div class="h2h-empty"><strong>يرجى اختيار فريقين مختلفين.</strong></div>';return;}
-    const rows=history(A,B);
-    // Derive the winner once from the same home/away score pair used by the match card;
-    // use that exact winner for both the summary counters and each match's result badge.
-    const winnerName=r=>r.sc.h>r.sc.a?norm(r.h):r.sc.a>r.sc.h?norm(r.a):'';
-    const wa=rows.filter(r=>winnerName(r)===A).length;
-    const wb=rows.filter(r=>winnerName(r)===B).length;
-    const dr=rows.filter(r=>Number(r.sc.h)===Number(r.sc.a)).length;
-    sum.innerHTML='<div class="h2h-summary-head"><span>⚔️ سجل المواجهات المباشرة</span><b>'+rows.length+' مباراة</b></div><div class="h2h-summary-stats"><span class="a-stat">فوز '+esc(A)+': <b>'+wa+'</b></span><span class="draw-stat">تعادل: <b>'+dr+'</b></span><span class="b-stat">فوز '+esc(B)+': <b>'+wb+'</b></span></div>';
-    box.innerHTML=rows.length?rows.map((r,i)=>'<article class="h2h-row"><div class="h2h-match-top"><span>المواجهة '+(i+1)+'</span><span class="h2h-result-pill">'+(winnerName(r)?'فوز '+esc(winnerName(r)):'تعادل')+'</span></div><div class="h2h-versus"><div class="h2h-team h2h-home"><span class="h2h-team-mark">⚽</span><strong>'+esc(r.h)+'</strong></div><div class="h2h-score-wrap"><small>النتيجة</small><div class="h2h-score">'+r.sc.h+' <i>—</i> '+r.sc.a+'</div></div><div class="h2h-team h2h-away"><strong>'+esc(r.a)+'</strong><span class="h2h-team-mark">⚽</span></div></div><div class="h2h-tournament"><span>🏆</span><strong>'+esc(r.t)+'</strong><em>📅 '+esc(r.d)+'</em></div></article>').join(''):'<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>لا توجد مواجهات مسجلة</strong><span>اختر فريقين آخرين أو أضف نتائج المباريات.</span></div>';
-  }
+  function render(){const a=document.getElementById('h2hTeamA'),b=document.getElementById('h2hTeamB'),box=document.getElementById('h2hResults'),sum=document.getElementById('h2hSummary');if(!a||!b||!box||!sum)return;const A=str(a.value),B=str(b.value);if(!A||!B){sum.textContent='اختر الفريقين لعرض تاريخ المواجهات.';box.innerHTML='<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>اختر اسم الفريقين أولاً</strong><span>سيظهر سجل المواجهات هنا.</span></div>';return;}if(A===B){sum.textContent='';box.innerHTML='<div class="h2h-empty"><strong>يرجى اختيار فريقين مختلفين.</strong></div>';return;}const rows=history(A,B),wa=rows.filter(r=>r.sc.h>r.sc.a).length,wb=rows.filter(r=>r.sc.a>r.sc.h).length,dr=rows.filter(r=>r.sc.h===r.sc.a).length;sum.innerHTML='<div class="h2h-summary-head"><span>⚔️ سجل المواجهات المباشرة</span><b>'+rows.length+' مباراة</b></div><div class="h2h-summary-stats"><span class="a-stat">فوز '+esc(A)+': <b>'+wa+'</b></span><span class="draw-stat">تعادل: <b>'+dr+'</b></span><span class="b-stat">فوز '+esc(B)+': <b>'+wb+'</b></span></div>';box.innerHTML=rows.length?rows.map((r,i)=>'<article class="h2h-row"><div class="h2h-match-top"><span>المواجهة '+(i+1)+'</span><span class="h2h-result-pill">'+(r.sc.h>r.sc.a?'فوز '+esc(r.h):r.sc.a>r.sc.h?'فوز '+esc(r.a):'تعادل')+'</span></div><div class="h2h-versus"><div class="h2h-team h2h-home"><span class="h2h-team-mark">⚽</span><strong>'+esc(r.h)+'</strong></div><div class="h2h-score-wrap"><small>النتيجة</small><div class="h2h-score">'+r.sc.h+' <i>—</i> '+r.sc.a+'</div></div><div class="h2h-team h2h-away"><strong>'+esc(r.a)+'</strong><span class="h2h-team-mark">⚽</span></div></div><div class="h2h-tournament"><span>🏆</span><strong>'+esc(r.t)+'</strong><em>📅 '+esc(r.d)+'</em></div></article>').join(''):'<div class="h2h-empty"><div class="empty-icon">⚽</div><strong>لا توجد مواجهات مسجلة</strong><span>اختر فريقين آخرين أو أضف نتائج المباريات.</span></div>';}
   let timer=0;
   function refresh(){if(timer)cancelAnimationFrame(timer);timer=requestAnimationFrame(()=>{fill();render();timer=0;});}
   window.refreshHeadToHead=refresh;window.renderHeadToHead=render;
@@ -12249,7 +12234,7 @@ function refreshSelects(){
 }
 function refreshCardMatches(){if(!cardMatch)return;let tid=cardTour?.value||'';let a=[...db.matches].filter(m=>m.tournamentId===tid&&(m.status||'finished')==='finished').sort((x,y)=>(y.date||'').localeCompare(x.date||''));cardMatch.innerHTML='<option value="">'+(tid?'اختر المباراة المنتهية':'اختر البطولة أولاً')+'</option>'+a.map(m=>`<option value="${m.id}">${esc(teamName(m.home))} ${Number(m.hg)||0}-${Number(m.ag)||0} ${esc(teamName(m.away))} — ${esc(m.date||'')}</option>`).join('');refreshCardMatchTeams()}
 function refreshCardMatchTeams(){let m=db.matches.find(x=>x.id===cardMatch?.value),tid=cardTour?.value||'';if(!m||m.tournamentId!==tid||(m.status||'finished')!=='finished'){cardTeam.innerHTML='<option value="">اختر المباراة أولاً</option>';refreshCardPlayers();return}let teams=[m.home,m.away].map(id=>db.teams.find(t=>t.id===id)).filter(Boolean);cardTeam.innerHTML=opts(teams,'اختر الفريق');refreshCardPlayers()}
-function refreshCardPlayers(){let m=db.matches.find(x=>x.id===cardMatch?.value),t=cardTeam.value;let players=db.players.filter(p=>p.teamId===t && (!m || [m.home,m.away].includes(p.teamId)));cardPlayer.innerHTML=opts(players,t?'اختر اللاعب':'اختر الفريق أولاً')}
+function refreshCardPlayers(){let m=db.matches.find(x=>x.id===cardMatch?.value),t=cardTeam.value;const selectedTeam=db.teams.find(x=>String(x.id)===String(t));let players=db.players.filter(p=>playerIsInTeam(p,selectedTeam||{id:t}) && (!m || [m.home,m.away].some(x=>String(x)===String(t))));cardPlayer.innerHTML=opts(players,t?'اختر اللاعب':'اختر الفريق أولاً')}
 function addCard(){if(!requirePermission('cards'))return;let tid=cardTour.value,mid=cardMatch.value,team=cardTeam.value,player=cardPlayer.value,type=cardType.value;if(!tid)return alert('اختر البطولة أولاً');if(!mid)return alert('اختر مباراة منتهية أولاً');if(!team)return alert('اختر الفريق أولاً');if(!player)return alert('اختر اللاعب');let m=db.matches.find(x=>x.id===mid),p=db.players.find(x=>x.id===player&&x.teamId===team);if(!m||m.tournamentId!==tid||(m.status||'finished')!=='finished')return alert('يجب اختيار مباراة منتهية ضمن البطولة المختارة');if(!p||![m.home,m.away].includes(team))return alert('اللاعب غير موجود ضمن أحد فريقي المباراة');if(!Array.isArray(m.cards))m.cards=[];m.cards.push({id:uid('C'),playerId:player,teamId:team,type});if(type==='yellow')p.yellow=(+p.yellow||0)+1;else p.red=(+p.red||0)+1;save();alert('تم تسجيل الإنذار في المباراة بنجاح')}
 
 function refreshMatchTeams(){
@@ -14304,16 +14289,35 @@ function allSheetCardStats(){
   return out;
 }
 
+/* توحيد ربط اللاعب بالفريق حتى لا تختفي سجلات قديمة بسبب اختلاف نوع/اسم المعرّف. */
+function playerIsInTeam(p,t){
+  if(!p||!t)return false;
+  const tid=String(t.id??'').trim(), tname=String(t.name??'').trim();
+  const rawRefs=[p.teamId,p.team_id,p.teamID,(p.team&&typeof p.team==='object')?p.team.id:(typeof p.team==='string'?p.team:undefined)];
+  const refs=rawRefs.filter(v=>v!==undefined&&v!==null&&String(v).trim()!=='').map(v=>String(v).trim());
+  if(tid&&refs.includes(tid))return true;
+  const currentTeams=Array.isArray(db?.teams)?db.teams:[];
+  // إذا كان المعرّف صالحًا لفريق آخر، لا ننقل اللاعب إلى فريق مماثل بالاسم.
+  if(refs.some(ref=>currentTeams.some(other=>String(other?.id??'').trim()===ref)))return false;
+  const names=[p.teamName,p.team_name,typeof p.team==='string'?p.team:undefined]
+    .filter(v=>v!==undefined&&v!==null&&String(v).trim()!=='').map(v=>String(v).trim());
+  return !!tname&&names.includes(tname);
+}
+function displayPlayerName(p){
+  const value=p?.name??p?.fullName??p?.playerName??p?.player_name??p?.displayName??'';
+  return String(value??'').trim()||'اسم غير مسجل';
+}
+
 function renderPlayers(){
 if(!db.teams.length){playerList.innerHTML='<div class="empty">لا توجد فرق مسجلة</div>';return}
 playerList.innerHTML=db.teams.map(t=>{
-let ps=db.players.filter(p=>p.teamId===t.id);
+let ps=db.players.filter(p=>playerIsInTeam(p,t));
 return `<div class="card player-team-card" style="margin-bottom:12px"><div class="section-title"><h3>⚽ ${esc(t.name)}</h3><span><span class="badge">${ps.length} لاعب</span><span class="badge">🏆 ${esc(tourName(t.tournamentId)||'—')}</span></span></div>${ps.length?`<div class="players-table-wrap"><table class="players-table players-all-info"><thead><tr><th class="seq">#</th><th class="player-name">اسم اللاعب</th><th class="shirt">رقم القميص</th><th>التولد</th><th>النوع</th><th>عدد المباريات</th><th>⚽ الأهداف</th><th>🟨 الإنذارات</th><th>🟥 الحمراء</th><th class="action">إجراء</th></tr></thead><tbody>${ps.map((p,i)=>{
 const psStats=playerSheetStats(p.id,t.id);
 let appearances=psStats.matches;
 let yellow=psStats.yellow,red=psStats.red;
 let goals=psStats.goals;
-return `<tr><td class="seq">${i+1}</td><td class="player-name"><b>${esc(p.name)}</b></td><td class="shirt">${esc(p.number||'—')}</td><td>${formatBirth(p.birth)}</td><td><span class="badge">${esc(p.type||'محلي')}</span></td><td><span class="badge">${appearances}</span></td><td><span class="badge">${goals}</span></td><td><span class="badge warning-yellow">${yellow}</span></td><td><span class="badge warning-red">${red}</span></td><td class="action"><button class="btn primary admin-only" onclick="editPlayer('${p.id}')">تعديل</button><button class="btn danger admin-only" onclick="del('players','${p.id}')">حذف</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">لا يوجد لاعبون مسجلون لهذا الفريق</div>'}</div>`}).join('')
+return `<tr><td class="seq">${i+1}</td><td class="player-name"><b>${esc(displayPlayerName(p))}</b></td><td class="shirt">${esc(p.number||'—')}</td><td>${formatBirth(p.birth)}</td><td><span class="badge">${esc(p.type||'محلي')}</span></td><td><span class="badge">${appearances}</span></td><td><span class="badge">${goals}</span></td><td><span class="badge warning-yellow">${yellow}</span></td><td><span class="badge warning-red">${red}</span></td><td class="action"><button class="btn primary admin-only" onclick="editPlayer('${p.id}')">تعديل</button><button class="btn danger admin-only" onclick="del('players','${p.id}')">حذف</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">لا يوجد لاعبون مسجلون لهذا الفريق</div>'}</div>`}).join('')
   renderSuspendedPlayers();
 }
 function formatBirth(v){if(!v)return '—';let d=new Date(v+'T00:00:00');return isNaN(d)?esc(v):d.toLocaleDateString('ar-IQ',{year:'numeric',month:'2-digit',day:'2-digit'})}
@@ -15073,7 +15077,7 @@ function filterPlayersBySelectedTeam(){
     if(!teamId){ box.innerHTML=''; return; }
 
     const team=(typeof db!=='undefined' && Array.isArray(db.teams)) ? db.teams.find(t=>String(t.id)===String(teamId)) : null;
-    const players=(typeof db!=='undefined' && Array.isArray(db.players)) ? db.players.filter(p=>String(p.teamId)===String(teamId)) : [];
+    const players=(typeof db!=='undefined' && Array.isArray(db.players)) ? db.players.filter(p=>playerIsInTeam(p,team||{id:teamId})) : [];
     const teamName=team?.name || select.options[select.selectedIndex]?.text || 'الفريق';
 
     let html=`<div class="card" style="margin:0;background:linear-gradient(145deg,#f7fffb,#fff);border:1px solid #cfe4d8">`;
@@ -15112,7 +15116,7 @@ function showPlayersForRegistrationTeam(){
  const teamId=sel.value;
  if(!teamId){box.innerHTML='';return;}
  const team=db.teams.find(t=>String(t.id)===String(teamId));
- const players=db.players.filter(p=>String(p.teamId)===String(teamId));
+ const players=db.players.filter(p=>playerIsInTeam(p,team||{id:teamId}));
  const canManage=hasPermission('players');
  let html='<b>👥 اللاعبون المسجلون مسبقًا — '+(team?esc(team.name):'الفريق')+'</b>';
  if(!players.length){html+='<p>لا يوجد لاعبين مسجلين ضمن هذا الفريق</p>';}
@@ -15249,16 +15253,20 @@ window.sendContactMessage=function(){
     if(!playerList)return;
     if(!db.teams.length){playerList.innerHTML='<div class="empty">لا توجد فرق مسجلة</div>';return}
     playerList.innerHTML=db.teams.map(t=>{
-      const ps=db.players.filter(p=>p.teamId===t.id);
+      const ps=db.players.filter(p=>playerIsInTeam(p,t));
       const rows=ps.map((p,i)=>{
         const teamMatches=db.matches.filter(m=>[m.home,m.away].includes(t.id));
         const appearances=teamMatches.filter(m=>m.date||m.hg!==undefined).length;
         let yellow=0,red=0;teamMatches.forEach(m=>(m.cards||[]).forEach(c=>{if(c.playerId===p.id){if(c.type==='yellow')yellow++;else if(c.type==='red')red++;}}));
         const goals=+p.goals||teamMatches.reduce((n,m)=>n+getMatchScorers(m).filter(pid=>pid===p.id).length,0);
-        return `<tr><td class="seq">${i+1}</td><td class="player-name"><b>${esc2(p.name)}</b></td><td class="shirt">${esc2(p.number||'—')}</td><td>${formatBirth(p.birth)}</td><td><span class="badge">${esc2(p.type||'محلي')}</span></td><td><span class="badge">${appearances}</span></td><td><span class="badge">${goals}</span></td><td><span class="badge warning-yellow">${yellow}</span></td><td><span class="badge warning-red">${red}</span></td><td class="action"><div class="data-actions"><button class="btn blue edit-action" data-section-perm="players" onclick="editPlayer('${p.id}')">✏️ تعديل</button><button class="btn danger delete-action" data-section-perm="players" onclick="del('players','${p.id}')">🗑️ حذف</button></div></td></tr>`;
+        return `<tr><td class="seq">${i+1}</td><td class="player-name"><b>${esc2(displayPlayerName(p))}</b></td><td class="shirt">${esc2(p.number||'—')}</td><td>${formatBirth(p.birth)}</td><td><span class="badge">${esc2(p.type||'محلي')}</span></td><td><span class="badge">${appearances}</span></td><td><span class="badge">${goals}</span></td><td><span class="badge warning-yellow">${yellow}</span></td><td><span class="badge warning-red">${red}</span></td><td class="action"><div class="data-actions"><button class="btn blue edit-action" data-section-perm="players" onclick="editPlayer('${p.id}')">✏️ تعديل</button><button class="btn danger delete-action" data-section-perm="players" onclick="del('players','${p.id}')">🗑️ حذف</button></div></td></tr>`;
       }).join('');
       return `<div class="card player-team-card" style="margin-bottom:12px"><div class="section-title"><h3>⚽ ${esc2(t.name)}</h3><span><span class="badge">${ps.length} لاعب</span><span class="badge">🏆 ${esc2(tourName(t.tournamentId)||'—')}</span></span></div>${ps.length?`<div class="players-table-wrap"><table class="players-table players-all-info"><thead><tr><th class="seq">#</th><th class="player-name">اسم اللاعب</th><th class="shirt">رقم القميص</th><th>التولد</th><th>النوع</th><th>عدد المباريات</th><th>⚽ الأهداف</th><th>🟨 الإنذارات</th><th>🟥 الحمراء</th><th class="action">إجراء</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">لا يوجد لاعبون مسجلون لهذا الفريق</div>'}</div>`;
     }).join('');
+    const unassigned=db.players.filter(p=>!(db.teams||[]).some(t=>playerIsInTeam(p,t)));
+    if(unassigned.length){
+      playerList.innerHTML+=`<div class="card player-team-card" style="margin-bottom:12px"><div class="section-title"><h3>👥 لاعبون غير مرتبطين بفريق حالي</h3><span class="badge">${unassigned.length} لاعب</span></div><div class="players-table-wrap"><table class="players-table players-all-info"><thead><tr><th class="seq">#</th><th class="player-name">اسم اللاعب</th><th class="shirt">رقم القميص</th><th>ملاحظة</th><th class="action">إجراء</th></tr></thead><tbody>${unassigned.map((p,i)=>`<tr><td>${i+1}</td><td class="player-name"><b>${esc2(displayPlayerName(p))}</b></td><td>${esc2(p.number||'—')}</td><td>لم يُطابق معرّف الفريق أي فريق حالي</td><td class="action"><button class="btn blue edit-action" data-section-perm="players" onclick="editPlayer('${p.id}')">✏️ مراجعة</button></td></tr>`).join('')}</tbody></table></div></div>`;
+    }
     applyPermissions();
   };
 
