@@ -17563,8 +17563,31 @@ function canManage(){try{if(typeof window.hasPermission==='function')return !!wi
 function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return A(x)}catch(e){return[]}}
 function write(v){const data=A(v);localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(LEGACY,JSON.stringify(data))}
 function rows(){return read().filter(x=>x&&x.matchId!=null)}
-function tourOf(id){return tours().find(t=>S(t.id)===S(id)||S(t.name)===S(id)||S(t.title)===S(id))}
-function tourId(m){const v=m?.tournamentId??m?.tournament??m?.tournamentID??m?.tournamentName;const t=tourOf(v);return t?S(t.id):S(v)}
+function tourOf(id){
+ const v=(id&&typeof id==='object')?(id.id??id.tournamentId??id.tournamentID??id.name??id.title??''):id;
+ const key=S(v).trim();
+ return tours().find(t=>S(t.id)===key||S(t.name)===key||S(t.title)===key||S(t.tournamentName)===key);
+}
+function tourId(m){const v=m?.tournamentId??m?.tournament??m?.tournamentID??m?.tournamentName;const t=tourOf(v);return t?S(t.id):S(v&&typeof v==='object'?(v.id??v.name??v.title??''):v)}
+/* ربط الكشف بالبطولة المختارة حتى لو كانت النسخة القديمة تحفظ اسم البطولة بدل المعرّف،
+   أو كان الربط موجودًا في سجل المباراة فقط. لا تعدّل هذه الدالة البيانات المحفوظة. */
+function reportTournamentId(sh){
+ const refs=[sh?.tournamentId,sh?.tournamentID,sh?.tournament,sh?.tournamentName,sh?.tournamentTitle,sh?.championshipId];
+ let first='';
+ for(const ref of refs){
+  const v=(ref&&typeof ref==='object')?(ref.id??ref.tournamentId??ref.tournamentID??ref.name??ref.title??''):ref;
+  const key=S(v).trim(); if(!key)continue;
+  if(!first)first=key;
+  const t=tourOf(key); if(t)return S(t.id);
+ }
+ const m=matches().find((x,i)=>mid(x,i)===S(sh?.matchId));
+ if(m){
+  const raw=m.tournamentId??m.tournament??m.tournamentID??m.tournamentName;
+  const v=(raw&&typeof raw==='object')?(raw.id??raw.tournamentId??raw.tournamentID??raw.name??raw.title??''):raw;
+  const key=S(v).trim(); if(key){const t=tourOf(key);if(t)return S(t.id);if(!first)first=key;}
+ }
+ return first;
+}
 function teamId(m,side){return S(side==='home'?(m?.home??m?.homeTeamId??m?.homeTeam):(m?.away??m?.awayTeamId??m?.awayTeam))}
 function teamPlayers(id){return players().filter(p=>S(p.teamId??p.team??p.teamID??p.team_id)===S(id))}
 function finished(m){const st=S(m?.status).toLowerCase();if(['finished','ended','completed','complete','منتهية','منتهيه','انتهت'].includes(st))return true;const d=S(m?.date||m?.matchDate),tm=S(m?.time||'00:00');let dt=null;let x=d.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);if(x)dt=new Date(+x[1],+x[2]-1,+x[3],+(tm.split(':')[0]||0),+(tm.split(':')[1]||0));return !!dt&&!Number.isNaN(dt.getTime())&&Date.now()-dt.getTime()>=2*60*60*1000}
@@ -17662,7 +17685,7 @@ function renderSaved(){
   if(!b)return;
   // لا نعرض أي كشف قبل اختيار البطولة؛ هذا ينطبق على المدير والزائر معًا.
   if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولًا لعرض كشوفات المباريات.</div>';return}
-  let list=rows().filter(s=>S(s.tournamentId)===tid);
+  let list=rows().filter(s=>reportTournamentId(s)===tid);
   if(!list.length){b.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';return}
   b.innerHTML=list.map(sh=>{
     const m=matches().find((x,i)=>mid(x,i)===S(sh.matchId));
@@ -23761,6 +23784,38 @@ body>header #authBar .login-btn:hover,body>header #authBar .logout-btn:hover{tra
     if(document.body&&typeof MutationObserver==='function')new MutationObserver(updateDeleteButtons).observe(document.body,{attributes:true,attributeFilter:['class']});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+<script id="final-match-sheet-tournament-refresh">
+(function(){
+  'use strict';
+  function refreshOnlyMatchSheets(){
+    try{
+      if(typeof window.refreshMatchSheets==='function') window.refreshMatchSheets();
+    }catch(e){console.warn('تحديث قسم كشوفات المباريات:',e);}
+  }
+  function bindRenderAll(){
+    if(typeof window.renderAll!=='function'||window.renderAll.__matchSheetsTournamentRefresh)return;
+    var original=window.renderAll;
+    var wrapped=function(){
+      var result=original.apply(this,arguments);
+      setTimeout(refreshOnlyMatchSheets,40);
+      return result;
+    };
+    wrapped.__matchSheetsTournamentRefresh=true;
+    window.renderAll=wrapped;
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    bindRenderAll();
+    setTimeout(bindRenderAll,300);
+    setTimeout(refreshOnlyMatchSheets,700);
+  });
+  window.addEventListener('load',function(){bindRenderAll();refreshOnlyMatchSheets();});
+  window.addEventListener('storage',function(e){
+    if(!e.key||/^manar_match_sheets_v[123]$/.test(e.key)||e.key==='manar_sports_v2'){
+      setTimeout(refreshOnlyMatchSheets,80);
+    }
+  });
 })();
 </script>
 </body>
