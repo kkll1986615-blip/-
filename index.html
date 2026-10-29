@@ -18581,7 +18581,7 @@ start();
       box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة لعرض الكشوفات المدخلة.</div>';
       return;
     }
-    const list=sheets().filter(sh=>belongs(sh,tid));
+    const list=sheets().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
     box.innerHTML=list.length?list.map(card).join(''):'<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';
   }
   function applyRole(){
@@ -18959,7 +18959,7 @@ function renderPublicSheets(){
     box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';
     return;
   }
-  const list=sheets().filter(sh=>belongs(sh,tid));
+  const list=sheets().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
   if(!list.length){
     box.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';
     return;
@@ -19131,7 +19131,7 @@ function renderPlayerStatsDirect(){
 }
 function renderSheetsDirect(){
  const box=document.getElementById('ksReportsList'),sel=document.getElementById('ksTournament');if(!box||!sel)return;const tid=S(sel.value);if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';return}
- const list=allSheets().filter(sh=>belongs(sh,tid));
+ const list=allSheets().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
  if(!list.length){box.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';return}
  const can=(()=>{try{return (typeof window.hasPermission==='function'&&window.hasPermission('matchSheets'))||document.body.classList.contains('admin')||document.body.classList.contains('editor')}catch(e){return document.body.classList.contains('admin')||document.body.classList.contains('editor')}})();
  box.innerHTML=list.map(sh=>{const m=A(DB().matches).find(x=>S(x.id)===S(sh.matchId))||{};const h=tname(sh.homeTeamId??m.home??m.homeTeamId),a=tname(sh.awayTeamId??m.away??m.awayTeamId);const hg=Number(sh.homeScore??m.hg??m.homeScore??0)||0,ag=Number(sh.awayScore??m.ag??m.awayScore??0)||0;let gs=entries(sh.homeScorers).concat(entries(sh.awayScorers));if(!gs.length)gs=entries(sh.goalScorers);const goals=gs.length?gs.map(x=>'⚽ '+esc(player(x)?.name||objName(x)||S(x))).join('، '):'لا توجد أهداف مسجلة';const cards=A(sh.cards);const ct=cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات';const bp=player(bestValue(sh));const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary"><div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ '+esc(m.time||sh.time||'—')+'</div><div class="pub-line">⚽ <b>مسجلو الأهداف:</b> '+goals+'</div><div class="pub-line">🟨🟥 <b>البطاقات:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>'}).join('');
@@ -23816,6 +23816,63 @@ body>header #authBar .login-btn:hover,body>header #authBar .logout-btn:hover{tra
       setTimeout(refreshOnlyMatchSheets,80);
     }
   });
+})();
+</script>
+<script id="strict-kashofat-tournament-isolation">
+(function(){
+  'use strict';
+  const S=v=>String(v==null?'':v).trim();
+  const A=v=>Array.isArray(v)?v:[];
+  const SHEET_FIELDS=['tournamentId','tournamentID','tournament_id','competitionId','championshipId','tournament','tournamentName','tournament_name','competitionName','tournamentTitle','championshipName'];
+  const MATCH_FIELDS=['tournamentId','tournamentID','tournament_id','competitionId','championshipId','tournament','tournamentName','tournament_name','competitionName','tournamentTitle','championshipName'];
+  function refsFor(obj,fields){return fields.map(k=>obj&&obj[k]).filter(v=>{
+    if(v&&typeof v==='object')return [v.id,v.tournamentId,v.tournamentID,v.name,v.title].some(x=>S(x)!=='');
+    return S(v)!=='';
+  });}
+  function tokens(value){
+    if(value&&typeof value==='object')return [value.id,value.tournamentId,value.tournamentID,value.name,value.title].map(S).filter(Boolean);
+    const v=S(value);return v?[v]:[];
+  }
+  function canonical(value,tours){
+    const vals=tokens(value);
+    for(const val of vals){
+      const byId=tours.find(t=>S(t.id)===val);
+      if(byId)return S(byId.id);
+      const byName=tours.find(t=>S(t.name)===val||S(t.title)===val||S(t.tournamentName)===val);
+      if(byName)return S(byName.id);
+    }
+    return '';
+  }
+  function relation(refs,tours,wanted){
+    // أول ارتباط صريح معروف في سجل الكشف هو المرجع الأساسي؛ لا نخلطه ببطولة المباراة.
+    for(const ref of refs){const id=canonical(ref,tours);if(id)return {id,hasRefs:true};}
+    // دعم السجلات القديمة التي تخزن اسم البطولة بدل معرّفها.
+    if(refs.some(ref=>tokens(ref).some(v=>wanted.has(v))))return {id:'',hasRefs:true,rawMatch:true};
+    return {id:'',hasRefs:refs.length>0};
+  }
+  window.__manarKashofatBelongsStrict=function(sheet,selectedValue){
+    const selected=S(selectedValue);
+    if(!sheet||!selected)return false;
+    const db=(window.db&&typeof window.db==='object')?window.db:{};
+    const tours=A(db.tournaments).filter(t=>t&&t.archived!==true&&S(t.status)!=='archived');
+    const selectedTour=tours.find(t=>S(t.id)===selected)||tours.find(t=>S(t.name)===selected||S(t.title)===selected);
+    const selectedId=S(selectedTour?.id||selected);
+    const wanted=new Set([selected,selectedId,selectedTour?.name,selectedTour?.title,selectedTour?.tournamentName].map(S).filter(Boolean));
+    const sheetRefs=refsFor(sheet,SHEET_FIELDS);
+    if(sheetRefs.length){
+      const r=relation(sheetRefs,tours,wanted);
+      if(r.id)return r.id===selectedId;
+      // إذا احتوى الكشف على ارتباط صريح لكنه غير معروف، لا نستخدم المباراة لتوسيع النطاق؛ منع خلط البطولات أولى.
+      return !!r.rawMatch;
+    }
+    const matches=A(db.matches);
+    const m=matches.find((x,i)=>S(x.id??i)===S(sheet.matchId));
+    if(!m)return false;
+    const matchRefs=refsFor(m,MATCH_FIELDS);
+    const r=relation(matchRefs,tours,wanted);
+    if(r.id)return r.id===selectedId;
+    return !!r.rawMatch;
+  };
 })();
 </script>
 </body>
