@@ -17797,8 +17797,7 @@ const SYNC_KEYS=[
  'manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3',
  'manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1',
  'manar_media_news_v1','manar_player_management_windows_v1','manar_player_transfers_v1',
- 'manar_contact_settings_v1','manar_contact_messages_v1','manar_polls_v1','manar_poll_votes_v1',
- 'sportsPlatformCustomLogo_v1'
+ 'manar_contact_settings_v1','manar_contact_messages_v1','manar_polls_v1','manar_poll_votes_v1'
 ];
 let app,auth,db,applyingRemote=false,initialReady=0,initialDone=false,started=false,authStateReadyDone=false;
 let resolveFirebaseInit;
@@ -18012,7 +18011,6 @@ async function pullAll(){
     }
     clearAllDirty();
     try{if(typeof window.db!=='undefined'){window.db=loadMainDatabase();}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
-    if(typeof window.__applyPlatformLogoFromStorage==='function')window.__applyPlatformLogoFromStorage();
     render();
     const seconds=((performance.now()-pullStarted)/1000).toFixed(1);
     status('اكتمل تنزيل البيانات: '+n+' قسمًا، وتصفير '+cleared+' مفتاحًا حسب ختم التصفير، مع الحفاظ على '+missing+' مفتاحًا غير موجود ('+seconds+' ث)',true);return true;
@@ -18220,7 +18218,7 @@ async function initialSync(){
   if(initialDone)return;
   initialDone=true;
   const hasCloud=SYNC_KEYS.some(k=>initialValues[k]!==null);
-  const localHasData=hasLocalData()||localStorage.getItem('sportsPlatformCustomLogo_v1')!==null;
+  const localHasData=hasLocalData();
   const signedIn=canWrite();
 
   /* إذا كانت السحابة تحمل تصفيرًا أحدث، فاسحب حالتها أولًا ولا ترفع ذاكرة الجهاز القديمة فوقها. */
@@ -18312,7 +18310,6 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
         if(snap.exists()) localStorage.setItem(k,JSON.stringify(snap.val()));
         else localStorage.removeItem(k);
         clearDirty(k);
-        if(k==='sportsPlatformCustomLogo_v1'&&typeof window.__applyPlatformLogoFromStorage==='function')window.__applyPlatformLogoFromStorage();
         if(k==='manar_sports_v2'){
           try{window.db=loadMainDatabase();__manarDataVersion++}catch(e){console.warn('Database reload after realtime update failed:',e)}
         }
@@ -18336,7 +18333,7 @@ start();
     'manar_sports_v2','manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3',
     'manar_referees_v1','manar_audit_log_v1','manar_tournament_archive_v1','manar_media_news_v1',
     'manar_player_management_windows_v1','manar_player_transfers_v1','manar_contact_settings_v1',
-    'manar_contact_messages_v1','manar_polls_v1','sportsPlatformCustomLogo_v1'
+    'manar_contact_messages_v1','manar_polls_v1'
   ];
 
   /* منع الكتابة فوق تعديل محلي لم يُرفع بعد إلى Firebase. */
@@ -21927,10 +21924,9 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
  const DEFAULT_LOGO=(document.querySelector('header img.brand-logo')||{}).getAttribute?.('src')||'';
  function defaultLogo(){return DEFAULT_LOGO;}
  function applyLogo(src){document.querySelectorAll('img.brand-logo, img.nav-emblem').forEach(img=>{img.src=src;});const preview=document.getElementById('platformLogoPreview');if(preview)preview.src=src;}
- function loadLogo(){try{const raw=localStorage.getItem(KEY);let saved=raw;if(typeof raw==='string'&&raw.startsWith('\"')){try{saved=JSON.parse(raw)}catch(e){}}else if(typeof raw==='string'&&raw.startsWith('data:image/')){saved=raw;try{localStorage.setItem(KEY,JSON.stringify(raw))}catch(e){}}applyLogo(saved||defaultLogo());}catch(e){applyLogo(defaultLogo());}}
- window.__applyPlatformLogoFromStorage=loadLogo;
- window.changePlatformLogo=function(event){const file=event&&event.target&&event.target.files&&event.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('يرجى اختيار ملف صورة صالح.');event.target.value='';return;}const reader=new FileReader();reader.onload=function(){const image=new Image();image.onload=function(){try{const canvas=document.createElement('canvas');const max=500;const scale=Math.min(1,max/Math.max(image.naturalWidth,image.naturalHeight));canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0,canvas.width,canvas.height);const data=canvas.toDataURL('image/png');localStorage.setItem(KEY,JSON.stringify(data));applyLogo(data);const msg=document.getElementById('platformLogoMessage');if(msg)msg.textContent='تم حفظ الشعار، وستتم مزامنته مع أجهزة الزوار عبر Firebase عند توفر اتصال حساب المزامنة.';}catch(err){alert('تعذر حفظ الصورة. جرّب صورة أصغر حجماً.');}};image.onerror=function(){alert('تعذر قراءة الصورة المختارة.');};image.src=reader.result;};reader.onerror=function(){alert('تعذر فتح ملف الصورة.');};reader.readAsDataURL(file);event.target.value='';};
- window.resetPlatformLogo=function(){const src=defaultLogo();try{if(src)localStorage.setItem(KEY,JSON.stringify(src));else localStorage.removeItem(KEY);}catch(e){}applyLogo(src);const msg=document.getElementById('platformLogoMessage');if(msg)msg.textContent='تمت استعادة الشعار الافتراضي، وسيتم تحديثه على أجهزة الزوار عبر المزامنة.';};
+ function loadLogo(){try{const saved=localStorage.getItem(KEY);applyLogo(saved||defaultLogo());}catch(e){applyLogo(defaultLogo());}}
+ window.changePlatformLogo=function(event){const file=event&&event.target&&event.target.files&&event.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('يرجى اختيار ملف صورة صالح.');event.target.value='';return;}const reader=new FileReader();reader.onload=function(){const image=new Image();image.onload=function(){try{const canvas=document.createElement('canvas');const max=500;const scale=Math.min(1,max/Math.max(image.naturalWidth,image.naturalHeight));canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0,canvas.width,canvas.height);const data=canvas.toDataURL('image/png');localStorage.setItem(KEY,data);applyLogo(data);const msg=document.getElementById('platformLogoMessage');if(msg)msg.textContent='تم تغيير شعار المنصة وحفظه على هذا الجهاز.';}catch(err){alert('تعذر حفظ الصورة. جرّب صورة أصغر حجماً.');}};image.onerror=function(){alert('تعذر قراءة الصورة المختارة.');};image.src=reader.result;};reader.onerror=function(){alert('تعذر فتح ملف الصورة.');};reader.readAsDataURL(file);event.target.value='';};
+ window.resetPlatformLogo=function(){try{localStorage.removeItem(KEY);}catch(e){}const src=defaultLogo();applyLogo(src);const msg=document.getElementById('platformLogoMessage');if(msg)msg.textContent='تمت استعادة الشعار الافتراضي.';};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadLogo);else loadLogo();
 })();
 </script>
