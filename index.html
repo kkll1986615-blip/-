@@ -20692,61 +20692,92 @@ function getSheets(){
 }
 function sheetMatch(sh){return matches().find(m=>S(m.id)===S(sh.matchId))}
 function score(sh){
- let h=Number(sh.homeScore),a=Number(sh.awayScore);
- return Number.isFinite(h)&&Number.isFinite(a)?{h,a}:null
+ const rh=sh?.homeScore,ra=sh?.awayScore;
+ if(rh===null||rh===undefined||ra===null||ra===undefined||String(rh).trim()===''||String(ra).trim()==='')return null;
+ let h=Number(rh),a=Number(ra);
+ return Number.isFinite(h)&&Number.isFinite(a)&&h>=0&&a>=0?{h,a}:null
+}
+function normalizeTeamName(v){
+ return S(v).normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLowerCase();
+}
+function teamRecord(value){
+ const v=S(value), n=normalizeTeamName(v);
+ return teams().find(t=>S(t.id)===v)||teams().find(t=>normalizeTeamName(t.name)===n)||null;
+}
+function sideMatches(targetId,targetName,side){
+ const v=S(side), rec=teamRecord(v);
+ if(v===S(targetId))return true;
+ const sideName=rec?rec.name:v;
+ return !!targetName&&normalizeTeamName(sideName)===targetName;
+}
+function matchTime(m){
+ const d=S(m?.date||m?.matchDate||''), t=S(m?.time||'00:00');
+ let value=Date.parse(d.includes('T')?d:(d?d+'T'+t:''));
+ if(!Number.isFinite(value))value=Date.parse(d);
+ return Number.isFinite(value)?value:0;
 }
 function collect(teamId, tournamentId, useTournament){
- const all=getSheets(), rows=[];
- all.forEach(sh=>{
+ /* تاريخ الفريق يُجمع حسب هوية الفريق/اسمه عبر كل البطولات، لا البطولة المحددة فقط. */
+ const target=teamRecord(teamId), targetName=normalizeTeamName(target?.name||teamId), rows=[];
+ getSheets().forEach(sh=>{
    const m=sheetMatch(sh), sc=score(sh); if(!m||!sc)return;
-   if(useTournament && tournamentId && tid(m)!==S(tournamentId))return;
-   const z=sides(m), isH=S(z.h)===S(teamId), isA=S(z.a)===S(teamId);
-   if(!isH&&!isA)return;
-   rows.push({gf:isH?sc.h:sc.a,ga:isH?sc.a:sc.h,win:(isH?sc.h:sc.a)>(isH?sc.a:sc.h)?1:0,draw:sc.h===sc.a?1:0,date:S(m.date),time:S(m.time),m});
+   const z=sides(m), isH=sideMatches(teamId,targetName,z.h), isA=sideMatches(teamId,targetName,z.a);
+   if(isH===isA)return;
+   const gf=isH?sc.h:sc.a, ga=isH?sc.a:sc.h;
+   const opponentId=isH?z.a:z.h, opponent=teamRecord(opponentId);
+   const t=A(DB().tournaments).find(x=>S(x.id)===tid(m));
+   rows.push({gf,ga,win:gf>ga?1:0,draw:gf===ga?1:0,points:gf>ga?3:gf===ga?1:0,date:S(m.date),time:S(m.time),timestamp:matchTime(m),m,opponentId,opponentName:opponent?.name||S(opponentId)||'فريق',tournamentName:t?.name||'بطولة سابقة'});
  });
- rows.sort((a,b)=>(S(b.date)+' '+S(b.time)).localeCompare(S(a.date)+' '+S(a.time)));
+ rows.sort((a,b)=>b.timestamp-a.timestamp||((S(b.m?.id)).localeCompare(S(a.m?.id))));
  return rows;
 }
 function stats(teamId,tournamentId){
- let rows=collect(teamId,tournamentId,true), scope='البطولة';
- if(!rows.length){rows=collect(teamId,tournamentId,false);scope='جميع البطولات'}
- let g=rows.length,gf=rows.reduce((n,x)=>n+x.gf,0),ga=rows.reduce((n,x)=>n+x.ga,0);
- let w=rows.reduce((n,x)=>n+x.win,0),d=rows.reduce((n,x)=>n+x.draw,0);
- let recent=rows.slice(0,5),rg=recent.length,rgf=recent.reduce((n,x)=>n+x.gf,0),rga=recent.reduce((n,x)=>n+x.ga,0);
- return {rows,g,gf,ga,w,d,l:g-w-d,avgGF:g?gf/g:0,avgGA:g?ga/g:0,recentG:rg,recentGF:rg?rgf/rg:0,recentGA:rg?rga/rg:0,scope}
+ const rows=collect(teamId,'',false), recent=rows.slice(0,5), g=recent.length;
+ /* الأحدث يأخذ وزن 1.00 ثم 0.90 و0.80 و0.70 و0.60، كما في النماذج المنشورة. */
+ const weights=recent.map((_,i)=>[1,.9,.8,.7,.6][i]||.6), weightSum=weights.reduce((n,x)=>n+x,0)||1;
+ const weighted=key=>g?recent.reduce((n,x,i)=>n+Number(x[key]||0)*weights[i],0)/weightSum:0;
+ const avg=key=>g?recent.reduce((n,x)=>n+Number(x[key]||0),0)/g:0;
+ const rawGF=avg('gf'), rawGA=avg('ga');
+ return {rows:recent,allRows:rows,g,totalMatches:rows.length,gf:recent.reduce((n,x)=>n+x.gf,0),ga:recent.reduce((n,x)=>n+x.ga,0),w:recent.reduce((n,x)=>n+x.win,0),d:recent.reduce((n,x)=>n+x.draw,0),l:g-recent.reduce((n,x)=>n+x.win+x.draw,0),avgGF:rawGF,avgGA:rawGA,recentG:g,recentGF:weighted('gf'),recentGA:weighted('ga'),recentPPG:weighted('points'),scope:'آخر خمس مباريات في جميع البطولات'};
 }
-function leagueAverages(tournamentId){
- let rows=getSheets().map(sh=>{let m=sheetMatch(sh),sc=score(sh);return m&&sc&&(!tournamentId||tid(m)===S(tournamentId))?sc:null}).filter(Boolean);
- if(!rows.length)rows=getSheets().map(sh=>{let m=sheetMatch(sh),sc=score(sh);return m&&sc?sc:null}).filter(Boolean);
+function leagueAverages(){
+ /* خط أساس محلي من كل كشوفات المباريات في جميع البطولات، وليس البطولة المختارة. */
+ let rows=getSheets().map(sh=>{const m=sheetMatch(sh),sc=score(sh);return m&&sc?sc:null}).filter(Boolean);
  if(!rows.length)return {home:1.25,away:1.0,total:2.25};
  return {home:rows.reduce((n,x)=>n+x.h,0)/rows.length,away:rows.reduce((n,x)=>n+x.a,0)/rows.length,total:rows.reduce((n,x)=>n+x.h+x.a,0)/rows.length};
 }
 function poisson(k,l){let e=Math.exp(-l),p=1;for(let i=1;i<=k;i++)p*=l/i;return e*p}
 function predict(m){
- const z=sides(m), H=stats(z.h,tid(m)), V=stats(z.a,tid(m)), L=leagueAverages(tid(m));
+ const z=sides(m), H=stats(z.h,tid(m)), V=stats(z.a,tid(m)), L=leagueAverages();
  const leagueTeamAvg=Math.max(.65,L.total/2);
- const atkH=H.g?(.62*(H.recentGF/leagueTeamAvg)+.38*(H.avgGF/leagueTeamAvg)):1;
- const atkV=V.g?(.62*(V.recentGF/leagueTeamAvg)+.38*(V.avgGF/leagueTeamAvg)):1;
- const defH=H.g?(.62*(H.recentGA/leagueTeamAvg)+.38*(H.avgGA/leagueTeamAvg)):1;
- const defV=V.g?(.62*(V.recentGA/leagueTeamAvg)+.38*(V.avgGA/leagueTeamAvg)):1;
- const formH=H.g?Math.max(.72,Math.min(1.28,.62*(H.recentGF/Math.max(.8,leagueTeamAvg))+.38*((H.w*3+H.d)/(3*H.g)))):1;
- const formV=V.g?Math.max(.72,Math.min(1.28,.62*(V.recentGF/Math.max(.8,leagueTeamAvg))+.38*((V.w*3+V.d)/(3*V.g)))):1;
- let lh=Math.max(.18,L.home*atkH*(1/Math.max(.55,defV))*.95*formH);
- let la=Math.max(.12,L.away*atkV*(1/Math.max(.55,defH))*.95*formV);
- lh=Math.min(4.5,lh);la=Math.min(4.5,la);
+ const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
+ /* إحصاءات الهجوم والاستقبال مبنية على آخر خمس مباريات عبر البطولات. */
+ const sampleH=H.g/5, sampleV=V.g/5;
+ const atkH=H.g?1+(clamp(H.recentGF/leagueTeamAvg,.55,1.75)-1)*sampleH:1;
+ const atkV=V.g?1+(clamp(V.recentGF/leagueTeamAvg,.55,1.75)-1)*sampleV:1;
+ const defH=H.g?1+(clamp(H.recentGA/leagueTeamAvg,.55,1.75)-1)*sampleH:1;
+ const defV=V.g?1+(clamp(V.recentGA/leagueTeamAvg,.55,1.75)-1)*sampleV:1;
+ const baseFormH=H.g?clamp(.88+(H.recentPPG/3)*.24,.88,1.12):1;
+ const baseFormV=V.g?clamp(.88+(V.recentPPG/3)*.24,.88,1.12):1;
+ const formH=1+(baseFormH-1)*sampleH, formV=1+(baseFormV-1)*sampleV;
+ /* القوة الهجومية × معدل استقبال المنافس؛ معامل الأرض مأخوذ من متوسط المباريات الفعلية. */
+ let lh=Math.max(.18,L.home*atkH*defV*formH);
+ let la=Math.max(.12,L.away*atkV*defH*formV);
+ lh=clamp(lh,.18,4.5);la=clamp(la,.12,4.5);
  let home=0,draw=0,away=0,best=[0,0,0];
  for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){
-   let p=poisson(i,lh)*poisson(j,la);
-   if(i>j)home+=p;else if(i<j)away+=p;else draw+=p;
-   if(p>best[0])best=[p,i,j];
+   const prob=poisson(i,lh)*poisson(j,la);
+   if(i>j)home+=prob;else if(i<j)away+=prob;else draw+=prob;
+   if(prob>best[0])best=[prob,i,j];
  }
- const sum=home+draw+away;home/=sum;draw/=sum;away/=sum;
- const games=H.g+V.g, confidence=Math.max(30,Math.min(95,Math.round(38+Math.min(32,games*3)+Math.min(18,Math.abs(lh-la)*10)+Math.min(7,Math.abs(H.avgGF-V.avgGF)*4))));
+ const sum=home+draw+away||1;home/=sum;draw/=sum;away/=sum;
+ const sampleCount=H.g+V.g;
+ const confidence=Math.max(25,Math.min(88,Math.round(30+sampleCount*3.4+Math.min(12,Math.abs(lh-la)*7))));
  return {q:z,h:H,a:V,home,draw,away,lh,la,scoreH:best[1],scoreA:best[2],confidence};
 }
 function save(m,p){
  const h=readHist(),id=S(m.id);if(!id)return;
- h[id]={...(h[id]||{}),matchId:id,tournamentId:tid(m),homeId:p.q.h,awayId:p.q.a,homeName:tname(p.q.h),awayName:tname(p.q.a),home:p.scoreH,away:p.scoreA,homePct:Math.round(p.home*100),drawPct:Math.round(p.draw*100),awayPct:Math.round(p.away*100),confidence:p.confidence,createdAt:h[id]?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
+ h[id]={...(h[id]||{}),matchId:id,tournamentId:tid(m),homeId:p.q.h,awayId:p.q.a,homeName:tname(p.q.h),awayName:tname(p.q.a),home:p.scoreH,away:p.scoreA,homePct:Math.round(p.home*100),drawPct:Math.round(p.draw*100),awayPct:Math.round(p.away*100),confidence:p.confidence,modelVersion:'last5-global-all-tournaments-v2',createdAt:h[id]?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
  writeHist(h);return h[id]
 }
 function actual(m){
@@ -20760,14 +20791,25 @@ function rate(pred,real){
  return Math.round((outcome(pred)===outcome(real)?65+35*close:10+20*close))
 }
 function pct(v){return Math.round(v*100)}
+function recentFormHtml(teamId,st){
+ const teamName=tname(teamId);
+ const head='<div style="font-weight:900;color:#075f45;margin:10px 0 7px">📚 آخر '+st.g+' مباريات — '+esc(teamName)+' (جميع البطولات)</div>';
+ if(!st.rows.length)return head+'<div style="padding:9px;border-radius:10px;background:#f5f7f8;color:#718096">لا توجد كشوفات نتائج سابقة مسجلة لهذا الفريق.</div>';
+ return head+'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:7px">'+st.rows.map(x=>{
+   const result=x.gf>x.ga?'فوز':x.gf<x.ga?'خسارة':'تعادل';
+   const color=x.gf>x.ga?'#087f5b':x.gf<x.ga?'#c92a2a':'#b77900';
+   return '<div title="'+esc(x.tournamentName)+'" style="min-width:0;padding:9px;border-radius:11px;border:1px solid #dce8e2;background:#fff;box-shadow:0 2px 7px #12362a0a"><b style="display:block;color:'+color+';font-size:12px">'+result+' · '+x.gf+' - '+x.ga+'</b><span style="display:block;white-space:normal;overflow-wrap:anywhere;font-size:12px;margin-top:4px">'+esc(x.opponentName)+'</span><small style="display:block;color:#718096;white-space:normal;overflow-wrap:anywhere;margin-top:4px">'+esc(x.tournamentName)+' · '+esc(x.date||'تاريخ غير مسجل')+'</small></div>';
+ }).join('')+'</div>';
+}
 function matchCard(m,p){
  let z=p.q, H=p.h,V=p.a;
  return '<div class="prediction-data-driven-card">'+
  '<div class="pdd-team-row"><div class="pdd-team">'+logo(z.h)+'<b>'+esc(tname(z.h))+'</b></div><span class="pdd-vs">VS</span><div class="pdd-team"><b>'+esc(tname(z.a))+'</b>'+logo(z.a)+'</div></div>'+
- '<div class="pdd-meta"><span>📅 '+esc(m.date||'—')+'</span><span>🕒 '+esc(m.time||'—')+'</span><span>📊 '+esc(H.g)+' مباراة بيانات</span><span>📊 '+esc(V.g)+' مباراة بيانات</span></div>'+
+ '<div class="pdd-meta"><span>📅 '+esc(m.date||'—')+'</span><span>🕒 '+esc(m.time||'—')+'</span><span>📚 آخر '+esc(H.g)+' مباريات لـ '+esc(tname(z.h))+'</span><span>📚 آخر '+esc(V.g)+' مباريات لـ '+esc(tname(z.a))+'</span></div>'+
  '<div class="pdd-probs"><div class="pdd-prob home">فوز '+esc(tname(z.h))+'<b>'+pct(p.home)+'%</b></div><div class="pdd-prob draw">تعادل<b>'+pct(p.draw)+'%</b></div><div class="pdd-prob away">فوز '+esc(tname(z.a))+'<b>'+pct(p.away)+'%</b></div></div>'+
  '<div class="pdd-score">🎯 النتيجة الأقرب<strong>'+p.scoreH+' - '+p.scoreA+'</strong></div>'+
- '<div class="pdd-data"><div>⚽ متوسط التسجيل — '+esc(tname(z.h))+'<b>'+H.avgGF.toFixed(2)+'</b></div><div>🛡️ متوسط الاستقبال — '+esc(tname(z.h))+'<b>'+H.avgGA.toFixed(2)+'</b></div><div>⚽ متوسط التسجيل — '+esc(tname(z.a))+'<b>'+V.avgGF.toFixed(2)+'</b></div><div>🛡️ متوسط الاستقبال — '+esc(tname(z.a))+'<b>'+V.avgGA.toFixed(2)+'</b></div></div>'+
+ '<div class="pdd-data"><div>⚽ متوسط التسجيل (آخر ٥) — '+esc(tname(z.h))+'<b>'+H.avgGF.toFixed(2)+'</b></div><div>🛡️ متوسط الاستقبال (آخر ٥) — '+esc(tname(z.h))+'<b>'+H.avgGA.toFixed(2)+'</b></div><div>⚽ متوسط التسجيل (آخر ٥) — '+esc(tname(z.a))+'<b>'+V.avgGF.toFixed(2)+'</b></div><div>🛡️ متوسط الاستقبال (آخر ٥) — '+esc(tname(z.a))+'<b>'+V.avgGA.toFixed(2)+'</b></div></div>'+
+ recentFormHtml(z.h,H)+recentFormHtml(z.a,V)+
  '<div class="pdd-confidence">📈 نسبة الثقة بالتوقع: <b>'+p.confidence+'%</b> — محسوبة من حجم البيانات وفارق قوة الفريقين</div></div>'
 }
 function renderHistory(tidSel){
@@ -20794,7 +20836,7 @@ function patchCurrentUI(){
  const all=matches().filter(m=>tid(m)===t).slice().sort((a,b)=>(S(a.date)+' '+S(a.time)).localeCompare(S(b.date)+' '+S(b.time)));
  const hist=readHist(), pending=all.filter(m=>!actual(m));
  const tour=A(DB().tournaments).find(x=>S(x.id)===t);
- if(sum)sum.innerHTML='<div class="prediction-data-driven-note">🏆 '+esc(tour?.name||'البطولة')+' — التوقع لا يستخدم نسبة ثابتة: يتم حساب قوة كل فريق من أهدافه ونتائجه وفورمته وعدد الكشوفات المدخلة.</div>';
+ if(sum)sum.innerHTML='<div class="prediction-data-driven-note">🏆 '+esc(tour?.name||'البطولة')+' — يعتمد التوقع على آخر ٥ مباريات مسجلة لكل فريق عبر جميع البطولات، مع ترجيح الأحدث وتحليل الأهداف المسجلة والمستقبلة وشكل النتائج، ثم حساب الاحتمالات بنموذج بواسون.</div>';
  const __oc=document.getElementById('predictionOpenCount'); if(__oc)__oc.textContent=String(pending.length);
  pending.forEach(m=>{let p=predict(m);save(m,p)});
  open.innerHTML=pending.length?pending.map(m=>matchCard(m,predict(m))).join(''):'<div class="prediction-empty success">✅ لا توجد مباريات جديدة للتوقع؛ ستظهر النتائج السابقة في سجل التوقعات.</div>';
