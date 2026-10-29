@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48.png?v=20261025" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon.png?v=20261025" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v7-upload-failure-preserve-local" name="manar-sync-version"/>
+<meta content="firebase-sync-v7-upload-failure-preserve-local-sheet-read-recovery" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -17530,8 +17530,15 @@ const pObj=id=>players().find(p=>S(p.id)===S(id)||S(p.name)===S(id));
 const pName=id=>pObj(id)?.name||S(id)||'—';
 const mid=(m,i)=>S(m?.id??i);
 function canManage(){try{if(typeof window.hasPermission==='function')return !!window.hasPermission('matchSheets')}catch(e){}return document.body.classList.contains('admin')||document.body.classList.contains('editor')||S(window.currentRole).toLowerCase()==='admin'}
-function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return A(x)}catch(e){return[]}}
-function write(v){const data=A(v);localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(LEGACY,JSON.stringify(data))}
+function read(){
+  // اقرأ الإصدارات القديمة والجديدة معًا؛ لا تسمح لمصفوفة v3 الفارغة بإخفاء كشوفات محفوظة في v1/v2.
+  const keys=['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'];
+  const byId=new Map();
+  const stamp=row=>{const v=row&&(row.updatedAt??row.modifiedAt??row.createdAt??row.savedAt??row.timestamp);if(typeof v==='number'&&Number.isFinite(v))return v;if(v!=null){const d=Date.parse(String(v));if(Number.isFinite(d))return d;const n=Number(v);if(Number.isFinite(n))return n;}return 0};
+  keys.forEach((key,rank)=>{try{const arr=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(arr))return;arr.forEach(row=>{if(!row||row.matchId==null)return;const id=String(row.matchId),prev=byId.get(id),ts=stamp(row);if(!prev||ts>prev.ts||(ts===prev.ts&&rank>=prev.rank))byId.set(id,{row,ts,rank});});}catch(e){}});
+  return Array.from(byId.values()).map(x=>x.row);
+}
+function write(v){const data=A(v);const serialized=JSON.stringify(data);localStorage.setItem(KEY,serialized);localStorage.setItem(LEGACY,serialized)}
 function rows(){return read().filter(x=>x&&x.matchId!=null)}
 function tourOf(id){return tours().find(t=>S(t.id)===S(id)||S(t.name)===S(id)||S(t.title)===S(id))}
 function tourId(m){const v=m?.tournamentId??m?.tournament??m?.tournamentID??m?.tournamentName;const t=tourOf(v);return t?S(t.id):S(v)}
@@ -19135,7 +19142,7 @@ const oldRS=window.renderStats;window.renderStats=function(){if(typeof oldRS==='
   }
 
   function run(){
-    ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(repairStoredKey);
+    ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_referees_v1'].forEach(repairStoredKey);
   }
 
   // One-time migration only. No DOM rewriting, no Storage.prototype override,
@@ -19149,7 +19156,7 @@ const oldRS=window.renderStats;window.renderStats=function(){if(typeof oldRS==='
   // If another device/tab writes a malformed sheet, repair the stored JSON
   // once when the storage event arrives.
   window.addEventListener('storage',function(e){
-    if(/^manar_match_sheets_v[123]$/.test(e.key)){
+    if(/^manar_match_sheets_v[123]$/.test(e.key)||e.key==='manar_referees_v1'){
       setTimeout(function(){repairStoredKey(e.key);},0);
     }
   });
