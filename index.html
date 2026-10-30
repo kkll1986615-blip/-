@@ -11217,7 +11217,7 @@ img { decoding: async; }
 <div id="matchKnockoutRoundWrap" style="display:none"><label>🏆 نوع مباراة خروج المغلوب</label><select id="matchKnockoutRound"><option value="">— اختر نوع المباراة —</option><option value="دوري المجموعات">📋 دوري المجموعات (يُحتسب في ترتيب الفرق)</option><option value="ربع النهائي">🏆 ربع النهائي</option><option value="نصف النهائي">🥈 نصف النهائي</option><option value="النهائي">🥇 النهائي</option></select><small>دوري المجموعات يدخل في جدول الترتيب، أما ربع النهائي ونصف النهائي والنهائي فتظهر في نتائج المباريات الإقصائية بالإحصائيات.</small></div>
 </div><div class="actions"><button class="btn" onclick="addMatch()">💾 حفظ المباراة</button></div></div><div class="card match-view-selector-card"><div class="section-title"><div><h2>📋 عرض المباريات</h2><small>اختر البطولة أولاً، ثم اختر نوع المباريات التي تريد عرضها.</small></div><span class="badge">👁️ متاح للجميع</span></div><div class="grid match-view-selectors"><div><label>🏆 اسم البطولة</label><select id="matchViewTournament" onchange="refreshMatchViewStatus()"><option value="">— اختر البطولة —</option></select></div><div><label>📌 نوع المباريات</label><select disabled="" id="matchViewFilter" onchange="renderMatchView()"><option value="">— اختر نوع المباريات —</option><option value="scheduled">📅 المباريات المجدولة</option><option value="finished">✅ المباريات المنتهية</option></select></div></div><div class="match-view-help" id="matchViewHelp">🏆 اختر اسم البطولة لعرض خيارات المباريات.</div></div><div class="card"><div id="matchViewList"><div class="upcoming-empty">🏆 اختر اسم البطولة أولاً.</div></div></div><div id="upcomingMatches" style="display:none"></div><div id="matchList" style="display:none"></div></section><section class="page" id="overallRanking"><div class="card overall-ranking-new"><div class="section-title"><div><h2>🏆 التصنيف العام</h2><small>ترتيب نتائج الفرق في جميع البطولات الرسمية في المنار</small></div><span class="badge">جميع البطولات الرسمية</span></div><div class="notice overall-ranking-note">
       يتم جمع نتائج المباريات المنتهية للفرق المسجلة في البطولات الرسمية وعرضها في جدول واحد.
-    </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card stats-hero-card"><div class="stats-hero-heading"><span class="stats-hero-art" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-label="رسم بياني للإحصائيات"><defs><linearGradient id="statsIconGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c1c3"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect x="8" y="8" width="80" height="80" rx="23" fill="url(#statsIconGradient)"/><path d="M25 68V51h10v17M43 68V38h10v30M61 68V26h10v42" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 74h52" stroke="#dff7ff" stroke-width="4" stroke-linecap="round"/></svg></span><div class="stats-hero-copy"><h2>إحصائيات البطولة</h2><p>قراءة واضحة لأرقام البطولة وأداء الفرق واللاعبين</p></div><span class="stats-hero-tag">📊 تحليل الأداء</span></div><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings"><div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>تغيير اسم المستخدم وكلمة المرور الخاصة بالمنصة.</small></div><span class="badge">Admin فقط</span></div><div class="card settings-card" data-perm="settings"><h2>🔐 تغيير اسم المستخدم وكلمة المرور</h2><div class="notice">يمكن للمدير تحديث بيانات الدخول. تُحفظ بيانات الحساب محليًا؛ المزامنة السحابية للحسابات غير مفعلة في النظام الحالي.</div><div class="user-management-block" style="margin-top:14px;border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🖼️ شعار المنصة</h3><small>اختر صورة جديدة لتظهر في ترويسة المنصة والقائمة الجانبية على هذا الجهاز.</small></div><img id="platformLogoPreview" alt="معاينة شعار المنصة" style="width:64px;height:64px;object-fit:contain;border-radius:50%;border:2px solid #d5e8df;background:#fff;padding:3px"/ loading="lazy" decoding="async"></div><div class="actions" style="margin-top:12px"><button class="btn blue" type="button" onclick="document.getElementById('platformLogoFile').click()">🖼️ تغيير شعار المنصة</button><button class="btn secondary" type="button" onclick="resetPlatformLogo()">↩️ استعادة الشعار الافتراضي</button><input id="platformLogoFile" type="file" accept="image/*" style="display:none" onchange="changePlatformLogo(event)"/></div><div id="platformLogoMessage" style="font-size:13px;margin-top:8px;color:#0b5d3b" role="status"></div></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input autocomplete="username" id="newAdminUser" placeholder="أدخل اسم المستخدم الجديد"/></div><div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div><div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div><div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div></div><div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div><div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ بيانات الدخول الجديدة</button></div></div><div class="card settings-card" data-perm="settings"><div class="section-title"><h2>⚙️ الإعدادات</h2><span class="badge">مدير النظام</span></div><div class="notice">إدارة الحسابات والصلاحيات بشكل منظم. الزائر يبقى مشاهدًا دون تسجيل دخول.</div><div class="user-management-block audit-shortcut-block" style="border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🧾 سجل المراجعة</h3><small>المدير لديه صلاحية تلقائية، ويمكنه منح «سجل المراجعة» لأي حساب من قائمة الصلاحيات. مسح السجل متاح للمدير فقط.</small></div><span class="badge">🔐 المدير أو من يخوله</span></div><div class="actions"><button class="btn" type="button" onclick="openAuditLog()">🧾 فتح سجل المراجعة</button></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">👤 الحسابات الحالية</h3><span class="badge">الحسابات</span></div><div class="table-wrap" id="managedUsersList"></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">➕ إنشاء حساب جديد</h3><span class="badge">الخطوة 1</span></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input id="newManagedUser" placeholder="مثال: مسؤول المباريات"/></div><div><label>كلمة المرور</label><input id="newManagedPass" placeholder="كلمة مرور الحساب" type="password"/></div></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">🔐 الصلاحيات</h3><span class="badge">الخطوة 2</span></div><div class="permission-tools"><button class="btn secondary" onclick="setAllManagedPermissions(true)" type="button">☑️ تحديد الكل</button><button class="btn secondary" onclick="setAllManagedPermissions(false)" type="button">☐ إلغاء الكل</button></div><div class="permission-grid" id="userPermissions"></div></div><div class="actions"><button class="btn btn-primary" onclick="addManagedUser()">➕ إنشاء الحساب بالصلاحيات المحددة</button></div><div class="card settings-card platform-reset-card" data-platform-reset="admin-only"><div class="section-title"><h2>⚠️ تصفير المنصة</h2><span class="badge">المدير فقط</span></div><div class="platform-reset-warning">
+    </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card stats-hero-card"><div class="stats-hero-heading"><span class="stats-hero-art" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-label="رسم بياني للإحصائيات"><defs><linearGradient id="statsIconGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c1c3"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect x="8" y="8" width="80" height="80" rx="23" fill="url(#statsIconGradient)"/><path d="M25 68V51h10v17M43 68V38h10v30M61 68V26h10v42" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 74h52" stroke="#dff7ff" stroke-width="4" stroke-linecap="round"/></svg></span><div class="stats-hero-copy"><h2>إحصائيات البطولة</h2><p>قراءة واضحة لأرقام البطولة وأداء الفرق واللاعبين</p></div><span class="stats-hero-tag">📊 تحليل الأداء</span></div><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings"><div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>تغيير اسم المستخدم وكلمة المرور الخاصة بالمنصة.</small></div><span class="badge">Admin فقط</span></div><div class="card settings-card" data-perm="settings"><h2>🔐 تغيير اسم المستخدم وكلمة المرور</h2><div class="notice">لا يُعتمد تغيير كلمة المرور إلا بعد تأكيد حفظ بيانات الحساب في Firebase؛ وعند نجاحه تُنهى جلسات المنصة المفتوحة.</div><div class="user-management-block" style="margin-top:14px;border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🖼️ شعار المنصة</h3><small>اختر صورة جديدة لتظهر في ترويسة المنصة والقائمة الجانبية على هذا الجهاز.</small></div><img id="platformLogoPreview" alt="معاينة شعار المنصة" style="width:64px;height:64px;object-fit:contain;border-radius:50%;border:2px solid #d5e8df;background:#fff;padding:3px"/ loading="lazy" decoding="async"></div><div class="actions" style="margin-top:12px"><button class="btn blue" type="button" onclick="document.getElementById('platformLogoFile').click()">🖼️ تغيير شعار المنصة</button><button class="btn secondary" type="button" onclick="resetPlatformLogo()">↩️ استعادة الشعار الافتراضي</button><input id="platformLogoFile" type="file" accept="image/*" style="display:none" onchange="changePlatformLogo(event)"/></div><div id="platformLogoMessage" style="font-size:13px;margin-top:8px;color:#0b5d3b" role="status"></div></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input autocomplete="username" id="newAdminUser" placeholder="أدخل اسم المستخدم الجديد"/></div><div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div><div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div><div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div></div><div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div><div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ بيانات الدخول الجديدة</button></div></div><div class="card settings-card" data-perm="settings"><div class="section-title"><h2>⚙️ الإعدادات</h2><span class="badge">مدير النظام</span></div><div class="notice">إدارة الحسابات والصلاحيات بشكل منظم. الزائر يبقى مشاهدًا دون تسجيل دخول.</div><div class="user-management-block audit-shortcut-block" style="border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#ffffff)"><div class="section-title"><div><h3 style="margin:0">🧾 سجل المراجعة</h3><small>المدير لديه صلاحية تلقائية، ويمكنه منح «سجل المراجعة» لأي حساب من قائمة الصلاحيات. مسح السجل متاح للمدير فقط.</small></div><span class="badge">🔐 المدير أو من يخوله</span></div><div class="actions"><button class="btn" type="button" onclick="openAuditLog()">🧾 فتح سجل المراجعة</button></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">👤 الحسابات الحالية</h3><span class="badge">الحسابات</span></div><div class="table-wrap" id="managedUsersList"></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">➕ إنشاء حساب جديد</h3><span class="badge">الخطوة 1</span></div><div class="grid"><div><label>اسم المستخدم الجديد</label><input id="newManagedUser" placeholder="مثال: مسؤول المباريات"/></div><div><label>كلمة المرور</label><input id="newManagedPass" placeholder="كلمة مرور الحساب" type="password"/></div></div></div><div class="user-management-block"><div class="section-title"><h3 style="margin:0">🔐 الصلاحيات</h3><span class="badge">الخطوة 2</span></div><div class="permission-tools"><button class="btn secondary" onclick="setAllManagedPermissions(true)" type="button">☑️ تحديد الكل</button><button class="btn secondary" onclick="setAllManagedPermissions(false)" type="button">☐ إلغاء الكل</button></div><div class="permission-grid" id="userPermissions"></div></div><div class="actions"><button class="btn btn-primary" onclick="addManagedUser()">➕ إنشاء الحساب بالصلاحيات المحددة</button></div><div class="card settings-card platform-reset-card" data-platform-reset="admin-only"><div class="section-title"><h2>⚠️ تصفير المنصة</h2><span class="badge">المدير فقط</span></div><div class="platform-reset-warning">
     يمكنك تصفير قسم واحد فقط مع الإبقاء على بقية بيانات المنصة، أو اختيار التصفير الكلي. هذه الأدوات متاحة لمدير النظام فقط، ولا تحذف حسابات المستخدمين أو كلمة مرور المدير.</div>
   <div class="grid" style="margin:12px 0">
     <div><label for="platformResetSection">🧩 اختر القسم المراد تصفيره</label><select id="platformResetSection"><option value="">— اختر القسم —</option><option value="tournaments">🏆 البطولات</option><option value="teams">⚽ الفرق</option><option value="players">👤 اللاعبون</option><option value="matches">📅 المباريات</option><option value="sheets">📋 كشوفات المباريات</option><option value="referees">⚖️ الحكام</option><option value="archives">🗄️ أرشيف البطولات</option><option value="news">📰 الأخبار والإعلام</option><option value="polls">🗳️ استطلاعات الرأي</option><option value="audit">🧾 سجل المراجعة</option><option value="suspensions">🟥 الإيقافات والإنذارات</option><option value="transfers">🔁 انتقالات اللاعبين</option><option value="officialPlayers">🪪 اللاعبين الرسميين</option></select></div>
@@ -11245,11 +11245,15 @@ img { decoding: async; }
 <script>
 const AUTH_KEY='manar_auth_v2';
 const USERS_KEY='manar_users_v3';
+const AUTH_REVOCATION_KEY='manar_auth_revocation_v1';
+const AUTH_SESSION_VERSION_KEY='manar_auth_session_version_v1';
+function newAuthSessionVersion(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);}
 const PERMISSIONS={
   tournaments:'البطولات', teams:'الفرق', players:'اللاعبون', 
   matches:'المباريات', matchSheets:'كشوفات المباريات', stats:'الإحصائيات', referees:'حكام رابطة المنار', media:'الإعلام', delete:'الحذف', backup:'النسخ الاحتياطي', settings:'الإعدادات', audit:'سجل المراجعة'
 };
 const DEFAULT_USERS={admin:{user:'admin',pass:'admin123',label:'👑 مدير النظام',cls:'admin',permissions:Object.keys(PERMISSIONS)},editor:{user:'editor',pass:'editor123',label:'🛠️ صلاحية متوسطة',cls:'editor',permissions:['tournaments','teams','players','matches','matchSheets','stats','referees','media']}};
+window.__manarDefaultAdminPassword=DEFAULT_USERS.admin.pass;
 let USERS=null;
 try{USERS=JSON.parse(localStorage.getItem(USERS_KEY)||'null')}catch(e){USERS=null}
 if(!USERS||typeof USERS!=='object'||!USERS.admin||!USERS.editor){
@@ -11273,16 +11277,33 @@ function openLogin(destination){ if(destination) pendingLoginDestination=destina
 function closeLogin(){ pendingLoginDestination='home'; $('loginOverlay').style.display='none'; }
 
 function refreshLoginUsers(){let sel=$('loginRole');if(!sel)return;let prev=sel.value;sel.innerHTML=Object.keys(USERS).map(k=>`<option value="${esc(k)}">${esc(USERS[k].label||USERS[k].user)}</option>`).join('');if(USERS[prev])sel.value=prev;}
-function login(){if(window.__manarAccountSyncReady===false){$('loginError').textContent='جارٍ التحقق من الحسابات المحفوظة في المنصة؛ انتظر لحظات ثم حاول مجددًا.';$('loginError').style.display='block';return;}let role=$('loginRole').value,user=$('loginUser').value.trim(),pass=$('loginPass').value;let u=USERS[role];if(u&&user===u.user&&pass===u.pass){let destination=pendingLoginDestination||'home';if(destination==='settings'&&!((role==='admin')||(u.permissions||[]).includes('settings'))){$('loginError').textContent='هذا الحساب غير مخوّل للدخول إلى الإعدادات.';$('loginError').style.display='block';return;}sessionStorage.setItem(AUTH_KEY,role);setRole(role);try{if(typeof window.__manarFirebaseSyncAfterPlatformLogin==='function')window.__manarFirebaseSyncAfterPlatformLogin(role);}catch(syncLoginErr){console.warn('Automatic sync after platform login skipped:',syncLoginErr)}$('loginUser').value='';$('loginPass').value='';closeLogin();auditAdd('تسجيل الدخول',destination==='settings'?'settings':'login',`تم تسجيل دخول المستخدم «${u.user}».`);if(destination==='settings'){pendingLoginDestination='home';directSettingsAfterLogin();}else{goPage('home');alert('تم تسجيل الدخول بنجاح — '+u.label.replace(/^.. /,''));}}else{$('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';$('loginError').style.display='block';}}
+function login(){if(window.__manarAccountSyncReady!==true){const detail=window.__manarAccountSyncError||'لم يكتمل التحقق من بيانات الدخول المرجعية في Firebase بعد.';$('loginError').textContent='تعذر بدء تسجيل الدخول قبل التحقق من الحسابات: '+detail+' أعد تحميل المنصة بعد التأكد من الاتصال بالإنترنت.';$('loginError').style.display='block';return;}let role=$('loginRole').value,user=$('loginUser').value.trim(),pass=$('loginPass').value;let u=USERS[role];if(u&&user===u.user&&pass===u.pass){let destination=pendingLoginDestination||'home';if(destination==='settings'&&!((role==='admin')||(u.permissions||[]).includes('settings'))){$('loginError').textContent='هذا الحساب غير مخوّل للدخول إلى الإعدادات.';$('loginError').style.display='block';return;}sessionStorage.setItem(AUTH_KEY,role);sessionStorage.setItem(AUTH_SESSION_VERSION_KEY,String(u.sessionVersion||''));setRole(role);try{if(typeof window.__manarFirebaseSyncAfterPlatformLogin==='function')window.__manarFirebaseSyncAfterPlatformLogin(role);}catch(syncLoginErr){console.warn('Automatic sync after platform login skipped:',syncLoginErr)}$('loginUser').value='';$('loginPass').value='';closeLogin();auditAdd('تسجيل الدخول',destination==='settings'?'settings':'login',`تم تسجيل دخول المستخدم «${u.user}».`);if(destination==='settings'){pendingLoginDestination='home';directSettingsAfterLogin();}else{goPage('home');alert('تم تسجيل الدخول بنجاح — '+u.label.replace(/^.. /,''));}}else{$('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة';$('loginError').style.display='block';}}
 function directSettingsAfterLogin(){window.__settingsAuthJustPassed=true;try{return typeof window.directOpenSettings==='function'?window.directOpenSettings():goPage('settings');}finally{window.__settingsAuthJustPassed=false;}}
-function logout(){if(currentUser) auditAdd('تسجيل الخروج','settings',`تم تسجيل خروج المستخدم «${currentUser}».`);sessionStorage.removeItem(AUTH_KEY);setRole('viewer');goPage('home');alert('تم تسجيل الخروج، عاد البرنامج إلى وضع المشاهدة.');}
+function logout(){if(currentUser) auditAdd('تسجيل الخروج','settings',`تم تسجيل خروج المستخدم «${currentUser}».`);window.__manarBootHadManagerSession=false;window.__manarLocalAccountUpgradePending=false;sessionStorage.removeItem(AUTH_KEY);sessionStorage.removeItem(AUTH_SESSION_VERSION_KEY);setRole('viewer');goPage('home');alert('تم تسجيل الخروج، عاد البرنامج إلى وضع المشاهدة.');}
 function requirePermission(permission){if(hasPermission(permission))return true;alert('ليس لديك صلاحية لتنفيذ هذا الإجراء.');return false}
 function requireRole(min){return requirePermission(min==='admin'?'settings':'tournaments')}
 function updateRefereeAdminForm(){
   const f=document.getElementById('adminOnlyRefereeForm');
   if(f) f.style.display=(currentRole==='admin')?'':'none';
 }
-function authInit(){let r=sessionStorage.getItem(AUTH_KEY);setRole(USERS[r]?r:'viewer');refreshLoginUsers();}
+function authInit(){
+  let previousRole='';
+  try{
+    previousRole=sessionStorage.getItem(AUTH_KEY)||'';
+    if(previousRole){
+      const savedVersion=sessionStorage.getItem(AUTH_SESSION_VERSION_KEY);
+      const currentVersion=USERS[previousRole]?String(USERS[previousRole].sessionVersion||''):null;
+      /* الجلسات القديمة التي لا تحمل رقم إصدار الحساب تُنهى مرة واحدة؛ بعد تسجيل الدخول الجديد تبقى الجلسة محفوظة عبر تحديث الصفحة. */
+      if(currentVersion===null||savedVersion===null||savedVersion!==currentVersion){
+        sessionStorage.removeItem(AUTH_KEY);
+        sessionStorage.removeItem(AUTH_SESSION_VERSION_KEY);
+        previousRole='';
+      }
+    }
+  }catch(e){previousRole='';}
+  window.__manarBootHadManagerSession=previousRole==='admin'||previousRole==='editor';
+  setRole(previousRole||'viewer');refreshLoginUsers();
+}
 /* تُستدعى عند وصول الحسابات الموثوقة من المزامنة السحابية، ولا تسمح بإبقاء حساب محلي قديم. */
 window.__manarReloadPlatformUsers=function(raw){
   let next=null;try{next=typeof raw==='string'?JSON.parse(raw):raw}catch(e){}
@@ -11290,14 +11311,76 @@ window.__manarReloadPlatformUsers=function(raw){
   const previous=JSON.stringify(USERS);
   USERS=next;
   Object.values(USERS).forEach(u=>{if(!Array.isArray(u.permissions))u.permissions=[]});
+  const accountsChanged=previous!==JSON.stringify(USERS);
+  if(accountsChanged){window.__manarBootHadManagerSession=false;window.__manarLocalAccountUpgradePending=false;}
   refreshLoginUsers();
   const role=sessionStorage.getItem(AUTH_KEY)||'';
-  if(role && (!USERS[role] || previous!==JSON.stringify(USERS))){sessionStorage.removeItem(AUTH_KEY);setRole('viewer');}
+  if(role && (!USERS[role] || accountsChanged)){
+    try{sessionStorage.removeItem(AUTH_KEY);sessionStorage.removeItem(AUTH_SESSION_VERSION_KEY)}catch(e){}
+    setRole('viewer');
+    if(typeof goPage==='function')goPage('home');
+  }
   return true;
 };
-window.addEventListener('storage',e=>{if(e.key===USERS_KEY&&e.newValue)window.__manarReloadPlatformUsers(e.newValue)});
+function forcePlatformViewer(){
+  window.__manarBootHadManagerSession=false;window.__manarLocalAccountUpgradePending=false;
+  try{sessionStorage.removeItem(AUTH_KEY);sessionStorage.removeItem(AUTH_SESSION_VERSION_KEY)}catch(e){}
+  setRole('viewer');
+  if(typeof goPage==='function')goPage('home');
+}
+function revokePlatformSessionsEverywhere(){
+  const stamp=String(Date.now())+'-'+Math.random().toString(36).slice(2);
+  try{localStorage.setItem(AUTH_REVOCATION_KEY,stamp)}catch(e){}
+  forcePlatformViewer();
+}
+window.addEventListener('storage',e=>{
+  if(e.key===AUTH_REVOCATION_KEY&&e.newValue){forcePlatformViewer();return;}
+  if(e.key===USERS_KEY&&e.newValue)window.__manarReloadPlatformUsers(e.newValue);
+});
 function updatePasswordStrength(){let v=$('newAdminPass').value||'',score=0;if(v.length>=6)score++;if(v.length>=10)score++;if(/[A-Z]/.test(v))score++;if(/[0-9]/.test(v))score++;if(/[^A-Za-z0-9]/.test(v))score++;let bar=$('passwordStrengthBar');bar.style.width=(score*20)+'%';bar.style.background=score<=1?'#e03131':score<=3?'#f59f00':'#12b886';}
-function changeAdminPassword(){if(currentRole!=='admin'){openLogin();return}let old=$('oldAdminPass').value,newPass=$('newAdminPass').value,confirmPass=$('confirmAdminPass').value,newUser=($('newAdminUser').value||'').trim(),msg=$('passwordMessage');msg.style.display='block';if(old!==USERS.admin.pass){msg.style.color='#b42318';msg.textContent='كلمة المرور الحالية غير صحيحة.';return}if(!newUser){msg.style.color='#b42318';msg.textContent='أدخل اسم المستخدم الجديد.';return}if(newUser.length<3){msg.style.color='#b42318';msg.textContent='اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل.';return}if(Object.entries(USERS).some(([k,u])=>k!=='admin'&&u.user===newUser)){msg.style.color='#b42318';msg.textContent='اسم المستخدم مستخدم في حساب آخر.';return}if(newPass.length<6){msg.style.color='#b42318';msg.textContent='يجب أن تكون كلمة المرور الجديدة 6 أحرف/أرقام على الأقل.';return}if(newPass!==confirmPass){msg.style.color='#b42318';msg.textContent='تأكيد كلمة المرور غير مطابق.';return}USERS.admin.user=newUser;USERS.admin.pass=newPass;localStorage.setItem(USERS_KEY,JSON.stringify(USERS));if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(USERS_KEY).catch(e=>console.warn('Account cloud sync failed:',e));sessionStorage.removeItem(AUTH_KEY);setRole('viewer');auditAdd('تعديل','settings','تم تغيير اسم المستخدم وكلمة مرور مدير النظام.');refreshLoginUsers();$('newAdminUser').value='';$('oldAdminPass').value='';$('newAdminPass').value='';$('confirmAdminPass').value='';updatePasswordStrength();msg.style.color='#087f5b';msg.textContent='تم تغيير بنجاح. حُفظت بيانات الدخول على هذا الجهاز.';}
+async function changeAdminPassword(){
+  if(currentRole!=='admin'){openLogin();return}
+  const old=$('oldAdminPass').value;
+  const newPass=$('newAdminPass').value;
+  const confirmPass=$('confirmAdminPass').value;
+  const newUser=($('newAdminUser').value||'').trim();
+  const msg=$('passwordMessage');
+  msg.style.display='block';
+  const fail=t=>{msg.style.color='#b42318';msg.textContent=t;};
+  if(old!==USERS.admin.pass){fail('كلمة المرور الحالية غير صحيحة.');return;}
+  if(!newUser){fail('أدخل اسم المستخدم الجديد.');return;}
+  if(newUser.length<3){fail('اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل.');return;}
+  if(Object.entries(USERS).some(([k,u])=>k!=='admin'&&String(u.user||'').toLocaleLowerCase()===newUser.toLocaleLowerCase())){fail('اسم المستخدم مستخدم في حساب آخر.');return;}
+  if(newPass.length<6){fail('يجب أن تكون كلمة المرور الجديدة 6 أحرف/أرقام على الأقل.');return;}
+  if(newPass===DEFAULT_USERS.admin.pass){fail('لا يمكن اعتماد كلمة المرور الافتراضية (admin123). اختر كلمة مرور مختلفة.');return;}
+  if(newPass===old){fail('اختر كلمة مرور جديدة مختلفة عن كلمة المرور الحالية.');return;}
+  if(newPass!==confirmPass){fail('تأكيد كلمة المرور غير مطابق.');return;}
+  if(typeof window.__manarFirebaseCanWrite!=='function'||!window.__manarFirebaseCanWrite()){
+    fail('لم يتم تغيير كلمة المرور. سجّل الدخول أولاً إلى حساب Firebase المصرّح له بالكتابة من زر ☁️ المزامنة؛ لأن تغيير كلمة المرور يجب أن يُحفظ في السحابة حتى يُرفض القديم على بقية الأجهزة.');
+    return;
+  }
+  const oldUsers=JSON.stringify(USERS);
+  const oldRaw=localStorage.getItem(USERS_KEY);
+  USERS.admin.user=newUser;
+  USERS.admin.pass=newPass;
+  USERS.admin.sessionVersion=newAuthSessionVersion();
+  try{
+    localStorage.setItem(USERS_KEY,JSON.stringify(USERS));
+    const saved=await window.__manarFirebaseSaveKey(USERS_KEY);
+    if(saved!==true)throw new Error('لم تؤكد Firebase حفظ بيانات الحسابات. لم يتم اعتماد التغيير.');
+  }catch(err){
+    try{const restored=JSON.parse(oldUsers);USERS=restored;if(oldRaw===null)localStorage.removeItem(USERS_KEY);else localStorage.setItem(USERS_KEY,oldRaw);}catch(restoreError){console.error('Account rollback failed:',restoreError)}
+    refreshLoginUsers();
+    fail('تعذر تثبيت كلمة المرور الجديدة في Firebase؛ لم يتم اعتماد التغيير. '+(err&&err.message?err.message:'تحقق من اتصال Firebase وصلاحية الكتابة.'));
+    return;
+  }
+  auditAdd('تعديل','settings','تم تغيير اسم المستخدم وكلمة مرور مدير النظام، وتأكيد حفظهما في Firebase.');
+  refreshLoginUsers();
+  $('newAdminUser').value='';$('oldAdminPass').value='';$('newAdminPass').value='';$('confirmAdminPass').value='';
+  updatePasswordStrength();
+  revokePlatformSessionsEverywhere();
+  alert('✅ تم تغيير اسم المستخدم وكلمة المرور وتأكيد حفظهما في Firebase. تم تسجيل الخروج من جميع صفحات المنصة المفتوحة على النطاق نفسه، وستُنهى جلسات الأجهزة المتصلة عند وصول تحديث الحسابات. كلمة المرور الافتراضية والقديمة لم تعد صالحتين.');
+}
 function saveUsers(){
 localStorage.setItem(USERS_KEY,JSON.stringify(USERS));refreshLoginUsers();renderUsers();}
 function addManagedUser(){if(currentRole!=='admin'){openLogin();return}let u=$('newManagedUser').value.trim(),p=$('newManagedPass').value,role='u_'+Date.now().toString(36);if(!u||!p)return alert('أدخل اسم المستخدم وكلمة المرور');if(Object.values(USERS).some(x=>x.user===u))return alert('اسم المستخدم موجود مسبقًا');let permissions=[...document.querySelectorAll('#userPermissions input:checked')].map(x=>x.value);USERS[role]={user:u,pass:p,label:'👤 '+u,cls:'custom',permissions};$('newManagedUser').value='';$('newManagedPass').value='';document.querySelectorAll('#userPermissions input').forEach(x=>x.checked=false);saveUsers();auditUserChange('إدارة الحسابات',`تم إنشاء حساب «${u}» ومنحه الصلاحيات المحددة: ${(permissions||[]).map(x=>PERMISSIONS[x]||x).join('، ')||'بدون صلاحيات إدارة'}.`);alert('تم إنشاء الحساب ومنحه الصلاحيات المحددة.');}
@@ -11329,8 +11412,11 @@ function renderUsers(){
   const saveBtn=document.getElementById('saveAccountChangesBtn');
   if(saveBtn)saveBtn.addEventListener('click',saveManagedAccountChanges);
 }
-function saveManagedAccountChanges(){
+async function saveManagedAccountChanges(){
   if(currentRole!=='admin'){alert('هذه الصلاحية متاحة لمدير النظام فقط.');return;}
+  if(typeof window.__manarFirebaseCanWrite!=='function'||!window.__manarFirebaseCanWrite()){
+    alert('لحماية الحسابات ومنع بقاء كلمة المرور القديمة على الأجهزة الأخرى، سجّل الدخول إلى حساب Firebase المصرّح له بالكتابة قبل حفظ تغييرات الحسابات.');return;
+  }
   const changes=[];const seen=new Set();
   for(const [role,account] of Object.entries(USERS)){
     const safeRole=String(role).replace(/[^a-zA-Z0-9_-]/g,'');
@@ -11340,19 +11426,25 @@ function saveManagedAccountChanges(){
     const user=userInput.value.trim(),pass=passInput.value;
     if(!user||!pass){alert('يرجى إدخال اسم المستخدم وكلمة المرور لكل الحسابات.');return;}
     if(user.length<3){alert('اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل.');userInput.focus();return;}
+    if(role==='admin'&&pass===DEFAULT_USERS.admin.pass){alert('لا يمكن حفظ كلمة المرور الافتراضية (admin123) لحساب المدير. اختر كلمة مرور مختلفة.');passInput.focus();return;}
     const normalized=user.toLocaleLowerCase();
     if(seen.has(normalized)){alert('اسم المستخدم مكرر: '+user);userInput.focus();return;}
     seen.add(normalized);changes.push({role,account,user,pass});
   }
-  const oldUsers=JSON.stringify(USERS);
-  changes.forEach(({role,account,user,pass})=>{account.user=user;account.pass=pass;if(role!=='admin'&&account.cls==='custom')account.label='👤 '+user;});
-  try{localStorage.setItem(USERS_KEY,JSON.stringify(USERS));}
-  catch(err){try{const restored=JSON.parse(oldUsers);Object.keys(USERS).forEach(k=>delete USERS[k]);Object.assign(USERS,restored);}catch(e){}alert('تعذر حفظ التغييرات على هذا الجهاز.');renderUsers();return;}
-  if(typeof window.__manarFirebaseSaveKey==='function')window.__manarFirebaseSaveKey(USERS_KEY).then(ok=>{if(!ok)console.warn('لم تُرفع الحسابات للسحابة؛ تحقق من تسجيل الدخول إلى Firebase وصلاحية الكتابة.')}).catch(e=>console.warn('Account cloud sync failed:',e));
-  sessionStorage.removeItem(AUTH_KEY);setRole('viewer');
+  const oldUsers=JSON.stringify(USERS),oldRaw=localStorage.getItem(USERS_KEY);
+  changes.forEach(({role,account,user,pass})=>{account.user=user;account.pass=pass;account.sessionVersion=newAuthSessionVersion();if(role!=='admin'&&account.cls==='custom')account.label='👤 '+user;});
+  try{
+    localStorage.setItem(USERS_KEY,JSON.stringify(USERS));
+    const saved=await window.__manarFirebaseSaveKey(USERS_KEY);
+    if(saved!==true)throw new Error('لم تؤكد Firebase حفظ الحسابات.');
+  }catch(err){
+    try{USERS=JSON.parse(oldUsers);if(oldRaw===null)localStorage.removeItem(USERS_KEY);else localStorage.setItem(USERS_KEY,oldRaw);}catch(restoreError){console.error('Account rollback failed:',restoreError)}
+    refreshLoginUsers();renderUsers();alert('تعذر حفظ تغييرات الحسابات في Firebase؛ لم يتم اعتمادها. '+(err&&err.message?err.message:'تحقق من الاتصال والصلاحيات.'));return;
+  }
   if(typeof refreshLoginUsers==='function')refreshLoginUsers();
-  if(typeof auditUserChange==='function')auditUserChange('إدارة الحسابات','تم تحديث أسماء المستخدمين وكلمات المرور من قبل مدير النظام.');
-  renderUsers();alert('تم حفظ تغييرات الحسابات بنجاح.');
+  if(typeof auditUserChange==='function')auditUserChange('إدارة الحسابات','تم تحديث أسماء المستخدمين وكلمات المرور وحفظها في Firebase.');
+  revokePlatformSessionsEverywhere();
+  alert('تم حفظ تغييرات الحسابات في Firebase بنجاح، وتم تسجيل الخروج من جميع صفحات المنصة المفتوحة.');
 }
 
 
@@ -17896,7 +17988,8 @@ const FIREBASE_CONFIG={apiKey:'AIzaSyBl8ETnvRg4w-7BTleNROgmzSaqtPbUWRE',authDoma
 const CLOUD_PATH='manar_platform';
 /* لا نقبل الحسابات المحلية القديمة قبل اكتمال تحميل الحسابات المرجعية من السحابة. */
 /* لا نوقف الدخول إذا تعذر الاتصال بالسحابة؛ تبقى الحسابات المحفوظة محلياً متاحة. */
-window.__manarAccountSyncReady=true;
+window.__manarAccountSyncReady=false;
+window.__manarAccountSyncError='جارٍ تحميل بيانات الحسابات المرجعية من Firebase...';
 /* حسابات الدخول تُزامن كإعداد خاص بالمنصة كي لا تبقى الحسابات الافتراضية فعالة على أجهزة الزوار. */
 const SYNC_KEYS=[
  /* حسابات المنصة تُزامن لتكون بيانات المدير المحفوظة هي المرجع على كل الأجهزة. */
@@ -17937,9 +18030,11 @@ function render(){
 function openModal(){$('firebaseSyncModal').style.display='flex'}
 function closeModal(){$('firebaseSyncModal').style.display='none'}
 $('firebaseSyncFab')?.addEventListener('click',openModal);$('fsClose')?.addEventListener('click',closeModal);$('firebaseSyncModal')?.addEventListener('click',e=>{if(e.target.id==='firebaseSyncModal')closeModal()});
-function localManagerRole(){try{const role=sessionStorage.getItem('manar_auth_v2')||'';return role==='admin'||role==='editor'}catch(e){return false}}
+function localManagerRole(){try{const role=sessionStorage.getItem('manar_auth_v2')||'';return role==='admin'||role==='editor'||window.__manarBootHadManagerSession===true||window.__manarLocalAccountUpgradePending===true}catch(e){return window.__manarBootHadManagerSession===true||window.__manarLocalAccountUpgradePending===true}}
 function canWrite(){return !!auth?.currentUser && !auth.currentUser.isAnonymous}
 function localValue(key){try{const raw=localStorage.getItem(key);return raw===null?null:JSON.parse(raw)}catch(e){return null}}
+/* احتفظ بنسخة الحساب المحلي قبل أي تنزيل أولي؛ قد تكون كلمة المدير الجديدة محفوظة محليًا من النسخة السابقة بينما السحابة ما زالت تحمل الافتراضية. */
+const BOOT_LOCAL_USERS=localValue('manar_users_v3');
 async function pushKey(key){
   if(!canWrite())throw new Error('سجّل الدخول إلى Firebase أولًا');
   if(!SYNC_KEYS.includes(key))throw new Error('مفتاح المزامنة غير معتمد: '+key);
@@ -17981,6 +18076,7 @@ async function pushAll(){
     status('جارٍ حفظ التعديلات الموجودة محليًا في السحابة...',true);
     const present=SYNC_KEYS.filter(k=>localStorage.getItem(k)!==null);
     await pushKeys(present);
+    window.__manarLocalAccountUpgradePending=false;
     status('اكتمل رفع '+present.length+' قسمًا إلى السحابة عبر طلب جماعي واحد؛ لم تُحذف المفاتيح المحلية الغائبة',true);
     return true;
   }catch(e){window.__manarFirebaseLastSyncError=e;status('فشل المزامنة: '+firebaseErrorMessage(e),false);return false}
@@ -17996,7 +18092,9 @@ window.__manarFirebaseSyncAfterPlatformLogin=async function(role){
       await Promise.race([authStateReady,new Promise(resolve=>setTimeout(resolve,4000))]);
     }
     if(!canWrite()){
-      status('تم تسجيل الدخول للمنصة؛ سجّل الدخول إلى حساب Firebase من زر ☁️ المزامنة لربط البيانات السحابية.',false);
+      status(window.__manarLocalAccountUpgradePending
+        ? 'تم تسجيل الدخول بكلمة المرور المخصصة المحفوظة على هذا الجهاز؛ سجّل الدخول إلى حساب Firebase من زر ☁️ المزامنة لمزامنتها وإبطال كلمة المرور الافتراضية على بقية الأجهزة.'
+        : 'تم تسجيل الدخول للمنصة؛ سجّل الدخول إلى حساب Firebase من زر ☁️ المزامنة لربط البيانات السحابية.',false);
       return false;
     }
     status('تم التعرّف على حساب Firebase — جارٍ مزامنة بيانات المنصة...',true);
@@ -18295,8 +18393,20 @@ window.__manarFirebaseSaveKey=async function(key){
   if(!SYNC_KEYS.includes(key))return false;
   markDirty(key);
   if(!canWrite())return false;
-  try{applyingRemote=true;await pushKey(key);status('تم حفظ التعديل في السحابة',true);return true}
-  catch(e){status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false);return false}
+  try{
+    applyingRemote=true;
+    await pushKey(key);
+    if(key==='manar_users_v3'){
+      const expected=localValue(key);
+      const verify=await get(ref(db,CLOUD_PATH+'/'+key));
+      const actual=verify.exists()?verify.val():null;
+      if(!actual||!expected||!actual.admin||String(actual.admin.user)!==String(expected.admin.user)||String(actual.admin.pass)!==String(expected.admin.pass)){
+        throw new Error('لم تتطابق بيانات المدير المحفوظة في Firebase مع البيانات الجديدة.');
+      }
+    }
+    status('تم حفظ التعديل والتحقق منه في السحابة',true);return true;
+  }
+  catch(e){status('تعذر تأكيد حفظ التعديل في السحابة: '+(e?.message||e),false);return false}
   finally{applyingRemote=false}
 };
 function hasLocalData(){try{const m=localValue('manar_sports_v2');return !!(m&&typeof m==='object'&&((m.tournaments||[]).length||(m.teams||[]).length||(m.players||[]).length||(m.matches||[]).length||(m.archives||[]).length||(m.officialPlayers||[]).length||(m.suspensions||[]).length))}catch(e){return false}}
@@ -18328,7 +18438,7 @@ async function initialSync(){
   if(initialDone)return;
   initialDone=true;
   const hasCloud=SYNC_KEYS.some(k=>initialValues[k]!==null);
-  const localHasData=hasLocalData();
+  const localHasData=hasLocalData()||window.__manarLocalAccountUpgradePending===true;
   const signedIn=canWrite();
 
   /* إذا كانت السحابة تحمل تصفيرًا أحدث، فاسحب حالتها أولًا ولا ترفع ذاكرة الجهاز القديمة فوقها. */
@@ -18407,13 +18517,24 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
     const firstSnapshot=!initialSeen.has(k);
     if(firstSnapshot){initialSeen.add(k);initialReady++;}
     if(firstSnapshot&&initialReady===SYNC_KEYS.length&&!initialDone){
-      await initialSync();
       const cloudAccounts=initialValues['manar_users_v3'];
-      /* عند وجود حسابات سحابية صالحة نعتمدها؛ عند غيابها لا نمسح الحسابات المحلية ولا نعطّل المنصة. */
-      if(cloudAccounts && typeof cloudAccounts==='object' && cloudAccounts.admin && cloudAccounts.editor){
+      const defaultAdminPass=window.__manarDefaultAdminPassword||'admin123';
+      const savedLocalPass=BOOT_LOCAL_USERS&&BOOT_LOCAL_USERS.admin?String(BOOT_LOCAL_USERS.admin.pass||''):'';
+      const cloudAdminPass=cloudAccounts&&cloudAccounts.admin?String(cloudAccounts.admin.pass||''):'';
+      const localHasCustomAdminPass=!!savedLocalPass&&savedLocalPass!==defaultAdminPass;
+      const cloudStillHasDefaultPass=!cloudAdminPass||cloudAdminPass===defaultAdminPass;
+      /* إذا كانت النسخة السابقة قد حفظت كلمة مخصصة محليًا بينما السحابة بقيت على الافتراضية، لا نسمح للتنزيل القديم بإرجاع كلمة المرور الافتراضية. */
+      if(localHasCustomAdminPass&&cloudStillHasDefaultPass){
+        localStorage.setItem('manar_users_v3',JSON.stringify(BOOT_LOCAL_USERS));
+        window.__manarLocalAccountUpgradePending=true;
+        window.__manarAccountSyncError='تم الاحتفاظ بكلمة المرور المخصصة المحفوظة على هذا الجهاز. اربط حساب Firebase المصرّح له بالكتابة لمزامنتها مع بقية الأجهزة.';
+      }else if(cloudAccounts && typeof cloudAccounts==='object' && cloudAccounts.admin && cloudAccounts.editor){
         window.__manarReloadPlatformUsers(cloudAccounts);
+        window.__manarLocalAccountUpgradePending=false;
       }
+      await initialSync();
       window.__manarAccountSyncReady=true;
+      if(!window.__manarLocalAccountUpgradePending)window.__manarAccountSyncError='';
     }else if(initialDone&&!applyingRemote&&!window.__manarFirebaseResetLock){
       /* إذا بقي تعديل محلي معلّق لهذا المفتاح، لا تستبدله بتحديث وارد من السحابة. */
       if(dirty.has(k)){
@@ -18438,7 +18559,7 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
     }
   },err=>status('خطأ قراءة Firebase: '+(err?.message||err),false))
 }
- }catch(e){resolveFirebaseInit(false);status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
+ }catch(e){resolveFirebaseInit(false);window.__manarAccountSyncReady=false;window.__manarAccountSyncError='تعذر تشغيل Firebase: '+(e?.message||e);status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
 start();
 </script>
 <!-- FINAL CLEANUP / INTEGRITY GUARD 2026-09-21 -->
