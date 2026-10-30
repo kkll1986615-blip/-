@@ -14836,6 +14836,54 @@ window.updateHomeCounters=function updateHomeCounters(){
 let __manarDataVersion=0;
 let __manarLastRenderPrepVersion=-1;
 let __manarLastRenderPrepPage="";
+
+/*
+  توحيد مرجع قاعدة البيانات بين التطبيق ووحدة Firebase.
+  سابقًا كان تحديث window.db وحده يترك المتغير db الذي تستخدمه الواجهة قديمًا؛
+  ثم يؤدي أي حفظ لاحق إلى إعادة كتابة نسخة قديمة قد لا تحتوي أسماء اللاعبين الجديدة.
+  نوحّد النسختين هنا، ونطبّع أسماء الحقول القديمة دون حذف أي سجل أو تغيير معرّف.
+*/
+window.__manarReplaceMainDatabase=function(next){
+  try{
+    if(!next||typeof next!=='object')throw new Error('قاعدة البيانات الجديدة غير صالحة');
+    const target=next;
+    ['tournaments','teams','players','matches','officialPlayers','archives','suspensions'].forEach(k=>{
+      if(!Array.isArray(target[k]))target[k]=[];
+    });
+    const knownTeams=target.teams;
+    target.players=target.players.map(p=>{
+      if(!p||typeof p!=='object')return p;
+      const q={...p};
+      const id=[q.id,q.playerId,q.playerID,q.player_id].map(v=>String(v??'').trim()).find(Boolean);
+      if((q.id===undefined||q.id===null||q.id==='')&&id)q.id=id;
+      const name=[q.name,q.fullName,q.playerName,q.player_name,q.nameAr,q.playerNameAr,q.arabicName]
+        .map(v=>String(v??'').trim()).find(Boolean);
+      if(name)q.name=name;
+      let teamRef=[q.teamId,q.teamID,q.team_id,q.team,q.teamName,q.team_name,q.clubName]
+        .find(v=>v!==undefined&&v!==null&&String(v).trim()!=='');
+      if(teamRef&&typeof teamRef==='object')teamRef=teamRef.id??teamRef.teamId??teamRef.teamID??teamRef.team_id??teamRef.name;
+      if(teamRef!==undefined&&teamRef!==null&&String(teamRef).trim()){
+        const byName=knownTeams.find(t=>String(t?.name??'').trim()===String(teamRef).trim());
+        q.teamId=byName?byName.id:teamRef;
+      }
+      return q;
+    });
+    db=target;
+    window.db=db;
+    __manarDataVersion++;
+    try{if(typeof rebuildIndexes==='function')rebuildIndexes()}catch(e){console.warn('Player/database index refresh skipped:',e)}
+    return db;
+  }catch(e){
+    console.error('Main database reference repair failed:',e);
+    return (typeof db==='object'&&db)?db:(window.db||null);
+  }
+};
+window.__manarReloadMainDatabaseFromStorage=function(){
+  try{return window.__manarReplaceMainDatabase(loadMainDatabase())}
+  catch(e){console.error('Main database reload failed:',e);return window.db||db}
+};
+// نفّذ التوحيد مرة واحدة عند التشغيل أيضًا لضمان أن الواجهة والكشوفات تقرآن المرجع نفسه.
+window.__manarReplaceMainDatabase(db);
 function renderAll(){
   syncMatchStatusesFromSheets(true);
   const active=document.querySelector(".page.active")?.id||"home";
@@ -17556,8 +17604,10 @@ const tours=()=>A(db().tournaments).filter(t=>t&&t.archived!==true&&S(t.status)!
 const teams=()=>A(db().teams), players=()=>A(db().players), matches=()=>A(db().matches);
 const tObj=id=>teams().find(t=>S(t.id)===S(id)||S(t.name)===S(id));
 const tName=id=>tObj(id)?.name||S(id)||'الفريق';
-const pObj=id=>players().find(p=>S(p.id)===S(id)||S(p.name)===S(id));
-const pName=id=>pObj(id)?.name||S(id)||'—';
+const playerDisplayName=p=>[p?.name,p?.fullName,p?.playerName,p?.player_name,p?.nameAr,p?.playerNameAr].map(v=>S(v).trim()).find(Boolean)||'';
+const playerTeamId=p=>{let v=p?.teamId??p?.teamID??p?.team_id??p?.team??'';if(v&&typeof v==='object')v=v.id??v.teamId??v.teamID??v.team_id??v.name??'';const byName=teams().find(t=>S(t.name)===S(v));return S(byName?.id??v)};
+const pObj=id=>players().find(p=>S(p.id??p.playerId??p.playerID??p.player_id)===S(id))||players().find(p=>playerDisplayName(p)===S(id));
+const pName=id=>playerDisplayName(pObj(id))||S(id)||'—';
 const mid=(m,i)=>S(m?.id??i);
 function canManage(){try{if(typeof window.hasPermission==='function')return !!window.hasPermission('matchSheets')}catch(e){}return document.body.classList.contains('admin')||document.body.classList.contains('editor')||S(window.currentRole).toLowerCase()==='admin'}
 function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return A(x)}catch(e){return[]}}
@@ -17589,7 +17639,7 @@ function reportTournamentId(sh){
  return first;
 }
 function teamId(m,side){return S(side==='home'?(m?.home??m?.homeTeamId??m?.homeTeam):(m?.away??m?.awayTeamId??m?.awayTeam))}
-function teamPlayers(id){return players().filter(p=>S(p.teamId??p.team??p.teamID??p.team_id)===S(id))}
+function teamPlayers(id){return players().filter(p=>playerTeamId(p)===S(id))}
 function finished(m){const st=S(m?.status).toLowerCase();if(['finished','ended','completed','complete','منتهية','منتهيه','انتهت'].includes(st))return true;const d=S(m?.date||m?.matchDate),tm=S(m?.time||'00:00');let dt=null;let x=d.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);if(x)dt=new Date(+x[1],+x[2]-1,+x[3],+(tm.split(':')[0]||0),+(tm.split(':')[1]||0));return !!dt&&!Number.isNaN(dt.getTime())&&Date.now()-dt.getTime()>=2*60*60*1000}
 function findSheet(id){return rows().find(s=>S(s.matchId)===S(id))||null}
 function nextNo(){return rows().reduce((n,s)=>Math.max(n,Number(s.sheetNumber)||0),0)+1}
@@ -17602,10 +17652,10 @@ function fillMatches(){const s=$('ksMatch'),tid=S($('ksTournament')?.value);if(!
 function renderPending(){const b=$('ksPending'),tid=S($('ksTournament')?.value);if(!b)return;if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض المباريات المنتهية التي تحتاج إلى كشف.</div>';return}const saved=new Set(rows().map(s=>S(s.matchId)));const list=matches().map((m,i)=>({m,i})).filter(x=>finished(x.m)&&tourId(x.m)===tid&&!saved.has(mid(x.m,x.i)));if(!list.length){b.innerHTML='<div class="ks-empty">✅ لا توجد مباريات منتهية بانتظار إنشاء كشف.</div>';return}b.innerHTML=list.map(x=>'<div class="ks-match-card"><div class="ks-match-title">'+esc(tName(teamId(x.m,'home')))+' <b>'+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' — '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+'</b> '+esc(tName(teamId(x.m,'away')))+'</div><div class="ks-meta"><span>📅 '+esc(x.m.date||'—')+'</span><span>⏰ '+esc(x.m.time||'—')+'</span><span>🏟️ '+esc(x.m.stadium||'—')+'</span></div>'+(canManage()?'<button class="btn blue" type="button" data-ks-open="'+esc(mid(x.m,x.i))+'">➕ إنشاء الكشف</button>':'')+'</div>').join('')}
 let active='',cards=[],editing=false;
 function renderTeams(m,saved){const h=teamId(m,'home'),a=teamId(m,'away'),sel=$('ksCardTeam');sel.innerHTML='<option value="">اختر الفريق</option>'+[[h,tName(h)],[a,tName(a)]].map(x=>'<option value="'+esc(x[0])+'">'+esc(x[1])+'</option>').join('');sel.value=S(saved?.cards?.[0]?.teamId||'');renderPlayers()}
-function renderPlayers(){const tid=S($('ksCardTeam')?.value),sel=$('ksCardPlayer');if(!sel)return;sel.innerHTML='<option value="">اختر اللاعب</option>'+teamPlayers(tid).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('');sel.disabled=!tid}
+function renderPlayers(){const tid=S($('ksCardTeam')?.value),sel=$('ksCardPlayer');if(!sel)return;sel.innerHTML='<option value="">اختر اللاعب</option>'+teamPlayers(tid).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(pName(p.id??p.playerId??p.playerID??p.player_id))+'</option>').join('');sel.disabled=!tid}
 function renderCards(){const b=$('ksCards');if(!b)return;b.innerHTML=cards.length?cards.map((c,i)=>'<div class="ks-event"><span>'+(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(tName(c.teamId)||c.teamName)+'</span><button type="button" data-ks-del="'+i+'">حذف</button></div>').join(''):'<div class="ks-empty">لا توجد بطاقات مسجلة.</div>'}
-function renderGoals(saved){const m=matches().find((x,i)=>mid(x,i)===active),hg=Number($('ksHomeScore').value)||0,ag=Number($('ksAwayScore').value)||0;const make=(box,side,n,vals,tid)=>{const b=$(box);b.innerHTML='';const ps=teamPlayers(tid);for(let i=0;i<n;i++){const row=document.createElement('div');row.className='ks-scorer';row.innerHTML='<span>'+(i+1)+'</span><select><option value="">اختر مسجل الهدف</option>'+ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+'</option>').join('')+'</select>';b.appendChild(row);if(vals?.[i])row.querySelector('select').value=S(vals[i])}};make('ksHomeGoals','home',hg,saved?.homeScorers,teamId(m,'home'));make('ksAwayGoals','away',ag,saved?.awayScorers,teamId(m,'away'))}
-function open(id){if(!canManage())return alert('التعديل متاح للمدير أو من يملك صلاحية كشوفات المباريات.');const m=matches().find((x,i)=>mid(x,i)===S(id));if(!m)return alert('لم يتم العثور على المباراة.');active=S(id);const sh=findSheet(id);fillWithdrawnTeamOptions(m);setAdminDecisionMode(!!sh?.administrativeDecision,sh?.withdrawnTeamId||'');editing=!!sh;cards=A(sh?.cards).map(c=>({...c}));$('ksEditorTitle').textContent=sh?'✏️ تعديل كشف المباراة':'📝 إنشاء كشف المباراة';$('ksNumber').textContent='رقم الكشف: '+(sh?.sheetNumber||nextNo());$('ksEditor').style.display='block';$('ksMatchInfo').innerHTML=esc(tName(teamId(m,'home')))+' <b> '+Number(sh?.homeScore??m.hg??m.homeGoals??0)+' — '+Number(sh?.awayScore??m.ag??m.awayGoals??0)+' </b> '+esc(tName(teamId(m,'away')))+'<div class="ks-meta">📅 '+esc(m.date||'—')+' &nbsp; ⏰ '+esc(m.time||'—')+'</div>';$('ksHomeLabel').textContent=tName(teamId(m,'home'));$('ksAwayLabel').textContent=tName(teamId(m,'away'));$('ksHomeGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'home'));$('ksAwayGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'away'));$('ksHomeScore').value=sh?.homeScore??m.hg??m.homeGoals??0;$('ksAwayScore').value=sh?.awayScore??m.ag??m.awayGoals??0;renderGoals(sh);$('ksBestPlayer').innerHTML='<option value="">اختر اللاعب من الفريقين</option>'+[...teamPlayers(teamId(m,'home')),...teamPlayers(teamId(m,'away'))].map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(p.name)+' — '+esc(tName(p.teamId))+'</option>').join('');$('ksBestPlayer').value=S(sh?.bestPlayerId||'');fillRefs(sh);$('ksSupervisor').value=S(sh?.supervisor);$('ksPenYes').value=Number(sh?.penalties||0)>0?'yes':'no';$('ksPenalties').value=Number(sh?.penalties||0);renderTeams(m,sh);renderCards();$('ksStatus').classList.remove('show');$('ksEditor').scrollIntoView({behavior:'smooth',block:'start'})}
+function renderGoals(saved){const m=matches().find((x,i)=>mid(x,i)===active),hg=Number($('ksHomeScore').value)||0,ag=Number($('ksAwayScore').value)||0;const make=(box,side,n,vals,tid)=>{const b=$(box);b.innerHTML='';const ps=teamPlayers(tid);for(let i=0;i<n;i++){const row=document.createElement('div');row.className='ks-scorer';row.innerHTML='<span>'+(i+1)+'</span><select><option value="">اختر مسجل الهدف</option>'+ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(pName(p.id??p.playerId??p.playerID??p.player_id))+'</option>').join('')+'</select>';b.appendChild(row);if(vals?.[i])row.querySelector('select').value=S(vals[i])}};make('ksHomeGoals','home',hg,saved?.homeScorers,teamId(m,'home'));make('ksAwayGoals','away',ag,saved?.awayScorers,teamId(m,'away'))}
+function open(id){if(!canManage())return alert('التعديل متاح للمدير أو من يملك صلاحية كشوفات المباريات.');const m=matches().find((x,i)=>mid(x,i)===S(id));if(!m)return alert('لم يتم العثور على المباراة.');active=S(id);const sh=findSheet(id);fillWithdrawnTeamOptions(m);setAdminDecisionMode(!!sh?.administrativeDecision,sh?.withdrawnTeamId||'');editing=!!sh;cards=A(sh?.cards).map(c=>({...c}));$('ksEditorTitle').textContent=sh?'✏️ تعديل كشف المباراة':'📝 إنشاء كشف المباراة';$('ksNumber').textContent='رقم الكشف: '+(sh?.sheetNumber||nextNo());$('ksEditor').style.display='block';$('ksMatchInfo').innerHTML=esc(tName(teamId(m,'home')))+' <b> '+Number(sh?.homeScore??m.hg??m.homeGoals??0)+' — '+Number(sh?.awayScore??m.ag??m.awayGoals??0)+' </b> '+esc(tName(teamId(m,'away')))+'<div class="ks-meta">📅 '+esc(m.date||'—')+' &nbsp; ⏰ '+esc(m.time||'—')+'</div>';$('ksHomeLabel').textContent=tName(teamId(m,'home'));$('ksAwayLabel').textContent=tName(teamId(m,'away'));$('ksHomeGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'home'));$('ksAwayGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'away'));$('ksHomeScore').value=sh?.homeScore??m.hg??m.homeGoals??0;$('ksAwayScore').value=sh?.awayScore??m.ag??m.awayGoals??0;renderGoals(sh);$('ksBestPlayer').innerHTML='<option value="">اختر اللاعب من الفريقين</option>'+[...teamPlayers(teamId(m,'home')),...teamPlayers(teamId(m,'away'))].map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(pName(p.id??p.playerId??p.playerID??p.player_id))+' — '+esc(tName(playerTeamId(p)))+'</option>').join('');$('ksBestPlayer').value=S(sh?.bestPlayerId||'');fillRefs(sh);$('ksSupervisor').value=S(sh?.supervisor);$('ksPenYes').value=Number(sh?.penalties||0)>0?'yes':'no';$('ksPenalties').value=Number(sh?.penalties||0);renderTeams(m,sh);renderCards();$('ksStatus').classList.remove('show');$('ksEditor').scrollIntoView({behavior:'smooth',block:'start'})}
 async function imageData(){const f=$('ksImage')?.files?.[0];if(!f)return '';return await new Promise(res=>{const r=new FileReader();r.onload=()=>res(S(r.result));r.onerror=()=>res('');r.readAsDataURL(f)})}
 let adminDecisionMode=false;
 function fillWithdrawnTeamOptions(m){
@@ -18070,7 +18120,7 @@ async function pullAll(){
       }else{missing++;}
     }
     clearAllDirty();
-    try{if(typeof window.db!=='undefined'){window.db=loadMainDatabase();}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
+    try{if(typeof window.db!=='undefined'){window.__manarReloadMainDatabaseFromStorage()}}catch(e){console.warn('Database reload after Firebase pull failed:',e)}
     render();
     const seconds=((performance.now()-pullStarted)/1000).toFixed(1);
     status('اكتمل تنزيل البيانات: '+n+' قسمًا، وتصفير '+cleared+' مفتاحًا حسب ختم التصفير، مع الحفاظ على '+missing+' مفتاحًا غير موجود ('+seconds+' ث)',true);return true;
@@ -18204,7 +18254,7 @@ $('fsLocalBackupFile')?.addEventListener('change',async e=>{
       await pushKeys(keys);
       status('تمت استعادة النسخة على الهاتف ورفع '+keys.length+' قسمًا إلى السحابة',true);
     }else status('تمت استعادة النسخة على الهاتف. سجّل الدخول إلى Firebase لرفعها إلى السحابة.',true);
-    try{if(typeof window.db!=='undefined'){window.db=loadMainDatabase();}}catch(_){}
+    try{if(typeof window.db!=='undefined'){window.__manarReloadMainDatabaseFromStorage()}}catch(_){}
     clearAllDirty();render();alert(canWrite()?'تمت استعادة النسخة على الهاتف ومزامنتها مع السحابة بنجاح.':'تمت استعادة النسخة على الهاتف بنجاح. لرفعها إلى السحابة سجّل الدخول إلى Firebase ثم اضغط رفع بيانات هذا الجهاز.');
   }catch(err){status('تعذر رفع/استعادة النسخة: '+(err?.message||err),false);alert('تعذر استعادة النسخة: '+(err?.message||err))}
   finally{applyingRemote=false;e.target.value='';}
@@ -18232,7 +18282,7 @@ $('fsCloudRestore')?.addEventListener('click',async()=>{
       else localStorage.removeItem(k);
     }
     for(const k of SYNC_KEYS)await set(ref(db,CLOUD_PATH+'/'+k),Object.prototype.hasOwnProperty.call(backup.data,k)?backup.data[k]:null);
-    try{if(typeof window.db!=='undefined'){window.db=loadMainDatabase();}}catch(e){}
+    try{if(typeof window.db!=='undefined'){window.__manarReloadMainDatabaseFromStorage()}}catch(e){}
     clearAllDirty();render();status('تمت استعادة النسخة السحابية بنجاح',true);
     alert('تمت استعادة النسخة المحددة إلى الهاتف والسحابة.');
   }catch(e){status('فشلت الاستعادة: '+firebaseErrorMessage(e),false);alert('فشلت الاستعادة: '+firebaseErrorMessage(e))}
@@ -18380,7 +18430,7 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
         }
         clearDirty(k);
         if(k==='manar_sports_v2'){
-          try{window.db=loadMainDatabase();__manarDataVersion++}catch(e){console.warn('Database reload after realtime update failed:',e)}
+          try{window.__manarReloadMainDatabaseFromStorage()}catch(e){console.warn('Database reload after realtime update failed:',e)}
         }
         scheduleRender();
         status(snap.exists()?'وصل تحديث جديد من السحابة':'تم حذف التحديث من السحابة',true);
