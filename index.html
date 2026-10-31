@@ -12080,5 +12080,208 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 })();
 </script>
 
+<style id="ended-tournament-responsive-fit-v1">
+/* إصلاح توافق بطاقة البطولة المنتهية مع جميع شاشات الهاتف فقط.
+   لا يغيّر تنسيق أو وظائف الأقسام الأخرى. */
+#endedTournamentList,
+#endedTournamentList .ended-tournament-card-wrap,
+#endedTournamentList .ended-tournament-card-reference,
+#endedTournamentList .ended-card-main,
+#endedTournamentList .ended-card-content {
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+#endedTournamentList { grid-template-columns:minmax(0,1fr) !important; }
+#endedTournamentList .ended-tournament-card-reference { margin-left:auto !important; margin-right:auto !important; }
+#endedTournamentList .ended-card-main > *,
+#endedTournamentList .ended-card-content > *,
+#endedTournamentList .ended-card-stat-grid > div,
+#endedTournamentList .ended-card-honor,
+#endedTournamentList .ended-card-archive-head > div { min-width:0 !important; box-sizing:border-box !important; }
+
+@media screen and (max-width:760px) {
+  #endedTournamentList { display:grid !important; grid-template-columns:minmax(0,1fr) !important; gap:12px !important; }
+  #endedTournamentList .ended-tournament-card-reference {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    margin:10px auto 14px !important; border-radius:18px !important;
+    overflow:hidden !important;
+  }
+  /* تحويل التصميم الجانبي إلى رأس أفقي مدمج، ثم عرض البيانات بكامل العرض. */
+  #endedTournamentList .ended-card-main {
+    display:grid !important; grid-template-columns:minmax(0,1fr) !important;
+    grid-template-rows:auto auto !important; direction:rtl !important;
+    width:100% !important; min-width:0 !important;
+  }
+  #endedTournamentList .ended-card-side {
+    display:flex !important; flex-direction:row !important;
+    align-items:center !important; justify-content:flex-start !important;
+    gap:12px !important; width:100% !important; min-width:0 !important;
+    min-height:0 !important; height:auto !important;
+    padding:12px 14px !important; overflow:hidden !important;
+  }
+  #endedTournamentList .ended-card-side-logo {
+    flex:0 0 66px !important; width:66px !important; height:66px !important;
+    min-width:66px !important; min-height:66px !important;
+    max-width:66px !important; max-height:66px !important;
+    border-width:3px !important;
+  }
+  #endedTournamentList .ended-card-side-logo img { width:100% !important; height:100% !important; padding:5px !important; }
+  #endedTournamentList .ended-card-side-logo span { font-size:34px !important; }
+  #endedTournamentList .ended-card-branding-rail {
+    flex:1 1 auto !important; width:auto !important; min-width:0 !important;
+    display:flex !important; flex-direction:column !important;
+    align-items:flex-start !important; justify-content:center !important;
+    gap:3px !important; margin:0 !important; padding:0 !important;
+    text-align:right !important;
+  }
+  #endedTournamentList .ended-card-brand-line { display:none !important; }
+  #endedTournamentList .ended-card-brand-main {
+    writing-mode:horizontal-tb !important; text-orientation:mixed !important;
+    transform:none !important; white-space:normal !important;
+    max-width:100% !important; font-size:clamp(14px,4vw,18px) !important;
+    line-height:1.35 !important; letter-spacing:0 !important;
+    color:#fff !important; -webkit-text-fill-color:#fff !important;
+    background:none !important; -webkit-background-clip:border-box !important;
+  }
+  #endedTournamentList .ended-card-brand-credit {
+    writing-mode:horizontal-tb !important; transform:none !important;
+    white-space:normal !important; max-width:100% !important;
+    font-size:10px !important; line-height:1.5 !important;
+    text-align:right !important; overflow-wrap:anywhere !important;
+  }
+  #endedTournamentList .ended-card-content {
+    display:block !important; width:100% !important; min-width:0 !important;
+    padding:14px clamp(10px,3.2vw,18px) 17px !important;
+    overflow:visible !important;
+  }
+  #endedTournamentList .ended-card-status-wrap { justify-content:flex-start !important; margin-bottom:9px !important; }
+  #endedTournamentList .ended-card-status { max-width:100% !important; }
+  #endedTournamentList .ended-card-dates-wrap { width:100% !important; min-width:0 !important; }
+  #endedTournamentList .ended-card-dates {
+    display:flex !important; flex-wrap:wrap !important; justify-content:center !important;
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    min-height:0 !important; white-space:normal !important;
+    overflow-wrap:anywhere !important; line-height:1.55 !important;
+    padding:9px 10px !important; font-size:clamp(10px,2.8vw,13px) !important;
+  }
+  #endedTournamentList .ended-card-title {
+    width:100% !important; max-width:100% !important;
+    white-space:normal !important; overflow-wrap:anywhere !important;
+    word-break:normal !important; font-size:clamp(20px,5.6vw,27px) !important;
+    line-height:1.4 !important; margin:13px 0 12px !important;
+  }
+  /* الأرقام والبيانات الأربعة تظهر في شبكة ثنائية دون قصّ أي عمود. */
+  #endedTournamentList .ended-card-stat-grid {
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    gap:8px !important; margin:0 !important;
+  }
+  #endedTournamentList .ended-card-stat-grid > div {
+    display:flex !important; flex-direction:column !important;
+    align-items:center !important; justify-content:center !important;
+    width:100% !important; min-width:0 !important; min-height:84px !important;
+    padding:10px 6px !important; gap:5px !important;
+  }
+  #endedTournamentList .ended-card-stat-grid span {
+    display:grid !important; grid-row:auto !important;
+    flex:0 0 auto !important; width:32px !important; height:32px !important;
+    font-size:16px !important; margin:0 !important;
+  }
+  #endedTournamentList .ended-card-stat-grid strong { font-size:clamp(20px,5vw,26px) !important; line-height:1.15 !important; }
+  #endedTournamentList .ended-card-stat-grid small {
+    width:100% !important; white-space:normal !important;
+    overflow-wrap:anywhere !important; text-align:center !important;
+    font-size:clamp(9px,2.5vw,11px) !important; line-height:1.35 !important;
+  }
+  #endedTournamentList .ended-card-honors {
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    width:100% !important; min-width:0 !important; gap:8px !important;
+  }
+  #endedTournamentList .ended-card-honor {
+    width:100% !important; min-width:0 !important; padding:9px 6px !important;
+    gap:6px !important; overflow:hidden !important;
+  }
+  #endedTournamentList .ended-card-honor b {
+    display:block !important; max-width:100% !important; width:100% !important;
+    white-space:normal !important; overflow:visible !important;
+    text-overflow:clip !important; overflow-wrap:anywhere !important;
+    line-height:1.4 !important;
+  }
+  #endedTournamentList .ended-card-meta-row {
+    display:grid !important; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)) !important;
+    width:100% !important; min-width:0 !important; gap:7px !important;
+  }
+  #endedTournamentList .ended-card-meta-row span {
+    display:flex !important; flex-wrap:wrap !important; align-items:center !important;
+    justify-content:center !important; min-width:0 !important;
+    white-space:normal !important; overflow-wrap:anywhere !important;
+    text-align:center !important; line-height:1.4 !important;
+  }
+  #endedTournamentList .ended-card-scorer {
+    display:flex !important; flex-wrap:wrap !important; width:100% !important;
+    min-width:0 !important; padding:10px !important; gap:7px !important;
+  }
+  #endedTournamentList .ended-card-scorer > div { min-width:0 !important; max-width:100% !important; }
+  #endedTournamentList .ended-card-scorer b,
+  #endedTournamentList .ended-card-scorer em { white-space:normal !important; overflow-wrap:anywhere !important; }
+  #endedTournamentList .ended-card-team-sequence { margin:0 10px 12px !important; min-width:0 !important; }
+  #endedTournamentList .ended-card-team-sequence summary { grid-template-columns:minmax(0,1fr) auto auto !important; gap:6px !important; }
+  #endedTournamentList .ended-card-team-sequence summary span { min-width:0 !important; white-space:normal !important; }
+  #endedTournamentList .ended-card-archive { width:100% !important; min-width:0 !important; padding:13px 10px !important; }
+  #endedTournamentList .ended-card-archive-head { display:flex !important; flex-wrap:wrap !important; align-items:center !important; gap:8px !important; min-width:0 !important; }
+  #endedTournamentList .ended-card-archive-icon { flex:0 0 52px !important; width:52px !important; height:62px !important; }
+  #endedTournamentList .ended-card-archive-head > div:nth-child(2) { flex:1 1 130px !important; min-width:0 !important; }
+  #endedTournamentList .ended-card-archive-head h4 { font-size:clamp(16px,4.5vw,21px) !important; overflow-wrap:anywhere !important; }
+  #endedTournamentList .ended-card-archive-head small { white-space:normal !important; overflow-wrap:anywhere !important; }
+  #endedTournamentList .ended-card-archive-badge { margin-inline-start:auto !important; white-space:normal !important; }
+  #endedTournamentList .ended-card-archive-tags { display:flex !important; flex-wrap:wrap !important; gap:6px !important; }
+  #endedTournamentList .ended-card-archive-tags span { white-space:normal !important; overflow-wrap:anywhere !important; }
+  #endedTournamentList .ended-card-archive-actions {
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    width:100% !important; min-width:0 !important; gap:7px !important;
+  }
+  #endedTournamentList .ended-card-archive-actions button {
+    display:flex !important; flex-direction:column !important;
+    align-items:center !important; justify-content:center !important;
+    width:100% !important; min-width:0 !important; min-height:72px !important;
+    padding:8px 5px !important; gap:4px !important; text-align:center !important;
+  }
+  #endedTournamentList .ended-card-archive-actions button span { grid-row:auto !important; }
+  #endedTournamentList .ended-card-archive-actions button b,
+  #endedTournamentList .ended-card-archive-actions button small {
+    white-space:normal !important; overflow-wrap:anywhere !important;
+    text-align:center !important; max-width:100% !important;
+  }
+  #endedTournamentList .ended-card-admin-footer { padding:12px 10px 14px !important; }
+  #endedTournamentList .ended-card-admin-actions {
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    width:100% !important; min-width:0 !important; gap:7px !important;
+  }
+  #endedTournamentList .ended-card-admin-actions .btn {
+    width:100% !important; min-width:0 !important; min-height:42px !important;
+    white-space:normal !important; overflow-wrap:anywhere !important;
+    padding:7px 5px !important; font-size:clamp(9px,2.6vw,11px) !important;
+  }
+}
+
+@media screen and (max-width:390px) {
+  #endedTournamentList .ended-card-side { padding:10px 11px !important; gap:9px !important; }
+  #endedTournamentList .ended-card-side-logo {
+    flex-basis:58px !important; width:58px !important; height:58px !important;
+    min-width:58px !important; min-height:58px !important; max-width:58px !important;
+  }
+  #endedTournamentList .ended-card-brand-main { font-size:14px !important; }
+  #endedTournamentList .ended-card-brand-credit { font-size:9px !important; }
+  #endedTournamentList .ended-card-content { padding:12px 9px 14px !important; }
+  #endedTournamentList .ended-card-stat-grid { gap:6px !important; }
+  #endedTournamentList .ended-card-stat-grid > div { min-height:78px !important; padding:8px 4px !important; }
+  #endedTournamentList .ended-card-honors { grid-template-columns:minmax(0,1fr) !important; }
+  #endedTournamentList .ended-card-archive-actions,
+  #endedTournamentList .ended-card-admin-actions { grid-template-columns:minmax(0,1fr) !important; }
+}
+
+</style>
 </body>
 </html>
