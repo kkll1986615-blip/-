@@ -17058,7 +17058,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
             <div class="ko-card-top"><span class="ko-round-title">${round==='النهائي'?'🏆 المباراة النهائية':round==='نصف النهائي'?'🥈 نصف النهائي':'🏆 ربع النهائي'}</span><span class="ko-match-number">مباراة ${i+1}</span></div>
             <div class="ko-card-main">
               <div class="ko-card-team ko-team-home ${homeWon?'ko-winner':''}">${logo(hi)}<span class="ko-team-name">${esc(teamName(hi))}</span>${homeWon?'<span class="ko-winner-label">🏆 الفائز</span>':''}</div>
-              <div class="ko-result"><span class="ko-score-value">${esc(round==='النهائي'?q.ag:q.hg)} <i>–</i> ${esc(round==='النهائي'?q.hg:q.ag)}</span><span class="ko-vs">VS</span></div>
+              <div class="ko-result"><span class="ko-score-value">${esc(q.ag)} <i>–</i> ${esc(q.hg)}</span><span class="ko-vs">VS</span></div>
               <div class="ko-card-team ko-team-away ${awayWon?'ko-winner':''}">${logo(ai)}<span class="ko-team-name">${esc(teamName(ai))}</span>${awayWon?'<span class="ko-winner-label">🏆 الفائز</span>':''}</div>
             </div>
             ${shootout}
