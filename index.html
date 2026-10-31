@@ -11177,7 +11177,17 @@ img { decoding: async; }
 </style>
 
 
-<style id="knockout-shootout-only-styles">.ko-shootout-score{display:block;margin:7px auto 0;padding:5px 10px;width:max-content;max-width:100%;border-radius:9px;background:#fff4cf;color:#795500;font-size:12px;font-weight:900;text-align:center}.ko-final .ko-shootout-score{background:#fff0b8;color:#684400}</style>
+<style id="knockout-shootout-only-styles">
+.ko-shootout-score{display:flex;direction:rtl;align-items:center;justify-content:center;gap:8px;margin:7px auto 0;padding:6px 12px;width:max-content;max-width:100%;border-radius:9px;background:#fff4cf;color:#795500;font-size:12px;font-weight:900;text-align:center}
+.ko-shootout-numbers{direction:ltr;unicode-bidi:isolate;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ko-final .ko-shootout-score{background:#fff0b8;color:#684400}
+#statsBody .ko-card-team.ko-winner .ko-team-logo{border:3px solid #f5bd25!important;box-shadow:0 0 0 4px #f5bd2530,0 0 24px #ffca3a90!important;transform:scale(1.06)}
+#statsBody .ko-card-team.ko-winner .ko-team-name{color:#12804d!important;text-shadow:0 1px 0 #fff!important}
+#statsBody .ko-match-card.ko-final .ko-card-team.ko-winner .ko-team-logo{border:4px solid #ffd43b!important;box-shadow:0 0 0 5px #ffd43b55,0 0 28px #ffe066!important}
+#statsBody .ko-match-card.ko-final .ko-card-team.ko-winner .ko-team-name{color:#ffe27a!important}
+.ko-winner-label{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:4px 9px;border-radius:999px;background:linear-gradient(135deg,#fff0a8,#f7bd28);color:#563b00;font-size:11px;font-weight:1000;box-shadow:0 3px 9px #0002;white-space:nowrap}
+@media(max-width:520px){.ko-winner-label{font-size:10px;padding:4px 7px}}
+</style>
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -17028,9 +17038,16 @@ window.addEventListener('load',function(){document.documentElement.classList.add
         const cards=ko.map(({m,sh},i)=>{
           const q=score(m,sh);
           const round=norm(String(m.knockoutRound||sh?.knockoutRound||m.roundName||sh?.roundName||m.stageName||sh?.stageName||m.matchStage||sh?.matchStage||'خروج المغلوب').trim());
-          const shootout=(sh?.shootoutHome!==undefined&&sh?.shootoutHome!==null&&sh?.shootoutAway!==undefined&&sh?.shootoutAway!==null)?`<span class="ko-shootout-score">ركلات الترجيح: ${esc(round==='النهائي'?sh.shootoutAway:sh.shootoutHome)} – ${esc(round==='النهائي'?sh.shootoutHome:sh.shootoutAway)}</span>`:'';
-          const hi=m.home||m.homeTeamId||m.teamAId||sh.homeTeamId||sh.homeTeam;
-          const ai=m.away||m.awayTeamId||m.teamBId||sh.awayTeamId||sh.awayTeam;
+          const hi=sh?.homeTeamId||sh?.homeTeam||m.home||m.homeTeamId||m.teamAId;
+          const ai=sh?.awayTeamId||sh?.awayTeam||m.away||m.awayTeamId||m.teamBId;
+          const hasShootout=sh?.shootoutHome!==undefined&&sh?.shootoutHome!==null&&sh?.shootoutAway!==undefined&&sh?.shootoutAway!==null;
+          // بطاقة KO في RTL تعرض الفريق الضيف على اليسار والمضيف على اليمين؛ لذلك تبقى أرقام الترجيح بالترتيب نفسه، مع فصل اتجاه الأرقام عن النص العربي.
+          const shootout=hasShootout?`<span class="ko-shootout-score"><b>ركلات الترجيح:</b><bdi class="ko-shootout-numbers">${esc(sh.shootoutAway)} – ${esc(sh.shootoutHome)}</bdi></span>`:'';
+          const storedWinner=S(sh?.shootoutWinnerTeamId||m?.shootoutWinnerTeamId||'');
+          const scoreWinner=hasShootout?(Number(sh.shootoutHome)>Number(sh.shootoutAway)?S(hi):Number(sh.shootoutAway)>Number(sh.shootoutHome)?S(ai):''):(q.hg>q.ag?S(hi):q.ag>q.hg?S(ai):'');
+          const winnerId=scoreWinner||(storedWinner&&[S(hi),S(ai)].includes(storedWinner)?storedWinner:'');
+          const homeWon=!!winnerId&&S(winnerId)===S(hi);
+          const awayWon=!!winnerId&&S(winnerId)===S(ai);
           const cls=round==='النهائي'?'ko-final':(round==='نصف النهائي'?'ko-semi':'ko-quarter');
           const logo=(id)=>{const u=teamLogo(id);return u?`<img class="ko-team-logo" loading="lazy" decoding="async" src="${esc(u)}" alt="شعار ${esc(teamName(id))}">`:'<span class="ko-team-logo ko-team-logo-fallback" aria-hidden="true">⚽</span>';};
           const date=m.date||sh?.date||'';
@@ -17040,9 +17057,9 @@ window.addEventListener('load',function(){document.documentElement.classList.add
           return `<article class="ko-match-card ${cls}">
             <div class="ko-card-top"><span class="ko-round-title">${round==='النهائي'?'🏆 المباراة النهائية':round==='نصف النهائي'?'🥈 نصف النهائي':'🏆 ربع النهائي'}</span><span class="ko-match-number">مباراة ${i+1}</span></div>
             <div class="ko-card-main">
-              <div class="ko-card-team ko-team-home">${logo(hi)}<span class="ko-team-name">${esc(teamName(hi))}</span></div>
+              <div class="ko-card-team ko-team-home ${homeWon?'ko-winner':''}">${logo(hi)}<span class="ko-team-name">${esc(teamName(hi))}</span>${homeWon?'<span class="ko-winner-label">🏆 الفائز</span>':''}</div>
               <div class="ko-result"><span class="ko-score-value">${esc(round==='النهائي'?q.ag:q.hg)} <i>–</i> ${esc(round==='النهائي'?q.hg:q.ag)}</span><span class="ko-vs">VS</span></div>
-              <div class="ko-card-team ko-team-away">${logo(ai)}<span class="ko-team-name">${esc(teamName(ai))}</span></div>
+              <div class="ko-card-team ko-team-away ${awayWon?'ko-winner':''}">${logo(ai)}<span class="ko-team-name">${esc(teamName(ai))}</span>${awayWon?'<span class="ko-winner-label">🏆 الفائز</span>':''}</div>
             </div>
             ${shootout}
             <div class="ko-card-meta"><span class="ko-meta-date">▦ ${dateLabel}</span>${timeLabel}</div>
