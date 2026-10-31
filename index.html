@@ -11207,6 +11207,12 @@ img { decoding: async; }
   #matchSheetsSection .ks-root:has(#ksAwayGoalkeeper:focus){contain:layout style!important;}
 }
 </style>
+
+<style id="keeper-native-select-overlap-final-fix">
+/* إزالة النص الإرشادي الذي يتداخل بصرياً مع نافذة الاختيار الأصلية في أندرويد */
+#matchSheetsSection .ks-goalkeeper-step > .goalkeeper-one-note{display:none!important;}
+</style>
+
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
