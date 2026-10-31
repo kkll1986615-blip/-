@@ -14779,113 +14779,279 @@ function renderOverallRanking(){
   const body=document.getElementById('overallRankingBody');
   if(!body)return;
 
-  const A=v=>Array.isArray(v)?v:[];
+  /*
+    تصنيف عام موحّد ومتوافق مع بيانات المنصة الحالية والقديمة:
+    - قراءة الفرق والمباريات من القاعدة الحالية، والبطولات المتداخلة، والأرشيف.
+    - مطابقة الفرق بالمعرّف أولاً ثم بالاسم بعد توحيد النص العربي.
+    - استخدام الكشف الرسمي للنتيجة عند توفره، ثم نتيجة المباراة.
+    - عدم احتساب المباراة المجدولة أو تكرار المباراة المؤرشفة.
+    التعديل محصور في دالة التصنيف العام.
+  */
   const S=v=>String(v??'').trim();
-  const norm=v=>S(v).replace(/\s+/g,' ').toLocaleLowerCase('ar');
-  const keyName=v=>norm(v);
+  const A=v=>{
+    if(Array.isArray(v))return v;
+    if(v&&typeof v==='object')return Object.entries(v).map(([k,x])=>
+      x&&typeof x==='object'&&!Array.isArray(x)&&!S(x.id??x.matchId??x.matchID??x.fixtureId??x.gameId??x.teamId??x.teamID??x.team_id)
+        ? {...x,id:k}:x
+    );
+    return [];
+  };
+  const norm=v=>S(v)
+    .normalize('NFC')
+    .replace(/[\u064B-\u065F\u0670]/g,'')
+    .replace(/\u0640/g,'')
+    .replace(/[أإآٱ]/g,'ا')
+    .replace(/ى/g,'ي')
+    .replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g,'')
+    .replace(/\s+/g,' ')
+    .toLocaleLowerCase('ar');
+  const first=(obj,keys)=>{
+    for(const k of keys){const v=obj?.[k];if(v!==undefined&&v!==null&&S(v)!=='')return v;}
+    return undefined;
+  };
   const activeTeams=A(db?.teams);
   const activeMatches=A(db?.matches);
   const activeTours=A(db?.tournaments);
   const archives=A(db?.archives);
 
-  /* كل الفرق: الحالية + الفرق المحفوظة داخل أرشيف البطولات */
-  const allTeams=[]; const teamById=new Map();
-  const addTeam=t=>{
-    if(!t||typeof t!=='object')return;
-    const id=S(t.id);
-    const name=S(t.name??t.teamName??t.title);
-    if(!name)return;
-    if(id && !teamById.has(id)){teamById.set(id,t);allTeams.push(t);}
-    else if(!id && !allTeams.some(x=>keyName(x.name)===keyName(name)))allTeams.push(t);
-  };
-  activeTeams.forEach(addTeam);
-  archives.forEach(ar=>A(ar?.teams).forEach(addTeam));
+  /* إعداد فهرس البطولات كي يُحتسب اسم البطولة حتى في النسخ القديمة. */
+  const allTours=[];
+  const addTour=t=>{if(t&&typeof t==='object'&&!allTours.some(x=>S(x.id??x.tournamentId)===S(t.id??t.tournamentId)&&S(x.name??x.title)===S(t.name??t.title)))allTours.push(t);};
+  activeTours.forEach(addTour);
+  archives.forEach(ar=>addTour(ar?.tournament??ar?.tournamentData??ar?.competition));
+  const tourById=new Map(),tourByName=new Map();
+  allTours.forEach(t=>{
+    const id=S(t.id??t.tournamentId),name=S(t.name??t.title??t.tournamentName);
+    if(id&&!tourById.has(id))tourById.set(id,t);
+    if(name&&!tourByName.has(norm(name)))tourByName.set(norm(name),t);
+  });
 
-  /* جميع المباريات بدون تكرار: المباراة الفعلية من db، ثم نسخة الأرشيف كاحتياط */
-  const allMatches=[]; const seenMatchIds=new Set();
-  const addMatch=(m,fallbackTid)=>{
-    if(!m||typeof m!=='object')return;
-    const id=S(m.id??m.matchId);
-    if(id && seenMatchIds.has(id))return;
-    const copy={...m};
-    if(!S(copy.tournamentId))copy.tournamentId=S(fallbackTid);
-    if(id)seenMatchIds.add(id);
-    allMatches.push(copy);
+  /* كل الفرق المسجلة، بما فيها قوائم الفرق داخل كائن البطولة والأرشيف. */
+  const allTeams=[],teamById=new Map(),teamByName=new Map();
+  const addTeam=(value,fallbackTid)=>{
+    if(!value)return;
+    let t=value;
+    if(typeof value==='string'||typeof value==='number'){
+      const n=S(value);
+      if(!n||!/[\u0600-\u06FF]/.test(n))return;
+      t={name:n};
+    }
+    if(typeof t!=='object'||Array.isArray(t))return;
+    const name=S(t.name??t.teamName??t.team_name??t.title??t.label??t.displayName);
+    if(!name)return;
+    const id=S(t.id??t.teamId??t.teamID??t.team_id??t._id??t.key);
+    const copy={...t};
+    if(!S(copy.tournamentId??copy.tournament_id)&&fallbackTid)copy.tournamentId=S(fallbackTid);
+    if(id){
+      const old=teamById.get(id);
+      if(old){
+        // نحتفظ بسجل الفريق الأصلي مع استكمال الشعار والاسم عند نقصهما.
+        if(!S(old.name??old.teamName??old.title))old.name=name;
+        if(!S(old.logo??old.teamLogo??old.logoUrl))old.logo=copy.logo??copy.teamLogo??copy.logoUrl??'';
+        return;
+      }
+      teamById.set(id,copy);
+      allTeams.push(copy);
+    }else if(!allTeams.some(x=>norm(x.name??x.teamName??x.title)===norm(name))){
+      allTeams.push(copy);
+    }
   };
-  activeMatches.forEach(m=>addMatch(m,m.tournamentId));
+  activeTeams.forEach(t=>addTeam(t,t?.tournamentId));
+  ['teamList','participatingTeams','clubs'].forEach(k=>A(db?.[k]).forEach(t=>addTeam(t,t?.tournamentId)));
+  activeTours.forEach(t=>{
+    const tid=S(t?.id??t?.tournamentId);
+    ['teams','teamList','participatingTeams','participants','clubs'].forEach(k=>A(t?.[k]).forEach(x=>addTeam(x,tid)));
+  });
   archives.forEach(ar=>{
     const at=ar?.tournament??ar?.tournamentData??ar?.competition;
-    const tid=S(at?.id??ar?.tournamentId);
-    A(ar?.matches).forEach(m=>addMatch(m,tid));
-    A(at?.matches).forEach(m=>addMatch(m,tid));
+    const tid=S(at?.id??at?.tournamentId??ar?.tournamentId);
+    A(ar?.teams).forEach(t=>addTeam(t,tid));
+    ['teams','teamList','participatingTeams','participants','clubs'].forEach(k=>A(at?.[k]).forEach(x=>addTeam(x,tid)));
+  });
+  allTeams.forEach(t=>{
+    const id=S(t.id??t.teamId??t.teamID??t.team_id??t._id??t.key);
+    const name=S(t.name??t.teamName??t.team_name??t.title??t.label??t.displayName);
+    if(id&&!teamById.has(id))teamById.set(id,t);
+    if(name&&!teamByName.has(norm(name)))teamByName.set(norm(name),t);
   });
 
-  /* أحدث كشف رسمي هو المرجع الأول للنتيجة، ثم بيانات المباراة عند عدم وجود كشف */
-  const sheetMap=new Map();
-  const readSheets=k=>{try{const x=JSON.parse(localStorage.getItem(k)||'[]');return A(x)}catch(e){return[]}};
-  const sheetSources=[];
-  try{if(typeof window.uniqueMatchSheets==='function')sheetSources.push(...A(window.uniqueMatchSheets()));}catch(e){}
-  ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>sheetSources.push(...readSheets(k)));
-  sheetSources.forEach(sh=>{
-    const id=S(sh?.matchId); if(!id)return;
-    const old=sheetMap.get(id), stamp=S(sh.updatedAt||sh.createdAt||'');
-    const oldStamp=S(old?.updatedAt||old?.createdAt||'');
-    if(!old || stamp>=oldStamp)sheetMap.set(id,sh);
-  });
-
-  const getTeam=v=>{
-    const raw=(v&&typeof v==='object')?(v.id??v.teamId??v.name??v.teamName):v;
-    const id=S(raw);
-    if(id&&teamById.has(id))return teamById.get(id);
-    const n=keyName(raw);
-    return allTeams.find(t=>keyName(t.name??t.teamName??t.title)===n)||null;
+  const resolveTeam=value=>{
+    if(value===undefined||value===null||S(value)==='')return null;
+    if(typeof value==='object'){
+      const id=S(first(value,['id','teamId','teamID','team_id','_id','key','value']));
+      if(id&&teamById.has(id))return teamById.get(id);
+      const nm=S(first(value,['name','teamName','team_name','title','label','displayName']));
+      if(nm&&teamByName.has(norm(nm)))return teamByName.get(norm(nm));
+      if(nm)return {name:nm,logo:S(value.logo??value.teamLogo??value.logoUrl)};
+      return null;
+    }
+    const raw=S(value);
+    if(teamById.has(raw))return teamById.get(raw);
+    if(teamByName.has(norm(raw)))return teamByName.get(norm(raw));
+    return null;
   };
+  const sideTeam=(m,sh,side)=>{
+    const home=side==='home';
+    const idKeys=home
+      ? ['homeTeamId','home_team_id','teamAId','team1Id','homeId','team_a_id','team_1_id']
+      : ['awayTeamId','away_team_id','teamBId','team2Id','awayId','team_b_id','team_2_id'];
+    const objKeys=home
+      ? ['homeTeam','teamA','team1','home','home_team']
+      : ['awayTeam','teamB','team2','away','away_team'];
+    const nameKeys=home
+      ? ['homeTeamName','homeName','teamAName','team1Name','home_team_name']
+      : ['awayTeamName','awayName','teamBName','team2Name','away_team_name'];
+    const candidates=[];
+    [sh,m].forEach(src=>{
+      idKeys.forEach(k=>{if(src?.[k]!==undefined&&src?.[k]!==null&&S(src[k])!=='')candidates.push(src[k]);});
+    });
+    [sh,m].forEach(src=>{
+      objKeys.forEach(k=>{if(src?.[k]!==undefined&&src?.[k]!==null&&S(src[k])!=='')candidates.push(src[k]);});
+    });
+    [sh,m].forEach(src=>{
+      nameKeys.forEach(k=>{if(src?.[k]!==undefined&&src?.[k]!==null&&S(src[k])!=='')candidates.push(src[k]);});
+    });
+    for(const candidate of candidates){const found=resolveTeam(candidate);if(found)return found;}
+    // احتياط للبيانات القديمة التي تحفظ اسم الفريق العربي مباشرة داخل home/away.
+    for(const candidate of candidates){
+      const raw=typeof candidate==='object'?S(first(candidate,['name','teamName','team_name','title','label'])):S(candidate);
+      if(raw&&/[\u0600-\u06FF]/.test(raw))return {name:raw};
+    }
+    return null;
+  };
+
+  /* جميع المباريات: القاعدة الحالية، المباريات المحفوظة داخل البطولة، والأرشيف. */
+  const allMatches=[],matchById=new Map(),seenNoId=new Set();
+  const addMatch=(m,fallbackTid)=>{
+    if(!m||typeof m!=='object'||Array.isArray(m))return;
+    const copy={...m};
+    const id=S(first(copy,['id','matchId','matchID','fixtureId','gameId']));
+    if(!S(copy.tournamentId??copy.tournament_id??copy.tournamentID)&&fallbackTid)copy.tournamentId=S(fallbackTid);
+    if(id&&matchById.has(id)){
+      const old=matchById.get(id);
+      Object.keys(copy).forEach(k=>{if((old[k]===undefined||old[k]===null||S(old[k])==='')&&copy[k]!==undefined&&copy[k]!==null&&S(copy[k])!=='')old[k]=copy[k];});
+      return;
+    }
+    if(id)matchById.set(id,copy);
+    else{
+      const sig=JSON.stringify([
+        copy.tournamentId,
+        first(copy,['homeTeamId','home_team_id','teamAId','team1Id','home','homeTeam','homeTeamName','homeName']),
+        first(copy,['awayTeamId','away_team_id','teamBId','team2Id','away','awayTeam','awayTeamName','awayName']),
+        first(copy,['date','matchDate','scheduledDate']),
+        first(copy,['hg','homeScore','homeGoals','scoreA','team1Score']),
+        first(copy,['ag','awayScore','awayGoals','scoreB','team2Score'])
+      ]);
+      if(seenNoId.has(sig))return;
+      seenNoId.add(sig);
+    }
+    allMatches.push(copy);
+  };
+  activeMatches.forEach(m=>addMatch(m,m?.tournamentId??m?.tournament_id));
+  ['fixtures','games','schedule'].forEach(k=>A(db?.[k]).forEach(m=>addMatch(m,m?.tournamentId??m?.tournament_id)));
+  activeTours.forEach(t=>{
+    const tid=S(t?.id??t?.tournamentId);
+    ['matches','fixtures','games','schedule'].forEach(k=>A(t?.[k]).forEach(m=>addMatch(m,tid)));
+  });
+  archives.forEach(ar=>{
+    const at=ar?.tournament??ar?.tournamentData??ar?.competition;
+    const tid=S(at?.id??at?.tournamentId??ar?.tournamentId);
+    ['matches','fixtures','games','schedule'].forEach(k=>A(ar?.[k]).forEach(m=>addMatch(m,tid)));
+    ['matches','fixtures','games','schedule'].forEach(k=>A(at?.[k]).forEach(m=>addMatch(m,tid)));
+  });
+
+  /* جمع الكشوفات القديمة والجديدة ثم اختيار أحدث كشف لكل مباراة. */
+  const sheetMap=new Map(),sheetSources=[];
+  const pushSheetSource=(items,priority)=>A(items).forEach(sh=>sheetSources.push({sh,priority}));
+  pushSheetSource(db?.matchSheets,1);
+  pushSheetSource(db?.sheets,1);
+  ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach((k,i)=>{
+    try{pushSheetSource(JSON.parse(localStorage.getItem(k)||'[]'),2+i);}catch(e){}
+  });
+  try{if(typeof window.uniqueMatchSheets==='function')pushSheetSource(window.uniqueMatchSheets(),6);}catch(e){}
+  const stampOf=sh=>{
+    const v=first(sh,['updatedAt','modifiedAt','savedAt','createdAt','timestamp','time']);
+    if(typeof v==='number'&&Number.isFinite(v))return v<1e12?v*1000:v;
+    const n=Date.parse(S(v));return Number.isFinite(n)?n:0;
+  };
+  sheetSources.forEach(({sh,priority})=>{
+    if(!sh||typeof sh!=='object')return;
+    const id=S(first(sh,['matchId','matchID','fixtureId','gameId']));if(!id)return;
+    const old=sheetMap.get(id),stamp=stampOf(sh);
+    if(!old||stamp>old.stamp||(stamp===old.stamp&&priority>=old.priority))sheetMap.set(id,{sh,stamp,priority});
+  });
+
+  const rows=new Map();
   const ensureRow=team=>{
     if(!team)return null;
-    const name=S(team.name??team.teamName??team.title);
-    const key=keyName(name); if(!key)return null;
-    if(!rows.has(key))rows.set(key,{name,logo:team.logo||team.teamLogo||'',played:0,wins:0,draws:0,losses:0,gf:0,ga:0,points:0,tournamentNames:new Set()});
-    const r=rows.get(key); if(!r.logo)r.logo=team.logo||team.teamLogo||'';
-    return r;
+    const name=S(team.name??team.teamName??team.team_name??team.title??team.label??team.displayName);
+    const key=norm(name);if(!key)return null;
+    if(!rows.has(key))rows.set(key,{name,logo:S(team.logo??team.teamLogo??team.logoUrl??team.image??''),played:0,wins:0,draws:0,losses:0,gf:0,ga:0,points:0,tournamentNames:new Set()});
+    const row=rows.get(key);
+    if(!row.logo)row.logo=S(team.logo??team.teamLogo??team.logoUrl??team.image??'');
+    return row;
   };
-  const rows=new Map();
   allTeams.forEach(ensureRow);
 
-  const tournamentName=m=>{
-    const tid=S(m?.tournamentId??m?.tournament?.id??m?.tournament);
-    const at=activeTours.find(t=>S(t.id)===tid) || archives.map(a=>a?.tournament??a?.tournamentData??a?.competition).find(t=>S(t?.id)===tid);
-    return S(at?.name??at?.title??m?.tournamentName);
+  const tournamentInfo=(m,sh)=>{
+    const raw=first(m,['tournamentId','tournament_id','tournamentID','competitionId','tournament']);
+    const shRaw=first(sh,['tournamentId','tournament_id','tournamentID','competitionId','tournament']);
+    const vals=[raw,shRaw,first(m,['tournamentName','competitionName']),first(sh,['tournamentName','competitionName'])];
+    for(const v of vals){
+      if(v===undefined||v===null||S(v)==='')continue;
+      if(typeof v==='object'){
+        const id=S(first(v,['id','tournamentId','tournamentID']));
+        const n=S(first(v,['name','title','tournamentName']));
+        const t=(id&&tourById.get(id))||(n&&tourByName.get(norm(n)));
+        return {key:id||norm(n),name:S(t?.name??t?.title??n??id)};
+      }
+      const x=S(v),t=tourById.get(x)||tourByName.get(norm(x));
+      if(t)return {key:S(t.id??t.tournamentId)||norm(t.name??t.title),name:S(t.name??t.title??x)};
+      // إذا كانت القيمة اسم البطولة نفسه وليس معرّفاً، نستخدمها كما هي.
+      if(/[\u0600-\u06FF]/.test(x))return {key:norm(x),name:x};
+    }
+    return {key:'',name:''};
   };
+  const readScore=(obj,keys)=>{
+    const raw=first(obj,keys);
+    if(raw===undefined||raw===null||S(raw)==='')return null;
+    const n=Number(raw);
+    return Number.isFinite(n)&&n>=0?n:null;
+  };
+  const homeScoreKeys=['homeScore','homeGoals','scoreHome','goalsHome','team1Score','teamAScore','hg','home_score','scoreA'];
+  const awayScoreKeys=['awayScore','awayGoals','scoreAway','goalsAway','team2Score','teamBScore','ag','away_score','scoreB'];
+  const finishedStatuses=new Set(['finished','complete','completed','final','ended','منتهية','منتهي','انتهت','مكتملة','مكتمل','تمت','منتهية المباراة']);
 
   allMatches.forEach(m=>{
-    const sh=sheetMap.get(S(m.id??m.matchId));
-    const home=getTeam(sh?.homeTeamId??sh?.homeTeam??m.home??m.homeTeamId??m.homeTeam);
-    const away=getTeam(sh?.awayTeamId??sh?.awayTeam??m.away??m.awayTeamId??m.awayTeam);
+    const id=S(first(m,['id','matchId','matchID','fixtureId','gameId']));
+    const sh=sheetMap.get(id)?.sh||null;
+    const home=sideTeam(m,sh,'home'),away=sideTeam(m,sh,'away');
     if(!home||!away)return;
-
-    /* لا تدخل المباراة في التصنيف إلا إذا كانت منتهية أو لها كشف رسمي. */
-    const status=S(m.status).toLowerCase();
-    const shg=sh?.homeScore, sag=sh?.awayScore;
-    const hasSheetScore=shg!==undefined&&shg!==null&&shg!==''&&sag!==undefined&&sag!==null&&sag!==''&&Number.isFinite(Number(shg))&&Number.isFinite(Number(sag));
-    const rawHg=hasSheetScore?shg:(m.hg??m.homeGoals??m.homeScore);
-    const rawAg=hasSheetScore?sag:(m.ag??m.awayGoals??m.awayScore);
-    const hasMatchScore=rawHg!==undefined&&rawHg!==null&&rawHg!==''&&rawAg!==undefined&&rawAg!==null&&rawAg!=='';
-    const finished=status==='finished'||status==='منتهية'||status==='منتهي'||status==='completed'||status==='complete'||status==='final'||hasSheetScore;
-    if(!finished||!hasMatchScore)return;
-    const hg=Number(rawHg),ag=Number(rawAg);
-    if(!Number.isFinite(hg)||!Number.isFinite(ag)||hg<0||ag<0)return;
-
-    const h=ensureRow(home),a=ensureRow(away); if(!h||!a)return;
+    const shg=readScore(sh,homeScoreKeys),sag=readScore(sh,awayScoreKeys);
+    const hasSheetScore=shg!==null&&sag!==null;
+    const mhg=readScore(m,homeScoreKeys),mag=readScore(m,awayScoreKeys);
+    const hasMatchScore=mhg!==null&&mag!==null;
+    const hg=hasSheetScore?shg:mhg,ag=hasSheetScore?sag:mag;
+    if(hg===null||ag===null)return;
+    const status=norm(m.status??m.matchStatus??m.state??'');
+    const finished=finishedStatuses.has(status)||hasSheetScore||m.completed===true||m.isFinished===true||m.played===true;
+    if(!finished)return;
+    const h=ensureRow(home),a=ensureRow(away);if(!h||!a||h===a)return;
     h.played++;a.played++;h.gf+=hg;h.ga+=ag;a.gf+=ag;a.ga+=hg;
-    const tn=tournamentName(m); if(tn){h.tournamentNames.add(tn);a.tournamentNames.add(tn);}
+    const tour=tournamentInfo(m,sh);
+    if(tour.key){h.tournamentNames.add(tour.key);a.tournamentNames.add(tour.key);}
     if(hg>ag){h.wins++;h.points+=3;a.losses++;}
     else if(hg<ag){a.wins++;a.points+=3;h.losses++;}
     else{h.draws++;a.draws++;h.points++;a.points++;}
   });
 
-  const list=[...rows.values()].map(r=>({...r,diff:r.gf-r.ga,tournamentCount:r.tournamentNames.size})).sort((a,b)=>b.points-a.points||b.diff-a.diff||b.gf-a.gf||b.wins-a.wins||a.name.localeCompare(b.name,'ar'));
-  body.innerHTML=`<div class="overall-desktop-table"><div class="overall-table-wrap"><table class="overall-ranking-new-table"><thead><tr><th>المركز</th><th>الفريق</th><th>البطولات</th><th>لعب</th><th>فوز</th><th>تعادل</th><th>خسارة</th><th>له</th><th>عليه</th><th>الفارق</th><th>النقاط</th></tr></thead><tbody>${list.map((r,i)=>`<tr><td><span class="overall-rank-number">${i+1}</span></td><td class="overall-team-name"><div class="overall-team-identity">${r.logo?`<img loading="lazy" decoding="async" class="overall-team-logo" src="${r.logo}" alt="">`:`<span class="overall-team-logo-fallback">⚽</span>`}<b>${esc(r.name)}</b></div></td><td><b>${r.tournamentCount}</b></td><td>${r.played}</td><td>${r.wins}</td><td>${r.draws}</td><td>${r.losses}</td><td>${r.gf}</td><td>${r.ga}</td><td>${r.diff>0?'+':''}${r.diff}</td><td><span class="overall-points">${r.points}</span></td></tr>`).join('')}</tbody></table></div></div><div class="overall-mobile-cards">${list.map((r,i)=>`<article class="overall-team-card"><div class="overall-team-card-head"><span class="overall-card-rank">${i+1}</span><div class="overall-card-team-name"><div class="overall-team-identity">${r.logo?`<img loading="lazy" decoding="async" class="overall-team-logo" src="${r.logo}" alt="">`:`<span class="overall-team-logo-fallback">⚽</span>`}<b>${esc(r.name)}</b></div></div><div class="overall-card-points"><small>النقاط</small><strong>${r.points}</strong></div></div><div class="overall-card-stats"><div><small>البطولات</small><b>${r.tournamentCount}</b></div><div><small>لعب</small><b>${r.played}</b></div><div><small>فوز</small><b>${r.wins}</b></div><div><small>تعادل</small><b>${r.draws}</b></div><div><small>خسارة</small><b>${r.losses}</b></div><div><small>له</small><b>${r.gf}</b></div><div><small>عليه</small><b>${r.ga}</b></div><div><small>الفارق</small><b>${r.diff>0?'+':''}${r.diff}</b></div></div></article>`).join('')}</div>`;
+  const list=[...rows.values()]
+    .map(r=>({...r,diff:r.gf-r.ga,tournamentCount:r.tournamentNames.size}))
+    .sort((a,b)=>b.points-a.points||b.diff-a.diff||b.gf-a.gf||b.wins-a.wins||a.name.localeCompare(b.name,'ar'));
+  if(!list.length){body.innerHTML='<div class="empty">لا توجد فرق مسجلة لعرضها في التصنيف العام.</div>';return;}
+  body.innerHTML=`<div class="overall-desktop-table"><div class="overall-table-wrap"><table class="overall-ranking-new-table"><thead><tr><th>المركز</th><th>الفريق</th><th>البطولات</th><th>لعب</th><th>فوز</th><th>تعادل</th><th>خسارة</th><th>له</th><th>عليه</th><th>الفارق</th><th>النقاط</th></tr></thead><tbody>${list.map((r,i)=>`<tr><td><span class="overall-rank-number">${i+1}</span></td><td class="overall-team-name"><div class="overall-team-identity">${r.logo?`<img loading="lazy" decoding="async" class="overall-team-logo" src="${esc(r.logo)}" alt="">`:`<span class="overall-team-logo-fallback">⚽</span>`}<b>${esc(r.name)}</b></div></td><td><b>${r.tournamentCount}</b></td><td>${r.played}</td><td>${r.wins}</td><td>${r.draws}</td><td>${r.losses}</td><td>${r.gf}</td><td>${r.ga}</td><td>${r.diff>0?'+':''}${r.diff}</td><td><span class="overall-points">${r.points}</span></td></tr>`).join('')}</tbody></table></div></div><div class="overall-mobile-cards">${list.map((r,i)=>`<article class="overall-team-card"><div class="overall-team-card-head"><span class="overall-card-rank">${i+1}</span><div class="overall-card-team-name"><div class="overall-team-identity">${r.logo?`<img loading="lazy" decoding="async" class="overall-team-logo" src="${esc(r.logo)}" alt="">`:`<span class="overall-team-logo-fallback">⚽</span>`}<b>${esc(r.name)}</b></div></div><div class="overall-card-points"><small>النقاط</small><strong>${r.points}</strong></div></div><div class="overall-card-stats"><div><small>البطولات</small><b>${r.tournamentCount}</b></div><div><small>لعب</small><b>${r.played}</b></div><div><small>فوز</small><b>${r.wins}</b></div><div><small>تعادل</small><b>${r.draws}</b></div><div><small>خسارة</small><b>${r.losses}</b></div><div><small>له</small><b>${r.gf}</b></div><div><small>عليه</small><b>${r.ga}</b></div><div><small>الفارق</small><b>${r.diff>0?'+':''}${r.diff}</b></div></div></article>`).join('')}</div>`;
 }
+
 
 function renderCards(){let rows=[];db.matches.forEach(m=>(m.cards||[]).forEach(c=>{let p=db.players.find(x=>x.id===c.playerId);rows.push({m,c,p})}));rows.sort((a,b)=>(b.m.date||'').localeCompare(a.m.date||''));let box=$('cardsList');if(!box)return;box.innerHTML=rows.length?`<table><tr><th>التاريخ</th><th>المباراة</th><th>الفريق</th><th>اللاعب</th><th>البطاقة</th></tr>${rows.map(x=>`<tr><td>${esc(x.m.date||'—')}</td><td>${esc(teamName(x.m.home))} × ${esc(teamName(x.m.away))}</td><td>${esc(teamName(x.c.teamId))}</td><td><b>${x.p?esc(x.p.name):'—'}</b></td><td>${x.c.type==='yellow'?'🟨 أصفر':'🟥 أحمر'}</td></tr>`).join('')}</table>`:'<div class="empty">لا توجد إنذارات مسجلة حتى الآن</div>'}
 
