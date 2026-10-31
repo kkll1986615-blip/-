@@ -12501,7 +12501,27 @@ function tournamentCardHtml(t,ended=false){
       const hasRecordedResult=(m?.hg!=null&&m?.ag!=null)||(m?.homeScore!=null&&m?.awayScore!=null);
       return isFinished||completedIds.has(String(m.id))||(hasRecordedResult&&m?.played===true);
     }).length;
-    const progress=Math.max(0,Math.min(100,matches.length?Math.round((completedMatches/matches.length)*100):0));
+    // نسبة الإنجاز الذكية: تعتمد على عدد الفرق، التقدم الفعلي بالمباريات، والزمن بين تاريخ البداية والنهاية.
+    // عند تعديل تاريخ النهاية تتغير النسبة الزمنية مباشرة، دون التأثير في أي قسم آخر.
+    const teamCount=teams.length;
+    const type=String(t.type||'');
+    let expectedMatches=matches.length;
+    if(teamCount>1){
+      if(/ذهاب\s*و\s*إياب/.test(type)) expectedMatches=teamCount*(teamCount-1);
+      else if(/دوري من دور واحد|دوري/.test(type)&&!/(خروج مغلوب|مجموعات)/.test(type)) expectedMatches=Math.floor(teamCount*(teamCount-1)/2);
+      else if(/خروج مغلوب/.test(type)&&teamCount>1) expectedMatches=Math.max(teamCount-1,matches.length);
+    }
+    expectedMatches=Math.max(matches.length,expectedMatches,1);
+    const matchProgress=Math.max(0,Math.min(100,(completedMatches/expectedMatches)*100));
+    const parseDate=(v)=>{if(!v)return null;const d=new Date(String(v).slice(0,10)+'T12:00:00');return isNaN(d)?null:d;};
+    const startDate=parseDate(t.startDate||t.start), endDate=parseDate(t.endDate||t.end);
+    let timeProgress=0;
+    if(startDate&&endDate&&endDate>startDate){
+      const now=new Date();
+      timeProgress=Math.max(0,Math.min(100,((now-startDate)/(endDate-startDate))*100));
+    }else if(completedMatches>0){timeProgress=matchProgress;}
+    // 70% للتقدم الفعلي و30% للمدة الزمنية، مع تأثير عدد الفرق في تقدير إجمالي المباريات المتوقعة.
+    const progress=Math.max(0,Math.min(100,Math.round((matchProgress*0.70)+(timeProgress*0.30))));
     const start=t.startDate||t.start||'—';
     const end=t.endDate||t.end||'—';
     const completionAction=currentRole==='admin'?`<button type="button" class="btn ${t.completionState==='ended'||t.status==='ended'?'success':'warn'} tournament-completion-action" onclick="toggleTournamentCompletion('${t.id}')">${t.completionState==='ended'||t.status==='ended'?'🔴 OFF · البطولة منتهية':'🟢 ON · البطولة مفعلة'}</button>`:'';
