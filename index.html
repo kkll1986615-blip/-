@@ -11213,6 +11213,18 @@ img { decoding: async; }
 #matchSheetsSection .ks-goalkeeper-step > .goalkeeper-one-note{display:none!important;}
 </style>
 
+
+<style id="standings-columns-display-only-fix">
+/* تعديل عرض أعمدة جدول ترتيب الفرق فقط دون تغيير بياناته أو طريقة احتسابه */
+.stand-table-wrap{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:visible!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain;}
+.stand-table-wrap .standings-table{width:max-content!important;min-width:680px!important;max-width:none!important;table-layout:auto!important;border-collapse:separate!important;}
+.stand-table-wrap .standings-table th,.stand-table-wrap .standings-table td{white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;min-width:48px!important;text-align:center!important;vertical-align:middle!important;}
+.stand-table-wrap .standings-table th:first-child,.stand-table-wrap .standings-table td:first-child{min-width:42px!important;width:42px!important;}
+.stand-table-wrap .standings-table th:nth-child(2),.stand-table-wrap .standings-table td:nth-child(2){min-width:145px!important;width:145px!important;text-align:right!important;}
+.stand-table-wrap .standings-table .stand-team{min-width:145px!important;width:145px!important;white-space:nowrap!important;}
+@media(max-width:700px){.stand-table-wrap .standings-table{min-width:680px!important;font-size:12px!important}.stand-table-wrap .standings-table th,.stand-table-wrap .standings-table td{padding:8px 6px!important;}}
+</style>
+
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
