@@ -11969,7 +11969,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const metric=(emoji,label,value)=>`<div class="gfs-metric"><span>${emoji}</span><small>${esc(label)}</small><b>${esc(value??0)}</b></div>`;
     const table=(title,headers,rows,empty)=>{
       const isGroupStandings=String(title||'').includes('ترتيب ')&&headers.length===10&&headers[0]==='المركز';
-      return `<section class="gfs-section"><h4>${title}</h4>${isGroupStandings?'<small class="gfs-group-scroll-hint">اسحب الجدول يميناً ويساراً لعرض جميع الأعمدة</small>':''}<div class="gfs-table-wrap${isGroupStandings?' gfs-group-table-scroll':''}"${isGroupStandings?' role="region" tabindex="0" aria-label="جدول ترتيب المجموعة قابل للتمرير أفقياً"':''}><table${isGroupStandings?' class="gfs-group-standings-table"':''}><thead><tr>${headers.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.join(''):`<tr><td colspan="${headers.length}">${esc(empty||'لا توجد بيانات')}</td></tr>`}</tbody></table></div></section>`;
+      return `<section class="gfs-section"><h4>${title}</h4>${isGroupStandings?'<small class="gfs-group-scroll-hint">اسحب الجدول يميناً ويساراً لعرض جميع الأعمدة</small>':''}<div class="gfs-table-wrap${isGroupStandings?' gfs-group-table-scroll':''}"${isGroupStandings?' role="region" tabindex="0" aria-label="جدول ترتيب المجموعة قابل للتمرير أفقياً"':''}><table${isGroupStandings?' class="gfs-group-standings-table"':''}><thead><tr>${headers.map(x=>isGroupStandings?`<th class="gfs-group-vertical-heading"><span>${esc(x)}</span></th>`:`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.join(''):`<tr><td colspan="${headers.length}">${esc(empty||'لا توجد بيانات')}</td></tr>`}</tbody></table></div></section>`;
     };
     const groupHtml=A(snap.standingsByGroup).map(g=>table(`📋 ترتيب ${esc(g.label)}`,['المركز','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],A(g.teams).map(r=>`<tr><td>${r.rank}</td><td class="gfs-name">${esc(r.name)}</td><td>${r.played}</td><td>${r.wins}</td><td>${r.draws}</td><td>${r.losses}</td><td>${r.goalsFor}</td><td>${r.goalsAgainst}</td><td>${r.goalDifference>0?'+':''}${r.goalDifference}</td><td><b>${r.points}</b></td></tr>`),'لا توجد مباريات مكتملة في هذه المجموعة.')).join('');
     const scorers=table('⚽ الهدافون',['المركز','اللاعب','الفريق','الأهداف'],A(snap.topScorers).map((x,i)=>`<tr><td>${i+1}</td><td class="gfs-name">${esc(x.name)}</td><td>${esc(x.teamName)}</td><td><b>${x.goals}</b></td></tr>`),'لا توجد أهداف مسجلة في كشوفات المباريات.');
@@ -11994,6 +11994,35 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     .gfs-table-wrap table.gfs-group-standings-table th:nth-child(2),.gfs-table-wrap table.gfs-group-standings-table td:nth-child(2){width:158px!important;text-align:right!important}
     .gfs-table-wrap table.gfs-group-standings-table th:nth-child(n+3),.gfs-table-wrap table.gfs-group-standings-table td:nth-child(n+3){width:70px!important}
     @media(max-width:600px){.gfs-group-scroll-hint{font-size:10px}.gfs-table-wrap table.gfs-group-standings-table th,.gfs-table-wrap table.gfs-group-standings-table td{font-size:12px!important;padding:9px 6px!important}}
+  `;
+
+  /* تنسيق الجداول الختامية فقط: عناوين عمودية من الأسفل إلى الأعلى،
+     توسيط موحد، وألوان زاهية دون المساس بجداول بقية المنصة. */
+  style.textContent += `
+    .gfs-panel .gfs-section{width:100%;text-align:center!important}
+    .gfs-panel .gfs-section h4{text-align:center!important}
+    .gfs-panel .gfs-table-wrap{margin:0 auto!important;text-align:center!important;border:2px solid #9bd9ef!important;border-radius:15px!important;background:linear-gradient(145deg,#ffffff,#f3fbff)!important;box-shadow:0 7px 18px rgba(21,108,160,.12)!important}
+    .gfs-panel .gfs-table-wrap table{margin:0 auto!important;text-align:center!important;border-collapse:separate!important;border-spacing:0!important}
+    .gfs-panel .gfs-table-wrap th{background:linear-gradient(135deg,#087fca 0%,#4361ee 48%,#8b42c8 100%)!important;color:#fff!important;font-weight:900!important;text-align:center!important;border-bottom:3px solid #ffd43b!important;border-left:1px solid rgba(255,255,255,.22)!important;text-shadow:0 1px 2px rgba(0,0,0,.18)!important}
+    .gfs-panel .gfs-table-wrap td{color:#20354b!important;text-align:center!important;vertical-align:middle!important;border-bottom:1px solid #cfeaf3!important;border-left:1px solid #d9edf4!important;font-weight:700!important}
+    .gfs-panel .gfs-table-wrap tbody tr:nth-child(6n+1) td{background:#e6f7ff!important}
+    .gfs-panel .gfs-table-wrap tbody tr:nth-child(6n+2) td{background:#e8fff3!important}
+    .gfs-panel .gfs-table-wrap tbody tr:nth-child(6n+3) td{background:#fff4dc!important}
+    .gfs-panel .gfs-table-wrap tbody tr:nth-child(6n+4) td{background:#f4eaff!important}
+    .gfs-panel .gfs-table-wrap tbody tr:nth-child(6n+5) td{background:#ffeaf1!important}
+    .gfs-panel .gfs-table-wrap tbody tr:nth-child(6n) td{background:#e9f0ff!important}
+    .gfs-panel .gfs-table-wrap tbody tr:hover td{background:#fff3a6!important;color:#17324d!important}
+    .gfs-panel .gfs-table-wrap td.gfs-name{text-align:center!important;font-weight:900!important;color:#174d72!important}
+    .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading{position:relative!important;height:142px!important;min-height:142px!important;padding:4px!important;vertical-align:middle!important;overflow:hidden!important;white-space:normal!important}
+    .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading>span{position:absolute!important;left:50%!important;top:50%!important;display:flex!important;align-items:center!important;justify-content:center!important;width:116px!important;height:30px!important;line-height:1.2!important;white-space:nowrap!important;direction:rtl!important;text-align:center!important;font-size:12px!important;font-weight:950!important;transform:translate(-50%,-50%) rotate(90deg)!important;transform-origin:center center!important}
+    .gfs-table-wrap table.gfs-group-standings-table tbody td:nth-child(1){background:#fff0b8!important;color:#704900!important;font-weight:950!important}
+    .gfs-table-wrap table.gfs-group-standings-table tbody td:nth-child(10){background:#d9fbe9!important;color:#075d3d!important;font-weight:950!important}
+    .gfs-table-wrap table.gfs-group-standings-table tbody td:nth-child(2){font-weight:900!important}
+    @media(max-width:600px){
+      .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading{height:138px!important;min-height:138px!important}
+      .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading>span{width:112px!important;font-size:11px!important}
+      .gfs-panel .gfs-table-wrap td,.gfs-panel .gfs-table-wrap th{padding:8px 5px!important}
+    }
   `;
   document.head.appendChild(style);
   const originalPublicRender=window.renderPublicSelectedTournament;
