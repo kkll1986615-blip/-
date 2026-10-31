@@ -11214,15 +11214,51 @@ img { decoding: async; }
 </style>
 
 
-<style id="standings-columns-display-only-fix">
-/* تعديل عرض أعمدة جدول ترتيب الفرق فقط دون تغيير بياناته أو طريقة احتسابه */
-.stand-table-wrap{width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:visible!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain;}
-.stand-table-wrap .standings-table{width:max-content!important;min-width:680px!important;max-width:none!important;table-layout:auto!important;border-collapse:separate!important;}
-.stand-table-wrap .standings-table th,.stand-table-wrap .standings-table td{white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;min-width:48px!important;text-align:center!important;vertical-align:middle!important;}
-.stand-table-wrap .standings-table th:first-child,.stand-table-wrap .standings-table td:first-child{min-width:42px!important;width:42px!important;}
-.stand-table-wrap .standings-table th:nth-child(2),.stand-table-wrap .standings-table td:nth-child(2){min-width:145px!important;width:145px!important;text-align:right!important;}
-.stand-table-wrap .standings-table .stand-team{min-width:145px!important;width:145px!important;white-space:nowrap!important;}
-@media(max-width:700px){.stand-table-wrap .standings-table{min-width:680px!important;font-size:12px!important}.stand-table-wrap .standings-table th,.stand-table-wrap .standings-table td{padding:8px 6px!important;}}
+<style id="standings-all-data-fit-fix">
+/* إصلاح عرض جدول الترتيب فقط: الحفاظ على ترتيب الأعمدة وإظهار الأرقام كاملة */
+#statsBody .standings-card .table-wrap,
+#statsBody .stats-group-ranking-card .table-wrap{
+  width:100%!important;max-width:100%!important;overflow-x:hidden!important;
+  overflow-y:visible!important;box-sizing:border-box!important;
+}
+#statsBody .standings-card table.standings-mobile-table,
+#statsBody .stats-group-ranking-card table.standings-mobile-table{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  table-layout:fixed!important;direction:rtl!important;
+}
+#statsBody .standings-card table.standings-mobile-table th,
+#statsBody .standings-card table.standings-mobile-table td,
+#statsBody .stats-group-ranking-card table.standings-mobile-table th,
+#statsBody .stats-group-ranking-card table.standings-mobile-table td{
+  box-sizing:border-box!important;min-width:0!important;padding:6px 2px!important;
+  text-align:center!important;vertical-align:middle!important;
+}
+#statsBody .standings-card table.standings-mobile-table th:nth-child(1),
+#statsBody .standings-card table.standings-mobile-table td:nth-child(1),
+#statsBody .stats-group-ranking-card table.standings-mobile-table th:nth-child(1),
+#statsBody .stats-group-ranking-card table.standings-mobile-table td:nth-child(1){width:6%!important}
+#statsBody .standings-card table.standings-mobile-table th:nth-child(2),
+#statsBody .standings-card table.standings-mobile-table td:nth-child(2),
+#statsBody .stats-group-ranking-card table.standings-mobile-table th:nth-child(2),
+#statsBody .stats-group-ranking-card table.standings-mobile-table td:nth-child(2){width:24%!important;text-align:right!important}
+#statsBody .standings-card table.standings-mobile-table th:nth-child(n+3),
+#statsBody .standings-card table.standings-mobile-table td:nth-child(n+3),
+#statsBody .stats-group-ranking-card table.standings-mobile-table th:nth-child(n+3),
+#statsBody .stats-group-ranking-card table.standings-mobile-table td:nth-child(n+3){width:8.75%!important}
+#statsBody .standings-card table.standings-mobile-table tbody td:nth-child(n+3),
+#statsBody .stats-group-ranking-card table.standings-mobile-table tbody td:nth-child(n+3){
+  white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;
+  overflow:visible!important;text-overflow:clip!important;
+  font-variant-numeric:tabular-nums!important;font-size:11px!important;line-height:1.15!important;
+}
+#statsBody .standings-card table.standings-mobile-table tbody td:nth-child(2),
+#statsBody .stats-group-ranking-card table.standings-mobile-table tbody td:nth-child(2){
+  white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;
+}
+@media(max-width:380px){
+  #statsBody .standings-card table.standings-mobile-table tbody td:nth-child(n+3),
+  #statsBody .stats-group-ranking-card table.standings-mobile-table tbody td:nth-child(n+3){font-size:10px!important;padding-left:1px!important;padding-right:1px!important}
+}
 </style>
 
 </head><body>
@@ -17072,7 +17108,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     box.innerHTML=`
       ${isGroupTournament(tourObj) ? `<div class="stats-stage-control"><div><b>🏆 مرحلة البطولة:</b> ${tourObj.stage==='knockout'?'خروج المغلوب':'المجموعات'}</div><div class="stats-stage-note">${tourObj.stage==='knockout'?'تم الانتقال إلى مرحلة خروج المغلوب. تبقى بيانات المجموعات محفوظة.':'بعد انتهاء مرحلة المجموعات يمكن الانتقال إلى خروج المغلوب.'}</div>${currentRole!=='viewer' ? `<button type="button" class="stage-toggle-switch ${tourObj.stage==='knockout'?'is-on':'is-off'}" role="switch" aria-checked="${tourObj.stage==='knockout'?'true':'false'}" aria-label="تحويل البطولة إلى خروج المغلوب" onclick="toggleTournamentKnockoutStage('${esc(tid)}')"><span class="stage-toggle-label">خروج المغلوب</span><span class="stage-toggle-track"><span class="stage-toggle-state">${tourObj.stage==='knockout'?'ON':'OFF'}</span><span class="stage-toggle-knob"></span></span></button>`:''}</div>` : ''}
       <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">🏟️</span><b>${totalTournamentMatches}</b><span>عدد المباريات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalFinished}</b><span>الكشوفات المدخلة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>عدد الأهداف المسجلة في البطولة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>عدد ركلات الجزاء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>عدد البطاقات الصفراء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>عدد البطاقات الحمراء</span></div></div>
-      ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=groupStandingsFromReports(gi).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق / المجموعة','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد مباريات مكتملة لهذه البطولة.')}
+      ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=groupStandingsFromReports(gi).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد مباريات مكتملة لهذه البطولة.')}
       ${isGroupTournament(tourObj) ? (()=>{
         const roundOf=({m,sh})=>String(m?.knockoutRound||sh?.knockoutRound||m?.roundName||sh?.roundName||m?.stageName||sh?.stageName||m?.matchStage||sh?.matchStage||'').trim();
         const norm=r=>r.replace(/\s+/g,' ').replace(/^مرحلة\s*/,'');
