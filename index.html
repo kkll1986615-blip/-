@@ -169,20 +169,20 @@ document.addEventListener('DOMContentLoaded', function(){
     setTimeout(buildSelectors,150);
   });
 })();
-</script><link href="icons/favicon-48-v20261029.png?v=20261029" rel="icon" sizes="48x48" type="image/png"/><link href="icons/apple-touch-icon-v20261029.png?v=20261029" rel="apple-touch-icon" sizes="180x180"/><link href="icons/icon-192-v20261029.png?v=20261029" rel="apple-touch-icon" sizes="192x192"/><link rel="manifest" href="./manifest.webmanifest?v=20261029">
-<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32-v20261029.png?v=20261029">
-<link rel="icon" type="image/png" sizes="48x48" href="./icons/favicon-48-v20261029.png?v=20261029">
-<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192-v20261029.png?v=20261029">
-<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512-v20261029.png?v=20261029">
-<meta content="#063f2d" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="المنصة الرياضية" name="apple-mobile-web-app-title"/><link href="icons/icon-192-v20261029.png?v=20261029" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-512-v20261029.png?v=20261029" rel="icon" sizes="512x512" type="image/png"/><meta content="المنصة الرياضية" name="application-name"/>
+</script><link href="icons/favicon-48-v20261101.png?v=20261101" rel="icon" sizes="48x48" type="image/png"/><link href="icons/apple-touch-icon-v20261101.png?v=20261101" rel="apple-touch-icon" sizes="180x180"/><link href="icons/icon-192-v20261101.png?v=20261101" rel="apple-touch-icon" sizes="192x192"/><link rel="manifest" type="application/manifest+json" href="./manifest.webmanifest?v=20261101">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32-v20261101.png?v=20261101">
+<link rel="icon" type="image/png" sizes="48x48" href="./icons/favicon-48-v20261101.png?v=20261101">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192-v20261101.png?v=20261101">
+<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512-v20261101.png?v=20261101">
+<meta content="#063f2d" name="theme-color"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="المنصة الرياضية" name="apple-mobile-web-app-title"/><link href="icons/icon-192-v20261101.png?v=20261101" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-512-v20261101.png?v=20261101" rel="icon" sizes="512x512" type="image/png"/><meta content="المنصة الرياضية" name="application-name"/>
 
 <meta content="#075f45" name="theme-color"/>
 
 
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 
-<link href="./icons/favicon-48-v20261029.png?v=20261029" rel="icon" sizes="48x48" type="image/png"/>
-<link href="./icons/apple-touch-icon-v20261029.png?v=20261029" rel="apple-touch-icon"/>
+<link href="./icons/favicon-48-v20261101.png?v=20261101" rel="icon" sizes="48x48" type="image/png"/>
+<link href="./icons/apple-touch-icon-v20261101.png?v=20261101" rel="apple-touch-icon"/>
 
 <meta content="firebase-sync-v7-upload-failure-preserve-local" name="manar-sync-version"/>
 
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <div class="card install-section-card">
   <div class="section-title"><div><h2>📲 تثبيت البرنامج</h2><small>ثبّت المنصة الرياضية على هاتفك للوصول إليها بسرعة مثل التطبيق.</small></div><span class="badge" id="appVersionBadge">الإصدار الحالي</span></div>
   <div class="install-sports-hero">
-    <div class="install-big-icon" aria-hidden="true"><img loading="lazy" decoding="async" src="icons/icon-192-v20261029.png?v=20261029" alt="أيقونة المنصة الرياضية"></div>
+    <div class="install-big-icon" aria-hidden="true"><img loading="lazy" decoding="async" src="icons/icon-192-v20261101.png?v=20261101" alt="أيقونة المنصة الرياضية"></div>
     <div><h3>المنصة الرياضية</h3><p>تثبيت سريع وآمن على الهاتف، مع ظهور خيار التحديث عند صدور نسخة جديدة.</p></div>
   </div>
   <div class="install-update-status" id="installUpdateStatus">جارٍ فحص حالة التثبيت والتحديث...</div>
@@ -10635,7 +10635,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.09.15.1';
+  const VERSION='2026.11.01.1';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -11108,7 +11108,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 (function(){
  const KEY='sportsPlatformCustomLogo_v1';
  const DEFAULT_VERSION_KEY='sportsPlatformDefaultLogoVersion';
- const DEFAULT_VERSION='20261029-logo-v1';
+ const DEFAULT_VERSION='20261101-logo-v1';
  const DEFAULT_LOGO=(document.querySelector('header img.brand-logo')||{}).getAttribute?.('src')||'';
  function defaultLogo(){return DEFAULT_LOGO;}
  function applyLogo(src){document.querySelectorAll('img.brand-logo, img.nav-emblem').forEach(img=>{img.src=src;});const preview=document.getElementById('platformLogoPreview');if(preview)preview.src=src;}
