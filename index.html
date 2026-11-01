@@ -3104,15 +3104,33 @@ async function createTournamentArchivePdf(snapshot){
 
   try{
     updatePdfGenerationProgress(18,'جاري تجهيز العربية وتجهيز صفحات الأرشيف...');
+    /* لا نسمح لخط ويب أو صورة مؤجلة التحميل بإيقاف التصدير عند 18%.
+       عناصر الأرشيف مخفية خارج الشاشة؛ لذلك نجبر صورها على التحميل الفوري
+       ونضع مهلة قصوى لكل مرحلة. */
+    const waitWithTimeout=(promise,ms)=>Promise.race([
+      Promise.resolve(promise).catch(()=>null),
+      new Promise(resolve=>setTimeout(resolve,ms))
+    ]);
     if(document.fonts&&document.fonts.ready){
-      try{await document.fonts.ready;}catch(e){}
+      await waitWithTimeout(document.fonts.ready,2500);
     }
     const imgs=[...host.querySelectorAll('img')];
-    await Promise.all(imgs.map(img=>new Promise(resolve=>{
-      if(img.complete)return resolve();
-      img.onload=resolve;img.onerror=resolve;
-    })));
-    await new Promise(r=>setTimeout(r,250));
+    imgs.forEach(img=>{
+      img.loading='eager';
+      img.removeAttribute('decoding');
+      if(!img.getAttribute('src')&&img.dataset&&img.dataset.src){
+        img.setAttribute('src',img.dataset.src);
+      }
+    });
+    await Promise.all(imgs.map(img=>{
+      if(img.complete)return Promise.resolve();
+      return waitWithTimeout(new Promise(resolve=>{
+        img.addEventListener('load',resolve,{once:true});
+        img.addEventListener('error',resolve,{once:true});
+      }),4500);
+    }));
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    await new Promise(r=>setTimeout(r,120));
 
     const pages=[...host.querySelectorAll('.archive-report-page, .archive-pdf-page')];
     if(!pages.length)throw new Error('تعذر تجهيز صفحات الأرشيف.');
@@ -11132,10 +11150,10 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 <script id="sports-platform-auto-deploy-update-v2">
 (function(){
   'use strict';
-  // يتحقق من نسخة HTML المنشورة ويحدّث الصفحات المفتوحة دون لمس بيانات المستخدم.
+  // فحص تحديثات HTML باستخدام الطلبات الشرطية لتجنب تنزيل الملف الكامل كل مرة.
   if (!/^https?:$/.test(location.protocol) || window.__sportsAutoDeployUpdateStarted) return;
   window.__sportsAutoDeployUpdateStarted = true;
-  var lastFingerprint = null, updateDetected = false, checking = false, reloading = false;
+  var lastFingerprint = null, lastEtag = '', lastModified = '', updateDetected = false, checking = false, reloading = false;
   function fingerprint(text){
     var h=2166136261;
     for(var i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}
@@ -11148,47 +11166,36 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     return true;
   }
   async function clearAppCacheOnly(){
-    // امسح كاش الملفات/الواجهة فقط. لا تلمس localStorage أو IndexedDB لأنها تحتوي بيانات المنصة.
-    try{
-      if('caches' in window){
-        var names=await caches.keys();
-        await Promise.all(names.map(function(name){return caches.delete(name).catch(function(){return false;});}));
-      }
-    }catch(e){}
-    try{
-      if('serviceWorker' in navigator){
-        var regs=await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map(function(reg){return reg.update().catch(function(){});}));
-      }
-    }catch(e){}
+    try{if('caches' in window){var names=await caches.keys();await Promise.all(names.map(function(name){return caches.delete(name).catch(function(){return false;});}));}}catch(e){}
+    try{if('serviceWorker' in navigator){var regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(function(reg){return reg.update().catch(function(){});}));}}catch(e){}
   }
   async function reloadIfSafe(){
     if(!updateDetected || reloading || !safeToReload()) return;
-    reloading=true;
-    updateDetected=false;
-    await clearAppCacheOnly();
-    // كسر كاش المتصفح للصفحة نفسها بعد تنظيف كاش التطبيق.
-    var u=new URL(location.href);
-    u.searchParams.set('__sports_app_version',String(Date.now()));
-    location.replace(u.href);
+    reloading=true; updateDetected=false; await clearAppCacheOnly();
+    var u=new URL(location.href);u.searchParams.set('__sports_app_version',String(Date.now()));location.replace(u.href);
   }
   async function check(){
-    if(checking || document.visibilityState==='hidden') return;
+    if(checking || document.visibilityState==='hidden' || !navigator.onLine) return;
     checking=true;
     try{
-      var u=new URL(location.href);
-      u.searchParams.set('__sports_update_check',String(Date.now()));
-      var response=await fetch(u.href,{cache:'no-store',credentials:'same-origin',redirect:'follow'});
+      var u=new URL(location.href);u.searchParams.set('__sports_update_check','1');
+      var headers={};
+      if(lastEtag) headers['If-None-Match']=lastEtag;
+      if(lastModified) headers['If-Modified-Since']=lastModified;
+      var response=await fetch(u.href,{method:'GET',cache:'no-cache',credentials:'same-origin',redirect:'follow',headers:headers});
+      if(response.status===304) return;
       if(!response.ok) return;
+      var etag=response.headers.get('ETag')||'', modified=response.headers.get('Last-Modified')||'';
       var html=await response.text(), fp=fingerprint(html);
-      if(lastFingerprint===null){lastFingerprint=fp;return;}
-      if(fp!==lastFingerprint){lastFingerprint=fp;updateDetected=true;await reloadIfSafe();}
-    }catch(e){ /* يعاود المحاولة تلقائيًا عند عودة الاتصال */ }
+      var changed=lastFingerprint!==null && (fp!==lastFingerprint || (lastEtag && etag && etag!==lastEtag));
+      lastFingerprint=fp; if(etag)lastEtag=etag; if(modified)lastModified=modified;
+      if(changed){updateDetected=true;await reloadIfSafe();}
+    }catch(e){/* يعاود الفحص عند عودة الاتصال */}
     finally{checking=false;}
   }
   check();
-  // فحص سريع للنسخة المنشورة، مع إعادة الفحص فور عودة الصفحة أو الشبكة.
-  setInterval(check,15000);
+  // فحص كل دقيقة بدلاً من تنزيل ملف المنصة باستمرار كل 15 ثانية.
+  setInterval(check,60000);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check();});
   document.addEventListener('focusout',function(){if(updateDetected)setTimeout(reloadIfSafe,500);},true);
   window.addEventListener('online',check);
