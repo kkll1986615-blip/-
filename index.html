@@ -12024,6 +12024,70 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       .gfs-panel .gfs-table-wrap td,.gfs-panel .gfs-table-wrap th{padding:8px 5px!important}
     }
   `;
+
+  /* Responsive final group standings: fit all ten columns inside the phone viewport. */
+  style.textContent += `
+    .gfs-panel,.gfs-panel *{box-sizing:border-box}
+    .gfs-panel .gfs-section{width:100%;max-width:100%;min-width:0}
+    .gfs-panel .gfs-group-table-scroll{
+      width:100%!important;max-width:100%!important;min-width:0!important;
+      overflow-x:hidden!important;overflow-y:visible!important;
+      -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain
+    }
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table{
+      width:100%!important;min-width:0!important;max-width:100%!important;
+      table-layout:fixed!important;direction:rtl!important;border-collapse:separate!important;
+      border-spacing:0!important
+    }
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table th,
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table td{
+      box-sizing:border-box!important;min-width:0!important;max-width:none!important;
+      padding:7px 2px!important;font-size:clamp(9px,2.8vw,12px)!important;
+      line-height:1.25!important;text-align:center!important;vertical-align:middle!important;
+      overflow:hidden!important;text-overflow:clip!important
+    }
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table th:nth-child(1),
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table td:nth-child(1){width:8%!important}
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table th:nth-child(2),
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table td:nth-child(2){width:24%!important}
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table th:nth-child(n+3),
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table td:nth-child(n+3){width:8.5%!important}
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading{
+      position:relative!important;height:88px!important;min-height:88px!important;
+      padding:3px 1px!important;white-space:normal!important;overflow:hidden!important
+    }
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading>span{
+      position:absolute!important;left:50%!important;top:50%!important;
+      display:flex!important;align-items:center!important;justify-content:center!important;
+      width:76px!important;height:22px!important;padding:0!important;margin:0!important;
+      white-space:nowrap!important;direction:rtl!important;text-align:center!important;
+      font-size:11px!important;line-height:1!important;
+      transform:translate(-50%,-50%) rotate(90deg)!important;
+      transform-origin:center center!important
+    }
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table tbody td:nth-child(2){
+      text-align:right!important;white-space:normal!important;overflow-wrap:anywhere!important;
+      word-break:normal!important;padding-right:5px!important;padding-left:3px!important;
+      font-size:clamp(9px,2.9vw,12px)!important;line-height:1.35!important
+    }
+    .gfs-panel .gfs-table-wrap table.gfs-group-standings-table tbody td:not(:nth-child(2)){
+      white-space:nowrap!important;font-variant-numeric:tabular-nums
+    }
+    .gfs-panel .gfs-group-scroll-hint{display:none!important}
+    @media(max-width:380px){
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table th,
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table td{padding:6px 1px!important;font-size:9px!important}
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading{height:80px!important;min-height:80px!important}
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading>span{width:68px!important;font-size:10px!important}
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table tbody td:nth-child(2){font-size:9px!important}
+    }
+    @media(min-width:601px){
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table th,
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table td{font-size:12px!important;padding:9px 4px!important}
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading{height:96px!important}
+      .gfs-panel .gfs-table-wrap table.gfs-group-standings-table thead th.gfs-group-vertical-heading>span{width:84px!important}
+    }
+  `;
   document.head.appendChild(style);
   const originalPublicRender=window.renderPublicSelectedTournament;
   if(typeof originalPublicRender==='function')window.renderPublicSelectedTournament=function(id){
