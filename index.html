@@ -1773,6 +1773,7 @@ function tournamentIsEnded(t){
   // انتقال البطولة بين الجاريـة والمنتهية يعتمد على تاريخ النهاية فقط.
   // تبقى البطولة ظاهرة في البطولات الجارية حتى نهاية يوم endDate، ثم تنتقل تلقائياً للمنتهية.
   if(!t)return false;
+  if(tournamentIsArchived(t))return true;
   if(t.completionState==='ended')return true;
   if(t.completionState==='active')return false;
   if(t.status==='ended')return true;
@@ -1858,7 +1859,7 @@ function tournamentCardHtml(t,ended=false){
       ${currentActions?`<div class="current-card-admin-footer">${currentActions}</div>`:''}
     </article>`;
   }
-  const completionAction=currentRole==='admin'?`<button type="button" class="btn ${t.completionState==='active'?'warn':'success'} tournament-completion-action" onclick="toggleTournamentCompletion('${t.id}')">${t.completionState==='active'?'🟢 ON · البطولة مفعلة':'🔴 OFF · البطولة منتهية'}</button>`:'';
+  const completionAction=currentRole==='admin'&&!archive?`<button type="button" class="btn ${t.completionState==='active'?'warn':'success'} tournament-completion-action" onclick="toggleTournamentCompletion('${t.id}')">${t.completionState==='active'?'🟢 ON · البطولة مفعلة':'🔴 OFF · البطولة منتهية'}</button>`:'';
   const actions=(hasPermission('tournaments')||completionAction)?`<div class="ended-card-admin-actions">${hasPermission('tournaments')?`<button type="button" class="btn blue" onclick="editTournament('${t.id}')">✏️ تعديل</button>${hasPermission('delete')?`<button type="button" class="btn danger" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}${archive?`<button type="button" class="btn warn" onclick="unarchiveTournament('${t.id}')">↩️ التراجع عن الأرشفة</button>`:`<button type="button" class="btn success" onclick="archiveTournamentToPDF('${t.id}')">📄 أرشفة البطولة PDF</button>`}`:''}${completionAction}</div>`:'';
   const teamSequence=teams.length?`<details class="ended-team-sequence ended-card-team-sequence"><summary><span>⚽ الفرق المشاركة</span><b>${teams.length} فريق</b><i aria-hidden="true">⌄</i></summary><div class="ended-team-sequence-list">${teams.map((x,i)=>`<div class="ended-team-sequence-item"><span class="ended-team-number">${i+1}</span><span class="ended-team-sequence-logo">${logoHtml(x.id,true)}</span><strong>${esc(x.name||'فريق')}</strong></div>`).join('')}</div></details>`:'';
   return `<article class="ended-tournament-card-wrap ended-tournament-card-reference">
@@ -2051,7 +2052,6 @@ function buildArchivePdfDocument(snapshot){
   const esc=v=>tournamentPdfEscape(v);
   const safeImg=src=>src?`<img src="${esc(src)}" crossorigin="anonymous" loading="lazy" decoding="async">`:'';
   const teamRows=snapshot.teams.map((t,i)=>`<tr><td>${i+1}</td><td class="team-name-cell">${safeImg(t.logo||'')}<b>${esc(t.name)}</b></td><td>${esc(t.president||'—')}</td><td>${esc(t.coach||'—')}</td><td>${snapshot.players.filter(p=>String(p.teamId)===String(t.id)).length}</td></tr>`).join('');
-  const playerRows=snapshot.players.map((p,i)=>`<tr><td>${i+1}</td><td><b>${esc(p.name)}</b></td><td>${esc(teamName(p.teamId))}</td><td>${esc(p.number||'—')}</td></tr>`).join('');
   const standingRows=standings.map((x,i)=>`<tr><td class="rank">${i+1}</td><td class="team-name-cell"><b>${esc(x.name)}</b></td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gf-x.ga}</td><td class="points">${x.pts}</td></tr>`).join('');
   const totalGoals=snapshot.matches.reduce((n,m)=>n+scoreOf(m,'home')+scoreOf(m,'away'),0);
   const totalPlayers=snapshot.players.length;
@@ -2077,7 +2077,6 @@ function buildArchivePdfDocument(snapshot){
   pages.push(archivePdfPageHtml(snapshot,'الملخص الرسمي للبطولة',intro));
   pages.push(archivePdfPageHtml(snapshot,'جدول ترتيب الفرق',`<div class="archive-table-caption">الترتيب النهائي حسب النتائج المسجلة في المنصة</div><table class="archive-table standings-table"><thead><tr><th>#</th><th>الفريق</th><th>ل</th><th>ف</th><th>ت</th><th>خ</th><th>له</th><th>عليه</th><th>الفارق</th><th>نقاط</th></tr></thead><tbody>${standingRows||'<tr><td colspan="10">لا توجد نتائج مسجلة</td></tr>'}</tbody></table>`));
   pages.push(archivePdfPageHtml(snapshot,'الفرق المشاركة',`<div class="archive-table-caption">قائمة الفرق المسجلة في البطولة</div><table class="archive-table"><thead><tr><th>#</th><th>الفريق</th><th>رئيس الفريق</th><th>المدرب</th><th>اللاعبون</th></tr></thead><tbody>${teamRows||'<tr><td colspan="5">لا توجد فرق</td></tr>'}</tbody></table>`));
-  pages.push(archivePdfPageHtml(snapshot,'لاعبو البطولة',`<div class="archive-table-caption">السجل الرسمي للاعبين المسجلين</div><table class="archive-table"><thead><tr><th>#</th><th>اسم اللاعب</th><th>الفريق</th><th>رقم القميص</th></tr></thead><tbody>${playerRows||'<tr><td colspan="4">لا يوجد لاعبون</td></tr>'}</tbody></table>`));
 
   /* تقريرا مباراتين في كل صفحة A4 */
   const reports=snapshot.matches.map((m,i)=>{
@@ -2314,26 +2313,6 @@ function buildDetailedArchiveReport(ar){
     const bestRows=topBy(best).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.team)}</td><td><b>${x.count}</b></td></tr>`).join('')||'<tr><td colspan="4">لا توجد جوائز أفضل لاعب مسجلة.</td></tr>';
     const refRows=topBy(refs).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td><b>${x.count}</b></td></tr>`).join('')||'<tr><td colspan="3">لا توجد بيانات حكام مرتبطة بالكشوفات.</td></tr>';
     const teamRows=teams.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name||'—')}</td><td>${esc(x.president||'—')}</td><td>${esc(x.coach||'—')}</td><td>${players.filter(p=>S(p.teamId)===S(x.id)).length}</td></tr>`).join('');
-    const playerRows=(()=>{
-      const byTeam=new Map();
-      players.forEach(p=>{
-        const tid=S(p.teamId);
-        if(!byTeam.has(tid))byTeam.set(tid,[]);
-        byTeam.get(tid).push(p);
-      });
-      const orderedTeams=[...teams].sort((a,b)=>(a.name||'').localeCompare(b.name||'','ar'));
-      let seq=0, html='';
-      orderedTeams.forEach(team=>{
-        const ps=(byTeam.get(S(team.id))||[]).sort((a,b)=>(a.name||'').localeCompare(b.name||'','ar'));
-        if(!ps.length)return;
-        html+=`<tr class="player-team-header"><td colspan="5"><b>⚽ ${esc(team.name||'—')}</b> — ${ps.length} لاعب</td></tr>`;
-        ps.forEach(p=>{
-          seq++;
-          html+=`<tr><td>${seq}</td><td>${esc(p.name||'—')}</td><td>${esc(team.name||'—')}</td><td>${esc(p.number??p.shirtNumber??'—')}</td><td>${esc(p.position||p.category||p.type||'—')}</td></tr>`;
-        });
-      });
-      return html;
-    })();
     // كشف واحد لكل مباراة، ويحتوي جميع التفاصيل الرسمية دون تكرارها في جداول مستقلة.
     const sheetRows=(()=>{
       const sheetsHtml=shs.map((sh,i)=>{
@@ -2969,7 +2948,7 @@ function buildDetailedArchiveReport(ar){
       <div class="section"><h2>📊 الملخص الإحصائي للبطولة</h2><div class="stats">
       <div class="stat"><span class="stat-icon">🛡️</span><b>${teams.length}</b><span>الفرق المشاركة</span></div><div class="stat"><span class="stat-icon">👥</span><b>${players.length}</b><span>اللاعبون</span></div><div class="stat"><span class="stat-icon">⚽</span><b>${matches.length}</b><span>المباريات</span></div><div class="stat"><span class="stat-icon">🥅</span><b>${goals}</b><span>الأهداف</span></div>
       <div class="stat"><span class="stat-icon">🟨</span><b>${yellow}</b><span>الصفراء</span></div><div class="stat"><span class="stat-icon">🟥</span><b>${red}</b><span>الحمراء</span></div><div class="stat"><span class="stat-icon">🎯</span><b>${penalties}</b><span>ركلات الجزاء</span></div><div class="stat"><span class="stat-icon">📋</span><b>${shs.length}</b><span>الكشوفات</span></div>
-      </div><div class="note">هذا الملف يمثل السجل الأرشيفي للبطولة ويضم بيانات البطولة ونتائج المباريات والكشوفات الرسمية وأسماء الفرق واللاعبين والهدافين والجوائز والبطاقات والحكام.</div></div>
+      </div><div class="note">هذا الملف يمثل السجل الأرشيفي للبطولة ويضم بيانات البطولة والفرق ونتائج المباريات والكشوفات الرسمية والهدافين والجوائز والبطاقات والحكام دون إنشاء قائمة مستقلة بأسماء اللاعبين.</div></div>
       <div class="section"><h2>🏅 أبرز إنجازات البطولة</h2><table class="archive-unified-table"><thead><tr><th>البند</th><th>البيان</th></tr></thead><tbody>
       <tr><td>🥇 البطل</td><td><b>${esc(winner)}</b></td></tr><tr><td>⚽ الهداف</td><td><b>${esc(topBy(scorers)[0]?.name||'غير محدد')}</b></td></tr><tr><td>⭐ أفضل لاعب</td><td><b>${esc(topBy(best)[0]?.name||'غير محدد')}</b></td></tr><tr><td>🏟️ الملاعب/المواقع</td><td>${esc([...new Set(matches.map(m=>m.stadium||m.venue).filter(Boolean))].join('، ')||'غير مسجل')}</td></tr>
       </tbody></table></div>
@@ -2999,10 +2978,6 @@ function buildDetailedArchiveReport(ar){
       <div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>
     </div>
 
-    <div class="archive-report-page">
-      <div class="section"><h2>👤 السجل الكامل للاعبي البطولة</h2><div class="players-by-team-wrap"><table class="players-by-team-table"><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>الرقم</th><th>المركز / الفئة</th></tr></thead><tbody>${playerRows||'<tr><td colspan="5">لا توجد بيانات.</td></tr>'}</tbody></table></div></div>
-      <div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>
-    </div>
 
     
 <style id="public-team-name-logo-only-style">
@@ -3212,7 +3187,10 @@ async function archiveTournamentToPDF(tid){
   const oldText=document.activeElement?.textContent; try{
     const pdfData=await createTournamentArchivePdf(snapshot);
     db.archives=(db.archives||[]).filter(a=>String(a?.tournament?.id||a?.original?.id||a?.tournamentId||'')!==String(tid));
-    const archiveRecord={id:uid('AR'),archivedAt:new Date().toISOString(),tournament:snapshot,pdfData,pdfFileName:`أرشيف_${snapshot.name}_${snapshot.season||''}.pdf`};
+    /* لا نخزن قائمة اللاعبين الكاملة داخل سجل الأرشيف؛ تبقى محفوظة في db.players للنسخ إلى بطولة أخرى.
+       أسماء الهدافين والبطاقات وأفضل لاعب داخل تقارير المباريات تبقى جزءاً من السجل التاريخي. */
+    const archiveSnapshot={...snapshot,players:[],officialPlayers:[]};
+    const archiveRecord={id:uid('AR'),archivedAt:new Date().toISOString(),tournament:archiveSnapshot,pdfData,pdfFileName:`أرشيف_${snapshot.name}_${snapshot.season||''}.pdf`};
     db.archives.push(archiveRecord);
     const wasArchived=t.archived, oldStatus=t.status;
     t.archived=true;t.status='archived';
@@ -3224,6 +3202,9 @@ async function archiveTournamentToPDF(tid){
       return;
     }
     renderTours();
+    try{if(typeof renderStats==='function')renderStats();}catch(_e){}
+    try{if(typeof window.renderPublicMatchSheetsReadOnly==='function')window.renderPublicMatchSheetsReadOnly();}catch(_e){}
+    try{if(typeof window.renderPublicSheetsFixed==='function')window.renderPublicSheetsFixed();}catch(_e){}
     const savedArchive=tournamentArchiveRecord(tid);
     if(savedArchive)downloadTournamentArchive(savedArchive.id);
     switchTournamentTab('ended');
@@ -3396,7 +3377,11 @@ function unarchiveTournament(tid){
   if(!confirm(`سيتم إلغاء أرشفة «${t.name}» وحذف ملف PDF الحالي. بعدها يمكنك تعديل بيانات البطولة وإنشاء ملف جديد. هل تريد المتابعة؟`))return;
   db.archives=(db.archives||[]).filter(x=>String(x.id)!==String(a.id));
   t.archived=false;t.status='ended';
-  save();renderTours();switchTournamentTab('ended');alert('تم إلغاء الأرشفة. يمكنك الآن تعديل البطولة ثم أرشفتها من جديد.');
+  save();renderTours();
+  try{if(typeof renderStats==='function')renderStats();}catch(_e){}
+  try{if(typeof window.renderPublicMatchSheetsReadOnly==='function')window.renderPublicMatchSheetsReadOnly();}catch(_e){}
+  try{if(typeof window.renderPublicSheetsFixed==='function')window.renderPublicSheetsFixed();}catch(_e){}
+  switchTournamentTab('ended');alert('تم إلغاء الأرشفة. يمكنك الآن تعديل البطولة ثم أرشفتها من جديد.');
 }
 
 function renderPublicSelectedTournament(id){
@@ -5839,7 +5824,8 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!can()){alert('هذا الإجراء مخصص لمدير النظام أو من منحه المدير صلاحية اللاعبين.');return false}
     const x=withinWindow(kind);if(!x.ok){alert(x.msg);return false}return true;
   }
-  function activeTours(){return (db.tournaments||[]).filter(t=>typeof tourStatus!=='function'||tourStatus(t)!=='archived')}
+  function allTours(){return (db.tournaments||[]).filter(Boolean)}
+  function activeTours(){return allTours().filter(t=>(typeof tournamentIsArchived!=='function'||!tournamentIsArchived(t))&&(typeof tourStatus!=='function'||tourStatus(t)!=='archived'))}
   function fill(sel,items,placeholder,keep){if(!sel)return;const old=keep??sel.value;sel.innerHTML='<option value="">'+placeholder+'</option>'+(items||[]).map(x=>`<option value="${esc2(x.id)}">${esc2(x.name||'بدون اسم')}</option>`).join('');if((items||[]).some(x=>String(x.id)===String(old)))sel.value=old;}
   function teamsFor(tid){return tid?(db.teams||[]).filter(t=>String(t.tournamentId)===String(tid)):[]}
   function panel(id){document.querySelectorAll('#players .players-admin-panel,#players .players-public-panel').forEach(x=>x.classList.remove('show'));const e=document.getElementById(id);if(e)e.classList.add('show');}
@@ -5870,7 +5856,8 @@ document.addEventListener('DOMContentLoaded',function(){
   function refreshPair(tourId,teamId){const ts=teamsFor(document.getElementById(tourId)?.value);fill(document.getElementById(teamId),ts,'اختر الفريق');refreshPlayerSelect(teamId)}
   function refreshPlayerSelect(teamSelId){const map={pmEditTeam:'pmEditPlayer',pmDelTeam:'pmDelPlayer',pmMoveSrcTeam:'pmMovePlayer'};const ps=(db.players||[]).filter(p=>String(p.teamId)===String(document.getElementById(teamSelId)?.value));fill(document.getElementById(map[teamSelId]),ps,'اختر اللاعب');if(map[teamSelId]==='pmEditPlayer')loadEdit()}
   function refreshAll(){
-    ['pmAddTour','pmEditTour','pmDelTour','pmCopySrcTour','pmCopyDstTour','pmMoveSrcTour','pmMoveDstTour'].forEach(id=>fill(document.getElementById(id),activeTours(),'اختر البطولة'));
+    ['pmAddTour','pmEditTour','pmDelTour','pmCopyDstTour','pmMoveSrcTour','pmMoveDstTour'].forEach(id=>fill(document.getElementById(id),activeTours(),'اختر البطولة'));
+    fill(document.getElementById('pmCopySrcTour'),allTours(),'اختر البطولة الأصلية');
     refreshPair('pmAddTour','pmAddTeam');refreshPair('pmEditTour','pmEditTeam');refreshPair('pmDelTour','pmDelTeam');refreshPair('pmCopySrcTour','pmCopySrcTeam');refreshPair('pmCopyDstTour','pmCopyDstTeam');refreshPair('pmMoveSrcTour','pmMoveSrcTeam');refreshPair('pmMoveDstTour','pmMoveDstTeam');loadWindows();
   }
   function loadWindows(){const w=getWindows();['AddStart','AddEnd','MoveStart','MoveEnd'].forEach(k=>{const e=document.getElementById('pm'+k);if(e)e.value=w[k[0].toLowerCase()+k.slice(1)]||''})}
@@ -6025,7 +6012,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
   };
   function renderStats(){
     const sel=$('statsTour'),box=$('statsBody'); if(!sel||!box)return;
-    const old=S(sel.value), tours=A(dbx().tournaments).filter(t=>!!t);
+    const old=S(sel.value), tours=A(dbx().tournaments).filter(t=>!!t&&!tournamentIsArchived(t));
     sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>`<option value="${esc(t.id)}">${esc(t.name||'بطولة')}</option>`).join('');
     if(old&&tours.some(t=>S(t.id)===old))sel.value=old;
     const tid=S(sel.value);
@@ -8346,7 +8333,8 @@ start();
     });
     return [...map.values()];
   }
-  function tournaments(){return A(DB().tournaments).filter(t=>t&&t.archived!==true&&S(t.status)!=='archived')}
+  function isArchivedTournament(t){return !!(t&&(t.archived===true||S(t.status)==='archived'||A(DB().archives).some(a=>S(a?.tournament?.id??a?.original?.id??a?.tournamentId)===S(t.id))))}
+  function tournaments(){return A(DB().tournaments).filter(t=>t&&!isArchivedTournament(t))}
   function teams(){return A(DB().teams)}
   function players(){return A(DB().players)}
   function matches(){return A(DB().matches)}
@@ -8423,6 +8411,12 @@ start();
     const tid=S(sel.value);
     if(!tid){
       box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة لعرض الكشوفات المدخلة.</div>';
+      return;
+    }
+    const selectedTournament=A(DB().tournaments).find(t=>S(t.id)===tid);
+    if(isArchivedTournament(selectedTournament)){
+      sel.value='';
+      box.innerHTML='<div class="ks-empty">🔒 هذه البطولة منتهية ومؤرشفة؛ تم إخفاء كشوفاتها من العرض اليومي مع الاحتفاظ بملف الأرشيف.</div>';
       return;
     }
     const list=sheets().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
@@ -8803,6 +8797,12 @@ function renderPublicSheets(){
     box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';
     return;
   }
+  const selectedTournament=A(DB().tournaments).find(t=>S(t.id)===tid);
+  if(selectedTournament&&(selectedTournament.archived===true||S(selectedTournament.status)==='archived'||A(DB().archives).some(a=>S(a?.tournament?.id??a?.original?.id??a?.tournamentId)===tid))){
+    sel.value='';
+    box.innerHTML='<div class="ks-empty">🔒 هذه البطولة منتهية ومؤرشفة؛ تم إخفاء كشوفاتها من العرض اليومي مع الاحتفاظ بملف الأرشيف.</div>';
+    return;
+  }
   const list=sheets().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
   if(!list.length){
     box.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';
@@ -8974,8 +8974,11 @@ function renderPlayerStatsDirect(){
  put(h=>h.includes('أفضل لاعب')||h.includes('أكثر لاعب'),'⭐ أكثر اللاعبين حصولًا على أفضل لاعب — من الكشوفات',bestRows,'لا توجد اختيارات لأفضل لاعب مسجلة في كشوفات هذه البطولة.');
 }
 function renderSheetsDirect(){
- const box=document.getElementById('ksReportsList'),sel=document.getElementById('ksTournament');if(!box||!sel)return;const tid=S(sel.value);if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';return}
- const list=allSheets().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
+  const box=document.getElementById('ksReportsList'),sel=document.getElementById('ksTournament');if(!box||!sel)return;const tid=S(sel.value);if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';return}
+  const selectedTournament=A(DB().tournaments).find(t=>S(t.id)===tid);
+  const archived=!!(selectedTournament&&(selectedTournament.archived===true||S(selectedTournament.status)==='archived'||A(DB().archives).some(a=>S(a?.tournament?.id??a?.original?.id??a?.tournamentId)===tid)));
+  if(archived){sel.value='';box.innerHTML='<div class="ks-empty">🔒 هذه البطولة منتهية ومؤرشفة؛ تم إخفاء كشوفاتها من العرض اليومي مع الاحتفاظ بملف الأرشيف.</div>';return}
+  const list=allSheets().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
  if(!list.length){box.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';return}
  const can=(()=>{try{return (typeof window.hasPermission==='function'&&window.hasPermission('matchSheets'))||document.body.classList.contains('admin')||document.body.classList.contains('editor')}catch(e){return document.body.classList.contains('admin')||document.body.classList.contains('editor')}})();
  box.innerHTML=list.map(sh=>{const m=A(DB().matches).find(x=>S(x.id)===S(sh.matchId))||{};const h=tname(sh.homeTeamId??m.home??m.homeTeamId),a=tname(sh.awayTeamId??m.away??m.awayTeamId);const hg=Number(sh.homeScore??m.hg??m.homeScore??0)||0,ag=Number(sh.awayScore??m.ag??m.awayScore??0)||0;const homeGoals=entries(sh.homeScorers);const awayGoals=entries(sh.awayScorers);let fallbackGoals=[];if(!homeGoals.length&&!awayGoals.length)fallbackGoals=entries(sh.goalScorers);const goalName=x=>esc(player(x)?.name||objName(x)||S(x));const goalGroup=(label,icon,items)=>items.length?'<div class="ks-goal-team-group"><b>'+icon+' '+esc(label)+'</b><div>'+items.map((x,i)=>(i+1)+'- '+goalName(x)).join('<br>')+'</div></div>':'';let goals='';if(homeGoals.length||awayGoals.length){goals=goalGroup(h,'🔵',homeGoals)+goalGroup(a,'🔴',awayGoals);}else if(fallbackGoals.length){goals='<div class="ks-goal-team-group"><b>⚽ مسجلو الأهداف</b><div>'+fallbackGoals.map((x,i)=>(i+1)+'- '+goalName(x)).join('<br>')+'</div></div>';}else goals='لا توجد أهداف مسجلة';const cards=A(sh.cards);const ct=cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات';const bp=player(bestValue(sh));const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary"><div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ '+esc(m.time||sh.time||'—')+'</div><div class="pub-line">⚽ <b>مسجلو الأهداف:</b> '+goals+'</div><div class="pub-line">🟨🟥 <b>البطاقات:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>'}).join('');
