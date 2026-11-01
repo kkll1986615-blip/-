@@ -2199,57 +2199,6 @@ function buildDetailedArchiveReport(ar){
     const winner=finalMatch&&finalHG!==finalAG?(finalHG>finalAG?finalHome:finalAway):storedWinner;
     const runner=finalMatch&&finalHG!==finalAG?(finalHG>finalAG?finalAway:finalHome):storedRunner;
 
-    // جدول النتائج يبقى مختصرًا؛ كل تفاصيل المباراة الرسمية تظهر مرة واحدة داخل كشف المباراة أدناه.
-    const matchRows=matches.map((m,i)=>{
-      const sh=shMap.get(S(m.id)), h=teamName(teams,matchTeam(m,'home')), a=teamName(teams,matchTeam(m,'away'));
-      const hg=score(m,sh,'home'), ag=score(m,sh,'away');
-      return `<tr><td>${i+1}</td><td>${esc(m.date||m.matchDate||sh?.date||'—')}<br>${esc(m.time||sh?.time||'')}</td><td>${esc(h)}</td><td class="score">${hg} - ${ag}</td><td>${esc(a)}</td><td>${esc(m.stadium||m.venue||'—')}</td></tr>`;
-    }).join('');
-    /* جدول النتائج يعرض النتيجة فقط؛ التفاصيل الرسمية الكاملة تظهر مرة واحدة في نموذج الكشف الموحد لاحقاً. */
-    const teamLogo=tid=>{
-      const t=teams.find(x=>S(x?.id)===S(tid)||S(x?.name)===S(tid));
-      return t?.logo||'';
-    };
-    const resultDate=(m,sh)=>esc(m.date||m.matchDate||sh?.date||'—');
-    const resultTime=(m,sh)=>esc(m.time||sh?.time||'');
-    const resultsRows=matches.map((m,i)=>{
-      const sh=shMap.get(S(m.id));
-      const hId=matchTeam(m,'home'), aId=matchTeam(m,'away');
-      const h=teamName(teams,hId)||'الفريق الأول', a=teamName(teams,aId)||'الفريق الثاني';
-      const hg=score(m,sh,'home'), ag=score(m,sh,'away');
-      const resultLabel=hg>ag?'فوز '+h:ag>hg?'فوز '+a:'تعادل';
-      const venue=esc(m.stadium||m.venue||sh?.stadium||'غير محدد');
-      const date=resultDate(m,sh), time=resultTime(m,sh);
-      const hl=teamLogo(hId), al=teamLogo(aId);
-      const hLogo=hl?`<img src="${esc(hl)}" crossorigin="anonymous" alt="" loading="eager" decoding="async">`:'<span class="result-table-fallback">⚽</span>';
-      const aLogo=al?`<img src="${esc(al)}" crossorigin="anonymous" alt="" loading="eager" decoding="async">`:'<span class="result-table-fallback">⚽</span>';
-      return `<tbody class="official-result-group"><tr class="official-result-main">
-        <td class="result-no"><span>${i+1}</span></td>
-        <td class="result-date"><b>${date}</b>${time?`<small>⏰ ${time}</small>`:''}</td>
-        <td class="result-team-cell home-team"><div class="result-team-line"><span class="result-team-logo">${hLogo}</span><b>${esc(h)}</b></div></td>
-        <td class="result-score-cell"><span class="result-score">${hg} <i>−</i> ${ag}</span><small>${esc(resultLabel)}</small></td>
-        <td class="result-team-cell away-team"><div class="result-team-line"><span class="result-team-logo">${aLogo}</span><b>${esc(a)}</b></div></td>
-        <td class="result-venue"><span>📍 ${venue}</span></td>
-      </tr></tbody>`;
-    });
-    /* تقسيم نتائج المباريات إلى 4 مباريات في كل صفحة PDF. */
-    const resultPageChunks=[];
-    for(let ri=0;ri<resultsRows.length;ri+=4) resultPageChunks.push(resultsRows.slice(ri,ri+4));
-    if(!resultPageChunks.length) resultPageChunks.push([]);
-    const resultsPages=resultPageChunks.map((chunk,pageNo)=>{
-      const start=pageNo*4+1;
-      const end=pageNo*4+chunk.length;
-      const rangeLabel=chunk.length?(start===end?`النتيجة ${start}`:`النتائج ${start}–${end}`):'لا توجد نتائج';
-      const body=chunk.length?chunk.join(''):'<tbody><tr><td colspan="6" class="results-empty">لا توجد مباريات مسجلة.</td></tr></tbody>';
-      return `<div class="archive-report-page archive-results-page">
-        <div class="section results-section">
-          <div class="results-section-head"><div><h2 class="archive-arabic-table-title" dir="rtl">جدول المباريات</h2><p>عرض ${rangeLabel} — أربع مباريات كحد أقصى في كل صفحة. التفاصيل الكاملة تظهر في كشف المباراة الرسمي الموحد.</p></div><span class="results-count-badge">${chunk.length} من ${matches.length}</span></div>
-          <table class="official-results-table"><thead><tr><th>ت</th><th>التاريخ والوقت</th><th>الفريق الأول</th><th>النتيجة</th><th>الفريق الثاني</th><th>الملعب</th></tr></thead>${body}</table>
-        </div>
-        <div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>
-      </div>`;
-    }).join('');
-
     const standingRows=standing.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${x.played}</td><td>${x.wins}</td><td>${x.draws}</td><td>${x.losses}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gf-x.ga}</td><td><b>${x.pts}</b></td></tr>`);
     const archiveFooter='<div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>';
     const makeArchiveTablePages=(title,headers,rows,emptyText,rowsPerPage=18,tableClass='archive-unified-table',note='')=>{
@@ -2266,9 +2215,9 @@ function buildDetailedArchiveReport(ar){
 
     const groupIds=[...new Set(teams.map(tm=>Number(tm.groupNumber||0)).filter(n=>n>0))].sort((a,b)=>a-b);
     const groupTournament=groupIds.length>0 || /مجموعات|group/i.test(S(t.type||t.system||''));
-    let standingsPages='';
+    const groupedStandingRows=[];
     if(groupTournament&&groupIds.length){
-      standingsPages=groupIds.map(gi=>{
+      groupIds.forEach(gi=>{
         const groupTeams=teams.filter(tm=>Number(tm.groupNumber||0)===gi);
         const gs=new Map(groupTeams.map(tm=>[S(tm.id),{name:tm.name||'—',played:0,wins:0,draws:0,losses:0,gf:0,ga:0,pts:0}]));
         matches.filter(m=>!isKnockout(m)).forEach(m=>{
@@ -2278,12 +2227,26 @@ function buildDetailedArchiveReport(ar){
           if(hg>ag){hs.wins++;hs.pts+=3;as.losses++;}else if(ag>hg){as.wins++;as.pts+=3;hs.losses++;}else{hs.draws++;as.draws++;hs.pts++;as.pts++;}
         });
         const sorted=[...gs.values()].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
-        const rows=sorted.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${x.played}</td><td>${x.wins}</td><td>${x.draws}</td><td>${x.losses}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gf-x.ga}</td><td><b>${x.pts}</b></td></tr>`);
-        return makeArchiveTablePages(`📋 ترتيب المجموعة ${String.fromCharCode(64+gi)}`,['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','الفارق','النقاط'],rows,'لا توجد نتائج مسجلة لهذه المجموعة.',18,'archive-standings-table');
-      }).join('');
-    }else{
-      standingsPages=makeArchiveTablePages(`🏆 الترتيب النهائي للفرق — ${esc(t.name||'البطولة')}`,['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','الفارق','النقاط'],standingRows,'لا توجد نتائج.',18,'archive-standings-table','الترتيب محسوب من النتائج المسجلة في المباريات المؤرشفة.');
+        groupedStandingRows.push(`<tr class="archive-group-label"><td colspan="10">المجموعة ${String.fromCharCode(64+gi)}</td></tr>`);
+        sorted.forEach((x,i)=>groupedStandingRows.push(`<tr><td>${i+1}</td><td class="archive-group-team">${esc(x.name)}</td><td>${x.played}</td><td>${x.wins}</td><td>${x.draws}</td><td>${x.losses}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gf-x.ga}</td><td><b>${x.pts}</b></td></tr>`));
+      });
     }
+    const knockoutMatches=matches.filter(isKnockout);
+    const knockoutRows=knockoutMatches.map((m,i)=>{
+      const sh=shMap.get(S(m.id)), r=roundOf(m)||'خروج المغلوب';
+      return `<tr><td>${i+1}</td><td>${esc(r)}</td><td>${esc(teamName(teams,matchTeam(m,'home')))}</td><td class="score">${score(m,sh,'home')} - ${score(m,sh,'away')}</td><td>${esc(teamName(teams,matchTeam(m,'away')))}</td></tr>`;
+    });
+    const combinedStandingRows=groupedStandingRows.length?groupedStandingRows.join(''):standingRows.join('');
+    const competitionPage=(teams.length||knockoutMatches.length)?`
+      <div class="archive-report-page archive-competition-page ${knockoutMatches.length>8?'archive-competition-dense-ko':''} ${teams.length>24?'archive-competition-dense-groups':''}">
+        <div class="archive-competition-heading"><span>🏆 السجل التنافسي للبطولة</span><h2>${groupTournament?'ترتيب المجموعات والنتائج الإقصائية':'الترتيب النهائي ونتائج الأدوار'}</h2><small>${esc(t.name||'')}</small></div>
+        <div class="archive-competition-standings-wrap">
+          <div class="archive-competition-section-title">📊 ${groupedStandingRows.length?'الترتيب النهائي لكل مجموعة':'الترتيب النهائي للفرق'}</div>
+          <table class="archive-competition-table archive-competition-standings-table"><thead><tr><th>#</th><th>الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>له</th><th>عليه</th><th>الفارق</th><th>النقاط</th></tr></thead><tbody>${combinedStandingRows||'<tr><td colspan="10">لا توجد نتائج مسجلة.</td></tr>'}</tbody></table>
+        </div>
+        ${knockoutMatches.length?`<div class="archive-competition-knockout-wrap"><div class="archive-competition-section-title">🥇 نتائج الأدوار الإقصائية <span>البطل: ${esc(winner)}　|　الوصيف: ${esc(runner)}</span></div><table class="archive-competition-table archive-competition-knockout-table"><thead><tr><th>#</th><th>الدور</th><th>الفريق الأول</th><th>النتيجة</th><th>الفريق الثاني</th></tr></thead><tbody>${knockoutRows.join('')}</tbody></table></div>`:''}
+        <div class="archive-competition-footer">ترتيب المجموعات ونتائج الأدوار الإقصائية — المنصة الرياضية</div>
+      </div>`:'';
 
     const scorerRows=topBy(scorers).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.team)}</td><td><b>${x.count}</b></td></tr>`);
     const cardRows=topBy(cards).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${esc(x.team)}</td><td><b>${x.count}</b></td></tr>`);
@@ -2297,9 +2260,6 @@ function buildDetailedArchiveReport(ar){
     const teamPages=makeArchiveTablePages('👥 الفرق المشاركة',['#','الفريق','رئيس الفريق','المدرب','عدد اللاعبين'],teamRows,'لا توجد فرق.',18,'archive-unified-table');
     const refPages=makeArchiveTablePages('🧑‍⚖️ الحكام',['#','الحكم','عدد المباريات'],refRows,'لا توجد بيانات حكام مرتبطة بالكشوفات.',18,'archive-unified-table');
 
-    const knockoutMatches=matches.filter(isKnockout);
-    const knockoutRows=knockoutMatches.map((m,i)=>{const sh=shMap.get(S(m.id));const r=roundOf(m)||'خروج المغلوب';return `<tr><td>${i+1}</td><td>${esc(r)}</td><td>${esc(teamName(teams,matchTeam(m,'home')))}</td><td class="score">${score(m,sh,'home')} - ${score(m,sh,'away')}</td><td>${esc(teamName(teams,matchTeam(m,'away')))}</td></tr>`;});
-    const knockoutPages=knockoutMatches.length?makeArchiveTablePages('🏆 نتائج الأدوار الإقصائية',['#','الدور','الفريق الأول','النتيجة','الفريق الثاني'],knockoutRows,'لا توجد مباريات إقصائية مسجلة.',18,'archive-unified-table',`🥇 البطل: ${esc(winner)} &nbsp;&nbsp; 🥈 الوصيف: ${esc(runner)}`):'';
     // كشف واحد لكل مباراة، ويحتوي جميع التفاصيل الرسمية دون تكرارها في جداول مستقلة.
     const sheetRows=(()=>{
       const sheetsHtml=shs.map((sh,i)=>{
@@ -2337,8 +2297,8 @@ function buildDetailedArchiveReport(ar){
       });
       if(!sheetsHtml.length)return '<div class="empty">لا توجد كشوفات محفوظة.</div>';
       const pages=[];
-      for(let i=0;i<sheetsHtml.length;i+=2){
-        pages.push(`<div class="archive-report-page archive-sheet-report-page"><div class="archive-sheet-pair">${sheetsHtml.slice(i,i+2).join('')}</div><div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div></div>`);
+      for(let i=0;i<sheetsHtml.length;i+=4){
+        pages.push(`<div class="archive-report-page archive-sheet-report-page"><div class="archive-sheet-pair">${sheetsHtml.slice(i,i+4).join('')}</div><div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div></div>`);
       }
       return pages.join('');
     })();
@@ -2935,16 +2895,14 @@ function buildDetailedArchiveReport(ar){
       <div class="section"><h2>📊 الملخص الإحصائي للبطولة</h2><div class="stats">
       <div class="stat"><span class="stat-icon">🛡️</span><b>${teams.length}</b><span>الفرق المشاركة</span></div><div class="stat"><span class="stat-icon">👥</span><b>${players.length}</b><span>اللاعبون</span></div><div class="stat"><span class="stat-icon">⚽</span><b>${matches.length}</b><span>المباريات</span></div><div class="stat"><span class="stat-icon">🥅</span><b>${goals}</b><span>الأهداف</span></div>
       <div class="stat"><span class="stat-icon">🟨</span><b>${yellow}</b><span>الصفراء</span></div><div class="stat"><span class="stat-icon">🟥</span><b>${red}</b><span>الحمراء</span></div><div class="stat"><span class="stat-icon">🎯</span><b>${penalties}</b><span>ركلات الجزاء</span></div><div class="stat"><span class="stat-icon">📋</span><b>${shs.length}</b><span>الكشوفات</span></div>
-      </div><div class="note">هذا الملف يمثل السجل الأرشيفي للبطولة ويضم بيانات البطولة والفرق ونتائج المباريات والكشوفات الرسمية والهدافين والجوائز والبطاقات والحكام دون إنشاء قائمة مستقلة بأسماء اللاعبين.</div></div>
+      </div><div class="note">هذا الملف يضم بيانات البطولة وترتيب المجموعات والنتائج الإقصائية والكشوفات الرسمية والهدافين والجوائز والبطاقات والحكام دون جداول نتائج مكررة.</div></div>
       <div class="section"><h2>🏅 أبرز إنجازات البطولة</h2><table class="archive-unified-table"><thead><tr><th>البند</th><th>البيان</th></tr></thead><tbody>
       <tr><td>🥇 البطل</td><td><b>${esc(winner)}</b></td></tr><tr><td>⚽ الهداف</td><td><b>${esc(topBy(scorers)[0]?.name||'غير محدد')}</b></td></tr><tr><td>⭐ أفضل لاعب</td><td><b>${esc(topBy(best)[0]?.name||'غير محدد')}</b></td></tr><tr><td>🏟️ الملاعب/المواقع</td><td>${esc([...new Set(matches.map(m=>m.stadium||m.venue).filter(Boolean))].join('، ')||'غير مسجل')}</td></tr>
       </tbody></table></div>
       <div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>
     </div>
 
-    ${standingsPages}
-    ${knockoutPages}
-    ${resultsPages}
+    ${competitionPage}
     ${sheetRows}
     ${scorerPages}
     ${bestPages}
@@ -3099,7 +3057,7 @@ async function createTournamentArchivePdf(snapshot){
       const pageHeight=Math.max(240,Math.ceil(page.scrollHeight||page.getBoundingClientRect().height||1123));
       const canvas=await window.html2canvas(page,{
         /* ضغط صفحات PDF لتقليل حجم الأرشيف حتى لا تمتلئ مساحة localStorage على الهاتف. */
-        scale:1.25,
+        scale:1.18,
         useCORS:true,
         allowTaint:false,
         backgroundColor:'#ffffff',
@@ -3127,11 +3085,12 @@ async function createTournamentArchivePdf(snapshot){
       if(!canvas.width||!canvas.height)throw new Error('تعذر رسم صفحة الأرشيف رقم '+(pageIndex+1));
 
       if(pageIndex>0)pdf.addPage();
-      const img=canvas.toDataURL('image/jpeg',0.70);
+      const img=canvas.toDataURL('image/jpeg',0.67);
       const naturalH=contentW*(canvas.height/canvas.width);
       const drawH=Math.min(contentH,naturalH);
       const drawY=margin;
       pdf.addImage(img,'JPEG',margin,drawY,contentW,drawH,'ARCHIVE_PAGE_'+pageIndex,'FAST');
+      try{canvas.width=0;canvas.height=0;}catch(_e){}
     }
 
     updatePdfGenerationProgress(94,'جاري حفظ ملف PDF العربي...');
@@ -12105,6 +12064,130 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   .gfs-panel .gfs-standings-table tbody td:nth-child(2){padding-right:5px!important;}
   .gfs-panel .gfs-standings-table tbody td:nth-child(n+3){font-size:10px!important;}
 }
+</style>
+
+
+<style id="archive-pdf-compact-layout-v3">
+/* هذه القواعد تطبق فقط على حاوية إنشاء PDF ولا تمس واجهة المنصة أو أقسامها. */
+#archivePdfRenderHost .archive-competition-page{
+  width:200mm!important;max-width:200mm!important;height:287mm!important;min-height:287mm!important;max-height:287mm!important;
+  margin:0 auto!important;padding:3mm!important;overflow:hidden!important;box-sizing:border-box!important;
+  display:flex!important;flex-direction:column!important;gap:2mm!important;
+  border:1px solid #b9d9ec!important;border-radius:4mm!important;
+  background:linear-gradient(145deg,#f4fbff 0%,#ffffff 48%,#fffaf0 100%)!important;
+}
+#archivePdfRenderHost .archive-competition-heading{
+  flex:0 0 auto!important;text-align:center!important;padding:2.5mm 3mm!important;border-radius:3mm!important;
+  color:#fff!important;background:linear-gradient(110deg,#063b77 0%,#087fbd 48%,#0aa77c 100%)!important;
+  box-shadow:0 2mm 4mm rgba(9,79,130,.12)!important;
+}
+#archivePdfRenderHost .archive-competition-heading>span{display:block!important;font-size:8pt!important;font-weight:900!important;color:#d8f8ff!important}
+#archivePdfRenderHost .archive-competition-heading h2{margin:1mm 0!important;padding:0!important;border:0!important;color:#fff!important;font-size:16pt!important;font-weight:950!important;line-height:1.3!important}
+#archivePdfRenderHost .archive-competition-heading small{font-size:7pt!important;color:#e8fff9!important;font-weight:800!important}
+#archivePdfRenderHost .archive-competition-standings-wrap{
+  flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;padding:1.5mm!important;
+  border:1px solid #b9ddea!important;border-radius:3mm!important;background:linear-gradient(145deg,#fff,#f2fbff)!important;
+  display:flex!important;flex-direction:column!important;
+}
+#archivePdfRenderHost .archive-competition-section-title{
+  flex:0 0 auto!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:2mm!important;
+  margin:0 0 1.5mm!important;padding:2mm 2.5mm!important;border-radius:2.5mm!important;
+  background:linear-gradient(100deg,#ffe58b 0%,#fff1bd 45%,#d9f6ff 100%)!important;
+  color:#17405b!important;font-size:9pt!important;font-weight:950!important;border:1px solid #e8d58d!important;
+}
+#archivePdfRenderHost .archive-competition-section-title span{font-size:7pt!important;color:#08715e!important;white-space:nowrap!important}
+#archivePdfRenderHost .archive-competition-table{
+  width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;height:100%!important;
+  border-collapse:collapse!important;table-layout:fixed!important;font-size:7.4pt!important;direction:rtl!important;
+}
+#archivePdfRenderHost .archive-competition-table th{
+  padding:1.5mm .6mm!important;border:1px solid #8fc8e1!important;
+  background:linear-gradient(135deg,#075985 0%,#087fb6 52%,#0d9b91 100%)!important;
+  color:#fff!important;font-size:7.2pt!important;font-weight:950!important;line-height:1.2!important;
+}
+#archivePdfRenderHost .archive-competition-table td{
+  padding:1.05mm .6mm!important;border:1px solid #c7e1ea!important;text-align:center!important;
+  color:#18394b!important;font-size:7.1pt!important;line-height:1.2!important;overflow-wrap:anywhere!important;
+}
+#archivePdfRenderHost .archive-competition-table tbody tr:nth-child(even) td{background:#e9f8ff!important}
+#archivePdfRenderHost .archive-competition-table tbody tr:nth-child(odd) td{background:#f8fffc!important}
+#archivePdfRenderHost .archive-competition-table .archive-group-label td{
+  padding:1.7mm!important;text-align:right!important;font-size:8.2pt!important;font-weight:950!important;
+  color:#12415c!important;background:linear-gradient(90deg,#ffe38a,#fff2c5 55%,#d8f7ff)!important;
+}
+#archivePdfRenderHost .archive-competition-table .archive-group-team{font-weight:900!important;text-align:right!important;color:#064f75!important}
+#archivePdfRenderHost .archive-competition-table td b{color:#087a5b!important;font-size:8pt!important}
+#archivePdfRenderHost .archive-competition-standings-table th:nth-child(1),#archivePdfRenderHost .archive-competition-standings-table td:nth-child(1){width:5%!important}
+#archivePdfRenderHost .archive-competition-standings-table th:nth-child(2),#archivePdfRenderHost .archive-competition-standings-table td:nth-child(2){width:22%!important}
+#archivePdfRenderHost .archive-competition-standings-table th:nth-child(n+3),#archivePdfRenderHost .archive-competition-standings-table td:nth-child(n+3){width:8.11%!important}
+#archivePdfRenderHost .archive-competition-knockout-wrap{
+  flex:0 0 72mm!important;min-height:0!important;overflow:hidden!important;padding:1.5mm!important;
+  border:1px solid #c8e5dc!important;border-radius:3mm!important;background:linear-gradient(135deg,#f1fff8,#f2f8ff)!important;
+}
+#archivePdfRenderHost .archive-competition-knockout-table th:nth-child(1),#archivePdfRenderHost .archive-competition-knockout-table td:nth-child(1){width:6%!important}
+#archivePdfRenderHost .archive-competition-knockout-table th:nth-child(2),#archivePdfRenderHost .archive-competition-knockout-table td:nth-child(2){width:18%!important}
+#archivePdfRenderHost .archive-competition-knockout-table th:nth-child(3),#archivePdfRenderHost .archive-competition-knockout-table td:nth-child(3),#archivePdfRenderHost .archive-competition-knockout-table th:nth-child(5),#archivePdfRenderHost .archive-competition-knockout-table td:nth-child(5){width:27%!important}
+#archivePdfRenderHost .archive-competition-knockout-table th:nth-child(4),#archivePdfRenderHost .archive-competition-knockout-table td:nth-child(4){width:22%!important;font-weight:950!important}
+#archivePdfRenderHost .archive-competition-footer{text-align:center!important;flex:0 0 auto!important;font-size:6.5pt!important;font-weight:900!important;color:#47716e!important;padding:1mm!important;border-top:1px solid #c4e3dc!important}
+#archivePdfRenderHost .archive-competition-dense-ko .archive-competition-knockout-wrap{flex-basis:88mm!important}
+#archivePdfRenderHost .archive-competition-dense-ko .archive-competition-table th,#archivePdfRenderHost .archive-competition-dense-ko .archive-competition-table td{font-size:6.5pt!important;padding:.8mm .4mm!important}
+#archivePdfRenderHost .archive-competition-dense-groups .archive-competition-table th,#archivePdfRenderHost .archive-competition-dense-groups .archive-competition-table td{font-size:6.5pt!important;padding:.8mm .4mm!important}
+
+/* أربعة كشوفات رسمية في الصفحة الواحدة: صفان × عمودين. */
+#archivePdfRenderHost .archive-sheet-report-page{
+  width:200mm!important;max-width:200mm!important;height:287mm!important;min-height:287mm!important;max-height:287mm!important;
+  margin:0 auto!important;padding:2mm!important;overflow:hidden!important;box-sizing:border-box!important;
+  display:flex!important;flex-direction:column!important;background:#fff!important;
+  border:1px solid #d3e8e8!important;
+}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-pair{
+  width:100%!important;height:276mm!important;min-height:276mm!important;max-height:276mm!important;
+  flex:1 1 auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:3mm!important;overflow:hidden!important;
+  margin:0!important;padding:0!important;box-sizing:border-box!important;
+}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-page{
+  width:100%!important;height:136.5mm!important;min-height:136.5mm!important;max-height:136.5mm!important;
+  min-width:0!important;margin:0!important;padding:1.8mm!important;overflow:hidden!important;box-sizing:border-box!important;
+}
+#archivePdfRenderHost .archive-sheet-report-page .archive-match-sheet{
+  display:flex!important;flex-direction:column!important;justify-content:space-between!important;
+  width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;flex:0 0 auto!important;
+  padding:1.8mm!important;margin:0!important;overflow:hidden!important;border-radius:3mm!important;
+  border:1.2px solid #75c8c5!important;background:linear-gradient(145deg,#fff 0%,#f3fcff 55%,#f5fff8 100%)!important;
+  box-shadow:0 1mm 2mm rgba(14,95,112,.08)!important;
+}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-head{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:1mm!important;
+  padding:1.5mm!important;margin:0 0 1.3mm!important;border-radius:2mm!important;
+  direction:rtl!important;background:linear-gradient(110deg,#075985 0%,#087fb6 52%,#0b9c82 100%)!important;
+}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-info{display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:center!important;gap:1mm!important;text-align:right!important;}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-info b{font-size:7.5pt!important;color:#fff!important;line-height:1.2!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-info small{font-size:6.5pt!important;color:#e2faff!important;margin:0!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-main-match{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:1mm!important;text-align:right!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-match-title{font-size:7.2pt!important;line-height:1.2!important;color:#fff!important;margin:0!important;min-width:0!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-score{gap:1.2mm!important;flex:0 0 auto!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-score span{font-size:6.2pt!important;color:#fff!important;max-width:21mm!important;}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-score strong{font-size:11pt!important;padding:1mm 2mm!important;border-radius:2mm!important;color:#075985!important;background:#fff!important;border:1px solid #a7e8e0!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-logo{display:none!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-grid{
+  flex:1 1 auto!important;min-height:0!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:1.2mm!important;margin:0!important;
+}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-grid>div{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;min-width:0!important;min-height:0!important;
+  padding:1.2mm!important;border-radius:2mm!important;border:1px solid #cfe5eb!important;overflow:hidden!important;
+  background:linear-gradient(145deg,#f4fbff,#fff)!important;
+}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-grid>div:nth-child(4n+2){background:linear-gradient(145deg,#fff8dc,#fff)!important;border-color:#efdda2!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-grid>div:nth-child(4n+3){background:linear-gradient(145deg,#eafff6,#fff)!important;border-color:#b9e8d2!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-grid>div:nth-child(4n+4){background:linear-gradient(145deg,#f3efff,#fff)!important;border-color:#d9ccf6!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-grid>div b{font-size:6.5pt!important;color:#075985!important;display:block!important;margin:0 0 .7mm!important;line-height:1.15!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-grid>div span{font-size:6.35pt!important;line-height:1.2!important;color:#243b4b!important;overflow-wrap:anywhere!important;word-break:normal!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-grid .archive-sheet-full{grid-column:1/-1!important}
+#archivePdfRenderHost .archive-sheet-report-page .archive-sheet-credit{margin:1mm 0 0!important;padding:1mm 0 0!important;border-top:1px solid #c5e2df!important;font-size:5.8pt!important;color:#08705f!important;line-height:1!important;text-align:center!important}
+#archivePdfRenderHost .archive-sheet-report-page>.archive-report-footer{flex:0 0 auto!important;height:4mm!important;min-height:4mm!important;margin:1mm 0 0!important;padding:0!important;font-size:5.8pt!important;line-height:1!important;color:#52716b!important;}
 </style>
 
 </body>
