@@ -2143,7 +2143,7 @@ function buildDetailedArchiveReport(ar){
   const refereeName=v=>{ if(v&&typeof v==='object')return S(v.name||v.refereeName||v.title||v.id); const r=referees().find(x=>S(x?.id)===S(v)||S(x?.name)===S(v)); return r?.name||S(v); };
   const teamName=(ts,id)=>{const t=ts.find(x=>S(x?.id)===S(id)||S(x?.name)===S(id));return t?.name||S(id)||'—';};
   const playerName=(ps,id)=>{if(id&&typeof id==='object')return S(id.name||id.playerName||id.playerId||'—');const p=ps.find(x=>S(x?.id)===S(id)||S(x?.name)===S(id));return p?.name||S(id)||'—';};
-  const matchTeam=(m,side)=>S(side==='home'?(m?.home??m?.homeTeamId??m?.homeTeam):(m?.away??m?.awayTeamId??m?.awayTeam));
+  const matchTeam=(m,side,sh)=>S(side==='home'?(sh?.homeTeamId??sh?.homeTeam??sh?.home??sh?.homeId??sh?.teamAId??m?.home??m?.homeTeamId??m?.homeTeam??m?.teamAId??m?.team1Id):(sh?.awayTeamId??sh?.awayTeam??sh?.away??sh?.awayId??sh?.teamBId??m?.away??m?.awayTeamId??m?.awayTeam??m?.teamBId??m?.team2Id));
   const score=(m,sh,side)=>Number(side==='home'?(sh?.homeScore??m?.hg??m?.homeGoals??m?.homeScore??0):(sh?.awayScore??m?.ag??m?.awayGoals??m?.awayScore??0))||0;
   const allGoalEntries=sh=>{let a=A(sh?.homeScorers).concat(A(sh?.awayScorers));if(!a.length)a=A(sh?.goalScorers);return a;};
     const archiveLogoSrc=document.querySelector('.brand-logo')?.getAttribute('src') || document.querySelector('.brand-logo')?.src || '';
@@ -2187,17 +2187,35 @@ function buildDetailedArchiveReport(ar){
     });
     const standing=[...teamStats.values()].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
     const topBy=(map)=>[...map.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar'));
-    const roundOf=m=>S(m?.knockoutRound||m?.roundName||m?.stageName||m?.matchStage||m?.round||'').trim();
-    const isKnockout=m=>{const r=roundOf(m).replace(/\s+/g,' ').trim();if(r==='دوري المجموعات'||S(m?.matchStage).toLowerCase()==='groups')return false;return !!(S(m?.matchStage).toLowerCase()==='knockout'||['ربع النهائي','نصف النهائي','النهائي'].includes(r)||/quarter|semi.?final|final/i.test(r));};
-    const finalMatch=[...matches].reverse().find(m=>/^(النهائي|نهائي|المباراة النهائية|final|final match)$/i.test(roundOf(m).replace(/\s+/g,' ').trim()));
+    const roundOf=(m,sh)=>S(m?.knockoutRound||sh?.knockoutRound||m?.roundName||sh?.roundName||m?.stageName||sh?.stageName||m?.matchStage||sh?.matchStage||m?.round||sh?.round||'').trim();
+    const isKnockout=m=>{const sh=shMap.get(S(m?.id));const r=roundOf(m,sh).replace(/\s+/g,' ').trim();if(r==='دوري المجموعات'||S(m?.matchStage||sh?.matchStage).toLowerCase()==='groups')return false;return !!(S(m?.matchStage||sh?.matchStage).toLowerCase()==='knockout'||['ربع النهائي','نصف النهائي','النهائي'].includes(r)||/knockout|quarter|semi.?final|final/i.test(r));};
+    const shootoutValue=(m,sh,key)=>{
+      let v=sh?.[key];
+      if(v===undefined||v===null||S(v).trim()==='')v=m?.[key];
+      if(v===undefined||v===null||S(v).trim()==='')return null;
+      const n=Number(v);return Number.isFinite(n)?n:null;
+    };
+    /* نفس أولوية قسم الإحصائيات: نتيجة الترجيح أولاً عند وجودها، ثم الفائز المحفوظ كمرجع احتياطي. */
+    const matchDecision=(m,sh)=>{
+      const home=matchTeam(m,'home',sh),away=matchTeam(m,'away',sh);
+      const hg=score(m,sh,'home'),ag=score(m,sh,'away');
+      const shootoutHome=shootoutValue(m,sh,'shootoutHome'),shootoutAway=shootoutValue(m,sh,'shootoutAway');
+      const hasShootout=shootoutHome!==null&&shootoutAway!==null;
+      const stored=S(sh?.shootoutWinnerTeamId||m?.shootoutWinnerTeamId||'');
+      const scoreWinner=hasShootout?(shootoutHome>shootoutAway?home:shootoutAway>shootoutHome?away:''):(hg>ag?home:ag>hg?away:'');
+      const winnerId=scoreWinner||(stored&&[S(home),S(away)].includes(stored)?stored:'');
+      return {home,away,hg,ag,shootoutHome,shootoutAway,hasShootout,winnerId};
+    };
+    const finalMatch=[...matches].reverse().find(m=>/^(النهائي|نهائي|المباراة النهائية|final|final match)$/i.test(roundOf(m,shMap.get(S(m.id))).replace(/\s+/g,' ').trim()));
     const finalSheet=finalMatch?shMap.get(S(finalMatch.id)):null;
-    const finalHG=finalMatch?score(finalMatch,finalSheet,'home'):0, finalAG=finalMatch?score(finalMatch,finalSheet,'away'):0;
-    const finalHome=finalMatch?teamName(teams,matchTeam(finalMatch,'home')):'';
-    const finalAway=finalMatch?teamName(teams,matchTeam(finalMatch,'away')):'';
-    const storedWinner=t.champion||t.winner||t.tournamentChampion||'غير محدد';
-    const storedRunner=t.runnerUp||t.runnerUpName||'غير محدد';
-    const winner=finalMatch&&finalHG!==finalAG?(finalHG>finalAG?finalHome:finalAway):storedWinner;
-    const runner=finalMatch&&finalHG!==finalAG?(finalHG>finalAG?finalAway:finalHome):storedRunner;
+    const finalDecision=finalMatch?matchDecision(finalMatch,finalSheet):null;
+    const finalStats=t?.finalStatsSnapshot||{};
+    const storedWinner=S(finalStats?.champion?.name||t.champion||t.winner||t.tournamentChampion||'غير محدد');
+    const storedRunner=S(finalStats?.runnerUp?.name||t.runnerUp||t.runnerUpName||'غير محدد');
+    const finalWinner=finalDecision?.winnerId?teamName(teams,finalDecision.winnerId):'';
+    const finalRunner=finalDecision?.winnerId?teamName(teams,finalDecision.winnerId===S(finalDecision.home)?finalDecision.away:finalDecision.home):'';
+    const winner=finalWinner||storedWinner;
+    const runner=finalRunner||storedRunner;
 
     const standingRows=standing.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${x.played}</td><td>${x.wins}</td><td>${x.draws}</td><td>${x.losses}</td><td>${x.gf}</td><td>${x.ga}</td><td>${x.gf-x.ga}</td><td><b>${x.pts}</b></td></tr>`);
     const archiveFooter='<div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>';
@@ -2233,8 +2251,16 @@ function buildDetailedArchiveReport(ar){
     }
     const knockoutMatches=matches.filter(isKnockout);
     const knockoutRows=knockoutMatches.map((m,i)=>{
-      const sh=shMap.get(S(m.id)), r=roundOf(m)||'خروج المغلوب';
-      return `<tr><td>${i+1}</td><td>${esc(r)}</td><td>${esc(teamName(teams,matchTeam(m,'home')))}</td><td class="score">${score(m,sh,'home')} - ${score(m,sh,'away')}</td><td>${esc(teamName(teams,matchTeam(m,'away')))}</td></tr>`;
+      const sh=shMap.get(S(m.id)), r=roundOf(m,sh)||'خروج المغلوب';
+      const d=matchDecision(m,sh);
+      const homeName=teamName(teams,d.home),awayName=teamName(teams,d.away);
+      const homeWon=!!d.winnerId&&S(d.winnerId)===S(d.home),awayWon=!!d.winnerId&&S(d.winnerId)===S(d.away);
+      const homeCell=`<div class="archive-ko-team"><b>${esc(homeName)}</b>${homeWon?'<span class="archive-ko-winner">🏆 الفائز</span>':''}</div>`;
+      const awayCell=`<div class="archive-ko-team"><b>${esc(awayName)}</b>${awayWon?'<span class="archive-ko-winner">🏆 الفائز</span>':''}</div>`;
+      const shootoutLine=d.hasShootout?`<small class="archive-ko-shootout"><b>ركلات الترجيح:</b> <bdi>${d.shootoutAway} - ${d.shootoutHome}</bdi></small>`:'';
+      /* يطابق ترتيب عرض قسم الإحصائيات: الفريق الضيف ثم الفريق المضيف. */
+      const resultCell=`<div class="archive-ko-main-score"><bdi>${d.ag} - ${d.hg}</bdi></div>${shootoutLine}`;
+      return `<tr><td>${i+1}</td><td>${esc(r)}</td><td>${homeCell}</td><td class="score archive-ko-score-cell">${resultCell}</td><td>${awayCell}</td></tr>`;
     });
     const combinedStandingRows=groupedStandingRows.length?groupedStandingRows.join(''):standingRows.join('');
     const competitionPage=(teams.length||knockoutMatches.length)?`
@@ -2887,12 +2913,30 @@ function buildDetailedArchiveReport(ar){
         .manual-archive-actions .btn,.archive-file-actions .btn{width:100%;min-height:42px}
       }
 
+    /* تباين واضح وألوان زاهية للأرشفة فقط؛ لا تمتد هذه القواعد إلى واجهة المنصة. */
+    .archive-report-page,.archive-report-page *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+    .archive-report-page{background:#fff!important;border-color:#9fc7d8!important;color:#142b3b!important;}
+    .archive-report-page .section>h2{background:linear-gradient(105deg,#063b66 0%,#087f8c 55%,#07966d 100%)!important;color:#fff!important;border:0!important;border-right:5px solid #ffc928!important;border-radius:8px!important;padding:9px 12px!important;margin:0 0 10px!important;text-shadow:0 1px 1px #00304755!important;}
+    .archive-report-page table:not(.archive-matches-table) th{background:linear-gradient(125deg,#064e73 0%,#087f91 52%,#087e5b 100%)!important;color:#fff!important;border-color:#0b6278!important;text-shadow:0 1px 1px #00304755!important;}
+    .archive-report-page table:not(.archive-matches-table) td{background:#fff!important;color:#172b3a!important;border-color:#b9d2df!important;font-weight:600!important;}
+    .archive-report-page table:not(.archive-matches-table) tbody tr:nth-child(even) td{background:#e5f4fb!important;}
+    .archive-report-page table:not(.archive-matches-table) tbody tr:nth-child(odd) td{background:#f7fcff!important;}
+    .archive-report-page .meta div{background:linear-gradient(135deg,#e8f7ff,#f3fff9)!important;border:1px solid #88bdd0!important;color:#123d55!important;font-weight:800!important;}
+    .archive-report-page .stat{background:linear-gradient(135deg,#e7f8ff,#effff7)!important;border:1.5px solid #83c8d5!important;}
+    .archive-report-page .stat b{color:#064e73!important;font-weight:950!important;}
+    .archive-report-page .note{background:#fff6d7!important;border:1px solid #e5bd43!important;color:#574313!important;font-weight:700!important;}
+    .archive-report-page .archive-ko-team{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;}
+    .archive-report-page .archive-ko-team b{color:#163b51!important;font-size:8pt!important;line-height:1.3!important;}
+    .archive-report-page .archive-ko-winner{display:inline-block;margin-top:1px;padding:2px 6px;border-radius:99px;background:#d8f7e7!important;border:1px solid #16a36a!important;color:#075a3a!important;font-size:6.5pt!important;font-weight:950!important;white-space:nowrap!important;}
+    .archive-report-page .archive-ko-main-score{font-size:10pt!important;font-weight:950!important;color:#073f6d!important;white-space:nowrap!important;}
+    .archive-report-page .archive-ko-shootout{display:block;margin-top:3px;padding:2px 3px;border-radius:5px;background:#fff0bd!important;border:1px solid #e7b52b!important;color:#684500!important;font-size:6.7pt!important;font-weight:900!important;line-height:1.3!important;white-space:normal!important;}
+    .archive-report-page .archive-ko-score-cell{background:#eef8ff!important;}
 </style></head><body>
     <div class="archive-report-page">
       <div class="cover"><div class="cup">🏆</div><h1>المنصة الرياضية</h1><h2>الأرشيف الرسمي للبطولة</h2><div class="line"></div><h2>${esc(t.name||'بطولة بدون اسم')}</h2><div class="meta">
       <div><b>الموسم</b><br>${esc(t.season||'—')}</div><div><b>الفئة</b><br>${esc(t.age||t.category||'—')}</div>
-      <div><b>النظام</b><br>${esc(t.type||t.system||'—')}</div><div><b>البطل</b><br>${esc(winner)}</div>
-      <div><b>تاريخ البداية</b><br>${esc(t.startDate||'—')}</div><div><b>تاريخ النهاية</b><br>${esc(t.endDate||'—')}</div>
+      <div><b>النظام</b><br>${esc(t.type||t.system||'—')}</div><div><b>🥇 البطل</b><br>${esc(winner)}</div>
+      <div><b>🥈 الوصيف</b><br>${esc(runner)}</div><div><b>تاريخ البداية</b><br>${esc(t.startDate||'—')}</div><div><b>تاريخ النهاية</b><br>${esc(t.endDate||'—')}</div>
       <div><b>عدد الفرق</b><br>${teams.length}</div><div><b>عدد اللاعبين</b><br>${players.length}</div>
       </div><div class="small">تاريخ الأرشفة: ${esc(new Date(ar.archivedAt||Date.now()).toLocaleString('ar-IQ'))}</div></div>
       <div class="section"><h2>📊 الملخص الإحصائي للبطولة</h2><div class="stats">
@@ -2900,7 +2944,7 @@ function buildDetailedArchiveReport(ar){
       <div class="stat"><span class="stat-icon">🟨</span><b>${yellow}</b><span>الصفراء</span></div><div class="stat"><span class="stat-icon">🟥</span><b>${red}</b><span>الحمراء</span></div><div class="stat"><span class="stat-icon">🎯</span><b>${penalties}</b><span>ركلات الجزاء</span></div><div class="stat"><span class="stat-icon">📋</span><b>${shs.length}</b><span>الكشوفات</span></div>
       </div><div class="note">هذا الملف يضم بيانات البطولة وترتيب المجموعات والنتائج الإقصائية والكشوفات الرسمية والهدافين والجوائز والبطاقات والحكام دون جداول نتائج مكررة.</div></div>
       <div class="section"><h2>🏅 أبرز إنجازات البطولة</h2><table class="archive-unified-table"><thead><tr><th>البند</th><th>البيان</th></tr></thead><tbody>
-      <tr><td>🥇 البطل</td><td><b>${esc(winner)}</b></td></tr><tr><td>⚽ الهداف</td><td><b>${esc(topBy(scorers)[0]?.name||'غير محدد')}</b></td></tr><tr><td>⭐ أفضل لاعب</td><td><b>${esc(topBy(best)[0]?.name||'غير محدد')}</b></td></tr><tr><td>🏟️ الملاعب/المواقع</td><td>${esc([...new Set(matches.map(m=>m.stadium||m.venue).filter(Boolean))].join('، ')||'غير مسجل')}</td></tr>
+      <tr><td>🥇 البطل</td><td><b>${esc(winner)}</b></td></tr><tr><td>🥈 الوصيف</td><td><b>${esc(runner)}</b></td></tr><tr><td>⚽ الهداف</td><td><b>${esc(topBy(scorers)[0]?.name||'غير محدد')}</b></td></tr><tr><td>⭐ أفضل لاعب</td><td><b>${esc(topBy(best)[0]?.name||'غير محدد')}</b></td></tr><tr><td>🏟️ الملاعب/المواقع</td><td>${esc([...new Set(matches.map(m=>m.stadium||m.venue).filter(Boolean))].join('، ')||'غير مسجل')}</td></tr>
       </tbody></table></div>
       <div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div>
     </div>
@@ -12211,6 +12255,52 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 #archivePdfRenderHost .archive-scorer-best-page .archive-unified-table tbody tr:nth-child(odd) td{background:#f8fffc!important;}
 #archivePdfRenderHost .archive-scorer-best-page .archive-report-footer{margin-top:4mm!important;}
 @media print{#archivePdfRenderHost .archive-competition-page{justify-content:center!important;}#archivePdfRenderHost .archive-scorer-best-page{min-height:0!important;height:auto!important;}}
+</style>
+<style id="archive-shootout-and-vibrant-colors-fix">
+/* PDF archive-only overrides: vivid headers, clear alternating rows, and visible winner/shootout labels. */
+#archivePdfRenderHost .archive-report-page,
+#archivePdfRenderHost .archive-competition-page,
+#archivePdfRenderHost .archive-report-page * ,
+#archivePdfRenderHost .archive-competition-page *{
+  -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+}
+#archivePdfRenderHost .archive-report-page .section>h2{
+  color:#fff!important;background:linear-gradient(105deg,#063b66 0%,#087f8c 55%,#07966d 100%)!important;
+  border:0!important;border-right:5px solid #ffc928!important;border-radius:3mm!important;
+  padding:3mm 4mm!important;text-shadow:0 1px 1px #00304755!important;
+}
+#archivePdfRenderHost .archive-report-page .archive-unified-table th,
+#archivePdfRenderHost .archive-report-page table:not(.archive-matches-table) th{
+  color:#fff!important;background:linear-gradient(125deg,#064e73 0%,#087f91 52%,#087e5b 100%)!important;
+  border-color:#0b6278!important;text-shadow:0 1px 1px #00304755!important;
+}
+#archivePdfRenderHost .archive-report-page .archive-unified-table td,
+#archivePdfRenderHost .archive-report-page table:not(.archive-matches-table) td{
+  color:#172b3a!important;border-color:#b9d2df!important;font-weight:600!important;
+}
+#archivePdfRenderHost .archive-report-page .archive-unified-table tbody tr:nth-child(even) td,
+#archivePdfRenderHost .archive-report-page table:not(.archive-matches-table) tbody tr:nth-child(even) td{background:#e5f4fb!important;}
+#archivePdfRenderHost .archive-report-page .archive-unified-table tbody tr:nth-child(odd) td,
+#archivePdfRenderHost .archive-report-page table:not(.archive-matches-table) tbody tr:nth-child(odd) td{background:#f7fcff!important;}
+#archivePdfRenderHost .archive-competition-page{border:1.5px solid #68aebd!important;background:linear-gradient(145deg,#eaf8ff 0%,#fff 48%,#fff5d9 100%)!important;}
+#archivePdfRenderHost .archive-competition-heading{background:linear-gradient(110deg,#052f5f 0%,#087fb6 48%,#05845d 100%)!important;}
+#archivePdfRenderHost .archive-competition-section-title{background:linear-gradient(100deg,#ffd84d 0%,#fff0a6 48%,#bcefff 100%)!important;color:#123b55!important;border-color:#d7a919!important;}
+#archivePdfRenderHost .archive-competition-section-title span{color:#064e73!important;font-weight:950!important;}
+#archivePdfRenderHost .archive-competition-table th{background:linear-gradient(135deg,#064e73 0%,#087f91 52%,#087e5b 100%)!important;color:#fff!important;border-color:#075c78!important;}
+#archivePdfRenderHost .archive-competition-table td{color:#132f42!important;border-color:#9fc7d8!important;font-weight:700!important;}
+#archivePdfRenderHost .archive-competition-table tbody tr:nth-child(even) td{background:#dff2fb!important;}
+#archivePdfRenderHost .archive-competition-table tbody tr:nth-child(odd) td{background:#f8fdff!important;}
+#archivePdfRenderHost .archive-competition-table td b{color:#064e73!important;}
+#archivePdfRenderHost .archive-competition-table .archive-ko-team{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1mm!important;min-width:0!important;}
+#archivePdfRenderHost .archive-competition-table .archive-ko-team b{color:#163b51!important;font-size:8pt!important;line-height:1.25!important;}
+#archivePdfRenderHost .archive-competition-table .archive-ko-winner{display:inline-block!important;margin-top:.5mm!important;padding:.7mm 1.5mm!important;border-radius:99px!important;background:#c9f5dc!important;border:1px solid #12965b!important;color:#075a3a!important;font-size:6.5pt!important;font-weight:950!important;white-space:nowrap!important;}
+#archivePdfRenderHost .archive-competition-table .archive-ko-main-score{font-size:10pt!important;font-weight:950!important;color:#073f6d!important;white-space:nowrap!important;}
+#archivePdfRenderHost .archive-competition-table .archive-ko-shootout{display:block!important;margin-top:1mm!important;padding:.7mm 1mm!important;border-radius:1.5mm!important;background:#fff0bd!important;border:1px solid #e0ad19!important;color:#684500!important;font-size:6.7pt!important;font-weight:950!important;line-height:1.25!important;white-space:normal!important;}
+#archivePdfRenderHost .archive-competition-knockout-table td.archive-ko-score-cell{background:#eaf6ff!important;}
+#archivePdfRenderHost .archive-report-page .meta div{background:linear-gradient(135deg,#e8f7ff,#f3fff9)!important;border-color:#88bdd0!important;color:#123d55!important;}
+#archivePdfRenderHost .archive-report-page .stat{background:linear-gradient(135deg,#e7f8ff,#effff7)!important;border:1.5px solid #83c8d5!important;}
+#archivePdfRenderHost .archive-report-page .stat b{color:#064e73!important;}
+#archivePdfRenderHost .archive-report-page .note{background:#fff6d7!important;border-color:#e5bd43!important;color:#574313!important;}
 </style>
 </body>
 </html>
