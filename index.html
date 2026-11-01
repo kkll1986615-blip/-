@@ -2254,8 +2254,11 @@ function buildDetailedArchiveReport(ar){
     const refRows=topBy(refs).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td><b>${x.count}</b></td></tr>`);
     const teamRows=teams.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name||'—')}</td><td>${esc(x.president||'—')}</td><td>${esc(x.coach||'—')}</td><td>${players.filter(p=>S(p.teamId)===S(x.id)).length}</td></tr>`);
 
-    const scorerPages=makeArchiveTablePages('🥇 هدافو البطولة',['#','اللاعب','الفريق','الأهداف'],scorerRows,'لا توجد أهداف مسجلة.',18,'archive-unified-table');
-    const bestPages=makeArchiveTablePages('⭐ أفضل لاعبي المباريات',['#','اللاعب','الفريق','عدد الجوائز'],bestRows,'لا توجد جوائز أفضل لاعب مسجلة.',18,'archive-unified-table');
+    // دمج الهدافين وأفضل لاعب في صفحة واحدة مدمجة لتقليل الفراغ وعدد صفحات PDF.
+    const scorerBestPage=`<div class="archive-report-page archive-table-data-page archive-scorer-best-page">
+      <div class="section"><h2>🥇 هدافو البطولة</h2><table class="archive-unified-table"><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>الأهداف</th></tr></thead><tbody>${scorerRows.length?scorerRows.join(''):'<tr><td colspan="4">لا توجد أهداف مسجلة.</td></tr>'}</tbody></table></div>
+      <div class="section"><h2>⭐ أفضل لاعبي المباريات</h2><table class="archive-unified-table"><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>عدد الجوائز</th></tr></thead><tbody>${bestRows.length?bestRows.join(''):'<tr><td colspan="4">لا توجد جوائز أفضل لاعب مسجلة.</td></tr>'}</tbody></table></div>
+      <div class="archive-report-footer">تصميم وتنفيذ المنصة الرياضية / المهندس خالد الوائلي</div></div>`;
     const cardPages=makeArchiveTablePages('🟨🟥 سجل البطاقات',['#','اللاعب','الفريق','عدد البطاقات'],cardRows,'لا توجد بطاقات مسجلة.',18,'archive-unified-table');
     const teamPages=makeArchiveTablePages('👥 الفرق المشاركة',['#','الفريق','رئيس الفريق','المدرب','عدد اللاعبين'],teamRows,'لا توجد فرق.',18,'archive-unified-table');
     const refPages=makeArchiveTablePages('🧑‍⚖️ الحكام',['#','الحكم','عدد المباريات'],refRows,'لا توجد بيانات حكام مرتبطة بالكشوفات.',18,'archive-unified-table');
@@ -2904,8 +2907,7 @@ function buildDetailedArchiveReport(ar){
 
     ${competitionPage}
     ${sheetRows}
-    ${scorerPages}
-    ${bestPages}
+    ${scorerBestPage}
     ${cardPages}
     ${teamPages}
     ${refPages}
@@ -12190,5 +12192,25 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 #archivePdfRenderHost .archive-sheet-report-page>.archive-report-footer{flex:0 0 auto!important;height:4mm!important;min-height:4mm!important;margin:1mm 0 0!important;padding:0!important;font-size:5.8pt!important;line-height:1!important;color:#52716b!important;}
 </style>
 
+<style id="archive-visual-balance-final-fix">
+#archivePdfRenderHost .archive-competition-page{width:200mm!important;max-width:200mm!important;min-height:287mm!important;height:auto!important;max-height:none!important;margin:0 auto!important;padding:5mm!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:stretch!important;gap:5mm!important;overflow:hidden!important;}
+#archivePdfRenderHost .archive-competition-heading,#archivePdfRenderHost .archive-competition-standings-wrap,#archivePdfRenderHost .archive-competition-knockout-wrap,#archivePdfRenderHost .archive-competition-footer{width:100%!important;max-width:100%!important;align-self:stretch!important;}
+#archivePdfRenderHost .archive-competition-standings-wrap,#archivePdfRenderHost .archive-competition-knockout-wrap{flex:0 0 auto!important;height:auto!important;min-height:0!important;margin-left:auto!important;margin-right:auto!important;}
+#archivePdfRenderHost .archive-competition-table{display:table!important;width:100%!important;max-width:100%!important;min-width:100%!important;height:auto!important;margin:0 auto!important;table-layout:fixed!important;}
+#archivePdfRenderHost .archive-competition-table th{font-size:8.5pt!important;padding:2.2mm 1mm!important;}
+#archivePdfRenderHost .archive-competition-table td{font-size:8.3pt!important;padding:1.8mm 1mm!important;line-height:1.35!important;}
+#archivePdfRenderHost .archive-competition-table .archive-group-label td{font-size:9pt!important;padding:2mm!important;}
+#archivePdfRenderHost .archive-competition-knockout-wrap,#archivePdfRenderHost .archive-competition-dense-ko .archive-competition-knockout-wrap{flex-basis:auto!important;}
+#archivePdfRenderHost .archive-scorer-best-page{width:200mm!important;max-width:200mm!important;min-height:0!important;height:auto!important;max-height:none!important;margin:0 auto!important;padding:7mm!important;overflow:visible!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;border:1px solid #b9d9ec!important;border-radius:4mm!important;background:linear-gradient(145deg,#f3fbff 0%,#fff 52%,#fffaf0 100%)!important;}
+#archivePdfRenderHost .archive-scorer-best-page .section{margin:0 0 7mm!important;padding:0!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+#archivePdfRenderHost .archive-scorer-best-page .section h2{margin:0 0 3mm!important;padding:3mm 4mm!important;border:0!important;border-radius:3mm!important;color:#103e57!important;background:linear-gradient(100deg,#ffe58b,#fff1bd 48%,#d9f6ff)!important;font-size:13pt!important;text-align:center!important;}
+#archivePdfRenderHost .archive-scorer-best-page .archive-unified-table{width:100%!important;max-width:100%!important;margin:0 auto!important;table-layout:fixed!important;border-collapse:collapse!important;border-radius:3mm!important;overflow:hidden!important;}
+#archivePdfRenderHost .archive-scorer-best-page .archive-unified-table th{padding:3mm 2mm!important;color:#fff!important;background:linear-gradient(120deg,#075985,#087fb6 55%,#0b9c82)!important;font-size:10pt!important;}
+#archivePdfRenderHost .archive-scorer-best-page .archive-unified-table td{padding:2.5mm 2mm!important;font-size:10pt!important;line-height:1.35!important;}
+#archivePdfRenderHost .archive-scorer-best-page .archive-unified-table tbody tr:nth-child(even) td{background:#e9f8ff!important;}
+#archivePdfRenderHost .archive-scorer-best-page .archive-unified-table tbody tr:nth-child(odd) td{background:#f8fffc!important;}
+#archivePdfRenderHost .archive-scorer-best-page .archive-report-footer{margin-top:4mm!important;}
+@media print{#archivePdfRenderHost .archive-competition-page{justify-content:center!important;}#archivePdfRenderHost .archive-scorer-best-page{min-height:0!important;height:auto!important;}}
+</style>
 </body>
 </html>
