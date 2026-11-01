@@ -6007,7 +6007,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
   };
   function renderStats(){
     const sel=$('statsTour'),box=$('statsBody'); if(!sel||!box)return;
-    const old=S(sel.value), tours=A(dbx().tournaments).filter(t=>t&&t.archived!==true&&S(t.status)!=='archived');
+    const old=S(sel.value), tours=A(dbx().tournaments).filter(t=>!!t);
     sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>`<option value="${esc(t.id)}">${esc(t.name||'بطولة')}</option>`).join('');
     if(old&&tours.some(t=>S(t.id)===old))sel.value=old;
     const tid=S(sel.value);
