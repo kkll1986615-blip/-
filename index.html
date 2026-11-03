@@ -13151,5 +13151,85 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 })();
 
 </script>
+<script id="match-result-latest-sheet-source-fix-20261103">
+(function(){
+  /*
+   * إصلاح تعارض نسخ كشف المباراة:
+   * قد تتوفر نسخة من Firebase ونسخ محلية متعددة للمباراة نفسها.
+   * النسخة الأحدث حسب updatedAt هي المرجع، بدل اعتماد أول نسخة فقط.
+   */
+  function matchSheetTimestamp(row){
+    if(!row || typeof row!=='object') return 0;
+    const raw=row.updatedAt ?? row.updated_at ?? row.modifiedAt ?? row.modified_at ?? row.createdAt ?? row.created_at ?? row.timestamp;
+    if(raw===undefined || raw===null || raw==='') return 0;
+    if(typeof raw==='number' && Number.isFinite(raw)) return raw<100000000000?raw*1000:raw;
+    if(typeof raw==='object'){
+      if(Number.isFinite(Number(raw.seconds))) return Number(raw.seconds)*1000;
+      if(Number.isFinite(Number(raw._seconds))) return Number(raw._seconds)*1000;
+    }
+    const str=String(raw).trim();
+    if(/^\d+(?:\.\d+)?$/.test(str)){
+      const n=Number(str);
+      if(Number.isFinite(n)) return n<100000000000?n*1000:n;
+    }
+    const parsed=Date.parse(str);
+    return Number.isFinite(parsed)?parsed:0;
+  }
+  function latestMatchSheets(){
+    const candidates=[];
+    try{
+      if(typeof window.uniqueMatchSheets==='function'){
+        const remote=window.uniqueMatchSheets();
+        if(Array.isArray(remote)) candidates.push(...remote);
+      }
+    }catch(e){console.warn('Match sheets remote read skipped:',e);}
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(key=>{
+      try{
+        const rows=JSON.parse(localStorage.getItem(key)||'[]');
+        if(Array.isArray(rows)) candidates.push(...rows);
+      }catch(e){console.warn('Match sheets local read skipped:',key,e);}
+    });
+    const byMatch=new Map();
+    candidates.forEach((row,index)=>{
+      const id=String(row?.matchId??'').trim();
+      if(!id) return;
+      const stamp=matchSheetTimestamp(row);
+      const previous=byMatch.get(id);
+      // المصادر المحلية تأتي بعد المصدر الموحد، وعند تساوي التاريخ نأخذ الأحدث في القائمة.
+      if(!previous || stamp>=previous.stamp) byMatch.set(id,{row,stamp,index});
+    });
+    const selected=Array.from(byMatch.values());
+    /*
+     * سجل المباراة الرئيسي هو ما تعدّله نافذة «تعديل المباراة»، كما أن حفظ الكشف
+     * الرسمي يحدّثه أيضًا. عند وجود نتيجة محفوظة فيه، لا نسمح لنسخة كشف قديمة
+     * ومقلوبة أن تستبدلها في بطاقة العرض أو في مزامنة الحالة.
+     */
+    let database=null;
+    try{database=(typeof db!=='undefined'&&db)?db:window.db;}catch(e){database=window.db||null;}
+    return selected.map(item=>{
+      const row=item.row,matchId=String(row?.matchId??'');
+      const match=Array.isArray(database?.matches)?database.matches.find(m=>String(m?.id??'')===matchId):null;
+      if(!match)return row;
+      const status=String(match.status||'finished').trim().toLowerCase();
+      const isFinished=['finished','completed','complete','ended','منتهية','منتهي','انتهت','مكتملة','مكتمل'].includes(status);
+      const homeRaw=match.hg??match.homeGoals??match.homeScore;
+      const awayRaw=match.ag??match.awayGoals??match.awayScore;
+      const hasBoth=homeRaw!==undefined&&homeRaw!==null&&homeRaw!==''&&awayRaw!==undefined&&awayRaw!==null&&awayRaw!=='';
+      const home=Number(homeRaw),away=Number(awayRaw);
+      const valid=hasBoth&&Number.isFinite(home)&&Number.isFinite(away)&&home>=0&&away>=0;
+      const matchStamp=matchSheetTimestamp(match);
+      // أي نتيجة غير صفرية محفوظة في سجل المباراة تُقدَّم على نسخة كشف متعارضة.
+      // وفي نتيجة 0-0 نعتمد سجل المباراة إذا كان آخر تحديث له أحدث من الكشف.
+      const preferMatch=isFinished&&valid&&((home+away)>0||matchStamp>=item.stamp);
+      return preferMatch?{...row,homeScore:home,awayScore:away,homeGoals:home,awayGoals:away}:row;
+    });
+  }
+  window.getAllMatchSheetsForStatusSync=latestMatchSheets;
+  // يحدّث العرض من آخر نسخة محفوظة عند إعادة فتح صفحة المباريات؛ ولا يغيّر أي قسم آخر.
+  window.getLatestMatchSheetForDisplay=function(matchId){
+    return latestMatchSheets().find(row=>String(row?.matchId??'')===String(matchId??''))||null;
+  };
+})();
+</script>
 </body>
 </html>
