@@ -3784,11 +3784,31 @@ function modernMatchCardHtml(m,finished=false){
   const away=db.teams.find(t=>String(t.id)===String(m.away));
   const homeLogo=home&&home.id?logoHtml(home.id):'<span class="logo-fallback">⚽</span>';
   const awayLogo=away&&away.id?logoHtml(away.id):'<span class="logo-fallback">⚽</span>';
-  /* تُعرض النتيجة المحفوظة في الكشف الرسمي إن وجدت، وإلا من بيانات المباراة. */
-  let officialSheet=null;
-  if(finished){try{officialSheet=getAllMatchSheetsForStatusSync().find(sh=>String(sh?.matchId||'')===String(m.id))||null;}catch(e){}}
-  const homeGoals=officialSheet&&officialSheet.homeScore!==undefined?officialSheet.homeScore:m.hg;
-  const awayGoals=officialSheet&&officialSheet.awayScore!==undefined?officialSheet.awayScore:m.ag;
+  /* النتيجة الرسمية: اختر أحدث نسخة من الكشف، ثم طابق جهتي الكشف مع
+     ترتيب الفريقين في بطاقة المباراة قبل عرض الأهداف. */
+  let officialSheet=null, sheetHomeGoals=m.hg, sheetAwayGoals=m.ag;
+  if(finished){
+    try{
+      const candidates=getAllMatchSheetsForStatusSync().filter(sh=>String(sh?.matchId??'')===String(m.id));
+      const stamp=sh=>{const v=sh?.updatedAt??sh?.updated_at??sh?.modifiedAt??sh?.createdAt??sh?.timestamp??0;const n=typeof v==='number'?v:Date.parse(String(v||''));return Number.isFinite(n)?(n>0&&n<1e12?n*1000:n):0;};
+      candidates.sort((a,b)=>stamp(b)-stamp(a));
+      officialSheet=candidates[0]||null;
+    }catch(e){}
+    if(officialSheet){
+      const val=(o,keys)=>{for(const k of keys){const v=o?.[k];if(v!==undefined&&v!==null&&String(v).trim()!=='')return v;}return null;};
+      const scalar=v=>String(v&&typeof v==='object'?(v.id??v.teamId??v.teamID??v.name??v.teamName??''):v??'').trim();
+      const matchHome=scalar(val(m,['home','homeTeamId','homeTeam','homeId','teamAId','team1Id']));
+      const matchAway=scalar(val(m,['away','awayTeamId','awayTeam','awayId','teamBId','team2Id']));
+      const sheetHome=scalar(val(officialSheet,['homeTeamId','homeTeam','home','homeId','teamAId','team1Id']));
+      const sheetAway=scalar(val(officialSheet,['awayTeamId','awayTeam','away','awayId','teamBId','team2Id']));
+      const homeRaw=val(officialSheet,['homeScore','homeGoals','scoreHome','goalsHome','team1Score','teamAScore','hg','scoreA']);
+      const awayRaw=val(officialSheet,['awayScore','awayGoals','scoreAway','goalsAway','team2Score','teamBScore','ag','scoreB']);
+      const reverse=matchHome&&matchAway&&sheetHome&&sheetAway&&matchHome===sheetAway&&matchAway===sheetHome;
+      if(homeRaw!==null&&awayRaw!==null){sheetHomeGoals=reverse?awayRaw:homeRaw;sheetAwayGoals=reverse?homeRaw:awayRaw;}
+    }
+  }
+  const homeGoals=sheetHomeGoals;
+  const awayGoals=sheetAwayGoals;
   const status=finished?'مباراة منتهية':'مباراة مجدولة';
   const score=finished?`${Number(homeGoals)||0} - ${Number(awayGoals)||0}`:'VS';
   return `<article class="upcoming-match modern-match-card">
