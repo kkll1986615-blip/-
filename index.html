@@ -10242,6 +10242,15 @@ function addOption(value){const box=document.getElementById('pollOptionsEditor')
 function renumberOptions(){const box=document.getElementById('pollOptionsEditor');if(!box)return;[...box.children].forEach((r,i)=>r.querySelector('input').placeholder='الخيار '+(i+1))}
 function resetForm(){const q=document.getElementById('pollQuestion');if(q)q.value='';const b=document.getElementById('pollOptionsEditor');if(b){b.innerHTML='';addOption('');addOption('')}const save=document.getElementById('pollSaveBtn');if(save){save.textContent='💾 حفظ الاستطلاع';save.dataset.editing=''}const cancel=document.getElementById('pollCancelBtn');if(cancel)cancel.style.display='none'}
 function getCloud(){return window.__manarPollFirebase}
+async function waitForPollFirebase(timeoutMs=15000){
+  const started=Date.now();
+  while(Date.now()-started<timeoutMs){
+    const f=getCloud();
+    if(f?.db&&f?.auth&&typeof f.ref==='function'&&typeof f.get==='function')return f;
+    await new Promise(resolve=>setTimeout(resolve,200));
+  }
+  return null;
+}
 function cloudWrite(data){const f=getCloud();if(!f?.db||!f?.auth?.currentUser)throw new Error('لم تكتمل جلسة Firebase؛ أعد المحاولة بعد اتصال المنصة.');return f.set(f.ref(f.db,'manar_platform/'+KEY),data)}
 function refreshBadge(){const b=document.getElementById('pollCountBadge');if(b)b.textContent=read().length+' استطلاع'}
 function pollVotes(p){
@@ -10282,8 +10291,14 @@ async function vote(id){
   id=S(id);if(!id||voting.has(id))return;
   const p=read().find(x=>S(x.id)===id);if(!p)return;
   const item=document.querySelector('[data-poll-id="'+CSS.escape(id)+'"]');if(!item)return;
-  const f=getCloud();
-  if(!f?.db||!f?.auth){alert('خدمة التصويت غير متاحة حاليًا. تحقق من اتصال الإنترنت وافتح المنصة المنشورة.');return}
+  /* قد يظهر الاستطلاع قبل اكتمال تحميل وحدة Firebase؛ انتظر تهيئتها بدل رفض التصويت فورًا. */
+  const f=await waitForPollFirebase();
+  if(!f?.db||!f?.auth){
+    alert(navigator.onLine===false
+      ? 'لا يوجد اتصال بالإنترنت. اتصل بالإنترنت ثم أعد تحميل المنصة.'
+      : 'تعذر تحميل خدمة Firebase للتصويت. تأكد من فتح رابط المنصة المنشور عبر HTTPS وأن خدمات gstatic.com وFirebase متاحة، ثم أعد تحميل الصفحة.');
+    return;
+  }
   const user=await waitForFirebaseUser(f);
   if(!user){alert('تعذّر تهيئة جلسة التصويت مع Firebase. لم يُسجّل صوتك؛ تحقق من الاتصال ثم أعد المحاولة.');return}
   const existing=pollVotes(p);
