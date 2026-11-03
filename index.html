@@ -481,40 +481,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <style id="goalkeepers-team-column-width">#statsBody table.goalkeepers-ranking-table{width:100%!important;min-width:560px!important;max-width:none!important;table-layout:fixed!important;}#statsBody table.goalkeepers-ranking-table th:nth-child(1),#statsBody table.goalkeepers-ranking-table td:nth-child(1){width:7%!important}#statsBody table.goalkeepers-ranking-table th:nth-child(2),#statsBody table.goalkeepers-ranking-table td:nth-child(2){width:24%!important}#statsBody table.goalkeepers-ranking-table th:nth-child(3),#statsBody table.goalkeepers-ranking-table td:nth-child(3){width:25%!important;min-width:140px!important;white-space:normal!important;overflow-wrap:anywhere!important;}#statsBody table.goalkeepers-ranking-table th:nth-child(4),#statsBody table.goalkeepers-ranking-table td:nth-child(4){width:13%!important}#statsBody table.goalkeepers-ranking-table th:nth-child(5),#statsBody table.goalkeepers-ranking-table td:nth-child(5){width:16%!important}#statsBody table.goalkeepers-ranking-table th:nth-child(6),#statsBody table.goalkeepers-ranking-table td:nth-child(6){width:15%!important}#statsBody .table-wrap:has(>table.goalkeepers-ranking-table){overflow-x:auto!important}</style>
 
-\n<style id="manual-suspension-professional-cards-20261103">
-#manualSuspensionRecords.manual-suspension-records{padding:14px!important;background:linear-gradient(145deg,#ffffff 0%,#f7fbff 100%)!important;border:1px solid #d5e4eb!important;border-radius:20px!important;box-shadow:0 8px 24px rgba(24,65,80,.08)!important}
-#manualSuspensionRecords .manual-suspension-section-title{margin-bottom:13px}
-#manualSuspensionRecords .manual-suspension-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:13px;align-items:stretch}
-#manualSuspensionRecords .manual-suspension-card{min-width:0;padding:14px;border:1px solid #d9e5ec;border-right:5px solid #1971c2;border-radius:17px;background:#fff;box-shadow:0 5px 16px rgba(25,65,85,.07);overflow:hidden}
-#manualSuspensionRecords .manual-suspension-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:0 0 12px;padding:0 0 11px;border-bottom:1px solid #eaf0f4;background:transparent;color:inherit;position:static}
-#manualSuspensionRecords .manual-suspension-player-block{min-width:0;display:flex;flex-direction:column;gap:4px}
-#manualSuspensionRecords .manual-suspension-index{font-size:10px;font-weight:900;color:#64748b}
-#manualSuspensionRecords .manual-suspension-player-name{font-size:18px;line-height:1.5;color:#b42318;font-weight:950;overflow-wrap:anywhere}
-#manualSuspensionRecords .manual-suspension-player-block small{font-size:12px;color:#64748b;font-weight:800}
-#manualSuspensionRecords .manual-suspension-status{flex:0 0 auto;max-width:48%;padding:6px 9px;border-radius:999px;font-size:10px;line-height:1.5;font-weight:900;text-align:center;border:1px solid transparent}
-#manualSuspensionRecords .manual-suspension-status.is-active{background:#fff0f0;color:#b42318;border-color:#f4b4b4}
-#manualSuspensionRecords .manual-suspension-status.is-pending{background:#fff7df;color:#8a5700;border-color:#f2d28b}
-#manualSuspensionRecords .manual-suspension-status.is-inactive{background:#eef2f6;color:#526171;border-color:#d8e0e8}
-#manualSuspensionRecords .manual-suspension-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-#manualSuspensionRecords .manual-suspension-detail{min-width:0;display:flex;flex-direction:column;gap:5px;padding:10px;border-radius:12px;background:#f6f9fb;border:1px solid #e5edf2;text-align:right}
-#manualSuspensionRecords .manual-suspension-detail>span{font-size:10px;color:#6b7b88;font-weight:900}
-#manualSuspensionRecords .manual-suspension-detail>strong{font-size:12px;line-height:1.65;color:#1e3444;font-weight:900;overflow-wrap:anywhere}
-#manualSuspensionRecords .manual-suspension-match-count{background:linear-gradient(135deg,#fff8e8,#fffdf7);border-color:#f0dfb9}
-#manualSuspensionRecords .manual-suspension-match-count>strong{font-size:18px;color:#9a5b00}
-#manualSuspensionRecords .manual-suspension-date{background:linear-gradient(135deg,#edf7ff,#f9fcff);border-color:#d5e7f7}
-#manualSuspensionRecords .manual-suspension-start,#manualSuspensionRecords .manual-suspension-note{grid-column:1/-1}
-#manualSuspensionRecords .manual-suspension-actions{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
-#manualSuspensionRecords .manual-suspension-actions .btn{flex:1;min-width:110px;min-height:40px}
-@media(max-width:600px){
- #manualSuspensionRecords.manual-suspension-records{padding:10px!important}
- #manualSuspensionRecords .manual-suspension-list{grid-template-columns:minmax(0,1fr);gap:10px}
- #manualSuspensionRecords .manual-suspension-card{padding:12px;border-radius:15px}
- #manualSuspensionRecords .manual-suspension-player-name{font-size:16px}
- #manualSuspensionRecords .manual-suspension-detail{padding:9px 8px}
- #manualSuspensionRecords .manual-suspension-detail>strong{font-size:11px}
- #manualSuspensionRecords .manual-suspension-match-count>strong{font-size:17px}
-}
-</style>\n</head><body>
+</head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
 <!-- المنصة الرياضية | تنظيم وصيانة 2026-09-14: إزالة رقع معطلة فقط، مع الحفاظ على البيانات والوظائف الحالية. -->
@@ -12726,9 +12693,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
           targets=candidates.slice(0,count);
         }
         const pending=targets.length===0&&item.pendingNextMatch===true;
-        // تبقى العقوبة فعّالة حتى يُستكمل العدد المطلوب من المباريات،
-        // حتى لو كانت المباريات المتبقية لم تُسجّل في جدول البطولة بعد.
-        const active=pending||targets.length<count||targets.some(match=>!isPlayed(match));
+        const active=pending||targets.some(match=>!isPlayed(match));
         return {
           ...item,
           automatic:false,
@@ -12756,73 +12721,30 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const state=A(window.suspensionCurrentState?.()).filter(x=>!x.automatic);
     const byId=new Map(state.map(x=>[S(x.id),x]));
     const canManage=typeof window.hasPermission==='function'&&window.hasPermission('players');
-    const arabicNumber=value=>{
-      try{return new Intl.NumberFormat('ar-IQ',{maximumFractionDigits:0}).format(Number(value)||0);}
-      catch(e){return String(value);}
-    };
-    const dateLabel=record=>{
-      const raw=record.suspensionDate||record.createdAt||record.date||record.updatedAt||'';
-      if(!raw)return 'غير محدد';
-      const d=new Date(raw);
-      if(!Number.isFinite(d.getTime()))return 'غير محدد';
-      try{return new Intl.DateTimeFormat('ar-IQ',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d);}
-      catch(e){return d.toLocaleDateString();}
-    };
-    const matchesLabel=count=>{
-      const n=Math.max(1,parseInt(count,10)||1);
-      const number=arabicNumber(n);
-      if(n===1)return 'مباراة واحدة';
-      if(n===2)return 'مباراتان';
-      if(n>=3&&n<=10)return number+' مباريات';
-      return number+' مباراة';
-    };
-    const cards=records.map((record,index)=>{
+    const rows=records.map((record,index)=>{
       const player=A(DB().players).find(p=>same(p.id,record.playerId));
       const stateItem=byId.get(S(record.id));
       const team=teamForPlayer(player||{teamId:record.teamId});
       const playerName=player?.name||record.playerName||'لاعب محذوف من القائمة';
       const type=record.type==='cards'?'تراكم بطاقات':'عقوبة إدارية';
       const matchesCount=Math.max(1,parseInt(record.matches,10)||1);
-      const next=stateItem?.nextMatches?.find(match=>!isPlayed(match));
-      const status=stateItem?.active===true
-        ? (next?'الإيقاف سارٍ':'بانتظار المباراة القادمة')
-        : (stateItem?.nextMatches?.length?'اكتملت العقوبة':'غير مفعّلة حاليًا');
-      const statusClass=stateItem?.active===true
-        ? (next?'is-active':'is-pending')
-        : 'is-inactive';
-      const startLabel=next
-        ? matchLabel(next)
-        : (record.pendingNextMatch?'بانتظار المباراة القادمة':record.startMatchId?'المباراة المحددة':'تلقائي: أول مباراة قادمة');
-      const actions=canManage
-        ? `<div class="manual-suspension-actions"><button type="button" class="btn blue" data-manual-susp-edit="${escHtml(record.id)}">✏️ تعديل</button><button type="button" class="btn danger" data-manual-susp-delete="${escHtml(record.id)}">🗑️ حذف</button></div>`
+      const next=stateItem?.nextMatches?.[0];
+      const status=stateItem?.active
+        ? (next?'قيد الإيقاف':'بانتظار المباراة القادمة')
+        : (next?'تم تنفيذ العقوبة':'غير مفعّلة حاليًا');
+      const action=canManage
+        ? `<td class="viewer-hide"><button type="button" class="btn blue" data-manual-susp-edit="${escHtml(record.id)}">✏️ تعديل</button> <button type="button" class="btn danger" data-manual-susp-delete="${escHtml(record.id)}">🗑️ حذف</button></td>`
         : '';
-      return `<article class="manual-suspension-card">
-        <header class="manual-suspension-card-head">
-          <div class="manual-suspension-player-block">
-            <span class="manual-suspension-index">عقوبة رقم ${arabicNumber(index+1)}</span>
-            <strong class="manual-suspension-player-name">${escHtml(playerName)}</strong>
-            <small>${escHtml(team?.name||'—')}</small>
-          </div>
-          <span class="manual-suspension-status ${statusClass}">${status}</span>
-        </header>
-        <div class="manual-suspension-details">
-          <div class="manual-suspension-detail"><span>🏆 البطولة</span><strong>${escHtml(tournamentName(record.tournamentId))}</strong></div>
-          <div class="manual-suspension-detail"><span>📋 نوع العقوبة</span><strong>${type}</strong></div>
-          <div class="manual-suspension-detail manual-suspension-match-count"><span>⏱️ مدة العقوبة</span><strong>${matchesLabel(matchesCount)}</strong></div>
-          <div class="manual-suspension-detail manual-suspension-date"><span>📅 تاريخ العقوبة</span><strong>${dateLabel(record)}</strong></div>
-          <div class="manual-suspension-detail manual-suspension-start"><span>⚽ تبدأ من</span><strong>${escHtml(startLabel)}</strong></div>
-          <div class="manual-suspension-detail manual-suspension-note"><span>📝 الملاحظات</span><strong>${escHtml(record.note||'لا توجد ملاحظات')}</strong></div>
-        </div>
-        ${actions}
-      </article>`;
+      return `<tr><td>${index+1}</td><td><b>${escHtml(playerName)}</b></td><td>${escHtml(team?.name||'—')}</td><td>${escHtml(tournamentName(record.tournamentId))}</td><td>${type}</td><td>${matchesCount}</td><td>${escHtml(record.note||'—')}</td><td>${escHtml(next?matchLabel(next):(record.pendingNextMatch?'بانتظار المباراة القادمة':record.startMatchId?'المباراة المحددة':'—'))}</td><td>${status}</td>${action}</tr>`;
     }).join('');
-    const section=document.createElement('section');
-    section.className='suspension-section manual-suspension-records';
+    const actionHead=canManage?'<th class="viewer-hide">إجراء</th>':'';
+    const section=document.createElement('div');
+    section.className='suspension-section';
     section.id='manualSuspensionRecords';
     section.innerHTML=
-      `<div class="suspension-section-title"><span>📝</span><div><strong>العقوبات اليدوية المسجلة</strong><small>سجل العقوبات مع مدة الإيقاف وتاريخ تسجيلها</small></div><b>${arabicNumber(records.length)}</b></div>`+
+      `<div class="suspension-section-title"><span>📝</span><div><strong>العقوبات اليدوية المسجلة</strong><small>تبقى محفوظة في سجل البطولة وتظهر هنا دائمًا</small></div><b>${records.length}</b></div>`+
       (records.length
-        ? `<div class="manual-suspension-list">${cards}</div>`
+        ? `<div class="table-wrap"><table><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>البطولة</th><th>نوع العقوبة</th><th>المباريات</th><th>الملاحظات</th><th>تبدأ من</th><th>الحالة</th>${actionHead}</tr></thead><tbody>${rows}</tbody></table></div>`
         : '<div class="empty">لا توجد عقوبات يدوية مسجلة حتى الآن.</div>');
     box.querySelector('#manualSuspensionRecords')?.remove();
     box.appendChild(section);
@@ -12878,7 +12800,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       pendingNextMatch:!startMatchId,
       startAfterAt:!startMatchId?now.getTime():null,
       note,
-      suspensionDate:oldRecord?.suspensionDate||oldRecord?.createdAt||nowIso,
       createdAt:oldRecord?.createdAt||nowIso,
       updatedAt:nowIso,
       automatic:false,
