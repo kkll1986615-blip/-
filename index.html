@@ -13231,5 +13231,159 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   };
 })();
 </script>
+
+<script id="finished-match-results-from-official-sheets-20261103">
+(function(){
+  'use strict';
+  const KEYS=['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'];
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v===undefined||v===null?'':v).trim();
+  const first=(obj,keys)=>{
+    for(const key of keys){const value=obj?.[key];if(value!==undefined&&value!==null&&value!=='')return value;}
+    return null;
+  };
+  function timestamp(row){
+    const raw=first(row,['updatedAt','updated_at','modifiedAt','modified_at','createdAt','created_at','timestamp']);
+    if(raw===null)return 0;
+    if(typeof raw==='number'&&Number.isFinite(raw))return raw<100000000000?raw*1000:raw;
+    if(typeof raw==='object'){
+      const seconds=Number(raw.seconds??raw._seconds);
+      if(Number.isFinite(seconds)&&seconds>0)return seconds*1000;
+      const millis=Number(raw.milliseconds??raw._milliseconds);
+      if(Number.isFinite(millis)&&millis>0)return millis;
+    }
+    const str=S(raw);
+    if(/^\d+(?:\.\d+)?$/.test(str)){const n=Number(str);return n<100000000000?n*1000:n;}
+    const parsed=Date.parse(str);
+    return Number.isFinite(parsed)?parsed:0;
+  }
+  function latestOfficialSheets(){
+    const candidates=[];
+    // Prefer the platform's combined Firebase/local reader when available.
+    try{if(typeof window.uniqueMatchSheets==='function')A(window.uniqueMatchSheets()).forEach(row=>candidates.push({row,rank:4}));}catch(e){console.warn('تعذر قراءة كشوفات المباريات المدمجة:',e);}
+    // Add each local generation to recover a saved sheet if the combined reader is incomplete.
+    KEYS.forEach((key,index)=>{
+      try{A(JSON.parse(localStorage.getItem(key)||'[]')).forEach(row=>candidates.push({row,rank:3-index}));}
+      catch(e){console.warn('تعذر قراءة نسخة محلية من الكشوفات:',key,e);}
+    });
+    const byMatch=new Map();
+    candidates.forEach((item,sequence)=>{
+      const row=item.row;
+      const id=S(row?.matchId);
+      if(!id)return;
+      const stamp=timestamp(row),previous=byMatch.get(id);
+      if(!previous||stamp>previous.stamp||(stamp===previous.stamp&&item.rank>previous.rank)){
+        byMatch.set(id,{row,stamp,rank:item.rank,sequence});
+      }
+    });
+    return [...byMatch.values()].map(x=>x.row);
+  }
+  const latestSheet=id=>latestOfficialSheets().find(row=>S(row?.matchId)===S(id))||null;
+  const rawId=value=>{
+    if(value&&typeof value==='object')return S(value.id??value.teamId??value.teamID??value.name??value.title);
+    return S(value);
+  };
+  function scoresFor(sheet,match){
+    if(!sheet)return null;
+    const homeRaw=first(sheet,['homeScore','homeGoals','scoreHome','scoreA','goalsA','team1Score']);
+    const awayRaw=first(sheet,['awayScore','awayGoals','scoreAway','scoreB','goalsB','team2Score']);
+    if(homeRaw===null||awayRaw===null)return null;
+    let home=Number(homeRaw),away=Number(awayRaw);
+    if(!Number.isFinite(home)||!Number.isFinite(away)||home<0||away<0)return null;
+    const matchHome=rawId(first(match,['home','homeTeamId','homeTeam','homeId']));
+    const matchAway=rawId(first(match,['away','awayTeamId','awayTeam','awayId']));
+    const sheetHome=rawId(first(sheet,['homeTeamId','homeTeam','homeId','teamAId','team1Id']));
+    const sheetAway=rawId(first(sheet,['awayTeamId','awayTeam','awayId','teamBId','team2Id']));
+    // Align the sheet's two scores with the match card's home/away order.
+    if(matchHome&&matchAway&&sheetHome&&sheetAway&&sheetHome===matchAway&&sheetAway===matchHome){
+      const temp=home;home=away;away=temp;
+    }
+    return {home,away};
+  }
+  function escapeHtml(value){
+    return S(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  }
+  function teamTitle(id){
+    try{if(typeof window.teamName==='function')return window.teamName(id);}catch(e){}
+    const team=A(window.db?.teams).find(t=>S(t.id)===S(id)||S(t.name)===S(id));
+    return team?.name||S(id)||'الفريق';
+  }
+  function logoFor(id){
+    try{if(typeof window.logoHtml==='function')return window.logoHtml(id);}catch(e){}
+    return '<span class="logo-fallback">⚽</span>';
+  }
+  function tournamentTitle(match){
+    try{if(typeof window.tourName==='function')return window.tourName(match?.tournamentId);}catch(e){}
+    const t=A(window.db?.tournaments).find(x=>S(x.id)===S(match?.tournamentId));
+    return t?.name||'بطولة';
+  }
+  window.getAllMatchSheetsForStatusSync=latestOfficialSheets;
+  window.getLatestMatchSheetForDisplay=latestSheet;
+  window.getOfficialMatchScoreForDisplay=(matchId)=>{
+    const sheet=latestSheet(matchId);
+    const match=A(window.db?.matches).find(m=>S(m.id)===S(matchId));
+    const score=scoresFor(sheet,match);
+    return score?{...score,sheet}:null;
+  };
+  // Keep the existing card layout/actions, while reading finished scores ONLY from the official sheet.
+  window.modernMatchCardHtml=function(match,finished=false){
+    const homeId=first(match,['home','homeTeamId','homeTeam','homeId']);
+    const awayId=first(match,['away','awayTeamId','awayTeam','awayId']);
+    const homeLogo=logoFor(homeId),awayLogo=logoFor(awayId);
+    const sheet=finished?latestSheet(match?.id):null;
+    const scoreData=finished?scoresFor(sheet,match):null;
+    const hasOfficialScore=!!scoreData;
+    const homeGoals=scoreData?.home,awayGoals=scoreData?.away;
+    const resultClass=!hasOfficialScore?'result-pending':homeGoals>awayGoals?'result-home-win':homeGoals<awayGoals?'result-away-win':'result-draw';
+    const score=finished?(hasOfficialScore?`${homeGoals} - ${awayGoals}`:'بانتظار الكشف'):'VS';
+    const status=finished?'مباراة منتهية':'مباراة مجدولة';
+    const footer=finished?(hasOfficialScore?'📋 النتيجة الرسمية من كشف المباراة':'📋 بانتظار اعتماد كشف المباراة'):'⚽ المنصة الرياضية • بانتظار انطلاق المباراة';
+    return `<article class="upcoming-match modern-match-card">
+      <div class="modern-match-top"><span class="match-tournament">🏆 ${escapeHtml(tournamentTitle(match))}${match?.knockoutRound?` · ${escapeHtml(match.knockoutRound)}`:''}</span><span class="match-status">● ${status}</span></div>
+      <div class="modern-match-main">
+        <div class="modern-match-teams">
+          <div class="modern-match-team"><div class="modern-match-logo">${homeLogo}</div><div class="modern-match-team-name">${escapeHtml(teamTitle(homeId))}</div></div>
+          <div class="modern-match-score ${finished?'official':'upcoming'} ${finished?resultClass:''}"><div class="modern-match-score-value ${finished?'official-score '+resultClass:''}">${score}</div><small>${finished?(hasOfficialScore?'نتيجة الكشف':'لا توجد نتيجة رسمية'): 'الوقت'}</small></div>
+          <div class="modern-match-team"><div class="modern-match-logo">${awayLogo}</div><div class="modern-match-team-name">${escapeHtml(teamTitle(awayId))}</div></div>
+        </div>
+        <div class="modern-match-meta">
+          <div class="modern-match-meta-item"><span>📅</span><small>التاريخ</small><b>${escapeHtml(match?.date||'—')}</b></div>
+          <div class="modern-match-meta-item"><span>⏰</span><small>وقت المباراة</small><b>${escapeHtml(match?.time||'—')}</b></div>
+          <div class="modern-match-meta-item"><span>🏟️</span><small>الملعب</small><b>${escapeHtml(match?.stadium||'—')}</b></div>
+        </div>
+        <div class="modern-match-actions">
+          <button type="button" class="btn primary manager-only" onclick="editMatch('${escapeHtml(match?.id)}')">✏️ تعديل المباراة</button>
+          <button type="button" class="btn danger match-delete-action" data-match-delete="${escapeHtml(match?.id)}">🗑️ حذف المباراة</button>
+        </div>
+      </div>
+      <div class="modern-match-footer">${footer}</div>
+    </article>`;
+  };
+  // A vivid but readable score treatment, scoped only to match cards.
+  const style=document.createElement('style');
+  style.id='official-match-score-vivid-colors-20261103';
+  style.textContent=`
+    .modern-match-card .modern-match-score-value.official-score{color:#fff!important;font-weight:1000!important;border:2px solid rgba(255,255,255,.9)!important;text-shadow:0 1px 2px rgba(0,0,0,.2);box-shadow:0 8px 20px rgba(15,23,42,.2),inset 0 1px 0 rgba(255,255,255,.28)!important;min-width:88px;padding:11px 8px!important;}
+    .modern-match-card .modern-match-score-value.result-home-win{background:linear-gradient(135deg,#065f46 0%,#047857 55%,#065f46 100%)!important;}
+    .modern-match-card .modern-match-score-value.result-away-win{background:linear-gradient(135deg,#6d28d9 0%,#7e22ce 55%,#a21caf 100%)!important;}
+    .modern-match-card .modern-match-score-value.result-draw{background:linear-gradient(135deg,#075985 0%,#0369a1 55%,#075985 100%)!important;}
+    .modern-match-card .modern-match-score-value.result-pending{background:linear-gradient(135deg,#475569 0%,#64748b 100%)!important;font-size:14px!important;min-width:90px!important;}
+    .modern-match-card .modern-match-score.official small{font-weight:950!important;color:#334155!important;}
+    @media(max-width:600px){.modern-match-card .modern-match-score-value.official-score{min-width:74px!important;font-size:23px!important;padding:10px 5px!important}.modern-match-card .modern-match-score-value.result-pending{font-size:12px!important;}}
+  `;
+  if(!document.getElementById(style.id))document.head.appendChild(style);
+  // Refresh the two match-display areas after the app has constructed their containers.
+  const refresh=()=>{
+    try{if(typeof window.renderUpcomingMatches==='function')window.renderUpcomingMatches();}catch(e){console.warn('تعذر تحديث عرض المباريات:',e);}
+    try{if(typeof window.renderMatchView==='function')window.renderMatchView();}catch(e){console.warn('تعذر تحديث قائمة المباريات:',e);}
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,0),{once:true});
+  else setTimeout(refresh,0);
+  window.addEventListener('storage',event=>{
+    if(!event.key||KEYS.includes(event.key))setTimeout(refresh,50);
+  });
+})();
+
+</script>
 </body>
 </html>
