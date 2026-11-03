@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div id="endedTournamentList"></div>
   </div>
 </div>
-</section><section class="page" id="teams"><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>⚽ الفرق</h2><button class="btn" onclick="toggleTeamRegistration()" type="button">➕ إضافة فريق</button></div><div id="teamRegistrationPanel" style="display:none"><div class="notice">📝 أدخل بيانات الفريق ثم اضغط «إضافة فريق».</div><div class="grid"><div><label>🏆 البطولة</label><select id="teamTour" onchange="refreshTeamGroupSelector();refreshTeamRegistrationSummary()"></select><small>اختر البطولة أولاً، وستظهر الفرق المسجلة وعدد الفرق المشاركة تلقائيًا.</small></div><div class="team-registration-summary" id="teamRegistrationSummary" style="display:none"><div class="team-summary-count"><span>👥 عدد الفرق المشاركة</span><b id="teamParticipantCount">0</b></div><div><strong>⚽ الفرق المسجلة في البطولة</strong><div class="team-registered-names" id="teamRegisteredNames"></div></div></div><div id="teamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="teamGroup"><option value="">اختر المجموعة</option></select><small>يتم توزيع الفرق يدويًا: اختر المجموعة A أو B أو C ثم سجل الفريق.</small></div><div><label>⚽ اسم الفريق</label><input id="teamNameInput" maxlength="60" placeholder="اكتب اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="teamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="teamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="teamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="addTeam()">➕ إضافة فريق</button><button class="btn secondary" onclick="toggleTeamRegistration(false)" type="button">إلغاء</button></div></div></div><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>🛠️ إدارة الفرق المسجلة</h2><button class="btn secondary" onclick="toggleTeamEdit()" type="button">✏️ تعديل الفرق المسجلة</button></div><div id="teamEditPanel" style="display:none"><div class="notice">🔎 اختر البطولة أولاً، ثم اختر الفريق المسجل لتظهر بياناته وتعديلها.</div><div class="grid"><div><label>🏆 اختيار البطولة</label><select id="editTeamTourFilter" onchange="refreshTeamsForEdit()"><option value="">اختر البطولة</option></select></div><div><label>⚽ الفرق المسجلة</label><select id="editTeamSelect" onchange="loadTeamForEdit()"><option value="">اختر البطولة أولاً</option></select></div><div id="editTeamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="editTeamGroup"><option value="">اختر المجموعة</option></select><small>يمكن تغيير مجموعة الفريق يدويًا.</small></div><div><label>اسم الفريق</label><input id="editTeamName" maxlength="60" placeholder="اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="editTeamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="editTeamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="editTeamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="updateTeam()">💾 حفظ التغييرات</button><button class="btn secondary" onclick="toggleTeamEdit(false)" type="button">إلغاء</button></div></div></div><div class="card"><div class="section-title"><div><h2>⚽ الفرق المسجلة</h2><small>👁️ الزائر يختار البطولة فقط لعرض الفرق المسجلة.</small></div><span class="badge">متاح للجميع</span></div><div class="grid"><div><label>🏆 اختر البطولة</label><select id="publicTeamTour" onchange="renderPublicTeams()"><option value="">اختر البطولة أولاً</option></select></div></div><div id="publicTeamList"><div class="empty">اختر اسم البطولة لعرض الفرق المسجلة تلقائيًا.</div></div></div></section><section class="page" id="players"><div class="card"><div class="section-title"><h2>👥 اللاعبون</h2><span class="badge">اختر الفريق لعرض لاعبيه</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0"><button class="btn primary" onclick="toggleSuspendedPlayers()" type="button">⛔ اللاعبين الموقوفين</button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة</option></select></div><div><label>اللاعب</label><select id="manualSuspPlayer"><option value="">اختر البطولة أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>📅 تاريخ العقوبة</label><input id="manualSuspDate" type="date"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
+</section><section class="page" id="teams"><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>⚽ الفرق</h2><button class="btn" onclick="toggleTeamRegistration()" type="button">➕ إضافة فريق</button></div><div id="teamRegistrationPanel" style="display:none"><div class="notice">📝 أدخل بيانات الفريق ثم اضغط «إضافة فريق».</div><div class="grid"><div><label>🏆 البطولة</label><select id="teamTour" onchange="refreshTeamGroupSelector();refreshTeamRegistrationSummary()"></select><small>اختر البطولة أولاً، وستظهر الفرق المسجلة وعدد الفرق المشاركة تلقائيًا.</small></div><div class="team-registration-summary" id="teamRegistrationSummary" style="display:none"><div class="team-summary-count"><span>👥 عدد الفرق المشاركة</span><b id="teamParticipantCount">0</b></div><div><strong>⚽ الفرق المسجلة في البطولة</strong><div class="team-registered-names" id="teamRegisteredNames"></div></div></div><div id="teamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="teamGroup"><option value="">اختر المجموعة</option></select><small>يتم توزيع الفرق يدويًا: اختر المجموعة A أو B أو C ثم سجل الفريق.</small></div><div><label>⚽ اسم الفريق</label><input id="teamNameInput" maxlength="60" placeholder="اكتب اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="teamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="teamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="teamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="addTeam()">➕ إضافة فريق</button><button class="btn secondary" onclick="toggleTeamRegistration(false)" type="button">إلغاء</button></div></div></div><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>🛠️ إدارة الفرق المسجلة</h2><button class="btn secondary" onclick="toggleTeamEdit()" type="button">✏️ تعديل الفرق المسجلة</button></div><div id="teamEditPanel" style="display:none"><div class="notice">🔎 اختر البطولة أولاً، ثم اختر الفريق المسجل لتظهر بياناته وتعديلها.</div><div class="grid"><div><label>🏆 اختيار البطولة</label><select id="editTeamTourFilter" onchange="refreshTeamsForEdit()"><option value="">اختر البطولة</option></select></div><div><label>⚽ الفرق المسجلة</label><select id="editTeamSelect" onchange="loadTeamForEdit()"><option value="">اختر البطولة أولاً</option></select></div><div id="editTeamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="editTeamGroup"><option value="">اختر المجموعة</option></select><small>يمكن تغيير مجموعة الفريق يدويًا.</small></div><div><label>اسم الفريق</label><input id="editTeamName" maxlength="60" placeholder="اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="editTeamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="editTeamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="editTeamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="updateTeam()">💾 حفظ التغييرات</button><button class="btn secondary" onclick="toggleTeamEdit(false)" type="button">إلغاء</button></div></div></div><div class="card"><div class="section-title"><div><h2>⚽ الفرق المسجلة</h2><small>👁️ الزائر يختار البطولة فقط لعرض الفرق المسجلة.</small></div><span class="badge">متاح للجميع</span></div><div class="grid"><div><label>🏆 اختر البطولة</label><select id="publicTeamTour" onchange="renderPublicTeams()"><option value="">اختر البطولة أولاً</option></select></div></div><div id="publicTeamList"><div class="empty">اختر اسم البطولة لعرض الفرق المسجلة تلقائيًا.</div></div></div></section><section class="page" id="players"><div class="card"><div class="section-title"><h2>👥 اللاعبون</h2><span class="badge">اختر الفريق لعرض لاعبيه</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0"><button class="btn primary" onclick="toggleSuspendedPlayers()" type="button">⛔ اللاعبين الموقوفين</button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة</option></select></div><div><label>اللاعب</label><select id="manualSuspPlayer"><option value="">اختر البطولة أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
 <div><label>🏆 اسم البطولة</label><select id="matchTour" onchange="refreshMatchTeams()"><option value="">اختر البطولة أولاً</option></select></div>
 <div><label>🥅 الفريق الأول</label><select id="homeTeam"><option value="">اختر الفريق</option></select></div>
 <div><label>🥅 الفريق الثاني</label><select id="awayTeam"><option value="">اختر الفريق</option></select></div>
@@ -3691,10 +3691,10 @@ function saveManualSuspension(){
   const i=(db.suspensions||[]).findIndex(x=>String(x.id)===String(id));if(i>=0)db.suspensions[i]=rec;else db.suspensions.unshift(rec);save();cancelManualSuspension();renderSuspendedPlayers();alert(i>=0?'تم تعديل العقوبة':'تم تسجيل العقوبة');
 }
 function editSuspension(id){
-  if(!requirePermission('players'))return;const x=(db.suspensions||[]).find(z=>String(z.id)===String(id));if(!x)return;toggleSuspendedPlayers(true);fillManualSuspensionForm();$('manualSuspTournament').value=x.tournamentId;refreshManualSuspPlayers();$('manualSuspPlayer').value=x.playerId;refreshManualSuspStartMatches();$('manualSuspType').value=x.type||'administrative';$('manualSuspMatches').value=x.matches||1;if($('manualSuspDate'))$('manualSuspDate').value=x.penaltyStartDate||x.createdAt?.slice(0,10)||x.updatedAt?.slice(0,10)||'';$('manualSuspStartMatch').value=x.startMatchId||'';$('manualSuspNote').value=x.note||'';let h=$('manualSuspensionEditing');if(!h){h=document.createElement('input');h.type='hidden';h.id='manualSuspensionEditing';document.querySelector('#suspendedPlayersPanel .viewer-hide[data-perm="players"]')?.appendChild(h)}h.value=id;
+  if(!requirePermission('players'))return;const x=(db.suspensions||[]).find(z=>String(z.id)===String(id));if(!x)return;toggleSuspendedPlayers(true);fillManualSuspensionForm();$('manualSuspTournament').value=x.tournamentId;refreshManualSuspPlayers();$('manualSuspPlayer').value=x.playerId;refreshManualSuspStartMatches();$('manualSuspType').value=x.type||'administrative';$('manualSuspMatches').value=x.matches||1;$('manualSuspStartMatch').value=x.startMatchId||'';$('manualSuspNote').value=x.note||'';let h=$('manualSuspensionEditing');if(!h){h=document.createElement('input');h.type='hidden';h.id='manualSuspensionEditing';document.querySelector('#suspendedPlayersPanel .viewer-hide[data-perm="players"]')?.appendChild(h)}h.value=id;
 }
 function deleteSuspension(id){if(!requirePermission('players'))return;const i=(db.suspensions||[]).findIndex(x=>String(x.id)===String(id));if(i<0)return;if(!confirm('هل تريد حذف العقوبة؟'))return;db.suspensions.splice(i,1);save();renderSuspendedPlayers();}
-function cancelManualSuspension(){['manualSuspTournament','manualSuspPlayer','manualSuspStartMatch','manualSuspNote'].forEach(id=>{const e=$(id);if(e)e.value=''});if($('manualSuspType'))$('manualSuspType').value='administrative';if($('manualSuspMatches'))$('manualSuspMatches').value=1;if($('manualSuspDate')){const d=new Date();$('manualSuspDate').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}const h=$('manualSuspensionEditing');if(h)h.value='';refreshManualSuspPlayers();}
+function cancelManualSuspension(){['manualSuspTournament','manualSuspPlayer','manualSuspStartMatch','manualSuspNote'].forEach(id=>{const e=$(id);if(e)e.value=''});if($('manualSuspType'))$('manualSuspType').value='administrative';if($('manualSuspMatches'))$('manualSuspMatches').value=1;const h=$('manualSuspensionEditing');if(h)h.value='';refreshManualSuspPlayers();}
 function toggleSuspendedPlayers(force){const p=$('suspendedPlayersPanel');if(!p)return;p.style.display=force===true?'block':(p.style.display==='none'?'block':'none');if(p.style.display!=='none'){fillManualSuspensionForm();renderSuspendedPlayers();}}
 window.toggleSuspendedPlayers=toggleSuspendedPlayers;window.renderSuspendedPlayers=renderSuspendedPlayers;window.refreshManualSuspPlayers=refreshManualSuspPlayers;window.refreshManualSuspStartMatches=refreshManualSuspStartMatches;window.saveManualSuspension=saveManualSuspension;window.editSuspension=editSuspension;window.deleteSuspension=deleteSuspension;window.cancelManualSuspension=cancelManualSuspension;
 
@@ -3784,15 +3784,11 @@ function modernMatchCardHtml(m,finished=false){
   const away=db.teams.find(t=>String(t.id)===String(m.away));
   const homeLogo=home&&home.id?logoHtml(home.id):'<span class="logo-fallback">⚽</span>';
   const awayLogo=away&&away.id?logoHtml(away.id):'<span class="logo-fallback">⚽</span>';
-  /* بطاقة المباراة تقرأ الكشف الأحدث المرتبط بمعرّف المباراة، وتحوّل
-     النتيجة فقط عند ثبوت أن ترتيب فريقي الكشف معكوس عن ترتيب البطاقة. */
-  let officialSheet=null, alignedScore=null;
-  if(finished){
-    try{officialSheet=getAllMatchSheetsForStatusSync().find(sh=>String(sh?.matchId??'')===String(m.id))||null;}catch(e){}
-    alignedScore=matchSheetScoreForFixture(m,officialSheet);
-  }
-  const homeGoals=alignedScore?alignedScore.home:(m.hg??m.homeScore??m.homeGoals??0);
-  const awayGoals=alignedScore?alignedScore.away:(m.ag??m.awayScore??m.awayGoals??0);
+  /* تُعرض النتيجة المحفوظة في الكشف الرسمي إن وجدت، وإلا من بيانات المباراة. */
+  let officialSheet=null;
+  if(finished){try{officialSheet=getAllMatchSheetsForStatusSync().find(sh=>String(sh?.matchId||'')===String(m.id))||null;}catch(e){}}
+  const homeGoals=officialSheet&&officialSheet.homeScore!==undefined?officialSheet.homeScore:m.hg;
+  const awayGoals=officialSheet&&officialSheet.awayScore!==undefined?officialSheet.awayScore:m.ag;
   const status=finished?'مباراة منتهية':'مباراة مجدولة';
   const score=finished?`${Number(homeGoals)||0} - ${Number(awayGoals)||0}`:'VS';
   return `<article class="upcoming-match modern-match-card">
@@ -3907,72 +3903,16 @@ function renderMatchView(){
 }
 function toggleOtherStadium(){const s=document.getElementById('matchStadium');const w=document.getElementById('otherStadiumWrap');if(!s||!w)return;w.style.display=s.value==='ملعب آخر'?'block':'none';if(s.value!=='ملعب آخر'){const o=document.getElementById('matchOtherStadium');if(o)o.value='';}}
 function getAllMatchSheetsForStatusSync(){
-  /* اجمع كل النسخ قبل إزالة التكرار؛ لا تجعل أول نسخة قديمة تحجب كشفًا أحدث. */
-  const candidates=[];
-  const add=(list,priority)=>{
-    (Array.isArray(list)?list:[]).forEach((sh,index)=>{
-      if(sh&&typeof sh==='object'&&sh.matchId!==undefined&&sh.matchId!==null&&String(sh.matchId).trim())
-        candidates.push({sh,priority,index});
-    });
-  };
-  const stampOf=sh=>{
-    const raw=sh?.updatedAt??sh?.updated_at??sh?.modifiedAt??sh?.modified_at??sh?.savedAt??sh?.createdAt??sh?.created_at??sh?.timestamp;
-    if(raw===undefined||raw===null||raw==='')return 0;
-    if(typeof raw==='number'&&Number.isFinite(raw))return raw<1e12?raw*1000:raw;
-    if(typeof raw==='object'){
-      const sec=Number(raw.seconds??raw._seconds);
-      if(Number.isFinite(sec)&&sec>0)return sec*1000;
-    }
-    const v=String(raw).trim();
-    if(/^\d+(?:\.\d+)?$/.test(v)){const n=Number(v);return Number.isFinite(n)?(n<1e12?n*1000:n):0;}
-    const parsed=Date.parse(v);return Number.isFinite(parsed)?parsed:0;
-  };
-  try{if(typeof window.uniqueMatchSheets==='function')add(window.uniqueMatchSheets(),35);}catch(e){console.warn('Match sheet collection skipped:',e);}
-  try{const d=window.db||db;if(d){add(d.matchSheets,26);add(d.sheets,25);}}catch(e){}
-  /* أولوية النسخة الأحدث عند تساوي الطوابع الزمنية: v3 ثم v2 ثم v1. */
-  [['manar_match_sheets_v1',10],['manar_match_sheets_v2',20],['manar_match_sheets_v3',30]].forEach(([key,priority])=>{
-    try{add(JSON.parse(localStorage.getItem(key)||'[]'),priority);}catch(e){console.warn('Match sheet local read skipped:',key,e);}
-  });
-  const byId=new Map();
-  candidates.forEach(item=>{
-    const id=String(item.sh.matchId).trim(),stamp=stampOf(item.sh),old=byId.get(id);
-    if(!old||stamp>old.stamp||(stamp===old.stamp&&item.priority>old.priority))
-      byId.set(id,{sh:item.sh,stamp,priority:item.priority,index:item.index});
-  });
-  return Array.from(byId.values()).map(x=>x.sh);
+  const out=[],seen=new Set();
+  const add=list=>{(Array.isArray(list)?list:[]).forEach(sh=>{const id=String(sh?.matchId||'');if(!id||seen.has(id))return;seen.add(id);out.push(sh);});};
+  try{if(typeof window.uniqueMatchSheets==='function')add(window.uniqueMatchSheets());}catch(e){}
+  ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{try{add(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}});
+  return out;
 }
 function matchHasSheet(id){
   const wanted=String(id||'');
   if(!wanted)return false;
   return getAllMatchSheetsForStatusSync().some(sh=>String(sh?.matchId||'')===wanted);
-}
-function matchSheetScoreForFixture(m,sh){
-  if(!m||!sh)return null;
-  const read=(o,keys)=>{for(const k of keys){const v=o?.[k];if(v!==undefined&&v!==null&&String(v).trim()!==''){const n=Number(v);if(Number.isFinite(n)&&n>=0)return n;}}return null;};
-  const homeKeys=['homeScore','homeGoals','scoreHome','goalsHome','team1Score','teamAScore','hg','home_score','scoreA'];
-  const awayKeys=['awayScore','awayGoals','scoreAway','goalsAway','team2Score','teamBScore','ag','away_score','scoreB'];
-  const shHome=read(sh,homeKeys),shAway=read(sh,awayKeys);
-  if(shHome===null||shAway===null)return null;
-  const scalar=(o,keys)=>{
-    for(const k of keys){let v=o?.[k];if(v===undefined||v===null||v==='')continue;if(typeof v==='object')v=v.id??v.teamId??v.teamID??v.team_id??v.name??v.teamName??'';if(String(v).trim())return String(v).trim();}
-    return '';
-  };
-  const normalize=v=>{
-    const raw=String(v??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLocaleLowerCase('ar');
-    const teams=Array.isArray(db?.teams)?db.teams:[];
-    const found=teams.find(t=>String(t?.id??'').trim()===String(v).trim())||teams.find(t=>String(t?.name??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLocaleLowerCase('ar')===raw);
-    return found?'team:'+String(found.id):'raw:'+raw;
-  };
-  const mh=scalar(m,['home','homeTeamId','homeTeam','homeId','teamAId','team1Id']);
-  const ma=scalar(m,['away','awayTeamId','awayTeam','awayId','teamBId','team2Id']);
-  const shh=scalar(sh,['homeTeamId','homeTeam','home','homeId','teamAId','team1Id']);
-  const sha=scalar(sh,['awayTeamId','awayTeam','away','awayId','teamBId','team2Id']);
-  if(mh&&ma&&shh&&sha){
-    const same=normalize(mh)===normalize(shh)&&normalize(ma)===normalize(sha);
-    const reverse=normalize(mh)===normalize(sha)&&normalize(ma)===normalize(shh);
-    if(reverse&&!same)return {home:shAway,away:shHome,source:'sheet-reversed'};
-  }
-  return {home:shHome,away:shAway,source:'sheet'};
 }
 function syncMatchStatusesFromSheets(persist){
   if(!db||!Array.isArray(db.matches))return false;
@@ -3983,12 +3923,10 @@ function syncMatchStatusesFromSheets(persist){
   db.matches.forEach(m=>{
     const sh=byId.get(String(m.id||''));
     if(!sh)return;
-    const aligned=matchSheetScoreForFixture(m,sh);
-    if(!aligned)return;
-    const hg=aligned.home,ag=aligned.away;
+    const hg=Number(sh.homeScore), ag=Number(sh.awayScore);
     if(m.status!=='finished'){m.status='finished';changed=true;}
-    if(m.hg!==hg){m.hg=hg;changed=true;}
-    if(m.ag!==ag){m.ag=ag;changed=true;}
+    if(Number.isFinite(hg)&&m.hg!==hg){m.hg=hg;changed=true;}
+    if(Number.isFinite(ag)&&m.ag!==ag){m.ag=ag;changed=true;}
   });
   if(changed){
     window.db=db;
@@ -11196,18 +11134,10 @@ function render(){
   const box=document.getElementById('suspendedPlayersBody');if(!box||typeof window.suspensionCurrentState!=='function')return;
   let all=[];try{all=arr(window.suspensionCurrentState())}catch(e){return}
   const active=all.filter(x=>x&&x.active);const db=DBX();
-  // العد بحسب اللاعبين الفريدين: كل لاعب عليه قرار إداري محفوظ يُحتسب،
-  // مع إضافة الموقوفين تلقائيًا دون تكرار اللاعب نفسه.
-  const playerKey=x=>S(x?.playerId??x?.p?.id??x?.player?.id);
-  const automaticPlayerIds=new Set(active.filter(x=>x.automatic).map(playerKey).filter(Boolean));
-  const manualPlayerIds=new Set(arr(db.suspensions)
-    .filter(x=>x&&x.automatic!==true&&S(x.type||'administrative')!=='cards')
-    .map(playerKey).filter(Boolean));
-  const totalPlayerIds=new Set([...active.map(playerKey).filter(Boolean),...manualPlayerIds]);
-  const automatic=automaticPlayerIds.size,manual=manualPlayerIds.size,totalSuspendedPlayers=totalPlayerIds.size;
-  if(!active.length&&!manual){box.innerHTML='<div class="suspended-empty"><span class="empty-icon">🎉</span><strong>لا يوجد لاعبون موقوفون حاليًا</strong><div style="margin-top:5px;font-size:11px">ستظهر هنا العقوبات الفعّالة تلقائيًا بعد تسجيلها في كشوفات المباريات.</div></div>';return}
+  if(!active.length){box.innerHTML='<div class="suspended-empty"><span class="empty-icon">🎉</span><strong>لا يوجد لاعبون موقوفون حاليًا</strong><div style="margin-top:5px;font-size:11px">ستظهر هنا العقوبات الفعّالة تلقائيًا بعد تسجيلها في كشوفات المباريات.</div></div>';return}
+  const automatic=active.filter(x=>x.automatic).length,manual=active.length-automatic;
   const cards=active.map((x,i)=>{const p=x.p||{},reason=x.reason||x.note||'عقوبة';const next=x.nextMatches?.[0];return '<article class="suspended-player-card"><div class="spc-head"><div class="spc-avatar">⛔</div><div class="spc-name"><strong>'+esc(p.name||'لاعب غير معروف')+'</strong><small>لاعب موقوف حاليًا • رقم القائمة '+(i+1)+'</small></div><span class="spc-status">موقوف</span></div><div class="spc-info"><div class="spc-item"><label>⚽ الفريق</label><b>'+esc(teamName(db,p.teamId))+'</b></div><div class="spc-item"><label>🏆 البطولة</label><b>'+esc(tourName(db,x.tournamentId))+'</b></div><div class="spc-item"><label>📌 سبب الإيقاف</label><b>'+esc(reason)+'</b></div><div class="spc-item"><label>🔢 مدة الإيقاف</label><b>'+esc(String(Math.max(1,Number(x.matches)||1)))+' مباراة</b></div><div class="spc-item next"><label>📅 المباراة الموقوف عنها</label><b>'+matchMarkup(db,next)+'</b></div></div></article>'}).join('');
-  box.innerHTML='<div class="suspension-hero"><div class="hero-icon">⛔</div><div><strong>قائمة اللاعبين الموقوفين الآن</strong><small>تُحدّث تلقائيًا من كشوفات المباريات والعقوبات المسجلة</small></div><div class="count">'+totalSuspendedPlayers+'</div></div><div class="suspended-summary"><span>🚫 إجمالي الموقوفين <b>'+totalSuspendedPlayers+'</b></span><span>🟨🟥 عقوبات تلقائية <b>'+automatic+'</b></span><span>📝 عقوبات إدارية <b>'+manual+'</b></span></div><div class="suspended-player-list">'+cards+'</div>';
+  box.innerHTML='<div class="suspension-hero"><div class="hero-icon">⛔</div><div><strong>قائمة اللاعبين الموقوفين الآن</strong><small>تُحدّث تلقائيًا من كشوفات المباريات والعقوبات المسجلة</small></div><div class="count">'+active.length+'</div></div><div class="suspended-summary"><span>🚫 إجمالي الموقوفين <b>'+active.length+'</b></span><span>🟨🟥 عقوبات تلقائية <b>'+automatic+'</b></span><span>📝 عقوبات إدارية <b>'+manual+'</b></span></div><div class="suspended-player-list">'+cards+'</div>';
 }
 window.renderSuspendedPlayers=render;
 function later(){setTimeout(render,50);setTimeout(render,300);setTimeout(render,1000)}
@@ -12581,37 +12511,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 #archivePdfRenderHost .archive-report-page .note{background:#fff6d7!important;border-color:#e5bd43!important;color:#574313!important;}
 </style>
 
-<style id="manual-penalty-vivid-cards-20261103">
-#manualSuspensionRecords{margin-top:16px!important;padding:12px!important;border:1px solid #b7e4ef!important;border-radius:19px!important;background:linear-gradient(145deg,#f2fbff 0%,#f8fffb 52%,#fff8ec 100%)!important;box-shadow:0 8px 22px rgba(19,91,115,.09)!important}
-#manualSuspensionRecords .suspension-section-title{display:flex!important;align-items:center!important;gap:10px!important;padding:12px!important;margin:0 0 12px!important;border-radius:13px!important;background:linear-gradient(110deg,#075985 0%,#0e7490 48%,#0f766e 100%)!important;color:#fff!important}
-#manualSuspensionRecords .suspension-section-title strong{color:#fff!important;font-weight:950!important;font-size:15px!important}
-#manualSuspensionRecords .suspension-section-title small{display:block!important;color:#e0f2fe!important;font-size:11px!important;margin-top:3px!important}
-#manualSuspensionRecords .suspension-section-title>b{margin-right:auto!important;min-width:34px!important;padding:6px 9px!important;border-radius:10px!important;background:#fff!important;color:#075985!important;text-align:center!important;font-weight:950!important}
-#manualSuspensionRecords .manual-penalty-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(245px,1fr))!important;gap:12px!important;margin-top:10px!important}
-#manualSuspensionRecords .manual-penalty-card{position:relative!important;overflow:hidden!important;min-width:0!important;border:1px solid #9bd9e8!important;border-top:5px solid #0e7490!important;border-radius:16px!important;padding:13px!important;background:linear-gradient(145deg,#fff 0%,#eaf8ff 48%,#fff5e6 100%)!important;box-shadow:0 6px 18px rgba(14,116,144,.12)!important}
-#manualSuspensionRecords .manual-penalty-top{display:flex!important;align-items:center!important;gap:8px!important}
-#manualSuspensionRecords .manual-penalty-icon{width:35px!important;height:35px!important;display:grid!important;place-items:center!important;border-radius:11px!important;background:linear-gradient(135deg,#f97316,#dc2626)!important;color:#fff!important;font-size:19px!important;box-shadow:0 4px 10px rgba(220,38,38,.2)!important}
-#manualSuspensionRecords .manual-penalty-status{margin-right:auto!important;padding:6px 10px!important;border-radius:99px!important;font-size:11px!important;font-weight:900!important}
-#manualSuspensionRecords .manual-penalty-status.is-active{background:#fee2e2!important;color:#991b1b!important;border:1px solid #fecaca!important}
-#manualSuspensionRecords .manual-penalty-status.is-done{background:#dcfce7!important;color:#166534!important;border:1px solid #bbf7d0!important}
-#manualSuspensionRecords .manual-penalty-index{font-size:10px!important;color:#475569!important;font-weight:800!important}
-#manualSuspensionRecords .manual-penalty-player{font-size:18px!important;font-weight:950!important;color:#b42318!important;margin:9px 0!important;padding:7px 9px!important;border-radius:10px!important;background:linear-gradient(90deg,#fff0f0,#fff7f7)!important;border-bottom:3px solid #e25555!important;overflow-wrap:anywhere!important}
-#manualSuspensionRecords .manual-penalty-meta{display:flex!important;flex-wrap:wrap!important;gap:7px!important;font-size:11px!important;color:#164e63!important}
-#manualSuspensionRecords .manual-penalty-meta span{background:#dff5ff!important;border:1px solid #b6e6f4!important;border-radius:9px!important;padding:6px 8px!important;font-weight:800!important}
-#manualSuspensionRecords .manual-penalty-details{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin-top:11px!important}
-#manualSuspensionRecords .manual-penalty-details>div{min-width:0!important;padding:9px!important;border:1px solid #d7e8ee!important;border-radius:10px!important;background:#fff!important}
-#manualSuspensionRecords .manual-penalty-details small,#manualSuspensionRecords .manual-penalty-note small{display:block!important;color:#475569!important;font-size:10px!important;font-weight:800!important;margin-bottom:4px!important}
-#manualSuspensionRecords .manual-penalty-details b{display:block!important;color:#164e63!important;font-size:12px!important;font-weight:950!important;line-height:1.5!important;overflow-wrap:anywhere!important}
-#manualSuspensionRecords .manual-penalty-details .manual-penalty-date{background:linear-gradient(135deg,#fff7d6,#ffefbd)!important;border-color:#f2ca69!important}
-#manualSuspensionRecords .manual-penalty-details .manual-penalty-date b{color:#7c2d12!important;font-size:14px!important}
-#manualSuspensionRecords .manual-penalty-details .manual-penalty-enddate{background:linear-gradient(135deg,#e7f8ec,#d8f3e2)!important;border-color:#9bd6ad!important}
-#manualSuspensionRecords .manual-penalty-details .manual-penalty-enddate b{color:#166534!important}
-#manualSuspensionRecords .manual-penalty-note{margin-top:9px!important;padding:9px!important;border-radius:10px!important;background:#fff0e6!important;border:1px solid #ffd2ad!important;color:#7c2d12!important;font-size:12px!important;overflow-wrap:anywhere!important}
-#manualSuspensionRecords .manual-penalty-next{margin-top:8px!important;padding:8px 9px!important;border-radius:9px!important;background:#edf5ff!important;border:1px solid #c5daf7!important;color:#164e8a!important;font-size:11px!important;font-weight:800!important}
-#manualSuspensionRecords .manual-penalty-actions{display:flex!important;gap:8px!important;margin-top:10px!important}
-#manualSuspensionRecords .manual-penalty-actions .btn{flex:1!important;padding:8px 9px!important}
-@media(max-width:520px){#manualSuspensionRecords{padding:9px!important}#manualSuspensionRecords .manual-penalty-grid{grid-template-columns:1fr!important;gap:10px!important}#manualSuspensionRecords .manual-penalty-card{padding:11px!important}#manualSuspensionRecords .manual-penalty-details{gap:7px!important}}
-</style>
 <script id="manual-suspension-and-tournament-roster-repair-20261103">
 (function(){
   'use strict';
@@ -12752,7 +12651,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   window.fillManualSuspensionForm=function(){
     const select=$('manualSuspTournament');
     if(!select)return;
-    if($('manualSuspDate')&&!$('manualSuspDate').value)$('manualSuspDate').value=penaltyTodayISO();
     const previous=S(select.value);
     const tournaments=A(DB().tournaments);
     select.innerHTML='<option value="">اختر البطولة</option>'+
@@ -12810,74 +12708,52 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     };
   })(window.suspensionCurrentState);
 
-  /* اعرض الإيقافات التلقائية أولاً، ثم بطاقة مستقلة لكل عقوبة يدوية أسفلها. */
-  function penaltyTodayISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-  function penaltyDateISO(value){
-    const raw=S(value);
-    if(!raw)return '';
-    const plain=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if(plain)return `${plain[1]}-${plain[2]}-${plain[3]}`;
-    const d=new Date(raw);
-    return Number.isNaN(d.getTime())?'':`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  }
-  function penaltyDateLabel(value){
-    const iso=penaltyDateISO(value);
-    if(!iso)return 'غير محدد';
-    const [y,m,d]=iso.split('-');
-    return `${d} / ${m} / ${y}`;
-  }
-  function penaltyAddMonths(iso,months){
-    const normalized=penaltyDateISO(iso);
-    if(!normalized)return '';
-    const [year,month,day]=normalized.split('-').map(Number);
-    const first=new Date(year,month-1+months,1,12,0,0,0);
-    const lastDay=new Date(first.getFullYear(),first.getMonth()+1,0,12,0,0,0).getDate();
-    const result=new Date(first.getFullYear(),first.getMonth(),Math.min(day,lastDay),12,0,0,0);
-    return `${result.getFullYear()}-${String(result.getMonth()+1).padStart(2,'0')}-${String(result.getDate()).padStart(2,'0')}`;
-  }
+  /* احتفظ بعرض القواعد والعقوبات التلقائية الموجود، وأعد إضافة سجل مستقل
+     للعقوبات اليدوية حتى تظهر حتى بعد انتهاء المباريات أو قبل جدولة المباراة التالية. */
   const baseSuspensionRender=window.renderSuspendedPlayers;
   window.renderSuspendedPlayers=function(){
     if(typeof baseSuspensionRender==='function'){
-      const currentState=window.suspensionCurrentState;
-      try{
-        /* العقوبة اليدوية لها بطاقة سجل مستقلة بالأسفل، فلا نكررها في بطاقات الإيقاف التلقائي. */
-        if(typeof currentState==='function')window.suspensionCurrentState=function(){return A(currentState()).filter(item=>item?.automatic);};
-        baseSuspensionRender();
-      }catch(e){console.warn('تعذر تحديث ملخص العقوبات:',e);}
-      finally{if(currentState)window.suspensionCurrentState=currentState;}
+      try{baseSuspensionRender();}catch(e){console.warn('تعذر تحديث ملخص العقوبات:',e);}
     }
     const box=$('suspendedPlayersBody');
     if(!box)return;
-    const records=A(DB().suspensions).filter(record=>record&&record.automatic!==true);
+    const records=A(DB().suspensions);
     const state=A(window.suspensionCurrentState?.()).filter(x=>!x.automatic);
     const byId=new Map(state.map(x=>[S(x.id),x]));
     const canManage=typeof window.hasPermission==='function'&&window.hasPermission('players');
-    const cards=records.map((record,index)=>{
+    const rows=records.map((record,index)=>{
       const player=A(DB().players).find(p=>same(p.id,record.playerId));
       const stateItem=byId.get(S(record.id));
       const team=teamForPlayer(player||{teamId:record.teamId});
       const playerName=player?.name||record.playerName||'لاعب محذوف من القائمة';
       const type=record.type==='cards'?'تراكم بطاقات':'عقوبة إدارية';
-      const durationUnit=record.durationUnit==='months'?'months':'matches';
-      const unit=durationUnit==='months'?'أشهر':'مباريات';
-      const amount=Math.max(1,parseInt(record.matches,10)||1);
-      const startDateISO=penaltyDateISO(record.penaltyStartDate||record.createdAt||record.updatedAt);
-      const startDate=penaltyDateLabel(startDateISO);
-      const endDateISO=durationUnit==='months'&&startDateISO?penaltyAddMonths(startDateISO,amount):'';
-      const endDate=endDateISO?penaltyDateLabel(endDateISO):'';
+      const matchesCount=Math.max(1,parseInt(record.matches,10)||1);
       const next=stateItem?.nextMatches?.[0];
-      const status=stateItem?.active?'موقوف حاليًا':(durationUnit==='months'?'انتهت المدة':'اكتملت المباريات');
-      const action=canManage?`<div class="manual-penalty-actions viewer-hide"><button type="button" class="btn blue" data-manual-susp-edit="${escHtml(record.id)}">✏️ تعديل العقوبة</button><button type="button" class="btn danger" data-manual-susp-delete="${escHtml(record.id)}">🗑️ حذف</button></div>`:'';
-      return `<article class="manual-penalty-card"><div class="manual-penalty-top"><span class="manual-penalty-icon">⛔</span><span class="manual-penalty-status ${stateItem?.active?'is-active':'is-done'}">${status}</span><span class="manual-penalty-index">عقوبة رقم ${index+1}</span></div><div class="manual-penalty-player">${escHtml(playerName)}</div><div class="manual-penalty-meta"><span>⚽ ${escHtml(team?.name||'—')}</span><span>🏆 ${escHtml(tournamentName(record.tournamentId))}</span></div><div class="manual-penalty-details"><div><small>📌 نوع العقوبة</small><b>${type}</b></div><div><small>🔢 مدة العقوبة</small><b>${amount} ${unit}</b></div><div class="manual-penalty-date"><small>📅 تاريخ العقوبة</small><b>${escHtml(startDate)}</b></div>${endDate?`<div class="manual-penalty-enddate"><small>🏁 تاريخ انتهاء المدة</small><b>${escHtml(endDate)}</b></div>`:''}</div><div class="manual-penalty-note"><small>📝 سبب / ملاحظات</small><span>${escHtml(record.note||'—')}</span></div>${durationUnit!=='months'?`<div class="manual-penalty-next">⚽ تبدأ من: ${escHtml(next?matchLabel(next):(record.pendingNextMatch?'أول مباراة قادمة':record.startMatchId?'المباراة المحددة':'أول مباراة قادمة'))}</div>`:''}${action}</article>`;
+      const status=stateItem?.active
+        ? (next?'قيد الإيقاف':'بانتظار المباراة القادمة')
+        : (next?'تم تنفيذ العقوبة':'غير مفعّلة حاليًا');
+      const action=canManage
+        ? `<td class="viewer-hide"><button type="button" class="btn blue" data-manual-susp-edit="${escHtml(record.id)}">✏️ تعديل</button> <button type="button" class="btn danger" data-manual-susp-delete="${escHtml(record.id)}">🗑️ حذف</button></td>`
+        : '';
+      return `<tr><td>${index+1}</td><td><b>${escHtml(playerName)}</b></td><td>${escHtml(team?.name||'—')}</td><td>${escHtml(tournamentName(record.tournamentId))}</td><td>${type}</td><td>${matchesCount}</td><td>${escHtml(record.note||'—')}</td><td>${escHtml(next?matchLabel(next):(record.pendingNextMatch?'بانتظار المباراة القادمة':record.startMatchId?'المباراة المحددة':'—'))}</td><td>${status}</td>${action}</tr>`;
     }).join('');
+    const actionHead=canManage?'<th class="viewer-hide">إجراء</th>':'';
     const section=document.createElement('div');
-    section.className='suspension-section manual-penalties-wrap';
+    section.className='suspension-section';
     section.id='manualSuspensionRecords';
-    section.innerHTML=`<div class="suspension-section-title"><span>📝</span><div><strong>العقوبات اليدوية المسجلة</strong><small>بطاقة مستقلة لكل لاعب مع تاريخ تسجيل العقوبة ومدتها</small></div><b>${records.length}</b></div>`+(records.length?`<div class="manual-penalty-grid">${cards}</div>`:'<div class="empty">لا توجد عقوبات يدوية مسجلة حتى الآن.</div>');
+    section.innerHTML=
+      `<div class="suspension-section-title"><span>📝</span><div><strong>العقوبات اليدوية المسجلة</strong><small>تبقى محفوظة في سجل البطولة وتظهر هنا دائمًا</small></div><b>${records.length}</b></div>`+
+      (records.length
+        ? `<div class="table-wrap"><table><thead><tr><th>#</th><th>اللاعب</th><th>الفريق</th><th>البطولة</th><th>نوع العقوبة</th><th>المباريات</th><th>الملاحظات</th><th>تبدأ من</th><th>الحالة</th>${actionHead}</tr></thead><tbody>${rows}</tbody></table></div>`
+        : '<div class="empty">لا توجد عقوبات يدوية مسجلة حتى الآن.</div>');
     box.querySelector('#manualSuspensionRecords')?.remove();
     box.appendChild(section);
-    section.querySelectorAll('[data-manual-susp-edit]').forEach(button=>button.addEventListener('click',()=>window.editSuspension?.(button.dataset.manualSuspEdit)));
-    section.querySelectorAll('[data-manual-susp-delete]').forEach(button=>button.addEventListener('click',()=>window.deleteSuspension?.(button.dataset.manualSuspDelete)));
+    section.querySelectorAll('[data-manual-susp-edit]').forEach(button=>{
+      button.addEventListener('click',()=>window.editSuspension?.(button.dataset.manualSuspEdit));
+    });
+    section.querySelectorAll('[data-manual-susp-delete]').forEach(button=>{
+      button.addEventListener('click',()=>window.deleteSuspension?.(button.dataset.manualSuspDelete));
+    });
   };
 
   /* حفظ محلي ثم انتظار نتيجة Firebase. لا تعرض رسالة نجاح سحابي قبل تأكيد العملية. */
@@ -12890,8 +12766,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const matches=Math.max(1,parseInt($('manualSuspMatches')?.value||'1',10)||1);
     const chosenStart=S($('manualSuspStartMatch')?.value);
     const note=S($('manualSuspNote')?.value);
-    const durationUnit=S($('manualSuspUnit')?.value)||'matches';
-    const penaltyStartDate=S($('manualSuspDate')?.value)||penaltyTodayISO();
     if(!tournamentId||!playerId){alert('اختر البطولة واللاعب.');return false;}
     const player=A(root.players).find(p=>same(p.id,playerId));
     if(!player||!belongsToTournament(player,tournamentId)){
@@ -12920,8 +12794,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       tournamentId,
       type,
       matches,
-      durationUnit,
-      penaltyStartDate,
       startMatchId,
       nextMatchId:'',
       triggerMatchId:'',
@@ -13212,135 +13084,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   window.refreshSuspendedPlayerNameHighlights=()=>decorate(document);
 })();
 
-</script>
-<script id="match-result-latest-sheet-source-fix-20261103">
-(function(){
-  /*
-   * مصدر نتيجة المباراة:
-   * 1) الكشف الرسمي هو المرجع عند وجود نتيجتي الفريقين فيه.
-   * 2) تتم مطابقة ترتيب الفريقين بواسطة معرفاتهما؛ فإذا كان ترتيب الكشف
-   *    معكوساً بالنسبة إلى سجل المباراة، تُبدّل النتيجتان للعرض الصحيح.
-   * 3) يُستخدم سجل المباراة كاحتياط فقط عندما لا يحتوي الكشف على نتيجتين صالحتين.
-   * 4) عند وجود نسخ متعددة للكشف، تُختار النسخة الأحدث حسب updatedAt.
-   */
-  function matchSheetTimestamp(row){
-    if(!row || typeof row!=='object') return 0;
-    const raw=row.updatedAt ?? row.updated_at ?? row.modifiedAt ?? row.modified_at ?? row.createdAt ?? row.created_at ?? row.timestamp;
-    if(raw===undefined || raw===null || raw==='') return 0;
-    if(typeof raw==='number' && Number.isFinite(raw)) return raw<100000000000?raw*1000:raw;
-    if(typeof raw==='object'){
-      if(Number.isFinite(Number(raw.seconds))) return Number(raw.seconds)*1000;
-      if(Number.isFinite(Number(raw._seconds))) return Number(raw._seconds)*1000;
-    }
-    const str=String(raw).trim();
-    if(/^\d+(?:\.\d+)?$/.test(str)){
-      const n=Number(str);
-      if(Number.isFinite(n)) return n<100000000000?n*1000:n;
-    }
-    const parsed=Date.parse(str);
-    return Number.isFinite(parsed)?parsed:0;
-  }
-  function scalarTeam(value){
-    if(value && typeof value==='object'){
-      value=value.id ?? value.teamId ?? value.teamID ?? value.team_id ?? value.name ?? value.teamName ?? '';
-    }
-    return String(value??'').trim();
-  }
-  function firstTeam(obj,keys){
-    for(const key of keys){
-      const value=scalarTeam(obj?.[key]);
-      if(value) return value;
-    }
-    return '';
-  }
-  function scoreValue(obj,keys){
-    for(const key of keys){
-      const raw=obj?.[key];
-      if(raw===undefined || raw===null || String(raw).trim()==='') continue;
-      const value=Number(raw);
-      if(Number.isFinite(value) && value>=0) return value;
-    }
-    return null;
-  }
-  function sameTeam(a,b,database){
-    if(!a||!b)return false;
-    if(a===b)return true;
-    const teams=Array.isArray(database?.teams)?database.teams:[];
-    const resolve=value=>{
-      const found=teams.find(t=>String(t?.id??'').trim()===value || String(t?.name??'').trim()===value);
-      return found ? 'team:'+String(found.id) : 'raw:'+value.toLocaleLowerCase();
-    };
-    return resolve(a)===resolve(b);
-  }
-  function latestMatchSheets(){
-    const candidates=[];
-    try{
-      if(typeof window.uniqueMatchSheets==='function'){
-        const remote=window.uniqueMatchSheets();
-        if(Array.isArray(remote)) candidates.push(...remote);
-      }
-    }catch(e){console.warn('Match sheets remote read skipped:',e);}
-    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(key=>{
-      try{
-        const rows=JSON.parse(localStorage.getItem(key)||'[]');
-        if(Array.isArray(rows)) candidates.push(...rows);
-      }catch(e){console.warn('Match sheets local read skipped:',key,e);}
-    });
-    const byMatch=new Map();
-    candidates.forEach((row,index)=>{
-      const id=String(row?.matchId??'').trim();
-      if(!id) return;
-      const stamp=matchSheetTimestamp(row);
-      const previous=byMatch.get(id);
-      if(!previous || stamp>=previous.stamp) byMatch.set(id,{row,stamp,index});
-    });
-    const selected=Array.from(byMatch.values());
-    let database=null;
-    try{database=(typeof db!=='undefined'&&db)?db:window.db;}catch(e){database=window.db||null;}
-    const homeScoreKeys=['homeScore','homeGoals','scoreHome','goalsHome','team1Score','teamAScore','hg','home_score','scoreA'];
-    const awayScoreKeys=['awayScore','awayGoals','scoreAway','goalsAway','team2Score','teamBScore','ag','away_score','scoreB'];
-    const matchHomeKeys=['home','homeTeamId','homeTeam','homeId','teamAId','team1Id'];
-    const matchAwayKeys=['away','awayTeamId','awayTeam','awayId','teamBId','team2Id'];
-    const sheetHomeKeys=['homeTeamId','homeTeam','home','homeId','teamAId','team1Id'];
-    const sheetAwayKeys=['awayTeamId','awayTeam','away','awayId','teamBId','team2Id'];
-    return selected.map(item=>{
-      const row=item.row,matchId=String(row?.matchId??'');
-      const match=Array.isArray(database?.matches)?database.matches.find(m=>String(m?.id??'')===matchId):null;
-      if(!match)return row;
-      const sheetHome=scoreValue(row,homeScoreKeys),sheetAway=scoreValue(row,awayScoreKeys);
-      if(sheetHome!==null && sheetAway!==null){
-        let home=sheetHome,away=sheetAway;
-        const matchHome=firstTeam(match,matchHomeKeys),matchAway=firstTeam(match,matchAwayKeys);
-        const reportHome=firstTeam(row,sheetHomeKeys),reportAway=firstTeam(row,sheetAwayKeys);
-        const sameOrder=matchHome&&matchAway&&reportHome&&reportAway&&
-          sameTeam(matchHome,reportHome,database)&&sameTeam(matchAway,reportAway,database);
-        const reverseOrder=matchHome&&matchAway&&reportHome&&reportAway&&
-          sameTeam(matchHome,reportAway,database)&&sameTeam(matchAway,reportHome,database);
-        if(reverseOrder&&!sameOrder){home=sheetAway;away=sheetHome;}
-        return {...row,homeScore:home,awayScore:away,homeGoals:home,awayGoals:away};
-      }
-      const matchHomeScore=scoreValue(match,homeScoreKeys),matchAwayScore=scoreValue(match,awayScoreKeys);
-      if(matchHomeScore!==null && matchAwayScore!==null){
-        return {...row,homeScore:matchHomeScore,awayScore:matchAwayScore,homeGoals:matchHomeScore,awayGoals:matchAwayScore};
-      }
-      return row;
-    });
-  }
-  window.getAllMatchSheetsForStatusSync=getAllMatchSheetsForStatusSync;
-  window.getLatestMatchSheetForDisplay=function(matchId){
-    return latestMatchSheets().find(row=>String(row?.matchId??'')===String(matchId??''))||null;
-  };
-})();
-</script>
-<script id="match-score-authoritative-view-20261104">
-/* تثبيت قارئ الكشف الرسمي المعتمد نفسه لكل بطاقات المباريات ومزامنة الحالة.
-   يُترك محتوى الكشوفات كما هو؛ التعديل خاص بالقراءة والعرض فقط. */
-(function(){
-  try{
-    if(typeof getAllMatchSheetsForStatusSync==='function')
-      window.getAllMatchSheetsForStatusSync=getAllMatchSheetsForStatusSync;
-  }catch(e){console.warn('Match score display hook:',e);}
-})();
 </script>
 </body>
 </html>
