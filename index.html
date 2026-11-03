@@ -3784,31 +3784,15 @@ function modernMatchCardHtml(m,finished=false){
   const away=db.teams.find(t=>String(t.id)===String(m.away));
   const homeLogo=home&&home.id?logoHtml(home.id):'<span class="logo-fallback">⚽</span>';
   const awayLogo=away&&away.id?logoHtml(away.id):'<span class="logo-fallback">⚽</span>';
-  /* النتيجة الرسمية: اختر أحدث نسخة من الكشف، ثم طابق جهتي الكشف مع
-     ترتيب الفريقين في بطاقة المباراة قبل عرض الأهداف. */
-  let officialSheet=null, sheetHomeGoals=m.hg, sheetAwayGoals=m.ag;
+  /* بطاقة المباراة تقرأ الكشف الأحدث المرتبط بمعرّف المباراة، وتحوّل
+     النتيجة فقط عند ثبوت أن ترتيب فريقي الكشف معكوس عن ترتيب البطاقة. */
+  let officialSheet=null, alignedScore=null;
   if(finished){
-    try{
-      const candidates=getAllMatchSheetsForStatusSync().filter(sh=>String(sh?.matchId??'')===String(m.id));
-      const stamp=sh=>{const v=sh?.updatedAt??sh?.updated_at??sh?.modifiedAt??sh?.createdAt??sh?.timestamp??0;const n=typeof v==='number'?v:Date.parse(String(v||''));return Number.isFinite(n)?(n>0&&n<1e12?n*1000:n):0;};
-      candidates.sort((a,b)=>stamp(b)-stamp(a));
-      officialSheet=candidates[0]||null;
-    }catch(e){}
-    if(officialSheet){
-      const val=(o,keys)=>{for(const k of keys){const v=o?.[k];if(v!==undefined&&v!==null&&String(v).trim()!=='')return v;}return null;};
-      const scalar=v=>String(v&&typeof v==='object'?(v.id??v.teamId??v.teamID??v.name??v.teamName??''):v??'').trim();
-      const matchHome=scalar(val(m,['home','homeTeamId','homeTeam','homeId','teamAId','team1Id']));
-      const matchAway=scalar(val(m,['away','awayTeamId','awayTeam','awayId','teamBId','team2Id']));
-      const sheetHome=scalar(val(officialSheet,['homeTeamId','homeTeam','home','homeId','teamAId','team1Id']));
-      const sheetAway=scalar(val(officialSheet,['awayTeamId','awayTeam','away','awayId','teamBId','team2Id']));
-      const homeRaw=val(officialSheet,['homeScore','homeGoals','scoreHome','goalsHome','team1Score','teamAScore','hg','scoreA']);
-      const awayRaw=val(officialSheet,['awayScore','awayGoals','scoreAway','goalsAway','team2Score','teamBScore','ag','scoreB']);
-      const reverse=matchHome&&matchAway&&sheetHome&&sheetAway&&matchHome===sheetAway&&matchAway===sheetHome;
-      if(homeRaw!==null&&awayRaw!==null){sheetHomeGoals=reverse?awayRaw:homeRaw;sheetAwayGoals=reverse?homeRaw:awayRaw;}
-    }
+    try{officialSheet=getAllMatchSheetsForStatusSync().find(sh=>String(sh?.matchId??'')===String(m.id))||null;}catch(e){}
+    alignedScore=matchSheetScoreForFixture(m,officialSheet);
   }
-  const homeGoals=sheetHomeGoals;
-  const awayGoals=sheetAwayGoals;
+  const homeGoals=alignedScore?alignedScore.home:(m.hg??m.homeScore??m.homeGoals??0);
+  const awayGoals=alignedScore?alignedScore.away:(m.ag??m.awayScore??m.awayGoals??0);
   const status=finished?'مباراة منتهية':'مباراة مجدولة';
   const score=finished?`${Number(homeGoals)||0} - ${Number(awayGoals)||0}`:'VS';
   return `<article class="upcoming-match modern-match-card">
@@ -3923,16 +3907,72 @@ function renderMatchView(){
 }
 function toggleOtherStadium(){const s=document.getElementById('matchStadium');const w=document.getElementById('otherStadiumWrap');if(!s||!w)return;w.style.display=s.value==='ملعب آخر'?'block':'none';if(s.value!=='ملعب آخر'){const o=document.getElementById('matchOtherStadium');if(o)o.value='';}}
 function getAllMatchSheetsForStatusSync(){
-  const out=[],seen=new Set();
-  const add=list=>{(Array.isArray(list)?list:[]).forEach(sh=>{const id=String(sh?.matchId||'');if(!id||seen.has(id))return;seen.add(id);out.push(sh);});};
-  try{if(typeof window.uniqueMatchSheets==='function')add(window.uniqueMatchSheets());}catch(e){}
-  ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(k=>{try{add(JSON.parse(localStorage.getItem(k)||'[]'));}catch(e){}});
-  return out;
+  /* اجمع كل النسخ قبل إزالة التكرار؛ لا تجعل أول نسخة قديمة تحجب كشفًا أحدث. */
+  const candidates=[];
+  const add=(list,priority)=>{
+    (Array.isArray(list)?list:[]).forEach((sh,index)=>{
+      if(sh&&typeof sh==='object'&&sh.matchId!==undefined&&sh.matchId!==null&&String(sh.matchId).trim())
+        candidates.push({sh,priority,index});
+    });
+  };
+  const stampOf=sh=>{
+    const raw=sh?.updatedAt??sh?.updated_at??sh?.modifiedAt??sh?.modified_at??sh?.savedAt??sh?.createdAt??sh?.created_at??sh?.timestamp;
+    if(raw===undefined||raw===null||raw==='')return 0;
+    if(typeof raw==='number'&&Number.isFinite(raw))return raw<1e12?raw*1000:raw;
+    if(typeof raw==='object'){
+      const sec=Number(raw.seconds??raw._seconds);
+      if(Number.isFinite(sec)&&sec>0)return sec*1000;
+    }
+    const v=String(raw).trim();
+    if(/^\d+(?:\.\d+)?$/.test(v)){const n=Number(v);return Number.isFinite(n)?(n<1e12?n*1000:n):0;}
+    const parsed=Date.parse(v);return Number.isFinite(parsed)?parsed:0;
+  };
+  try{if(typeof window.uniqueMatchSheets==='function')add(window.uniqueMatchSheets(),35);}catch(e){console.warn('Match sheet collection skipped:',e);}
+  try{const d=window.db||db;if(d){add(d.matchSheets,26);add(d.sheets,25);}}catch(e){}
+  /* أولوية النسخة الأحدث عند تساوي الطوابع الزمنية: v3 ثم v2 ثم v1. */
+  [['manar_match_sheets_v1',10],['manar_match_sheets_v2',20],['manar_match_sheets_v3',30]].forEach(([key,priority])=>{
+    try{add(JSON.parse(localStorage.getItem(key)||'[]'),priority);}catch(e){console.warn('Match sheet local read skipped:',key,e);}
+  });
+  const byId=new Map();
+  candidates.forEach(item=>{
+    const id=String(item.sh.matchId).trim(),stamp=stampOf(item.sh),old=byId.get(id);
+    if(!old||stamp>old.stamp||(stamp===old.stamp&&item.priority>old.priority))
+      byId.set(id,{sh:item.sh,stamp,priority:item.priority,index:item.index});
+  });
+  return Array.from(byId.values()).map(x=>x.sh);
 }
 function matchHasSheet(id){
   const wanted=String(id||'');
   if(!wanted)return false;
   return getAllMatchSheetsForStatusSync().some(sh=>String(sh?.matchId||'')===wanted);
+}
+function matchSheetScoreForFixture(m,sh){
+  if(!m||!sh)return null;
+  const read=(o,keys)=>{for(const k of keys){const v=o?.[k];if(v!==undefined&&v!==null&&String(v).trim()!==''){const n=Number(v);if(Number.isFinite(n)&&n>=0)return n;}}return null;};
+  const homeKeys=['homeScore','homeGoals','scoreHome','goalsHome','team1Score','teamAScore','hg','home_score','scoreA'];
+  const awayKeys=['awayScore','awayGoals','scoreAway','goalsAway','team2Score','teamBScore','ag','away_score','scoreB'];
+  const shHome=read(sh,homeKeys),shAway=read(sh,awayKeys);
+  if(shHome===null||shAway===null)return null;
+  const scalar=(o,keys)=>{
+    for(const k of keys){let v=o?.[k];if(v===undefined||v===null||v==='')continue;if(typeof v==='object')v=v.id??v.teamId??v.teamID??v.team_id??v.name??v.teamName??'';if(String(v).trim())return String(v).trim();}
+    return '';
+  };
+  const normalize=v=>{
+    const raw=String(v??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLocaleLowerCase('ar');
+    const teams=Array.isArray(db?.teams)?db.teams:[];
+    const found=teams.find(t=>String(t?.id??'').trim()===String(v).trim())||teams.find(t=>String(t?.name??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLocaleLowerCase('ar')===raw);
+    return found?'team:'+String(found.id):'raw:'+raw;
+  };
+  const mh=scalar(m,['home','homeTeamId','homeTeam','homeId','teamAId','team1Id']);
+  const ma=scalar(m,['away','awayTeamId','awayTeam','awayId','teamBId','team2Id']);
+  const shh=scalar(sh,['homeTeamId','homeTeam','home','homeId','teamAId','team1Id']);
+  const sha=scalar(sh,['awayTeamId','awayTeam','away','awayId','teamBId','team2Id']);
+  if(mh&&ma&&shh&&sha){
+    const same=normalize(mh)===normalize(shh)&&normalize(ma)===normalize(sha);
+    const reverse=normalize(mh)===normalize(sha)&&normalize(ma)===normalize(shh);
+    if(reverse&&!same)return {home:shAway,away:shHome,source:'sheet-reversed'};
+  }
+  return {home:shHome,away:shAway,source:'sheet'};
 }
 function syncMatchStatusesFromSheets(persist){
   if(!db||!Array.isArray(db.matches))return false;
@@ -3943,10 +3983,12 @@ function syncMatchStatusesFromSheets(persist){
   db.matches.forEach(m=>{
     const sh=byId.get(String(m.id||''));
     if(!sh)return;
-    const hg=Number(sh.homeScore), ag=Number(sh.awayScore);
+    const aligned=matchSheetScoreForFixture(m,sh);
+    if(!aligned)return;
+    const hg=aligned.home,ag=aligned.away;
     if(m.status!=='finished'){m.status='finished';changed=true;}
-    if(Number.isFinite(hg)&&m.hg!==hg){m.hg=hg;changed=true;}
-    if(Number.isFinite(ag)&&m.ag!==ag){m.ag=ag;changed=true;}
+    if(m.hg!==hg){m.hg=hg;changed=true;}
+    if(m.ag!==ag){m.ag=ag;changed=true;}
   });
   if(changed){
     window.db=db;
@@ -13284,10 +13326,20 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       return row;
     });
   }
-  window.getAllMatchSheetsForStatusSync=latestMatchSheets;
+  window.getAllMatchSheetsForStatusSync=getAllMatchSheetsForStatusSync;
   window.getLatestMatchSheetForDisplay=function(matchId){
     return latestMatchSheets().find(row=>String(row?.matchId??'')===String(matchId??''))||null;
   };
+})();
+</script>
+<script id="match-score-authoritative-view-20261104">
+/* تثبيت قارئ الكشف الرسمي المعتمد نفسه لكل بطاقات المباريات ومزامنة الحالة.
+   يُترك محتوى الكشوفات كما هو؛ التعديل خاص بالقراءة والعرض فقط. */
+(function(){
+  try{
+    if(typeof getAllMatchSheetsForStatusSync==='function')
+      window.getAllMatchSheetsForStatusSync=getAllMatchSheetsForStatusSync;
+  }catch(e){console.warn('Match score display hook:',e);}
 })();
 </script>
 </body>
