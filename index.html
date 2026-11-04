@@ -4524,7 +4524,7 @@ async function resetPlatformAdminOnly(){
     manar_match_sheets_v1:[],manar_match_sheets_v2:[],manar_match_sheets_v3:[],
     manar_referees_v1:[],manar_audit_log_v1:[],manar_tournament_archive_v1:[],
     manar_media_news_v1:[],manar_player_management_windows_v1:{},manar_player_transfers_v1:[],
-    manar_contact_settings_v1:{},manar_contact_messages_v1:[],manar_polls_v1:[],manar_poll_votes_v1:{}
+    manar_contact_settings_v1:{},manar_contact_messages_v1:[],manar_polls_v1:[],manar_poll_votes_v1:[]
   };
   Object.keys(emptyValues).forEach(k=>resetMeta.keys[k]=resetMeta.fullResetAt);
   try{
@@ -7740,7 +7740,7 @@ async function pushAll(){
     }
     applyingRemote=true;
     status('جارٍ حفظ التعديلات الموجودة محليًا في السحابة...',true);
-    const present=SYNC_KEYS.filter(k=>k!=='manar_poll_votes_v1'&&localStorage.getItem(k)!==null);
+    const present=SYNC_KEYS.filter(k=>localStorage.getItem(k)!==null);
     await pushKeys(present);
     window.__manarLocalAccountUpgradePending=false;
     status('اكتمل رفع '+present.length+' قسمًا إلى السحابة عبر طلب جماعي واحد؛ لم تُحذف المفاتيح المحلية الغائبة',true);
@@ -8099,7 +8099,7 @@ function cloudResetAppliesToStorageKey(cloudMain,localMain,key){
   const lk=lm&&lm.keys&&typeof lm.keys==='object'?lm.keys:{};
   return (Number(ck[key])||0)>(Number(lk[key])||0);
 }
-function emptyValueForResetKey(key){return key==='manar_player_management_windows_v1'||key==='manar_contact_settings_v1'||key==='manar_poll_votes_v1'?{}:[];}
+function emptyValueForResetKey(key){return key==='manar_player_management_windows_v1'||key==='manar_contact_settings_v1'?{}:[];}
 async function initialSync(){
   if(initialDone)return;
   initialDone=true;
@@ -8137,8 +8137,6 @@ async function initialSync(){
       return;
     }
     for(const k of SYNC_KEYS){
-      /* أصوات الزوار تُكتب ذريًا عبر مسار التصويت ولا تُستبدل بنسخة محلية قديمة عند دخول المدير. */
-      if(k==='manar_poll_votes_v1')continue;
       if(localStorage.getItem(k)!==null)markDirty(k);
     }
     if(signedIn && dirty.size && !manualEmailLoginActive){
@@ -8176,7 +8174,7 @@ async function initialSync(){
     status('لا توجد بيانات سحابية بعد — قاعدة البيانات جاهزة للحفظ',true);
   }
 }
-async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);try{await setPersistence(auth,browserLocalPersistence)}catch(persistenceError){console.warn('Firebase session persistence unavailable:',persistenceError)}db=getDatabase(app);resolveFirebaseInit(true);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction,remove:remove,onAuthStateChanged:onAuthStateChanged};patchStorage();const saved=localStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
+async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);try{await setPersistence(auth,browserLocalPersistence)}catch(persistenceError){console.warn('Firebase session persistence unavailable:',persistenceError)}db=getDatabase(app);resolveFirebaseInit(true);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction};patchStorage();const saved=localStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
  if(!auth.currentUser){signInAnonymously(auth).catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
   onAuthStateChanged(auth,async user=>{if(!authStateReadyDone){authStateReadyDone=true;resolveAuthStateReady(user)}if(user){initManarVisitorCounter();status(user.isAnonymous?'Firebase جاهز للقراءة — سجّل دخول حساب المزامنة للكتابة':'تم التعرّف على حساب Firebase — '+(user.email||''),!user.isAnonymous);if(initialDone&&localManagerRole()&&canWrite()&&!manualEmailLoginActive){try{const pushed=await pushAll();if(pushed){await pullAll()}else{status('حساب Firebase متصل لكن رفع بيانات المدير فشل؛ لم يتم تنزيل السحابة فوق البيانات المحلية.',false)}}catch(autoLoginSyncErr){status('تعذر إكمال المزامنة التلقائية: '+firebaseErrorMessage(autoLoginSyncErr),false)}}if(initialDone&&dirty.size&&canWrite()){try{const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+firebaseErrorMessage(e),false)}}else if(initialDone&&!localManagerRole()){try{await pullAll()}catch(e){}}}else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
  for(const k of SYNC_KEYS){
@@ -10218,150 +10216,32 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script><style id="polls-module-style">.poll-card{overflow:hidden}.poll-admin-panel{margin:0 0 18px;padding:16px;border:1px solid #d9e8e1;border-radius:15px;background:linear-gradient(145deg,#f8fcfa,#fff)}.poll-admin-title{font-weight:900;color:#075f45;font-size:17px;margin-bottom:12px}.poll-option-editor{display:flex;gap:8px;align-items:center;margin-top:9px}.poll-option-editor input{flex:1}.poll-remove-option{min-width:42px!important;padding:8px!important;background:#fff0f0!important;color:#b42318!important;border:1px solid #f0b8b8!important;box-shadow:none!important}.poll-add-row{margin-top:9px}.poll-admin-note{font-size:12px;color:#718096;margin-top:10px;line-height:1.7}.poll-item{border:1px solid #dce8e2;border-radius:16px;padding:15px;margin:10px 0;background:#fff;box-shadow:0 5px 16px rgba(8,55,39,.06)}.poll-question{font-size:18px;font-weight:900;color:#17352b;line-height:1.6;margin-bottom:12px}.poll-option{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid #e1e9e5;border-radius:11px;margin:7px 0;background:#fbfdfc;cursor:pointer}.poll-option input{width:auto;min-height:0}.poll-vote-btn{margin-top:10px;width:100%}.poll-result{margin-top:12px}.poll-result-row{margin:9px 0}.poll-result-head{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}.poll-bar{height:10px;background:#e8efec;border-radius:99px;overflow:hidden;margin-top:5px}.poll-bar span{display:block;height:100%;background:linear-gradient(90deg,#087e59,#10a777);border-radius:99px}.poll-voted{margin-top:11px;padding:10px 12px;border-radius:11px;background:#eef8f3;border:1px solid #cce6d9;color:#176044;font-weight:800;font-size:13px}.poll-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.poll-actions .btn{flex:1;min-width:110px}.poll-total{margin-top:9px;color:#718096;font-size:12px;text-align:center}.poll-empty{padding:28px;text-align:center}.poll-status{font-size:12px;color:#718096;margin-top:8px}@media(max-width:600px){.poll-question{font-size:16px}.poll-item{padding:13px}.poll-admin-panel{padding:13px}.poll-option-editor{gap:5px}}</style>
 <script id="polls-module-final">
 (function(){'use strict';
-const KEY='manar_polls_v1';
-const SHARED_VOTES_KEY='manar_poll_votes_v1';
-const LOCAL_VOTES_KEY='manar_poll_local_votes_v1';
+const KEY='manar_polls_v1', VOTER_KEY='manar_poll_voter_v1';
 const A=v=>Array.isArray(v)?v:[], S=v=>String(v??'').trim();
 const esc=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const asMap=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
-let sharedVotesCache=asMap((()=>{try{return JSON.parse(localStorage.getItem(SHARED_VOTES_KEY)||'{}')}catch(e){return {}}})());
-const voting=new Set();
 function canManage(){try{if(typeof window.hasPermission==='function')return !!window.hasPermission('media')}catch(e){}return document.body.classList.contains('admin')||document.body.classList.contains('editor')}
-function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');if(Array.isArray(x))return x;if(x&&typeof x==='object')return Object.values(x).filter(v=>v&&v.id);return []}catch(e){return []}}
+function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return A(x)}catch(e){return[]}}
 function write(v){localStorage.setItem(KEY,JSON.stringify(A(v)))}
-function localVotes(){
-  try{const x=JSON.parse(localStorage.getItem(LOCAL_VOTES_KEY)||'null');if(x&&typeof x==='object'&&!Array.isArray(x))return x}catch(e){}
-  /* ترحيل قراءة خفيف للأجهزة التي استخدمت إصدارًا قديمًا وخزّنته كـ pollId -> index. */
-  try{const old=JSON.parse(localStorage.getItem(SHARED_VOTES_KEY)||'null');if(old&&typeof old==='object'&&!Array.isArray(old)){const migrated={};Object.entries(old).forEach(([id,v])=>{if(Number.isInteger(Number(v)))migrated[id]=Number(v)});return migrated}}catch(e){}
-  return {};
-}
-function markLocalVote(id,idx){const x=localVotes();x[id]=idx;localStorage.setItem(LOCAL_VOTES_KEY,JSON.stringify(x))}
-function clearLocalVote(id){const x=localVotes();delete x[id];localStorage.setItem(LOCAL_VOTES_KEY,JSON.stringify(x))}
-function renderEditor(){const box=document.getElementById('pollOptionsEditor');if(!box)return;let inputs=[...box.querySelectorAll('input')];if(inputs.length<2){box.innerHTML='';for(let i=0;i<2;i++)addOption('')}}
+function voterId(){let v='';try{v=localStorage.getItem(VOTER_KEY)||''}catch(e){}if(!v){v='v_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);try{localStorage.setItem(VOTER_KEY,v)}catch(e){}}return v}
+function localVotes(){try{return JSON.parse(localStorage.getItem('manar_poll_votes_v1')||'{}')||{}}catch(e){return{}}}
+function markLocalVote(id,idx){const x=localVotes();x[id]=idx;localStorage.setItem('manar_poll_votes_v1',JSON.stringify(x))}
+function hasLocalVote(id){return Object.prototype.hasOwnProperty.call(localVotes(),id)}
+function renderEditor(){const box=document.getElementById('pollOptionsEditor');if(!box)return;let inputs=[...box.querySelectorAll('input')];if(inputs.length<2){box.innerHTML='';for(let i=0;i<2;i++)addOption('')} }
 function addOption(value){const box=document.getElementById('pollOptionsEditor');if(!box)return;const row=document.createElement('div');row.className='poll-option-editor';row.innerHTML='<input maxlength="100" placeholder="الخيار '+(box.children.length+1)+'" value="'+esc(value)+'"><button type="button" class="btn poll-remove-option">🗑️</button>';row.querySelector('button').onclick=function(){if(box.children.length<=2)return alert('يجب أن يحتوي الاستطلاع على خيارين على الأقل.');row.remove();renumberOptions()};box.appendChild(row)}
 function renumberOptions(){const box=document.getElementById('pollOptionsEditor');if(!box)return;[...box.children].forEach((r,i)=>r.querySelector('input').placeholder='الخيار '+(i+1))}
 function resetForm(){const q=document.getElementById('pollQuestion');if(q)q.value='';const b=document.getElementById('pollOptionsEditor');if(b){b.innerHTML='';addOption('');addOption('')}const save=document.getElementById('pollSaveBtn');if(save){save.textContent='💾 حفظ الاستطلاع';save.dataset.editing=''}const cancel=document.getElementById('pollCancelBtn');if(cancel)cancel.style.display='none'}
 function getCloud(){return window.__manarPollFirebase}
-function cloudWrite(data){const f=getCloud();if(!f?.db||!f?.auth?.currentUser)throw new Error('لم تكتمل جلسة Firebase؛ أعد المحاولة بعد اتصال المنصة.');return f.set(f.ref(f.db,'manar_platform/'+KEY),data)}
+async function cloudWrite(data){const f=getCloud();if(!f?.db||!f?.auth?.currentUser)throw new Error('تعذر الاتصال بخدمة التصويت');await f.set(f.ref(f.db,'manar_platform/'+KEY),data)}
 function refreshBadge(){const b=document.getElementById('pollCountBadge');if(b)b.textContent=read().length+' استطلاع'}
-function pollVotes(p){
-  const legacy=asMap(p&&p.votes),cloud=asMap(sharedVotesCache[S(p&&p.id)]);
-  const voters={...legacy,...cloud};
-  const options=A(p&&p.options),counts=options.map(()=>0);
-  Object.values(voters).forEach(value=>{const i=Number(value);if(Number.isInteger(i)&&i>=0&&i<counts.length)counts[i]++});
-  return {counts,total:Object.keys(voters).length,voters};
-}
-function currentUid(){try{return S(getCloud()?.auth?.currentUser?.uid)}catch(e){return ''}}
-function hasVoted(p,id,result){const local=localVotes();const uid=currentUid();return Object.prototype.hasOwnProperty.call(local,id)||(!!uid&&Object.prototype.hasOwnProperty.call(result.voters,uid))}
-function optionText(o){return typeof o==='string'?o:S(o&&o.text)}
-function render(){
-  const box=document.getElementById('pollsList');if(!box)return;
-  const polls=read();refreshBadge();
-  if(!polls.length){box.innerHTML='<div class="empty poll-empty">لا توجد استطلاعات رأي حالياً.</div>';return}
-  box.innerHTML=polls.slice().reverse().map(p=>{
-    const id=S(p.id),r=pollVotes(p),voted=hasVoted(p,id,r),options=A(p.options);
-    const content=!voted
-      ? '<div class="poll-options">'+options.map((o,i)=>'<label class="poll-option"><input type="radio" name="poll_'+esc(id)+'" value="'+i+'"><span>'+esc(optionText(o))+'</span></label>').join('')+'</div><button type="button" class="btn poll-vote-btn" data-vote="'+esc(id)+'" '+(voting.has(id)?'disabled':'')+'>'+(voting.has(id)?'⏳ جارٍ تسجيل التصويت...':'🗳️ تصويت')+'</button>'
-      : '<div class="poll-result">'+options.map((o,i)=>{const pct=r.total?Math.round(r.counts[i]*1000/r.total)/10:0;return '<div class="poll-result-row"><div class="poll-result-head"><span>'+esc(optionText(o))+'</span><b>'+pct+'% ('+r.counts[i]+')</b></div><div class="poll-bar"><span style="width:'+pct+'%"></span></div></div>'}).join('')+'</div><div class="poll-voted">✅ تم تسجيل تصويتك بنجاح.</div><div class="poll-total">إجمالي الأصوات: '+r.total+'</div>';
-    return '<div class="poll-item" data-poll-id="'+esc(id)+'"><div class="poll-question">🗳️ '+esc(p.question)+'</div>'+content+'<div class="poll-actions '+(canManage()?'':'admin-only')+'">'+(canManage()?'<button type="button" class="btn blue" data-edit-poll="'+esc(id)+'">✏️ تعديل</button><button type="button" class="btn danger" data-delete-poll="'+esc(id)+'">🗑️ حذف</button>':'')+'</div></div>';
-  }).join('');
-  applyPermissionsSafe();
-}
+function pollVotes(p){const v=p&&p.votes&&typeof p.votes==='object'?p.votes:{};const counts=A(p.options).map(()=>0);Object.values(v).forEach(i=>{i=Number(i);if(Number.isInteger(i)&&i>=0&&i<counts.length)counts[i]++});return {counts,total:Object.keys(v).length}}
+function render(){const box=document.getElementById('pollsList');if(!box)return;const polls=read();refreshBadge();if(!polls.length){box.innerHTML='<div class="empty poll-empty">لا توجد استطلاعات رأي حالياً.</div>';return}const votes=localVotes();box.innerHTML=polls.slice().reverse().map(p=>{const r=pollVotes(p),voted=Object.prototype.hasOwnProperty.call(votes,p.id)||hasLocalVote(p.id),chosen=votes[p.id];const options=A(p.options);return '<div class="poll-item" data-poll-id="'+esc(p.id)+'"><div class="poll-question">🗳️ '+esc(p.question)+'</div>'+(!voted?'<div class="poll-options">'+options.map((o,i)=>'<label class="poll-option"><input type="radio" name="poll_'+esc(p.id)+'" value="'+i+'"><span>'+esc(typeof o==='string'?o:o.text)+'</span></label>').join('')+'</div><button type="button" class="btn poll-vote-btn" data-vote="'+esc(p.id)+'">🗳️ تصويت</button>':'<div class="poll-result">'+options.map((o,i)=>{const pct=r.total?Math.round(r.counts[i]*1000/r.total)/10:0;return '<div class="poll-result-row"><div class="poll-result-head"><span>'+esc(typeof o==='string'?o:o.text)+'</span><b>'+pct+'%</b></div><div class="poll-bar"><span style="width:'+pct+'%"></span></div></div>'}).join('')+'</div><div class="poll-voted">✅ تم تسجيل تصويتك. لا يمكنك التصويت مرة أخرى في هذا الاستطلاع.</div><div class="poll-total">إجمالي الأصوات: '+r.total+'</div>')+'<div class="poll-actions '+(canManage()?'':'admin-only')+'">'+(canManage()?'<button type="button" class="btn blue" data-edit-poll="'+esc(p.id)+'">✏️ تعديل</button><button type="button" class="btn danger" data-delete-poll="'+esc(p.id)+'">🗑️ حذف</button>':'')+'</div></div>'}).join('');applyPermissionsSafe()}
 function applyPermissionsSafe(){try{if(typeof window.applyPermissions==='function')window.applyPermissions()}catch(e){}}
-function waitForFirebaseUser(f){
-  if(f?.auth?.currentUser)return Promise.resolve(f.auth.currentUser);
-  if(!f?.auth||typeof f.onAuthStateChanged!=='function')return Promise.resolve(null);
-  return new Promise(resolve=>{
-    let done=false,unsubscribe=()=>{};
-    const finish=user=>{if(done)return;done=true;try{unsubscribe()}catch(e){}clearTimeout(timer);resolve(user||null)};
-    const timer=setTimeout(()=>finish(null),10000);
-    try{unsubscribe=f.onAuthStateChanged(f.auth,user=>{if(user)finish(user)})}catch(e){finish(null)}
-  });
-}
-async function vote(id){
-  id=S(id);if(!id||voting.has(id))return;
-  const p=read().find(x=>S(x.id)===id);if(!p)return;
-  const item=document.querySelector('[data-poll-id="'+CSS.escape(id)+'"]');if(!item)return;
-  const f=getCloud();
-  if(!f?.db||!f?.auth){alert('خدمة التصويت غير متاحة حاليًا. تحقق من اتصال الإنترنت وافتح المنصة المنشورة.');return}
-  const user=await waitForFirebaseUser(f);
-  if(!user){alert('تعذّر تهيئة جلسة التصويت مع Firebase. لم يُسجّل صوتك؛ تحقق من الاتصال ثم أعد المحاولة.');return}
-  const existing=pollVotes(p);
-  if(hasVoted(p,id,existing)){render();alert('سبق تسجيل تصويتك في هذا الاستطلاع.');return}
-  const radio=item.querySelector('input[name="poll_'+CSS.escape(id)+'"]:checked');
-  if(!radio)return alert('اختر أحد الخيارات أولاً.');
-  const idx=Number(radio.value);if(!Number.isInteger(idx)||idx<0||idx>=A(p.options).length)return alert('الخيار المحدد غير صالح. حدّث الصفحة وحاول مجددًا.');
-  voting.add(id);render();
-  try{
-    const voteRef=f.ref(f.db,'manar_platform/'+SHARED_VOTES_KEY+'/'+id);
-    if(typeof f.runTransaction==='function'){
-      const tx=await f.runTransaction(voteRef,current=>{
-        const voters=asMap(current);
-        if(Object.prototype.hasOwnProperty.call(voters,user.uid))return;
-        return {...voters,[user.uid]:idx};
-      },{applyLocally:false});
-      if(!tx?.committed){
-        const snap=tx?.snapshot?.val();if(snap&&typeof snap==='object')sharedVotesCache={...sharedVotesCache,[id]:snap};
-        throw new Error('سبق تسجيل تصويت هذا الحساب في الاستطلاع.');
-      }
-      const saved=asMap(tx.snapshot?.val());
-      sharedVotesCache={...sharedVotesCache,[id]:saved};
-    }else{
-      const voteUserRef=f.ref(f.db,'manar_platform/'+SHARED_VOTES_KEY+'/'+id+'/'+user.uid);
-      const before=await f.get(voteUserRef);if(before.exists())throw new Error('سبق تسجيل تصويت هذا الحساب في الاستطلاع.');
-      await f.set(voteUserRef,idx);
-      sharedVotesCache={...sharedVotesCache,[id]:{...asMap(sharedVotesCache[id]),[user.uid]:idx}};
-    }
-    markLocalVote(id,idx);
-    render();
-  }catch(e){
-    const msg=S(e?.message||e);
-    render();
-    alert(msg.includes('سبق تسجيل')?msg:'تعذّر تسجيل التصويت في قاعدة البيانات، لذلك لم نعتمد صوتك. '+msg+'\n\nتحقق من صلاحيات الكتابة في Firebase Realtime Database ثم أعد المحاولة.');
-  }finally{voting.delete(id);render()}
-}
-function editPoll(id){if(!canManage())return;const p=read().find(x=>S(x.id)===S(id));if(!p)return;document.getElementById('pollQuestion').value=p.question||'';const box=document.getElementById('pollOptionsEditor');box.innerHTML='';A(p.options).forEach(o=>addOption(optionText(o)));const b=document.getElementById('pollSaveBtn');b.textContent='💾 حفظ التعديل';b.dataset.editing=id;document.getElementById('pollCancelBtn').style.display='';document.getElementById('pollAdminPanel').scrollIntoView({behavior:'smooth',block:'center'})}
-async function savePoll(){
-  if(!canManage())return;
-  const q=S(document.getElementById('pollQuestion')?.value),opts=[...document.querySelectorAll('#pollOptionsEditor input')].map(x=>S(x.value)).filter(Boolean);
-  if(!q)return alert('اكتب سؤال الاستطلاع.');if(opts.length<2)return alert('أدخل خيارين على الأقل.');if(new Set(opts).size!==opts.length)return alert('لا تكرر نفس الخيار.');
-  const btn=document.getElementById('pollSaveBtn');if(btn)btn.disabled=true;
-  try{
-    const editing=S(btn?.dataset.editing),arr=read();
-    if(editing){const p=arr.find(x=>S(x.id)===editing);if(!p)return;const oldVotes=p.votes||{};p.question=q;p.options=opts;p.updatedAt=new Date().toISOString();p.votes=oldVotes}
-    else arr.push({id:'poll_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),question:q,options:opts,createdAt:new Date().toISOString(),votes:{}});
-    write(arr);await cloudWrite(arr);resetForm();render();alert(editing?'تم تحديث الاستطلاع ومزامنته.':'تم حفظ الاستطلاع ومزامنته مع الأجهزة الأخرى.');
-  }catch(e){alert('تعذر مزامنة الاستطلاع مع Firebase: '+S(e?.message||e)+'\nاحتُفظ بالنسخة المحلية، لكن لن تظهر للأجهزة الأخرى حتى تنجح المزامنة.')}
-  finally{if(btn)btn.disabled=false}
-}
-async function deletePoll(id){
-  if(!canManage())return;const arr=read(),p=arr.find(x=>S(x.id)===S(id));if(!p)return;if(!confirm('هل تريد حذف هذا الاستطلاع؟'))return;
-  const f=getCloud();
-  try{
-    await cloudWrite(arr.filter(x=>S(x.id)!==S(id)));
-    if(f?.db&&f?.auth?.currentUser){const voteRef=f.ref(f.db,'manar_platform/'+SHARED_VOTES_KEY+'/'+S(id));if(typeof f.remove==='function')await f.remove(voteRef);else await f.set(voteRef,null)}
-    const next={...sharedVotesCache};delete next[S(id)];sharedVotesCache=next;clearLocalVote(S(id));write(arr.filter(x=>S(x.id)!==S(id)));render();
-  }catch(e){alert('تعذر حذف الاستطلاع من السحابة: '+S(e?.message||e));}
-}
-function bind(){
-  document.getElementById('pollAddOptionBtn')?.addEventListener('click',()=>addOption(''));
-  document.getElementById('pollSaveBtn')?.addEventListener('click',savePoll);
-  document.getElementById('pollCancelBtn')?.addEventListener('click',resetForm);
-  document.addEventListener('click',e=>{const v=e.target.closest('[data-vote]');if(v)vote(v.dataset.vote);const ed=e.target.closest('[data-edit-poll]');if(ed)editPoll(ed.dataset.editPoll);const del=e.target.closest('[data-delete-poll]');if(del)deletePoll(del.dataset.deletePoll)});
-  resetForm();render();
-}
-function cloudListen(){
-  const f=getCloud();if(!f?.db||!f?.onValue)return;
-  try{f.onValue(f.ref(f.db,'manar_platform/'+KEY),snap=>{
-    const val=snap.val();let arr=[];
-    if(Array.isArray(val))arr=val;
-    else if(val&&typeof val==='object')arr=Object.values(val).filter(x=>x&&x.id);
-    write(arr);render();
-  },err=>console.warn('Poll list sync failed:',err))}catch(e){console.warn('Poll list listener failed:',e)}
-  try{f.onValue(f.ref(f.db,'manar_platform/'+SHARED_VOTES_KEY),snap=>{
-    sharedVotesCache=asMap(snap.val());render();
-  },err=>console.warn('Poll vote sync failed:',err))}catch(e){console.warn('Poll vote listener failed:',e)}
-}
+async function vote(id){const p=read().find(x=>S(x.id)===S(id));if(!p)return;const item=document.querySelector('[data-poll-id="'+CSS.escape(String(id))+'"]');if(!item)return;if(hasLocalVote(id))return render();const radio=item.querySelector('input[name="poll_'+CSS.escape(String(id))+'"]:checked');if(!radio)return alert('اختر أحد الخيارات أولاً.');const idx=Number(radio.value);const f=getCloud();try{if(f?.db&&f?.auth?.currentUser){const path='manar_platform/'+KEY+'/'+id+'/votes/'+f.auth.currentUser.uid;await f.set(f.ref(f.db,path),idx)}else throw new Error('no firebase')}catch(e){/* fallback local, still prevents repeat on this browser */}markLocalVote(id,idx);const arr=read(),pp=arr.find(x=>S(x.id)===S(id));if(pp){pp.votes=pp.votes||{};const uid=f?.auth?.currentUser?.uid||voterId();pp.votes[uid]=idx;write(arr)}render()}
+function editPoll(id){if(!canManage())return;const p=read().find(x=>S(x.id)===S(id));if(!p)return;document.getElementById('pollQuestion').value=p.question||'';const box=document.getElementById('pollOptionsEditor');box.innerHTML='';A(p.options).forEach(o=>addOption(typeof o==='string'?o:o.text));const b=document.getElementById('pollSaveBtn');b.textContent='💾 حفظ التعديل';b.dataset.editing=id;document.getElementById('pollCancelBtn').style.display='';document.getElementById('pollAdminPanel').scrollIntoView({behavior:'smooth',block:'center'})}
+async function savePoll(){if(!canManage())return;const q=S(document.getElementById('pollQuestion')?.value);const opts=[...document.querySelectorAll('#pollOptionsEditor input')].map(x=>S(x.value)).filter(Boolean);if(!q)return alert('اكتب سؤال الاستطلاع.');if(opts.length<2)return alert('أدخل خيارين على الأقل.');if(new Set(opts).size!==opts.length)return alert('لا تكرر نفس الخيار.');const btn=document.getElementById('pollSaveBtn'),editing=S(btn?.dataset.editing);const arr=read();if(editing){const p=arr.find(x=>S(x.id)===editing);if(!p)return;const oldVotes=p.votes||{};p.question=q;p.options=opts;p.updatedAt=new Date().toISOString();p.votes=oldVotes}else{arr.push({id:'poll_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),question:q,options:opts,createdAt:new Date().toISOString(),votes:{}})}write(arr);try{await cloudWrite(arr)}catch(e){alert('تم حفظ الاستطلاع على الجهاز، لكن تعذر رفعه للسحابة. تأكد من اتصال Firebase وصلاحيات الكتابة.')}resetForm();render()}
+async function deletePoll(id){if(!canManage())return;const arr=read(),p=arr.find(x=>S(x.id)===S(id));if(!p)return;if(!confirm('هل تريد حذف هذا الاستطلاع؟'))return;write(arr.filter(x=>S(x.id)!==S(id)));try{await cloudWrite(read())}catch(e){}render()}
+function bind(){document.getElementById('pollAddOptionBtn')?.addEventListener('click',()=>addOption(''));document.getElementById('pollSaveBtn')?.addEventListener('click',savePoll);document.getElementById('pollCancelBtn')?.addEventListener('click',resetForm);document.addEventListener('click',e=>{const v=e.target.closest('[data-vote]');if(v)vote(v.dataset.vote);const ed=e.target.closest('[data-edit-poll]');if(ed)editPoll(ed.dataset.editPoll);const del=e.target.closest('[data-delete-poll]');if(del)deletePoll(del.dataset.deletePoll)});resetForm();render()}
+function cloudListen(){const f=getCloud();if(!f?.db||!f?.onValue)return;try{f.onValue(f.ref(f.db,'manar_platform/'+KEY),snap=>{const val=snap.val();if(Array.isArray(val)){write(val)}else if(val&&typeof val==='object'){const arr=Object.values(val).filter(x=>x&&x.id);write(arr)}else write([]);render()})}catch(e){}}
 window.refreshPolls=render;window.savePoll=savePoll;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(bind,250);setTimeout(cloudListen,900)});else{setTimeout(bind,100);setTimeout(cloudListen,700)}
 const oldGo=window.goPage;if(typeof oldGo==='function'&&!oldGo.__pollWrapped){window.goPage=function(page){const r=oldGo.apply(this,arguments);if(page==='pollsSection')setTimeout(render,20);return r};window.goPage.__pollWrapped=true}
