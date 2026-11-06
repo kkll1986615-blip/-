@@ -702,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <button class="btn warn" id="ksAdminDecisionToggle" type="button" aria-pressed="false">⚖️ قرار إداري: غير مفعل</button>
 <div id="ksAdminDecisionOptions" style="display:none;margin-top:10px"><div class="ks-grid"><div><label for="ksDecisionType">نوع القرار الإداري</label><select id="ksDecisionType"><option value="withdrawal">انسحاب الفريق</option><option value="disciplinary_loss">خسارة انضباطية</option></select></div><div><label id="ksDecisionTeamLabel" for="ksWithdrawnTeam">الفريق المعني بالقرار</label><select id="ksWithdrawnTeam"><option value="">اختر الفريق</option></select></div></div><small>عند تفعيل القرار الإداري تظهر جميع أقسام الكشف ويمكنك تعبئة ما يتوفر لديك أو ترك أي تفصيل فارغًا. يكفي تحديد نوع القرار والفريق المعني؛ وتُمنح النتيجة الإدارية 3-0 للفريق الآخر. جميع تفاصيل الكشف الأخرى اختيارية.</small></div>
 </div>
-<div class="ks-step"><h3>1️⃣ نتيجة المباراة</h3><div class="ks-score"><div><label id="ksHomeLabel">الفريق الأول</label><input id="ksHomeScore" inputmode="numeric" min="0" type="number"/></div><strong>×</strong><div><label id="ksAwayLabel">الفريق الثاني</label><input id="ksAwayScore" inputmode="numeric" min="0" type="number"/></div></div><div id="ksShootoutWrap" style="display:none;margin-top:12px;padding:12px;border:1px solid #e8c76a;border-radius:12px;background:#fff9e8"><b style="display:block;margin-bottom:8px">⚽ حسم المباراة بركلات الترجيح</b><div class="ks-score"><div><label id="ksShootoutHomeLabel">ركلات الفريق الأول</label><input id="ksShootoutHome" inputmode="numeric" min="0" max="30" type="number" placeholder="0"/></div><strong>×</strong><div><label id="ksShootoutAwayLabel">ركلات الفريق الثاني</label><input id="ksShootoutAway" inputmode="numeric" min="0" max="30" type="number" placeholder="0"/></div></div><small style="display:block;margin-top:7px;color:#795500">تُسجل ركلات الترجيح منفصلة ولا تدخل ضمن أهداف اللاعبين أو إحصائيات الأهداف.</small></div></div><div class="ks-step"><h3>2️⃣ مسجلو الأهداف</h3><div class="ks-two"><div><b id="ksHomeGoalsTitle">الفريق الأول</b><div class="ks-dynamic" id="ksHomeGoals"></div></div><div><b id="ksAwayGoalsTitle">الفريق الثاني</b><div class="ks-dynamic" id="ksAwayGoals"></div></div></div><small>تظهر خانات المسجلين حسب عدد الأهداف، ولا يتم تسجيل الدقيقة أو الشوط.</small></div><div class="ks-step"><h3>3️⃣ الإنذارات والبطاقات</h3><div class="ks-card-entry"><select id="ksCardTeam"><option value="">اختر الفريق</option></select><select disabled="" id="ksCardPlayer"><option value="">اختر اللاعب</option></select><select id="ksCardType"><option value="yellow">🟨 صفراء</option><option value="red">🟥 حمراء</option></select><button class="btn warn" id="ksAddCard" type="button">إضافة البطاقة</button></div><div class="ks-events" id="ksCards"></div></div><div class="ks-step ks-goalkeeper-step"><h3>4️⃣ حراس المرمى المشاركون</h3><small class="goalkeeper-one-note">اختر الحارس الذي شارك فعلياً من قائمة لاعبي فريقه؛ تظهر جميع الأسماء حتى يمكن اختيار الحارس الاحتياطي مهما كان رقم قميصه. تُسجّل إحصائيات المباراة للحارس المختار فقط.</small><div class="ks-grid"><div><label id="ksHomeGoalkeeperLabel">🧤 حارس الفريق الأول *</label><select id="ksHomeGoalkeeper"><option value="">اختر الحارس الذي شارك فعلياً</option></select></div><div><label id="ksAwayGoalkeeperLabel">🧤 حارس الفريق الثاني *</label><select id="ksAwayGoalkeeper"><option value="">اختر الحارس الذي شارك فعلياً</option></select></div></div></div><div class="ks-step"><h3>5️⃣ أفضل لاعب</h3><div class="ks-grid"><div><label>أفضل لاعب *</label><select id="ksBestPlayer"><option value="">اختر اللاعب</option></select></div></div></div><div class="ks-step"><h3>6️⃣ الحكام والمشرف</h3><div class="ks-grid"><div><label>الحكم الأول *</label><select id="ksRef1"></select></div><div><label>الحكم الثاني *</label><select id="ksRef2"></select></div><div><label>الحكم الثالث *</label><select id="ksRef3"></select></div><div><label>الحكم الرابع</label><select id="ksRef4"></select></div><div><label>مشرف المباراة</label><input id="ksSupervisor" placeholder="اسم المشرف"/></div></div></div><div class="ks-step"><h3>7️⃣ ضربات الجزاء</h3><div class="ks-grid"><div><label>هل توجد ضربات جزاء؟</label><select id="ksPenYes"><option value="no">لا</option><option value="yes">نعم</option></select></div><div><label>العدد</label><input id="ksPenalties" min="0" type="number" value="0"/></div></div></div><div class="ks-step"><h3>8️⃣ صورة الكشف <small>(اختياري)</small></h3><input accept="image/*" id="ksImage" type="file"/><div id="ksImagePreview"></div></div><div class="ks-actions"><button class="btn primary" id="ksSave" type="button">💾 حفظ الكشف</button><button class="btn secondary" id="ksCancel" type="button">إلغاء</button></div><div class="ks-status" id="ksStatus"></div></div><div class="ks-public"><div class="section-title"><h3>📋 الكشوفات المدخلة</h3><span class="badge">المشاهدة للجميع</span></div><div id="ksReportsList"></div></div></div></section><section class="page" id="contactUs" style="display:none"><div class="section-page-title"><h2>📞 تواصل معنا</h2><span class="badge">نحن هنا لخدمتكم</span></div><div class="card"><div class="section-title"><h2>💬 تواصل معنا</h2><small>يسعدنا استقبال استفساراتكم وملاحظاتكم</small></div><div class="grid"><div class="card" style="margin:0"><h3>📞 الهاتف</h3><p>يمكنك إضافة رقم الهاتف هنا.</p></div><div class="card" style="margin:0"><h3>📱 واتساب</h3><p>يمكنك إضافة رقم الواتساب هنا.</p></div><div class="card" style="margin:0"><h3>📧 البريد الإلكتروني</h3><p>يمكنك إضافة البريد الإلكتروني هنا.</p></div><div class="card" style="margin:0"><h3>📍 العنوان</h3><p>يمكنك إضافة عنوان المنصة هنا.</p></div></div></div></section></main><section class="page" id="headToHeadSection">
+<div class="ks-step"><h3>1️⃣ نتيجة المباراة</h3><div class="ks-score"><div><label id="ksHomeLabel">الفريق الأول</label><input id="ksHomeScore" inputmode="numeric" min="0" type="number"/></div><strong>×</strong><div><label id="ksAwayLabel">الفريق الثاني</label><input id="ksAwayScore" inputmode="numeric" min="0" type="number"/></div></div><div id="ksShootoutWrap" style="display:none;margin-top:12px;padding:12px;border:1px solid #e8c76a;border-radius:12px;background:#fff9e8"><b style="display:block;margin-bottom:8px">⚽ حسم المباراة بركلات الترجيح</b><div class="ks-score"><div><label id="ksShootoutHomeLabel">ركلات الفريق الأول</label><input id="ksShootoutHome" inputmode="numeric" min="0" max="30" type="number" placeholder="0"/></div><strong>×</strong><div><label id="ksShootoutAwayLabel">ركلات الفريق الثاني</label><input id="ksShootoutAway" inputmode="numeric" min="0" max="30" type="number" placeholder="0"/></div></div><small style="display:block;margin-top:7px;color:#795500">تُسجل ركلات الترجيح منفصلة ولا تدخل ضمن أهداف اللاعبين أو إحصائيات الأهداف.</small></div></div><div class="ks-step"><h3>2️⃣ مسجلو الأهداف</h3><div class="ks-two"><div><b id="ksHomeGoalsTitle">الفريق الأول</b><div class="ks-dynamic" id="ksHomeGoals"></div></div><div><b id="ksAwayGoalsTitle">الفريق الثاني</b><div class="ks-dynamic" id="ksAwayGoals"></div></div></div><small>تظهر خانات المسجلين حسب عدد الأهداف، ولا يتم تسجيل الدقيقة أو الشوط.</small></div><div class="ks-step"><h3>3️⃣ الإنذارات والبطاقات</h3><div class="ks-card-entry"><select id="ksCardTeam"><option value="">اختر الفريق</option></select><select disabled="" id="ksCardPlayer"><option value="">اختر اللاعب</option></select><select id="ksCardType"><option value="yellow">🟨 صفراء</option><option value="red">🟥 حمراء</option></select><button class="btn warn" id="ksAddCard" type="button">إضافة البطاقة</button></div><div class="ks-two ks-card-columns" id="ksCards"></div></div><div class="ks-step ks-goalkeeper-step"><h3>4️⃣ حراس المرمى المشاركون</h3><small class="goalkeeper-one-note">اختر الحارس الذي شارك فعلياً من قائمة لاعبي فريقه؛ تظهر جميع الأسماء حتى يمكن اختيار الحارس الاحتياطي مهما كان رقم قميصه. تُسجّل إحصائيات المباراة للحارس المختار فقط.</small><div class="ks-grid"><div><label id="ksHomeGoalkeeperLabel">🧤 حارس الفريق الأول *</label><select id="ksHomeGoalkeeper"><option value="">اختر الحارس الذي شارك فعلياً</option></select></div><div><label id="ksAwayGoalkeeperLabel">🧤 حارس الفريق الثاني *</label><select id="ksAwayGoalkeeper"><option value="">اختر الحارس الذي شارك فعلياً</option></select></div></div></div><div class="ks-step"><h3>5️⃣ أفضل لاعب</h3><div class="ks-grid"><div><label>أفضل لاعب *</label><select id="ksBestPlayer"><option value="">اختر اللاعب</option></select></div></div></div><div class="ks-step"><h3>6️⃣ الحكام والمشرف</h3><div class="ks-grid"><div><label>الحكم الأول *</label><select id="ksRef1"></select></div><div><label>الحكم الثاني *</label><select id="ksRef2"></select></div><div><label>الحكم الثالث *</label><select id="ksRef3"></select></div><div><label>الحكم الرابع</label><select id="ksRef4"></select></div><div><label>مشرف المباراة</label><input id="ksSupervisor" placeholder="اسم المشرف"/></div></div></div><div class="ks-step"><h3>7️⃣ ضربات الجزاء</h3><div class="ks-grid"><div><label>هل توجد ضربات جزاء؟</label><select id="ksPenYes"><option value="no">لا</option><option value="yes">نعم</option></select></div><div><label>العدد</label><input id="ksPenalties" min="0" type="number" value="0"/></div></div></div><div class="ks-step"><h3>8️⃣ صورة الكشف <small>(اختياري)</small></h3><input accept="image/*" id="ksImage" type="file"/><div id="ksImagePreview"></div></div><div class="ks-actions"><button class="btn primary" id="ksSave" type="button">💾 حفظ الكشف</button><button class="btn secondary" id="ksCancel" type="button">إلغاء</button></div><div class="ks-status" id="ksStatus"></div></div><div class="ks-public"><div class="section-title"><h3>📋 الكشوفات المدخلة</h3><span class="badge">المشاهدة للجميع</span></div><div id="ksReportsList"></div></div></div></section><section class="page" id="contactUs" style="display:none"><div class="section-page-title"><h2>📞 تواصل معنا</h2><span class="badge">نحن هنا لخدمتكم</span></div><div class="card"><div class="section-title"><h2>💬 تواصل معنا</h2><small>يسعدنا استقبال استفساراتكم وملاحظاتكم</small></div><div class="grid"><div class="card" style="margin:0"><h3>📞 الهاتف</h3><p>يمكنك إضافة رقم الهاتف هنا.</p></div><div class="card" style="margin:0"><h3>📱 واتساب</h3><p>يمكنك إضافة رقم الواتساب هنا.</p></div><div class="card" style="margin:0"><h3>📧 البريد الإلكتروني</h3><p>يمكنك إضافة البريد الإلكتروني هنا.</p></div><div class="card" style="margin:0"><h3>📍 العنوان</h3><p>يمكنك إضافة عنوان المنصة هنا.</p></div></div></div></section></main><section class="page" id="headToHeadSection">
   <div class="section-page-title"><h2>⚔️ تاريخ المواجهات</h2><span class="badge">جميع البطولات المسجلة</span></div>
   <div class="card h2h-card">
     <div class="section-title">
@@ -7536,7 +7536,31 @@ function fillGoalkeeperSelectors(m,saved){
  if(hl)hl.textContent='🧤 حارس '+tName(homeId)+' *';
  if(al)al.textContent='🧤 حارس '+tName(awayId)+' *';
 }
-function renderCards(){const b=$('ksCards');if(!b)return;b.innerHTML=cards.length?cards.map((c,i)=>'<div class="ks-event"><span>'+(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(tName(c.teamId)||c.teamName)+'</span><button type="button" data-ks-del="'+i+'">حذف</button></div>').join(''):'<div class="ks-empty">لا توجد بطاقات مسجلة.</div>'}
+function renderCards(){
+ const box=$('ksCards');if(!box)return;
+ const m=matches().find((x,i)=>mid(x,i)===active);
+ const homeId=S(m?teamId(m,'home'):''),awayId=S(m?teamId(m,'away'):''),homeName=tName(homeId)||'الفريق الأول',awayName=tName(awayId)||'الفريق الثاني';
+ const used=new Set();
+ const itemHtml=(entry,index)=>{
+  const c=entry.c||entry,i=entry.i??index,isRed=S(c.type).toLowerCase()==='red',symbol=isRed?'🟥':'🟨',kind=isRed?'بطاقة حمراء':'بطاقة صفراء';
+  return '<div class="ks-scorer ks-card-editor-row"><span>'+(index+1)+'</span><div class="ks-card-editor-info"><span class="ks-card-editor-symbol">'+symbol+'</span><b>'+esc(c.playerName||pName(c.playerId)||'لاعب')+'</b><small>'+kind+'</small></div><button type="button" data-ks-del="'+i+'">حذف</button></div>';
+ };
+ const group=(tid,name,side)=>{
+  const entries=cards.map((c,i)=>({c,i})).filter(({c,i})=>{
+   const ref=c.teamId??c.teamID??c.team_id??c.team??'';
+   const refValue=ref&&typeof ref==='object'?(ref.id??ref.teamId??ref.teamID??ref.team_id??ref.name??ref.teamName??''):ref;
+   const belongs=!!tid&&(S(refValue)===tid||S(refValue)===name||S(c.teamName)===name);
+   if(belongs)used.add(i);
+   return belongs;
+  });
+  const rows=entries.length?entries.map((entry,index)=>itemHtml(entry,index)).join(''):'<div class="ks-goal-team-empty">لا توجد إنذارات مسجلة</div>';
+  return '<div class="ks-card-team-panel '+side+'"><b class="ks-card-team-title">'+(side==='away'?'🔴 ':'🔵 ')+'بطاقات '+esc(name)+'</b><div class="ks-dynamic">'+rows+'</div></div>';
+ };
+ let html=group(homeId,homeName,'home')+group(awayId,awayName,'away');
+ const other=cards.map((c,i)=>({c,i})).filter(entry=>!used.has(entry.i));
+ if(other.length){html+='<div class="ks-card-team-panel ks-card-unassigned-panel"><b class="ks-card-team-title">⚪ بطاقات لم يحدد فريقها</b><div class="ks-dynamic">'+other.map((entry,index)=>itemHtml(entry,index)).join('')+'</div></div>';}
+ box.innerHTML=html;
+}
 function renderGoals(saved){const m=matches().find((x,i)=>mid(x,i)===active),hg=Number($('ksHomeScore').value)||0,ag=Number($('ksAwayScore').value)||0;const make=(box,side,n,vals,tid)=>{const b=$(box);b.innerHTML='';const ps=teamPlayers(tid);for(let i=0;i<n;i++){const row=document.createElement('div');row.className='ks-scorer';row.innerHTML='<span>'+(i+1)+'</span><select><option value="">اختر مسجل الهدف</option>'+ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(pName(p.id??p.playerId??p.playerID??p.player_id))+'</option>').join('')+'</select>';b.appendChild(row);if(vals?.[i])row.querySelector('select').value=S(vals[i])}};make('ksHomeGoals','home',hg,saved?.homeScorers,teamId(m,'home'));make('ksAwayGoals','away',ag,saved?.awayScorers,teamId(m,'away'))}
 function open(id){if(!canManage())return alert('التعديل متاح للمدير أو من يملك صلاحية كشوفات المباريات.');const m=matches().find((x,i)=>mid(x,i)===S(id));if(!m)return alert('لم يتم العثور على المباراة.');active=S(id);const sh=findSheet(id);fillWithdrawnTeamOptions(m);setAdminDecisionMode(!!sh?.administrativeDecision,sh?.decisionTeamId||sh?.withdrawnTeamId||'');const decisionTypeSelect=$('ksDecisionType');if(decisionTypeSelect)decisionTypeSelect.value=sh?.decisionType||'withdrawal';editing=!!sh;cards=A(sh?.cards).map(c=>({...c}));$('ksEditorTitle').textContent=sh?'✏️ تعديل كشف المباراة':'📝 إنشاء كشف المباراة';$('ksNumber').textContent='رقم الكشف: '+(sh?.sheetNumber||nextNo());$('ksEditor').style.display='block';$('ksMatchInfo').innerHTML=esc(tName(teamId(m,'home')))+' <b> '+Number(sh?.homeScore??m.hg??m.homeGoals??0)+' — '+Number(sh?.awayScore??m.ag??m.awayGoals??0)+' </b> '+esc(tName(teamId(m,'away')))+'<div class="ks-meta">📅 '+esc(m.date||'—')+' &nbsp; ⏰ '+esc(m.time||'—')+'</div>';$('ksHomeLabel').textContent=tName(teamId(m,'home'));$('ksAwayLabel').textContent=tName(teamId(m,'away'));$('ksHomeGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'home'));$('ksAwayGoalsTitle').textContent='⚽ أهداف '+tName(teamId(m,'away'));$('ksHomeScore').value=sh?.homeScore??m.hg??m.homeGoals??0;$('ksAwayScore').value=sh?.awayScore??m.ag??m.awayGoals??0;const sw=$('ksShootoutWrap');if(sw){sw.style.display=isKnockoutMatch(m)?'block':'none';$('ksShootoutHome').value=sh?.shootoutHome??m.shootoutHome??'';$('ksShootoutAway').value=sh?.shootoutAway??m.shootoutAway??'';$('ksShootoutHomeLabel').textContent='ركلات '+tName(teamId(m,'home'));$('ksShootoutAwayLabel').textContent='ركلات '+tName(teamId(m,'away'));}renderGoals(sh);fillGoalkeeperSelectors(m,sh);$('ksBestPlayer').innerHTML='<option value="">اختر اللاعب من الفريقين</option>'+[...teamPlayers(teamId(m,'home')),...teamPlayers(teamId(m,'away'))].map(p=>'<option value="'+esc(p.id)+'">'+esc(p.number?p.number+' ':'')+esc(pName(p.id??p.playerId??p.playerID??p.player_id))+' — '+esc(tName(playerTeamId(p)))+'</option>').join('');$('ksBestPlayer').value=S(sh?.bestPlayerId||'');fillRefs(sh);$('ksSupervisor').value=S(sh?.supervisor);$('ksPenYes').value=Number(sh?.penalties||0)>0?'yes':'no';$('ksPenalties').value=Number(sh?.penalties||0);renderTeams(m,sh);renderCards();$('ksStatus').classList.remove('show');$('ksEditor').scrollIntoView({behavior:'smooth',block:'start'})}
 async function imageData(){const f=$('ksImage')?.files?.[0];if(!f)return '';return await new Promise(res=>{const r=new FileReader();r.onload=()=>res(S(r.result));r.onerror=()=>res('');r.readAsDataURL(f)})}
@@ -7661,7 +7685,7 @@ function renderSaved(){
        return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+score+'</b> '+esc(a)+'</div>'+(canManage()?'<span class="badge">⚖️ قرار إداري</span>':'')+'</div><div class="ks-public-summary"><div class="pub-row"><span class="pub-title">⚖️ نوع القرار الإداري:</span> '+decisionLabel+'</div><div class="pub-row"><span class="pub-title">الفريق المعني بالقرار:</span> '+decisionTeamName+'</div><div class="pub-row"><span class="pub-title">الفريق الفائز:</span> '+winnerName+' — 3-0</div></div>'+decisionActions+'</div>';
      }
 
-    const cardsText=cs.length?cs.map(c=>(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(c.teamName||tName(c.teamId))).join('، '):'لا توجد إنذارات';
+    const cardsText=window.manarFormatMatchSheetCards?window.manarFormatMatchSheetCards(sh,m,homeRef,awayRef,h,a):(cs.length?cs.map(c=>(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(c.teamName||tName(c.teamId))).join('، '):'لا توجد إنذارات');
     const scorersText=window.manarFormatMatchSheetScorers
       ?window.manarFormatMatchSheetScorers(sh,m,homeRef,awayRef,h,a)
       :(allSc.length?allSc.map(n=>'⚽ '+esc(pName(n))).join('، '):'لا توجد أهداف مسجلة');
@@ -7674,7 +7698,7 @@ function renderSaved(){
     const adminDecisionSummary=hasAdministrativeDecision?('<div class="pub-row"><span class="pub-title">⚖️ نوع القرار الإداري:</span> '+esc(decisionTypeLabel)+'</div>'+(decisionTeamName?'<div class="pub-row"><span class="pub-title">الفريق المعني بالقرار:</span> '+esc(decisionTeamName)+'</div>':'')):'';
     const adminDetails=canManage()?'<div class="ks-saved-admin-details"><div class="ks-meta"><span>🏆 '+esc(tourOf(sh.tournamentId)?.name||sh.tournamentId||'—')+'</span><span>📅 '+esc(m?.date||'—')+'</span><span>⏰ '+esc(m?.time||'—')+'</span></div><div class="ks-saved-stats"><div class="ks-stat"><b>'+allSc.length+'</b>أهداف</div><div class="ks-stat"><b>'+y+'</b>🟨 صفراء</div><div class="ks-stat"><b>'+r+'</b>🟥 حمراء</div><div class="ks-stat"><b>'+esc(sh.bestPlayerName||pName(sh.bestPlayerId)||'—')+'</b>أفضل لاعب</div></div>'+(sh.supervisor?'<div class="ks-public-summary"><div class="pub-row"><span class="pub-title">مشرف المباراة:</span> '+esc(sh.supervisor)+'</div></div>':'')+'</div>':'';
     const actions=canManage()?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
-    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+score+'</b> '+esc(a)+'</div>'+(canManage()?'<span class="badge">📋 كشف رقم '+(Number(sh.sheetNumber)||'—')+'</span>':'')+'</div>'+adminDetails+'<div class="ks-public-summary">'+adminDecisionSummary+shootoutLine+'<div class="pub-row ks-goals-by-team"><span class="pub-title">⚽ مسجلو الأهداف حسب الفريق:</span> '+scorersText+'</div><div class="pub-row"><span class="pub-title">🟨🟥 الإنذارات:</span> '+cardsText+'</div><div class="pub-row"><span class="pub-title">🧤 حراس المرمى المشاركون:</span> '+goalkeepersText+'</div><div class="pub-row"><span class="pub-title">⭐ أفضل لاعب:</span> '+esc(sh.bestPlayerName||pName(sh.bestPlayerId)||'—')+'</div><div class="pub-row"><span class="pub-title">⚖️ الحكام:</span><div class="pub-referees">'+refsText+'</div></div></div>'+actions+'</div>'
+    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+score+'</b> '+esc(a)+'</div>'+(canManage()?'<span class="badge">📋 كشف رقم '+(Number(sh.sheetNumber)||'—')+'</span>':'')+'</div>'+adminDetails+'<div class="ks-public-summary">'+adminDecisionSummary+shootoutLine+'<div class="pub-row ks-goals-by-team"><span class="pub-title">⚽ مسجلو الأهداف حسب الفريق:</span> '+scorersText+'</div><div class="pub-row ks-cards-by-team"><span class="pub-title">🟨🟥 الإنذارات حسب الفريق:</span> '+cardsText+'</div><div class="pub-row"><span class="pub-title">🧤 حراس المرمى المشاركون:</span> '+goalkeepersText+'</div><div class="pub-row"><span class="pub-title">⭐ أفضل لاعب:</span> '+esc(sh.bestPlayerName||pName(sh.bestPlayerId)||'—')+'</div><div class="pub-row"><span class="pub-title">⚖️ الحكام:</span><div class="pub-referees">'+refsText+'</div></div></div>'+actions+'</div>'
   }).join('')
 }
 
@@ -8641,11 +8665,11 @@ start();
       ?window.manarFormatMatchSheetScorers(sh,m,homeRef,awayRef,h,a)
       :(scorers.length?scorers:A(sh.goalScorers))
         .map(x=>'⚽ '+esc(typeof x==='object'?(x.name||x.playerName||x.playerId):playerName(x))).join('، ')||'لا توجد أهداف مسجلة';
-    const cards=A(sh.cards).map(c=>{
+    const cards=window.manarFormatMatchSheetCards?window.manarFormatMatchSheetCards(sh,m,homeRef,awayRef,h,a):(A(sh.cards).map(c=>{
       const n=c.playerName||playerName(c.playerId);
       const tn=c.teamName||teamName(c.teamId);
       return (S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(n)+(tn?' — '+esc(tn):'');
-    }).join('، ')||'لا توجد بطاقات';
+    }).join('، ')||'لا توجد بطاقات');
     const best=sh.bestPlayerName||playerName(sh.bestPlayerId??sh.bestPlayer);
     const refs=A(sh.referees).map(r=>{
       const rr=readKey('manar_referees_v1').find(x=>S(x.id)===S(r)||S(x.name)===S(r));
@@ -8665,7 +8689,7 @@ start();
       '<div class="ks-public-summary">'+decisionSummary+
         '<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div>'+
         '<div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b>'+goals+'</div>'+
-        '<div class="pub-line">🟨🟥 <b>البطاقات:</b> '+cards+'</div>'+
+        '<div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+cards+'</div>'+
         '<div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(best||'—')+'</div>'+
         '<div class="pub-line">⚖️ <b>الحكام:</b> '+esc(refs)+'</div>'+
         (S(sh.supervisor).trim()?'<div class="pub-line">👤 <b>مشرف المباراة:</b> '+esc(sh.supervisor)+'</div>':'')+
@@ -9093,7 +9117,7 @@ function renderPublicSheets(){
     const goalsText=window.manarFormatMatchSheetScorers
       ?window.manarFormatMatchSheetScorers(sh,m,homeRef,awayRef,home,away)
       :(gs.length?gs.map(x=>'⚽ '+esc(playerName(x))).join('، '):'لا توجد أهداف مسجلة');
-    const cardsText=cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||playerName(c.playerId))).join('، '):'لا توجد بطاقات';
+    const cardsText=window.manarFormatMatchSheetCards?window.manarFormatMatchSheetCards(sh,m,homeRef,awayRef,home,away):(cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||playerName(c.playerId))).join('، '):'لا توجد بطاقات');
     const best=playerName(sh.bestPlayerId??sh.bestPlayer??sh.bestPlayerID??sh.bestPlayerName);
     const refs=A(sh.referees).map(x=>{
       try{
@@ -9117,7 +9141,7 @@ function renderPublicSheets(){
       '<div class="ks-public-summary sheet-public-summary">'+decisionSummary+
       '<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ '+esc(m.time||sh.time||'—')+'</div>'+
       '<div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goalsText+'</div>'+
-      '<div class="pub-line">🟨🟥 <b>البطاقات:</b> '+cardsText+'</div>'+
+      '<div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+cardsText+'</div>'+
       '<div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(best)+'</div>'+
       '<div class="pub-line">⚖️ <b>الحكام:</b> '+esc(refs.join('، ')||'—')+'</div>'+
       (Number(sh.penalties||0)>0?'<div class="pub-line">🥅 <b>ركلات الجزاء:</b> '+Number(sh.penalties)+'</div>':'')+
@@ -9277,7 +9301,7 @@ function renderSheetsDirect(){
         ?'<div class="ks-goal-team-group"><b>🔵 '+esc(h)+'</b><div>'+homeGoals.map((x,i)=>(i+1)+'- '+esc(player(x)?.name||objName(x)||S(x))).join('<br>')+'</div></div><div class="ks-goal-team-group"><b>🔴 '+esc(a)+'</b><div>'+awayGoals.map((x,i)=>(i+1)+'- '+esc(player(x)?.name||objName(x)||S(x))).join('<br>')+'</div></div>'
         :'لا توجد أهداف مسجلة');
     const cards=A(sh.cards);
-    const ct=cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات';
+    const ct=window.manarFormatMatchSheetCards?window.manarFormatMatchSheetCards(sh,m,homeRef,awayRef,h,a):(cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات');
     const bp=player(bestValue(sh));
     const decisionTypeRaw=S(sh.decisionType||sh.adminDecisionType||sh.administrativeDecisionType||'').toLowerCase();
     const hasAdministrativeDecision=!!(sh.administrativeDecision||sh.adminDecision||sh.isAdministrativeDecision||decisionTypeRaw||sh.decisionText||sh.administrativeDecisionText);
@@ -9289,7 +9313,7 @@ function renderSheetsDirect(){
         +(decisionTeamName?'<div class="pub-line ks-administrative-decision-line"><b>الفريق المعني بالقرار:</b> '+esc(decisionTeamName)+'</div>':'')
       :'';
     const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
-    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+'<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div><div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line">🟨🟥 <b>البطاقات:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>';
+    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+'<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div><div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>';
   }).join('');
 }
 window.renderPlayerStatsDirect=renderPlayerStatsDirect;window.renderPublicSheetsFixed=renderSheetsDirect;
@@ -13633,5 +13657,82 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   };
 })();
 </script>
+
+<style id="kashofat-cards-by-team-matching-goals-style">
+/* واجهة إدخال البطاقات: نفس عمودي الفريقين وصفوف مسجلي الأهداف */
+#matchSheetsSection .ks-card-columns{margin-top:10px;}
+#matchSheetsSection .ks-card-team-title{display:block;margin:0 0 8px;color:#075f45;font-size:13px;font-weight:1000;}
+#matchSheetsSection .ks-card-team-panel.away .ks-card-team-title{color:#155ca8;}
+#matchSheetsSection .ks-card-editor-row{grid-template-columns:30px minmax(0,1fr) auto!important;min-width:0;padding:7px 8px;border:1px solid #dce8e2;border-radius:10px;background:#fbfefd;}
+#matchSheetsSection .ks-card-editor-info{display:flex;align-items:center;gap:7px;min-width:0;flex-wrap:wrap;}
+#matchSheetsSection .ks-card-editor-info b{overflow-wrap:anywhere;font-size:12px;}
+#matchSheetsSection .ks-card-editor-info small{color:#718096;font-size:10px;font-weight:800;}
+#matchSheetsSection .ks-card-editor-symbol{display:inline-grid;place-items:center;min-width:23px;height:23px;border-radius:7px;background:#fff8e8;font-size:16px;}
+#matchSheetsSection .ks-card-editor-row button{border:0;border-radius:8px;padding:5px 9px;background:#fee2e2;color:#991b1b;font-size:11px;font-weight:900;}
+#matchSheetsSection .ks-card-unassigned-panel{grid-column:1/-1;}
+/* كشوفات المباريات: البطاقات حسب الفريق بنفس بطاقات الأهداف */
+#matchSheetsSection .ks-cards-by-team{display:block!important;white-space:normal!important;line-height:1.7!important;}
+#matchSheetsSection .ks-cards-by-team>.pub-title{display:block!important;margin-bottom:9px!important;color:#075f45!important;font-weight:1000!important;}
+#matchSheetsSection .ks-cards-by-team>.ks-goal-team-group{display:block!important;margin:8px 0!important;padding:10px 12px!important;border:1px solid #d9e9e2!important;border-right:5px solid #087f5b!important;border-radius:12px!important;background:linear-gradient(135deg,#f7fffb,#fff)!important;}
+#matchSheetsSection .ks-cards-by-team>.ks-goal-team-group.away{border-right-color:#1971c2!important;background:linear-gradient(135deg,#f5faff,#fff)!important;}
+#matchSheetsSection .ks-card-scorer-chip small{color:#718096;font-size:10px;font-weight:900;}
+@media(max-width:600px){#matchSheetsSection .ks-card-editor-row{grid-template-columns:26px minmax(0,1fr) auto!important;padding:6px;}#matchSheetsSection .ks-card-editor-info b{font-size:11px;}#matchSheetsSection .ks-cards-by-team>.ks-goal-team-group{padding:8px 9px!important;margin:6px 0!important;}}
+</style>
+<script id="kashofat-cards-by-team-matching-goals-script">
+(function(){
+  'use strict';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v??'').trim();
+  const E=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const norm=v=>S(v).replace(/[ً-ٰٟ]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase();
+  const DB=()=>window.db||{teams:[],players:[]};
+  function teamId(value){
+    let v=value;
+    if(v&&typeof v==='object')v=v.id??v.teamId??v.teamID??v.team_id??v.name??v.teamName??v.value??'';
+    const key=S(v);if(!key)return '';
+    const t=A(DB().teams).find(x=>S(x.id)===key||norm(x.name)===norm(key));
+    return S(t?.id??key);
+  }
+  function teamName(value,fallback){
+    const id=teamId(value),t=A(DB().teams).find(x=>S(x.id)===id);
+    return S(t?.name)||S(fallback)||S(value)||'الفريق';
+  }
+  function playerName(card){
+    const p=A(DB().players).find(x=>S(x.id??x.playerId??x.playerID??x.player_id)===S(card.playerId??card.playerID??card.player_id??'') || (card.playerName&&norm(x.name??x.fullName??x.playerName)===norm(card.playerName)));
+    return S(card.playerName)||S(p?.name??p?.fullName??p?.playerName)||S(card.playerId)||'لاعب غير معروف';
+  }
+  function sameTeam(card,expectedId,expectedName){
+    const raw=card.teamId??card.teamID??card.team_id??card.team??card.teamName??'';
+    const id=teamId(raw||card.teamName||'');
+    if(expectedId&&id===expectedId)return true;
+    const storedName=S(card.teamName)||(raw&&typeof raw==='object'?S(raw.name??raw.teamName):S(raw));
+    return !!expectedName&&norm(storedName)===norm(expectedName);
+  }
+  function teamGroup(label,kind,items){
+    const chips=items.length?'<div class="ks-goal-team-players">'+items.map((c,i)=>{
+      const isRed=S(c.type).toLowerCase()==='red',icon=isRed?'🟥':'🟨',type=isRed?'حمراء':'صفراء';
+      return '<span class="ks-goal-scorer ks-card-scorer-chip"><em>'+(i+1)+'</em>'+icon+' '+E(playerName(c))+' <small>('+type+')</small></span>';
+    }).join('')+'</div>':'<div class="ks-goal-team-empty">لا توجد إنذارات مسجلة</div>';
+    return '<div class="ks-goal-team-group '+kind+'"><b><span>'+(kind==='away'?'🔴 ':'🔵 ')+E(label||'الفريق')+'</span><span>'+items.length+' بطاقة</span></b>'+chips+'</div>';
+  }
+  window.manarFormatMatchSheetCards=function(sheet,match,homeRef,awayRef,homeName,awayName){
+    const sh=sheet||{},m=match||{},cards=A(sh.cards);
+    if(!cards.length)return 'لا توجد إنذارات مسجلة';
+    const hRef=homeRef??sh.homeTeamId??m.home??m.homeTeamId??m.homeTeam??'';
+    const aRef=awayRef??sh.awayTeamId??m.away??m.awayTeamId??m.awayTeam??'';
+    const hName=teamName(hRef,homeName||'الفريق الأول'),aName=teamName(aRef,awayName||'الفريق الثاني');
+    const hId=teamId(hRef),aId=teamId(aRef),home=[],away=[],unassigned=[];
+    cards.forEach(c=>{
+      if(sameTeam(c,hId,hName))home.push(c);
+      else if(sameTeam(c,aId,aName))away.push(c);
+      else unassigned.push(c);
+    });
+    let html=teamGroup(hName,'home',home)+teamGroup(aName,'away',away);
+    if(unassigned.length)html+='<div class="ks-goal-team-group"><b><span>⚪ الفريق غير محدد في بيانات الكشف</span><span>'+unassigned.length+' بطاقة</span></b><div class="ks-goal-team-players">'+unassigned.map((c,i)=>{const isRed=S(c.type).toLowerCase()==='red';return '<span class="ks-goal-scorer ks-card-scorer-chip"><em>'+(i+1)+'</em>'+(isRed?'🟥':'🟨')+' '+E(playerName(c))+' <small>('+ (isRed?'حمراء':'صفراء') +')</small></span>';}).join('')+'</div></div>';
+    return html;
+  };
+})();
+</script>
+
 </body>
 </html>
