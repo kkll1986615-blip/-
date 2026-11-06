@@ -7675,14 +7675,15 @@ function renderSaved(){
     const allSc=(homeSc.length||awaySc.length)?[...homeSc,...awaySc]:A(sh.goalScorers);
     const refereeNames=A(sh.referees).map(id=>{const r=refs().find(x=>S(x.id)===S(id)||S(x.name)===S(id));return r?.name||S(id)}).filter(Boolean);
     const score=Number(sh.homeScore||0)+' - '+Number(sh.awayScore||0);const shootoutLine=(sh.shootoutHome!==null&&sh.shootoutHome!==undefined&&sh.shootoutAway!==null&&sh.shootoutAway!==undefined)?'<div class="pub-row"><span class="pub-title">⚽ ركلات الترجيح:</span> '+Number(sh.shootoutHome)+' - '+Number(sh.shootoutAway)+' — الفائز: '+esc(tName(sh.shootoutWinnerTeamId||(Number(sh.shootoutHome)>Number(sh.shootoutAway)?sh.homeTeamId:sh.awayTeamId)))+'</div>':'';
-     if(sh.administrativeDecision){
-       const decisionTeamId=sh.decisionTeamId||sh.withdrawnTeamId;
-       const decisionTeamName=esc(sh.withdrawnTeamName||tName(decisionTeamId)||'الفريق المعني بالقرار');
-       const decisionLabel=sh.decisionType==='disciplinary_loss'?'خسارة انضباطية':'انسحاب الفريق';
-       const winnerId=sh.decisionType==='disciplinary_loss'?(S(decisionTeamId)===S(sh.homeTeamId)?sh.awayTeamId:sh.homeTeamId):decisionTeamId;
-       const winnerName=esc(tName(winnerId)||'الفريق الآخر');
+     if(sh.administrativeDecision || sh.adminDecision || sh.isAdministrativeDecision || sh.decisionType || sh.adminDecisionType || sh.administrativeDecisionType || sh.decisionText || sh.administrativeDecisionText){
+       const decisionTeamId=sh.decisionTeamId||sh.withdrawnTeamId||sh.administrativeTeamId||sh.adminDecisionTeamId||'';
+       const decisionTeamName=esc(sh.withdrawnTeamName||sh.decisionTeamName||tName(decisionTeamId)||'الفريق المعني بالقرار');
+       const decisionLabel=(S(sh.decisionType||sh.adminDecisionType||sh.administrativeDecisionType).toLowerCase()==='disciplinary_loss' || S(sh.decisionType||sh.adminDecisionType||sh.administrativeDecisionType)==='خسارة انضباطية')?'خسارة انضباطية':'انسحاب الفريق';
+       const winnerId=Number(sh.homeScore||0)>Number(sh.awayScore||0)?homeRef:(Number(sh.awayScore||0)>Number(sh.homeScore||0)?awayRef:(sh.shootoutWinnerTeamId||''));
+       const winnerName=esc(tName(winnerId)||'—');
        const decisionActions=canManage()?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل القرار الإداري</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
-       return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+score+'</b> '+esc(a)+'</div>'+(canManage()?'<span class="badge">⚖️ قرار إداري</span>':'')+'</div><div class="ks-public-summary"><div class="pub-row"><span class="pub-title">⚖️ نوع القرار الإداري:</span> '+decisionLabel+'</div><div class="pub-row"><span class="pub-title">الفريق المعني بالقرار:</span> '+decisionTeamName+'</div><div class="pub-row"><span class="pub-title">الفريق الفائز:</span> '+winnerName+' — 3-0</div></div>'+decisionActions+'</div>';
+       const decisionDetails=typeof window.manarBuildAdministrativeSheetDetails==='function' ? window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,h,a) : '<div class="ks-public-summary"><div class="pub-row">⚖️ '+decisionLabel+' — الفريق المعني بالقرار: '+decisionTeamName+' — الفائز: '+winnerName+'</div></div>';
+       return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+score+'</b> '+esc(a)+'</div><span class="badge">⚖️ قرار '+(decisionLabel==='خسارة انضباطية'?'انضباطي':'إداري')+'</span></div>'+decisionDetails+decisionActions+'</div>';
      }
 
     const cardsText=window.manarFormatMatchSheetCards?window.manarFormatMatchSheetCards(sh,m,homeRef,awayRef,h,a):(cs.length?cs.map(c=>(c.type==='red'?'🟥':'🟨')+' '+esc(c.playerName||pName(c.playerId))+' — '+esc(c.teamName||tName(c.teamId))).join('، '):'لا توجد إنذارات');
@@ -8684,6 +8685,10 @@ start();
     const actions=authorized()
       ? '<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>'
       : '';
+    if(hasAdministrativeDecision){
+      const decisionDetails=typeof window.manarBuildAdministrativeSheetDetails==='function' ? window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,h,a) : '<div class="ks-public-summary">'+decisionSummary+'</div>';
+      return '<article class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</article>';
+    }
     return '<article class="ks-saved">'+
       '<div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div>'+
       '<div class="ks-public-summary">'+decisionSummary+
@@ -9135,6 +9140,10 @@ function renderPublicSheets(){
     const actions=can
       ? '<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>'
       : '';
+    if(hasAdministrativeDecision){
+      const decisionDetails=typeof window.manarBuildAdministrativeSheetDetails==='function' ? window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,home,away) : '<div class="ks-public-summary">'+decisionSummary+'</div>';
+      return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(home)+' <b>'+hg+' - '+ag+'</b> '+esc(away)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
+    }
     return '<div class="ks-saved">'+
       '<div class="ks-saved-head"><div class="ks-saved-match">'+esc(home)+' <b>'+hg+' - '+ag+'</b> '+esc(away)+'</div>'+
       '<span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div>'+
@@ -9313,6 +9322,10 @@ function renderSheetsDirect(){
         +(decisionTeamName?'<div class="pub-line ks-administrative-decision-line"><b>الفريق المعني بالقرار:</b> '+esc(decisionTeamName)+'</div>':'')
       :'';
     const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
+    if(hasAdministrativeDecision){
+      const decisionDetails=typeof window.manarBuildAdministrativeSheetDetails==='function' ? window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,h,a) : '<div class="ks-public-summary">'+decisionSummary+'</div>';
+      return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
+    }
     return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+'<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div><div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>';
   }).join('');
 }
@@ -13730,6 +13743,92 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     let html=teamGroup(hName,'home',home)+teamGroup(aName,'away',away);
     if(unassigned.length)html+='<div class="ks-goal-team-group"><b><span>⚪ الفريق غير محدد في بيانات الكشف</span><span>'+unassigned.length+' بطاقة</span></b><div class="ks-goal-team-players">'+unassigned.map((c,i)=>{const isRed=S(c.type).toLowerCase()==='red';return '<span class="ks-goal-scorer ks-card-scorer-chip"><em>'+(i+1)+'</em>'+(isRed?'🟥':'🟨')+' '+E(playerName(c))+' <small>('+ (isRed?'حمراء':'صفراء') +')</small></span>';}).join('')+'</div></div>';
     return html;
+  };
+})();
+</script>
+
+<style id="disciplinary-sheet-complete-details-style">
+#matchSheetsSection .ks-admin-decision-details{margin:12px 0 4px;padding:14px;border:1px solid #d8e7e0;border-radius:15px;background:linear-gradient(145deg,#fbfffd,#f3f8ff);display:grid;gap:11px;line-height:1.8;}
+#matchSheetsSection .ks-admin-decision-outcome{padding:12px 14px;border-radius:12px;background:linear-gradient(110deg,#fff7df,#fff);border:1px solid #f3d58a;color:#704d00;font-weight:900;}
+#matchSheetsSection .ks-admin-decision-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+#matchSheetsSection .ks-admin-decision-field{min-width:0;padding:10px 12px;border:1px solid #e0e9e5;border-radius:11px;background:#fff;overflow-wrap:anywhere;}
+#matchSheetsSection .ks-admin-decision-field b{display:block;margin-bottom:4px;color:#075f45;font-size:12px;}
+#matchSheetsSection .ks-admin-decision-wide{grid-column:1/-1;}
+#matchSheetsSection .ks-admin-decision-goals{padding:10px;border-radius:12px;background:#fff;border:1px solid #f1d5a1;}
+#matchSheetsSection .ks-admin-decision-goals>.ks-admin-decision-label{display:block;margin-bottom:7px;color:#8b5200;font-weight:1000;}
+#matchSheetsSection .ks-admin-decision-cards{padding:10px;border-radius:12px;background:#fff;border:1px solid #dce8e2;}
+#matchSheetsSection .ks-admin-decision-cards>.ks-admin-decision-label{display:block;margin-bottom:7px;color:#075f45;font-weight:1000;}
+#matchSheetsSection .ks-admin-decision-images{display:flex;flex-wrap:wrap;gap:9px;margin-top:7px;}
+#matchSheetsSection .ks-admin-decision-images img{width:min(190px,100%);max-height:210px;object-fit:contain;border:1px solid #d8e3de;border-radius:10px;background:#fff;padding:4px;}
+@media(max-width:600px){#matchSheetsSection .ks-admin-decision-details{padding:10px;gap:8px}#matchSheetsSection .ks-admin-decision-grid{grid-template-columns:1fr}#matchSheetsSection .ks-admin-decision-wide{grid-column:auto;}}
+</style>
+<script id="disciplinary-sheet-complete-details-renderer">
+(function(){
+  'use strict';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v??'').trim();
+  const E=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const db=()=>window.db&&typeof window.db==='object'?window.db:{};
+  const rawId=v=>v&&typeof v==='object'?S(v.id??v.playerId??v.playerID??v.teamId??v.teamID??v.value??''):S(v);
+  const rawName=v=>v&&typeof v==='object'?S(v.name??v.playerName??v.teamName??v.title??''):'';
+  function teamName(v,fallback){const key=rawId(v),embedded=rawName(v),t=A(db().teams).find(x=>S(x.id)===key||S(x.name)===key);return S(t?.name)||embedded||S(fallback)||key||'—';}
+  function playerName(v,fallback){const key=rawId(v),embedded=rawName(v),p=A(db().players).find(x=>S(x.id??x.playerId??x.playerID??x.player_id)===key||S(x.name)===key);return S(p?.name??p?.fullName??p?.playerName)||embedded||S(fallback)||key||'—';}
+  function refereeName(v){const key=rawId(v),embedded=rawName(v);let list=A(db().referees);try{const saved=JSON.parse(localStorage.getItem('manar_referees_v1')||'[]');if(Array.isArray(saved))list=list.concat(saved);}catch(e){}const r=list.find(x=>S(x.id)===key||S(x.name)===key);return S(r?.name)||embedded||key||'—';}
+  function field(label,value){return '<div class="ks-admin-decision-field"><b>'+E(label)+'</b><span>'+E(value||'لم يتم إدخاله')+'</span></div>';}
+  function teamGoalFallback(values,label){const rows=A(values);return '<div class="ks-goal-team-group"><b>'+E(label)+' — '+rows.length+' هدف</b><div class="ks-goal-team-players">'+(rows.length?rows.map((x,i)=>'<span class="ks-goal-scorer"><em>'+(i+1)+'</em>⚽ '+E(playerName(x))+'</span>').join(''):'<span class="ks-goal-team-empty">لم تسجل أهداف</span>')+'</div></div>';}
+  function safeImage(v){const src=S(v);return /^(data:image\/(?:png|jpe?g|webp|gif);base64,|https?:\/\/)/i.test(src)?src:'';}
+  window.manarBuildAdministrativeSheetDetails=function(sh,m,homeRef,awayRef,homeName,awayName){
+    sh=sh||{};m=m||{};
+    const home=teamName(homeRef??sh.homeTeamId??m.home??m.homeTeamId,homeName);
+    const away=teamName(awayRef??sh.awayTeamId??m.away??m.awayTeamId,awayName);
+    const type=S(sh.decisionType||sh.adminDecisionType||sh.administrativeDecisionType).toLowerCase();
+    const disciplinary=type==='disciplinary_loss'||type==='خسارة انضباطية';
+    const typeLabel=disciplinary?'خسارة انضباطية':(type==='withdrawal'||type==='انسحاب الفريق'?'انسحاب الفريق':S(sh.decisionText||sh.administrativeDecisionText||'قرار إداري'));
+    const decisionTeamId=sh.decisionTeamId??sh.withdrawnTeamId??sh.administrativeTeamId??sh.adminDecisionTeamId??'';
+    const decisionTeam=teamName(decisionTeamId,sh.withdrawnTeamName||sh.decisionTeamName||'الفريق المعني بالقرار');
+    const hs=Number(sh.homeScore??0)||0,as=Number(sh.awayScore??0)||0;
+    const winner=hs>as?home:(as>hs?away:(sh.shootoutWinnerTeamId?teamName(sh.shootoutWinnerTeamId):'—'));
+    const homeGoals=A(sh.homeScorers).length?sh.homeScorers:(A(sh.homeGoalScorers).length?sh.homeGoalScorers:A(sh.home_goal_scorers));
+    const awayGoals=A(sh.awayScorers).length?sh.awayScorers:(A(sh.awayGoalScorers).length?sh.awayGoalScorers:A(sh.away_goal_scorers));
+    const hasSideGoals=homeGoals.length>0||awayGoals.length>0;
+    const goalsHtml=typeof window.manarFormatMatchSheetScorers==='function'
+      ?window.manarFormatMatchSheetScorers(sh,m,homeRef??sh.homeTeamId,awayRef??sh.awayTeamId,home,away)
+      :(hasSideGoals?teamGoalFallback(homeGoals,home)+teamGoalFallback(awayGoals,away):(A(sh.goalScorers).length?'<div class="ks-goal-team-players">'+A(sh.goalScorers).map(x=>'<span class="ks-goal-scorer">⚽ '+E(playerName(x))+'</span>').join('')+'</div>':'لا توجد أهداف مدخلة'));
+    const cards=A(sh.cards);
+    const cardsHtml=typeof window.manarFormatMatchSheetCards==='function'
+      ?window.manarFormatMatchSheetCards(sh,m,homeRef??sh.homeTeamId,awayRef??sh.awayTeamId,home,away)
+      :(cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥 بطاقة حمراء':'🟨 بطاقة صفراء')+' — '+E(playerName(c.playerId,c.playerName))+' ('+E(teamName(c.teamId,c.teamName))+')').join('<br>'):'لا توجد إنذارات أو بطاقات مدخلة');
+    const yellow=cards.filter(c=>/yellow|صفراء|إنذار/i.test(S(c.type))).length;
+    const red=cards.filter(c=>/red|حمراء|طرد/i.test(S(c.type))).length;
+    const keeperHome=playerName(sh.homeGoalkeeperId??sh.goalkeeperHomeId??'');
+    const keeperAway=playerName(sh.awayGoalkeeperId??sh.goalkeeperAwayId??'');
+    const best=playerName(sh.bestPlayerId||sh.bestPlayerID||sh.bestPlayer||sh.bestPlayerName||'');
+    const storedRefs=A(sh.referees);
+    const refIds=[sh.referee1??storedRefs[0]??'',sh.referee2??storedRefs[1]??'',sh.referee3??storedRefs[2]??'',sh.referee4??storedRefs[3]??''];
+    const refNames=refIds.map(refereeName);
+    const date=S(m.date||sh.date||'—'),time=S(m.time||sh.time||'—');
+    const tour=A(db().tournaments).find(t=>S(t.id)===S(sh.tournamentId)||S(t.name)===S(sh.tournamentId)||S(t.title)===S(sh.tournamentId));
+    const shootoutExists=sh.shootoutHome!==null&&sh.shootoutHome!==undefined&&sh.shootoutAway!==null&&sh.shootoutAway!==undefined&&S(sh.shootoutHome)!==''&&S(sh.shootoutAway)!=='';
+    const shootout=shootoutExists?S(sh.shootoutHome)+' - '+S(sh.shootoutAway)+' (الفائز: '+teamName(sh.shootoutWinnerTeamId|| (Number(sh.shootoutHome)>Number(sh.shootoutAway)?sh.homeTeamId:sh.awayTeamId))+')':'لا توجد ركلات ترجيح مسجلة';
+    const penalties=Number(sh.penalties||0)>0?String(Number(sh.penalties)):'لا توجد ضربات جزاء مسجلة';
+    const images=A(sh.images).concat(sh.image?[sh.image]:[]).map(safeImage).filter(Boolean);
+    const imageHtml=images.length?'<div class="ks-admin-decision-images">'+images.map((src,i)=>'<a href="'+E(src)+'" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="'+E(src)+'" alt="صورة الكشف '+(i+1)+'"/></a>').join('')+'</div>':'لا توجد صورة مرفقة';
+    const goalLabel=disciplinary?'⚽ الأهداف الملغاة بقرار انضباطي':'⚽ الأهداف المدخلة في الكشف';
+    return '<div class="ks-admin-decision-details">'+
+      '<div class="ks-admin-decision-outcome">⚖️ '+E(typeLabel)+' — الفريق المعني بالقرار: '+E(decisionTeam)+'<br>🏆 النتيجة الإدارية المعتمدة: '+hs+' - '+as+' | الفريق الفائز: '+E(winner)+'</div>'+
+      '<div class="ks-admin-decision-grid">'+
+        field('رقم الكشف',S(sh.sheetNumber||'—'))+
+        field('البطولة',S(tour?.name||tour?.title||sh.tournamentId||'—'))+
+        field('تاريخ المباراة',date)+field('وقت المباراة',time)+
+        field('الفريق الأول',home)+field('الفريق الثاني',away)+
+      '</div>'+
+      '<div class="ks-admin-decision-goals"><b class="ks-admin-decision-label">'+goalLabel+' — لا تدخل في نتيجة القرار 3-0</b>'+goalsHtml+'</div>'+
+      '<div class="ks-admin-decision-cards"><b class="ks-admin-decision-label">🟨🟥 الإنذارات والبطاقات حسب الفريق</b><div class="ks-admin-decision-grid">'+field('عدد البطاقات الصفراء',String(yellow))+field('عدد البطاقات الحمراء',String(red))+'</div>'+cardsHtml+'</div>'+
+      '<div class="ks-admin-decision-grid">'+field('🧤 حارس '+home,keeperHome)+field('🧤 حارس '+away,keeperAway)+field('⭐ أفضل لاعب',best)+field('مشرف المباراة',S(sh.supervisor||sh.supervisorName||sh.matchSupervisor||''))+
+        field('الحكم الأول',refNames[0])+field('الحكم الثاني',refNames[1])+field('الحكم الثالث',refNames[2])+field('الحكم الرابع',refNames[3])+field('عدد ضربات الجزاء',penalties)+field('ركلات الترجيح',shootout)+'</div>'+
+      '<div class="ks-admin-decision-field ks-admin-decision-wide"><b>📝 نص القرار</b><span>'+E(sh.decisionText||sh.administrativeDecisionText||typeLabel)+'</span></div>'+
+      '<div class="ks-admin-decision-field ks-admin-decision-wide"><b>🖼️ صورة الكشف</b>'+imageHtml+'</div>'+
+    '</div>';
   };
 })();
 </script>
