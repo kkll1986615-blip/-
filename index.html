@@ -7941,6 +7941,7 @@ const SYNC_KEYS=[
  'manar_contact_settings_v1','manar_contact_messages_v1','manar_polls_v1','manar_poll_votes_v1'
 ];
 let app,auth,db,applyingRemote=false,initialReady=0,initialDone=false,started=false,authStateReadyDone=false;
+let anonymousAuthPromise=null;
 let resolveFirebaseInit;
 const firebaseInitReady=new Promise(resolve=>{resolveFirebaseInit=resolve});
 let resolveAuthStateReady;
@@ -8450,8 +8451,26 @@ async function initialSync(){
     status('لا توجد بيانات سحابية بعد — قاعدة البيانات جاهزة للحفظ',true);
   }
 }
-async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);try{await setPersistence(auth,browserLocalPersistence)}catch(persistenceError){console.warn('Firebase session persistence unavailable:',persistenceError)}db=getDatabase(app);resolveFirebaseInit(true);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction,remove:remove,onAuthStateChanged:onAuthStateChanged};patchStorage();const saved=localStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
- if(!auth.currentUser){signInAnonymously(auth).catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
+async function ensureAnonymousPollUser(){
+  if(!auth)throw new Error('خدمة تسجيل الدخول في Firebase غير مهيأة.');
+  if(auth.currentUser)return auth.currentUser;
+  if(!anonymousAuthPromise){
+    anonymousAuthPromise=(async()=>{
+      /* انتظر استعادة الجلسة المحفوظة حتى لا نستبدل حساب المدير بجلسة مجهولة. */
+      if(typeof auth.authStateReady==='function')await auth.authStateReady();
+      if(auth.currentUser)return auth.currentUser;
+      const credential=await signInAnonymously(auth);
+      return credential?.user||auth.currentUser||null;
+    })();
+  }
+  try{
+    const user=await anonymousAuthPromise;
+    if(!user)throw new Error('لم تُرجع Firebase حساب زائر صالحًا.');
+    return auth.currentUser||user;
+  }finally{anonymousAuthPromise=null;}
+}
+async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);try{await setPersistence(auth,browserLocalPersistence)}catch(persistenceError){console.warn('Firebase session persistence unavailable:',persistenceError)}db=getDatabase(app);resolveFirebaseInit(true);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction,remove:remove,onAuthStateChanged:onAuthStateChanged,ensureAnonymousUser:ensureAnonymousPollUser};patchStorage();const saved=localStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
+ if(!auth.currentUser){ensureAnonymousPollUser().catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
   onAuthStateChanged(auth,async user=>{if(!authStateReadyDone){authStateReadyDone=true;resolveAuthStateReady(user)}if(user){initManarVisitorCounter();status(user.isAnonymous?'Firebase جاهز للقراءة — سجّل دخول حساب المزامنة للكتابة':'تم التعرّف على حساب Firebase — '+(user.email||''),!user.isAnonymous);if(initialDone&&localManagerRole()&&canWrite()&&!manualEmailLoginActive){try{const pushed=await pushAll();if(pushed){await pullAll()}else{status('حساب Firebase متصل لكن رفع بيانات المدير فشل؛ لم يتم تنزيل السحابة فوق البيانات المحلية.',false)}}catch(autoLoginSyncErr){status('تعذر إكمال المزامنة التلقائية: '+firebaseErrorMessage(autoLoginSyncErr),false)}}if(initialDone&&dirty.size&&canWrite()){try{const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+firebaseErrorMessage(e),false)}}else if(initialDone&&!localManagerRole()){try{await pullAll()}catch(e){}}}else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
  for(const k of SYNC_KEYS){
   onValue(ref(db,CLOUD_PATH+'/'+k),async snap=>{
@@ -10579,27 +10598,41 @@ function waitForFirebaseUser(f){
     try{unsubscribe=f.onAuthStateChanged(f.auth,user=>{if(user)finish(user)})}catch(e){finish(null)}
   });
 }
+function pollVoteErrorMessage(error){
+  const code=S(error?.code||'').toLowerCase();
+  const raw=S(error?.message||error);
+  if(code.includes('operation-not-allowed')||code.includes('admin-restricted-operation'))
+    return 'يتطلب تصويت الزوار تفعيل تسجيل الدخول المجهول (Anonymous) في Firebase Console من Authentication ثم Sign-in method. فعّل Anonymous وأعد تحميل المنصة.';
+  if(code.includes('unauthorized-domain'))
+    return 'نطاق موقع المنصة غير مصرح به في Firebase. أضف نطاق الموقع إلى Authentication ثم Settings ثم Authorized domains.';
+  if(code.includes('network-request-failed'))
+    return 'تعذر الاتصال بخدمة Firebase. تحقق من الإنترنت وإمكانية الوصول إلى Firebase ثم أعد المحاولة.';
+  if(/permission.?denied|permission denied|client doesn't have permission/i.test(raw))
+    return 'تم الوصول إلى Firebase، لكن قواعد أمان Realtime Database تمنع حفظ أصوات الزوار. يلزم السماح للمستخدمين الموثقين مجهولًا بالكتابة في مسار manar_platform/manar_poll_votes_v1 فقط، مع إبقاء بقية بيانات المنصة محمية.';
+  return 'تعذر تسجيل التصويت في Firebase، ولم يُعتمد الصوت. '+(raw||'حدث خطأ غير معروف')+' — تحقق من إعدادات Authentication وصلاحيات مسار التصويت ثم أعد المحاولة.';
+}
 async function vote(id){
   id=S(id);if(!id||voting.has(id))return;
   const p=read().find(x=>S(x.id)===id);if(!p)return;
   const item=document.querySelector('[data-poll-id="'+CSS.escape(id)+'"]');if(!item)return;
-  /* قد يظهر الاستطلاع قبل اكتمال تحميل وحدة Firebase؛ انتظر تهيئتها بدل رفض التصويت فورًا. */
+  const radio=item.querySelector('input[name="poll_'+CSS.escape(id)+'"]:checked');
+  if(!radio)return alert('اختر أحد الخيارات أولاً.');
+  const idx=Number(radio.value);
+  if(!Number.isInteger(idx)||idx<0||idx>=A(p.options).length)return alert('الخيار المحدد غير صالح. حدّث الصفحة وحاول مجددًا.');
+  /* انتظر وحدة Firebase، ثم أنشئ جلسة زائر مجهولة عند الحاجة وبشكل صريح. */
   const f=await waitForPollFirebase();
   if(!f?.db||!f?.auth){
     alert(navigator.onLine===false
       ? 'لا يوجد اتصال بالإنترنت. اتصل بالإنترنت ثم أعد تحميل المنصة.'
-      : 'تعذر تحميل خدمة Firebase للتصويت. تأكد من فتح رابط المنصة المنشور عبر HTTPS وأن خدمات gstatic.com وFirebase متاحة، ثم أعد تحميل الصفحة.');
+      : 'تعذر تحميل خدمة Firebase للتصويت. افتح رابط المنصة المنشور عبر HTTPS وتحقق من اتصال Firebase ثم أعد المحاولة.');
     return;
   }
-  const user=await waitForFirebaseUser(f);
-  if(!user){alert('تعذّر تهيئة جلسة التصويت مع Firebase. لم يُسجّل صوتك؛ تحقق من الاتصال ثم أعد المحاولة.');return}
-  const existing=pollVotes(p);
-  if(hasVoted(p,id,existing)){render();alert('سبق تسجيل تصويتك في هذا الاستطلاع.');return}
-  const radio=item.querySelector('input[name="poll_'+CSS.escape(id)+'"]:checked');
-  if(!radio)return alert('اختر أحد الخيارات أولاً.');
-  const idx=Number(radio.value);if(!Number.isInteger(idx)||idx<0||idx>=A(p.options).length)return alert('الخيار المحدد غير صالح. حدّث الصفحة وحاول مجددًا.');
   voting.add(id);render();
   try{
+    const user=f.auth.currentUser||(typeof f.ensureAnonymousUser==='function'?await f.ensureAnonymousUser():null);
+    if(!user)throw new Error('لم يتم إنشاء جلسة زائر في Firebase.');
+    const existing=pollVotes(p);
+    if(hasVoted(p,id,existing)){render();alert('سبق تسجيل تصويتك في هذا الاستطلاع.');return}
     const voteRef=f.ref(f.db,'manar_platform/'+SHARED_VOTES_KEY+'/'+id);
     if(typeof f.runTransaction==='function'){
       const tx=await f.runTransaction(voteRef,current=>{
@@ -10624,7 +10657,7 @@ async function vote(id){
   }catch(e){
     const msg=S(e?.message||e);
     render();
-    alert(msg.includes('سبق تسجيل')?msg:'تعذّر تسجيل التصويت في قاعدة البيانات، لذلك لم نعتمد صوتك. '+msg+'\n\nتحقق من صلاحيات الكتابة في Firebase Realtime Database ثم أعد المحاولة.');
+    alert(msg.includes('سبق تسجيل')?msg:pollVoteErrorMessage(e));
   }finally{voting.delete(id);render()}
 }
 function editPoll(id){if(!canManage())return;const p=read().find(x=>S(x.id)===S(id));if(!p)return;document.getElementById('pollQuestion').value=p.question||'';const box=document.getElementById('pollOptionsEditor');box.innerHTML='';A(p.options).forEach(o=>addOption(optionText(o)));const b=document.getElementById('pollSaveBtn');b.textContent='💾 حفظ التعديل';b.dataset.editing=id;document.getElementById('pollCancelBtn').style.display='';document.getElementById('pollAdminPanel').scrollIntoView({behavior:'smooth',block:'center'})}
