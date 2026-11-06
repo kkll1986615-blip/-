@@ -490,6 +490,112 @@ document.addEventListener('DOMContentLoaded', function(){
 .modern-match-score-value.finished-score-value .modern-match-away-score{display:inline-block;direction:ltr;unicode-bidi:isolate;min-width:14px}
 .modern-match-score-value.finished-score-value i{font-style:normal;opacity:.85}
 </style>
+
+<style id="suspended-players-trigger-professional-style">
+#players .suspended-players-trigger{
+  --spt-red:#c6283a;
+  appearance:none!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:13px!important;
+  width:min(100%,440px)!important;
+  min-height:82px!important;
+  margin:8px auto!important;
+  padding:11px 14px!important;
+  border:1px solid #f0c9ce!important;
+  border-radius:19px!important;
+  background:linear-gradient(120deg,#fff 0%,#fff8f8 62%,#fff1f2 100%)!important;
+  color:#263d37!important;
+  box-shadow:0 8px 22px rgba(139,35,49,.10)!important;
+  text-align:right!important;
+  font-family:inherit!important;
+  white-space:normal!important;
+  cursor:pointer!important;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important;
+}
+#players .suspended-players-trigger:hover{
+  transform:translateY(-2px)!important;
+  border-color:#e7aab2!important;
+  box-shadow:0 13px 28px rgba(139,35,49,.16)!important;
+}
+#players .suspended-players-trigger:active{transform:translateY(0)!important}
+#players .suspended-players-trigger:focus-visible{outline:3px solid #0a9467!important;outline-offset:3px!important}
+#players .suspended-trigger-icon{
+  display:grid!important;
+  place-items:center!important;
+  width:56px!important;
+  height:56px!important;
+  flex:0 0 56px!important;
+  border-radius:17px!important;
+  color:#fff!important;
+  background:linear-gradient(145deg,#f04b5a,#b91f35)!important;
+  box-shadow:0 7px 16px rgba(190,35,53,.25)!important;
+}
+#players .suspended-trigger-icon svg{display:block!important;width:35px!important;height:35px!important}
+#players .suspended-trigger-copy{display:flex!important;flex:1 1 auto!important;min-width:0!important;flex-direction:column!important;gap:5px!important}
+#players .suspended-trigger-copy strong{display:block!important;color:#8e1e2b!important;font-size:16px!important;font-weight:950!important;line-height:1.35!important}
+#players .suspended-trigger-copy small{display:block!important;color:#71817b!important;font-size:11px!important;font-weight:700!important;line-height:1.5!important}
+#players .suspended-trigger-action{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  flex:0 0 auto!important;
+  padding:7px 9px!important;
+  border:1px solid #f1d7da!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#a52a38!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+#players .suspended-trigger-action span{font-size:18px!important;line-height:10px!important}
+@media(max-width:480px){
+  #players .suspended-players-trigger{min-height:76px!important;gap:10px!important;padding:10px!important;border-radius:16px!important}
+  #players .suspended-trigger-icon{width:49px!important;height:49px!important;flex-basis:49px!important;border-radius:14px!important}
+  #players .suspended-trigger-icon svg{width:31px!important;height:31px!important}
+  #players .suspended-trigger-copy strong{font-size:14px!important}
+  #players .suspended-trigger-copy small{font-size:10px!important}
+  #players .suspended-trigger-action{font-size:9px!important;padding:6px 7px!important}
+}
+@media(max-width:360px){#players .suspended-trigger-action{display:none!important}}
+@media(prefers-reduced-motion:reduce){#players .suspended-players-trigger{transition:none!important}}
+</style>
+<style id="suspended-players-red-moving-arrow-style">
+/* سهم أحمر متحرك يوجّه النظر إلى أيقونة اللاعبين الموقوفين فقط. */
+#players #suspendedPlayersToggle .suspended-trigger-arrow{
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 25px!important;
+  width:25px!important;
+  height:25px!important;
+  border:1px solid #efb8c0!important;
+  border-radius:50%!important;
+  background:linear-gradient(145deg,#fff 0%,#fff0f2 100%)!important;
+  color:#c62828!important;
+  font-family:Arial,Tahoma,sans-serif!important;
+  font-size:21px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  text-align:center!important;
+  box-shadow:0 3px 10px rgba(172,25,43,.18)!important;
+  animation:suspendedArrowTowardIcon 1.25s ease-in-out infinite!important;
+  pointer-events:none!important;
+  user-select:none!important;
+}
+@keyframes suspendedArrowTowardIcon{
+  0%,100%{transform:translateX(0);opacity:.88}
+  50%{transform:translateX(6px);opacity:1}
+}
+@media(max-width:480px){
+  #players #suspendedPlayersToggle .suspended-trigger-arrow{
+    flex-basis:22px!important;width:22px!important;height:22px!important;font-size:19px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #players #suspendedPlayersToggle .suspended-trigger-arrow{animation:none!important;transform:none!important}
+}
+</style>
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -534,7 +640,19 @@ document.addEventListener('DOMContentLoaded', function(){
     <div id="endedTournamentList"></div>
   </div>
 </div>
-</section><section class="page" id="teams"><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>⚽ الفرق</h2><button class="btn" onclick="toggleTeamRegistration()" type="button">➕ إضافة فريق</button></div><div id="teamRegistrationPanel" style="display:none"><div class="notice">📝 أدخل بيانات الفريق ثم اضغط «إضافة فريق».</div><div class="grid"><div><label>🏆 البطولة</label><select id="teamTour" onchange="refreshTeamGroupSelector();refreshTeamRegistrationSummary()"></select><small>اختر البطولة أولاً، وستظهر الفرق المسجلة وعدد الفرق المشاركة تلقائيًا.</small></div><div class="team-registration-summary" id="teamRegistrationSummary" style="display:none"><div class="team-summary-count"><span>👥 عدد الفرق المشاركة</span><b id="teamParticipantCount">0</b></div><div><strong>⚽ الفرق المسجلة في البطولة</strong><div class="team-registered-names" id="teamRegisteredNames"></div></div></div><div id="teamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="teamGroup"><option value="">اختر المجموعة</option></select><small>يتم توزيع الفرق يدويًا: اختر المجموعة A أو B أو C ثم سجل الفريق.</small></div><div><label>⚽ اسم الفريق</label><input id="teamNameInput" maxlength="60" placeholder="اكتب اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="teamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="teamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="teamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="addTeam()">➕ إضافة فريق</button><button class="btn secondary" onclick="toggleTeamRegistration(false)" type="button">إلغاء</button></div></div></div><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>🛠️ إدارة الفرق المسجلة</h2><button class="btn secondary" onclick="toggleTeamEdit()" type="button">✏️ تعديل الفرق المسجلة</button></div><div id="teamEditPanel" style="display:none"><div class="notice">🔎 اختر البطولة أولاً، ثم اختر الفريق المسجل لتظهر بياناته وتعديلها.</div><div class="grid"><div><label>🏆 اختيار البطولة</label><select id="editTeamTourFilter" onchange="refreshTeamsForEdit()"><option value="">اختر البطولة</option></select></div><div><label>⚽ الفرق المسجلة</label><select id="editTeamSelect" onchange="loadTeamForEdit()"><option value="">اختر البطولة أولاً</option></select></div><div id="editTeamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="editTeamGroup"><option value="">اختر المجموعة</option></select><small>يمكن تغيير مجموعة الفريق يدويًا.</small></div><div><label>اسم الفريق</label><input id="editTeamName" maxlength="60" placeholder="اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="editTeamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="editTeamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="editTeamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="updateTeam()">💾 حفظ التغييرات</button><button class="btn secondary" onclick="toggleTeamEdit(false)" type="button">إلغاء</button></div></div></div><div class="card"><div class="section-title"><div><h2>⚽ الفرق المسجلة</h2><small>👁️ الزائر يختار البطولة فقط لعرض الفرق المسجلة.</small></div><span class="badge">متاح للجميع</span></div><div class="grid"><div><label>🏆 اختر البطولة</label><select id="publicTeamTour" onchange="renderPublicTeams()"><option value="">اختر البطولة أولاً</option></select></div></div><div id="publicTeamList"><div class="empty">اختر اسم البطولة لعرض الفرق المسجلة تلقائيًا.</div></div></div></section><section class="page" id="players"><div class="card"><div class="section-title"><h2>👥 اللاعبون</h2><span class="badge">اختر الفريق لعرض لاعبيه</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0"><button class="btn primary" onclick="toggleSuspendedPlayers()" type="button">⛔ اللاعبين الموقوفين</button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة</option></select></div><div><label>اللاعب</label><select id="manualSuspPlayer"><option value="">اختر البطولة أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>📅 تاريخ العقوبة</label><input id="manualSuspDate" type="date"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
+</section><section class="page" id="teams"><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>⚽ الفرق</h2><button class="btn" onclick="toggleTeamRegistration()" type="button">➕ إضافة فريق</button></div><div id="teamRegistrationPanel" style="display:none"><div class="notice">📝 أدخل بيانات الفريق ثم اضغط «إضافة فريق».</div><div class="grid"><div><label>🏆 البطولة</label><select id="teamTour" onchange="refreshTeamGroupSelector();refreshTeamRegistrationSummary()"></select><small>اختر البطولة أولاً، وستظهر الفرق المسجلة وعدد الفرق المشاركة تلقائيًا.</small></div><div class="team-registration-summary" id="teamRegistrationSummary" style="display:none"><div class="team-summary-count"><span>👥 عدد الفرق المشاركة</span><b id="teamParticipantCount">0</b></div><div><strong>⚽ الفرق المسجلة في البطولة</strong><div class="team-registered-names" id="teamRegisteredNames"></div></div></div><div id="teamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="teamGroup"><option value="">اختر المجموعة</option></select><small>يتم توزيع الفرق يدويًا: اختر المجموعة A أو B أو C ثم سجل الفريق.</small></div><div><label>⚽ اسم الفريق</label><input id="teamNameInput" maxlength="60" placeholder="اكتب اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="teamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="teamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="teamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="addTeam()">➕ إضافة فريق</button><button class="btn secondary" onclick="toggleTeamRegistration(false)" type="button">إلغاء</button></div></div></div><div class="card viewer-hide" data-perm="teams"><div class="section-title"><h2>🛠️ إدارة الفرق المسجلة</h2><button class="btn secondary" onclick="toggleTeamEdit()" type="button">✏️ تعديل الفرق المسجلة</button></div><div id="teamEditPanel" style="display:none"><div class="notice">🔎 اختر البطولة أولاً، ثم اختر الفريق المسجل لتظهر بياناته وتعديلها.</div><div class="grid"><div><label>🏆 اختيار البطولة</label><select id="editTeamTourFilter" onchange="refreshTeamsForEdit()"><option value="">اختر البطولة</option></select></div><div><label>⚽ الفرق المسجلة</label><select id="editTeamSelect" onchange="loadTeamForEdit()"><option value="">اختر البطولة أولاً</option></select></div><div id="editTeamGroupWrap" style="display:none"><label>📋 المجموعة</label><select id="editTeamGroup"><option value="">اختر المجموعة</option></select><small>يمكن تغيير مجموعة الفريق يدويًا.</small></div><div><label>اسم الفريق</label><input id="editTeamName" maxlength="60" placeholder="اسم الفريق"/></div><div><label>رئيس الفريق</label><input id="editTeamPresident" maxlength="60" placeholder="اسم رئيس الفريق"/></div><div><label>مدرب الفريق</label><input id="editTeamCoach" maxlength="60" placeholder="اسم المدرب"/></div><div><label>شعار الفريق</label><input accept="image/*" id="editTeamLogo" type="file"/></div></div><div class="actions"><button class="btn" onclick="updateTeam()">💾 حفظ التغييرات</button><button class="btn secondary" onclick="toggleTeamEdit(false)" type="button">إلغاء</button></div></div></div><div class="card"><div class="section-title"><div><h2>⚽ الفرق المسجلة</h2><small>👁️ الزائر يختار البطولة فقط لعرض الفرق المسجلة.</small></div><span class="badge">متاح للجميع</span></div><div class="grid"><div><label>🏆 اختر البطولة</label><select id="publicTeamTour" onchange="renderPublicTeams()"><option value="">اختر البطولة أولاً</option></select></div></div><div id="publicTeamList"><div class="empty">اختر اسم البطولة لعرض الفرق المسجلة تلقائيًا.</div></div></div></section><section class="page" id="players"><div class="card"><div class="section-title"><h2>👥 اللاعبون</h2><span class="badge">اختر الفريق لعرض لاعبيه</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0"><button class="btn primary suspended-players-trigger" id="suspendedPlayersToggle" onclick="toggleSuspendedPlayers()" type="button" aria-controls="suspendedPlayersPanel" aria-label="عرض قائمة اللاعبين الموقوفين">
+  <span class="suspended-trigger-icon" aria-hidden="true">
+    <svg viewBox="0 0 48 48" focusable="false" aria-hidden="true">
+      <circle cx="18" cy="13.5" r="6.5" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M5 37c0-7 5.8-12 13-12 4.4 0 7.8 1.5 10 4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="34" cy="34" r="10" fill="#fff" stroke="#fff" stroke-width="1.5"/>
+      <path d="M29 34h10" fill="none" stroke="#c62828" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
+  </span>
+  <span class="suspended-trigger-arrow" aria-hidden="true">➜</span>
+  <span class="suspended-trigger-copy"><strong>اللاعبون الموقوفون</strong><small>عرض الإيقافات والعقوبات الحالية</small></span>
+  <span class="suspended-trigger-action">عرض القائمة <span aria-hidden="true">‹</span></span>
+</button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة</option></select></div><div><label>اللاعب</label><select id="manualSuspPlayer"><option value="">اختر البطولة أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>📅 تاريخ العقوبة</label><input id="manualSuspDate" type="date"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
 <div><label>🏆 اسم البطولة</label><select id="matchTour" onchange="refreshMatchTeams()"><option value="">اختر البطولة أولاً</option></select></div>
 <div><label>🥅 الفريق الأول</label><select id="homeTeam"><option value="">اختر الفريق</option></select></div>
 <div><label>🥅 الفريق الثاني</label><select id="awayTeam"><option value="">اختر الفريق</option></select></div>
