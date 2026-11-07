@@ -626,75 +626,72 @@ document.addEventListener('DOMContentLoaded', function(){
 }
 </style>
 
-<style id="stats-standings-champion-runnerup-colors">
-/* تنسيق البطل والوصيف في جداول ترتيب الفرق داخل قسم الإحصائيات فقط */
-#stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td,
-#stats #statsBody .stats-ranking-card table tbody tr.rank-1:hover > td {
-  background: linear-gradient(105deg, #fff0a8 0%, #ffe071 48%, #fff4c7 100%) !important;
-  color: #684500 !important;
+<style id="stats-standings-champion-runnerup-nth-child">
+/* إبراز البطل والوصيف في جداول ترتيب الفرق داخل قسم الإحصائيات فقط.
+   يعتمد على ترتيب الصفوف الفعلي لأن صفوف الإحصائيات لا تحمل rank-1 / rank-2. */
+#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td,
+#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1):hover > td {
+  background: linear-gradient(100deg, #ffe8a3 0%, #ffd65a 52%, #fff0bd 100%) !important;
+  background-color: #ffe28a !important;
+  color: #654500 !important;
+  -webkit-text-fill-color: #654500 !important;
   font-weight: 900 !important;
-  border-top: 1px solid #f0c64c !important;
-  border-bottom: 1px solid #f0c64c !important;
+  border-top: 1px solid #e9b934 !important;
+  border-bottom: 1px solid #e9b934 !important;
 }
-#stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td:first-child {
-  border-right: 5px solid #e5a900 !important;
+#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td:first-child {
+  border-right: 5px solid #d99a00 !important;
+  border-top-right-radius: 9px !important;
+  border-bottom-right-radius: 9px !important;
+  color: #704b00 !important;
+  -webkit-text-fill-color: #704b00 !important;
 }
-#stats #statsBody .stats-ranking-card table tbody tr.rank-1 .rank-badge {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td:last-child b {
+  display: inline-block !important;
   min-width: 30px !important;
-  min-height: 30px !important;
-  border-radius: 50% !important;
-  background: linear-gradient(145deg, #f6bd22, #d98a00) !important;
+  padding: 5px 8px !important;
+  border-radius: 9px !important;
+  background: linear-gradient(135deg, #d99500, #f4bf35) !important;
   color: #fff !important;
-  border: 2px solid #fff2b8 !important;
-  box-shadow: 0 3px 9px rgba(174, 112, 0, .28) !important;
-  font-weight: 950 !important;
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: 0 2px 6px rgba(145, 98, 0, .2) !important;
 }
-#stats #statsBody .stats-ranking-card table tbody tr.rank-1 .points-badge {
-  background: linear-gradient(135deg, #e5a000, #f6c945) !important;
-  color: #fff !important;
-  border: 1px solid #d48b00 !important;
-}
-#stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td,
-#stats #statsBody .stats-ranking-card table tbody tr.rank-2:hover > td {
-  background: linear-gradient(105deg, #d9f1ff 0%, #a9dcff 48%, #eaf8ff 100%) !important;
-  color: #104a70 !important;
+#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td,
+#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2):hover > td {
+  background: linear-gradient(100deg, #e1f5ff 0%, #a9dcf8 52%, #edf9ff 100%) !important;
+  background-color: #d2edfc !important;
+  color: #10486b !important;
+  -webkit-text-fill-color: #10486b !important;
   font-weight: 850 !important;
-  border-top: 1px solid #8bc9ef !important;
-  border-bottom: 1px solid #8bc9ef !important;
+  border-top: 1px solid #82c7eb !important;
+  border-bottom: 1px solid #82c7eb !important;
 }
-#stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td:first-child {
-  border-right: 5px solid #2998d0 !important;
+#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td:first-child {
+  border-right: 5px solid #238ec8 !important;
+  border-top-right-radius: 9px !important;
+  border-bottom-right-radius: 9px !important;
+  color: #12567d !important;
+  -webkit-text-fill-color: #12567d !important;
 }
-#stats #statsBody .stats-ranking-card table tbody tr.rank-2 .rank-badge {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td:last-child b {
+  display: inline-block !important;
   min-width: 30px !important;
-  min-height: 30px !important;
-  border-radius: 50% !important;
-  background: linear-gradient(145deg, #55b9ed, #1976b9) !important;
+  padding: 5px 8px !important;
+  border-radius: 9px !important;
+  background: linear-gradient(135deg, #197db5, #54b8e6) !important;
   color: #fff !important;
-  border: 2px solid #e8f8ff !important;
-  box-shadow: 0 3px 9px rgba(25, 118, 185, .24) !important;
-  font-weight: 950 !important;
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: 0 2px 6px rgba(25, 118, 185, .18) !important;
 }
-#stats #statsBody .stats-ranking-card table tbody tr.rank-2 .points-badge {
-  background: linear-gradient(135deg, #238dcc, #54b8e8) !important;
-  color: #fff !important;
-  border: 1px solid #1976b9 !important;
-}
-@media (max-width: 700px) {
-  #stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td,
-  #stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td {
-    font-weight: 900 !important;
+@media (max-width: 600px) {
+  #statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td,
+  #statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td {
+    font-weight: 850 !important;
   }
-  #stats #statsBody .stats-ranking-card table tbody tr.rank-1 .rank-badge,
-  #stats #statsBody .stats-ranking-card table tbody tr.rank-2 .rank-badge {
-    min-width: 27px !important;
-    min-height: 27px !important;
+  #statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td:last-child b,
+  #statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td:last-child b {
+    min-width: 24px !important;
+    padding: 4px 6px !important;
   }
 }
 </style>
