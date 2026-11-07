@@ -627,71 +627,42 @@ document.addEventListener('DOMContentLoaded', function(){
 </style>
 
 <style id="stats-standings-champion-runnerup-nth-child">
-/* إبراز البطل والوصيف في جداول ترتيب الفرق داخل قسم الإحصائيات فقط.
-   يعتمد على ترتيب الصفوف الفعلي لأن صفوف الإحصائيات لا تحمل rank-1 / rank-2. */
-#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td,
-#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1):hover > td {
-  background: linear-gradient(100deg, #ffe8a3 0%, #ffd65a 52%, #fff0bd 100%) !important;
-  background-color: #ffe28a !important;
-  color: #654500 !important;
-  -webkit-text-fill-color: #654500 !important;
+/* يلوّن كامل صف البطل والوصيف في جداول ترتيب المجموعات داخل إحصائيات البطولة فقط.
+   هذه هي فئات الجدول التي ينشئها renderGroupStatsRankings فعلياً. */
+#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-1 > td,
+#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-1:hover > td {
+  background: #ffe17a !important;
+  background-color: #ffe17a !important;
+  color: #674600 !important;
+  -webkit-text-fill-color: #674600 !important;
   font-weight: 900 !important;
-  border-top: 1px solid #e9b934 !important;
-  border-bottom: 1px solid #e9b934 !important;
+  border-top: 2px solid #e3aa16 !important;
+  border-bottom: 2px solid #e3aa16 !important;
 }
-#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td:first-child {
-  border-right: 5px solid #d99a00 !important;
-  border-top-right-radius: 9px !important;
-  border-bottom-right-radius: 9px !important;
-  color: #704b00 !important;
-  -webkit-text-fill-color: #704b00 !important;
+#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-1 > td:first-child {
+  border-right: 5px solid #c88b00 !important;
+  color: #684600 !important;
+  -webkit-text-fill-color: #684600 !important;
 }
-#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td:last-child b {
-  display: inline-block !important;
-  min-width: 30px !important;
-  padding: 5px 8px !important;
-  border-radius: 9px !important;
-  background: linear-gradient(135deg, #d99500, #f4bf35) !important;
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  box-shadow: 0 2px 6px rgba(145, 98, 0, .2) !important;
-}
-#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td,
-#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2):hover > td {
-  background: linear-gradient(100deg, #e1f5ff 0%, #a9dcf8 52%, #edf9ff 100%) !important;
-  background-color: #d2edfc !important;
-  color: #10486b !important;
-  -webkit-text-fill-color: #10486b !important;
+#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-2 > td,
+#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-2:hover > td {
+  background: #c7eaff !important;
+  background-color: #c7eaff !important;
+  color: #10496c !important;
+  -webkit-text-fill-color: #10496c !important;
   font-weight: 850 !important;
-  border-top: 1px solid #82c7eb !important;
-  border-bottom: 1px solid #82c7eb !important;
+  border-top: 2px solid #78c5ed !important;
+  border-bottom: 2px solid #78c5ed !important;
 }
-#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td:first-child {
+#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-2 > td:first-child {
   border-right: 5px solid #238ec8 !important;
-  border-top-right-radius: 9px !important;
-  border-bottom-right-radius: 9px !important;
   color: #12567d !important;
   -webkit-text-fill-color: #12567d !important;
 }
-#statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td:last-child b {
-  display: inline-block !important;
-  min-width: 30px !important;
-  padding: 5px 8px !important;
-  border-radius: 9px !important;
-  background: linear-gradient(135deg, #197db5, #54b8e6) !important;
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  box-shadow: 0 2px 6px rgba(25, 118, 185, .18) !important;
-}
 @media (max-width: 600px) {
-  #statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td,
-  #statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td {
+  #statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-1 > td,
+  #statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-2 > td {
     font-weight: 850 !important;
-  }
-  #statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(1) > td:last-child b,
-  #statsBody .standings-card .table-wrap table.standings-mobile-table.stats-unified-table > tbody > tr:nth-child(2) > td:last-child b {
-    min-width: 24px !important;
-    padding: 4px 6px !important;
   }
 }
 </style>
