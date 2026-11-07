@@ -625,6 +625,80 @@ document.addEventListener('DOMContentLoaded', function(){
   #players #suspendedPlayersToggle .suspended-trigger-arrow{animation:none!important;transform:none!important}
 }
 </style>
+
+<style id="stats-standings-champion-runnerup-colors">
+/* تنسيق البطل والوصيف في جداول ترتيب الفرق داخل قسم الإحصائيات فقط */
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td,
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1:hover > td {
+  background: linear-gradient(105deg, #fff0a8 0%, #ffe071 48%, #fff4c7 100%) !important;
+  color: #684500 !important;
+  font-weight: 900 !important;
+  border-top: 1px solid #f0c64c !important;
+  border-bottom: 1px solid #f0c64c !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td:first-child {
+  border-right: 5px solid #e5a900 !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1 .rank-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, #f6bd22, #d98a00) !important;
+  color: #fff !important;
+  border: 2px solid #fff2b8 !important;
+  box-shadow: 0 3px 9px rgba(174, 112, 0, .28) !important;
+  font-weight: 950 !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1 .points-badge {
+  background: linear-gradient(135deg, #e5a000, #f6c945) !important;
+  color: #fff !important;
+  border: 1px solid #d48b00 !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td,
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2:hover > td {
+  background: linear-gradient(105deg, #d9f1ff 0%, #a9dcff 48%, #eaf8ff 100%) !important;
+  color: #104a70 !important;
+  font-weight: 850 !important;
+  border-top: 1px solid #8bc9ef !important;
+  border-bottom: 1px solid #8bc9ef !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td:first-child {
+  border-right: 5px solid #2998d0 !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2 .rank-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, #55b9ed, #1976b9) !important;
+  color: #fff !important;
+  border: 2px solid #e8f8ff !important;
+  box-shadow: 0 3px 9px rgba(25, 118, 185, .24) !important;
+  font-weight: 950 !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2 .points-badge {
+  background: linear-gradient(135deg, #238dcc, #54b8e8) !important;
+  color: #fff !important;
+  border: 1px solid #1976b9 !important;
+}
+@media (max-width: 700px) {
+  #stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td,
+  #stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td {
+    font-weight: 900 !important;
+  }
+  #stats #statsBody .stats-ranking-card table tbody tr.rank-1 .rank-badge,
+  #stats #statsBody .stats-ranking-card table tbody tr.rank-2 .rank-badge {
+    min-width: 27px !important;
+    min-height: 27px !important;
+  }
+}
+</style>
+
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
