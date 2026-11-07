@@ -626,43 +626,75 @@ document.addEventListener('DOMContentLoaded', function(){
 }
 </style>
 
-<style id="stats-standings-champion-runnerup-nth-child">
-/* يلوّن كامل صف البطل والوصيف في جداول ترتيب المجموعات داخل إحصائيات البطولة فقط.
-   هذه هي فئات الجدول التي ينشئها renderGroupStatsRankings فعلياً. */
-#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-1 > td,
-#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-1:hover > td {
-  background: #ffe17a !important;
-  background-color: #ffe17a !important;
-  color: #674600 !important;
-  -webkit-text-fill-color: #674600 !important;
+<style id="stats-standings-champion-runnerup-colors">
+/* تنسيق البطل والوصيف في جداول ترتيب الفرق داخل قسم الإحصائيات فقط */
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td,
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1:hover > td {
+  background: linear-gradient(105deg, #fff0a8 0%, #ffe071 48%, #fff4c7 100%) !important;
+  color: #684500 !important;
   font-weight: 900 !important;
-  border-top: 2px solid #e3aa16 !important;
-  border-bottom: 2px solid #e3aa16 !important;
+  border-top: 1px solid #f0c64c !important;
+  border-bottom: 1px solid #f0c64c !important;
 }
-#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-1 > td:first-child {
-  border-right: 5px solid #c88b00 !important;
-  color: #684600 !important;
-  -webkit-text-fill-color: #684600 !important;
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td:first-child {
+  border-right: 5px solid #e5a900 !important;
 }
-#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-2 > td,
-#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-2:hover > td {
-  background: #c7eaff !important;
-  background-color: #c7eaff !important;
-  color: #10496c !important;
-  -webkit-text-fill-color: #10496c !important;
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1 .rank-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, #f6bd22, #d98a00) !important;
+  color: #fff !important;
+  border: 2px solid #fff2b8 !important;
+  box-shadow: 0 3px 9px rgba(174, 112, 0, .28) !important;
+  font-weight: 950 !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-1 .points-badge {
+  background: linear-gradient(135deg, #e5a000, #f6c945) !important;
+  color: #fff !important;
+  border: 1px solid #d48b00 !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td,
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2:hover > td {
+  background: linear-gradient(105deg, #d9f1ff 0%, #a9dcff 48%, #eaf8ff 100%) !important;
+  color: #104a70 !important;
   font-weight: 850 !important;
-  border-top: 2px solid #78c5ed !important;
-  border-bottom: 2px solid #78c5ed !important;
+  border-top: 1px solid #8bc9ef !important;
+  border-bottom: 1px solid #8bc9ef !important;
 }
-#statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-2 > td:first-child {
-  border-right: 5px solid #238ec8 !important;
-  color: #12567d !important;
-  -webkit-text-fill-color: #12567d !important;
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td:first-child {
+  border-right: 5px solid #2998d0 !important;
 }
-@media (max-width: 600px) {
-  #statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-1 > td,
-  #statsBody .stats-group-ranking-card table.standings-mobile-table > tbody > tr.rank-2 > td {
-    font-weight: 850 !important;
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2 .rank-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, #55b9ed, #1976b9) !important;
+  color: #fff !important;
+  border: 2px solid #e8f8ff !important;
+  box-shadow: 0 3px 9px rgba(25, 118, 185, .24) !important;
+  font-weight: 950 !important;
+}
+#stats #statsBody .stats-ranking-card table tbody tr.rank-2 .points-badge {
+  background: linear-gradient(135deg, #238dcc, #54b8e8) !important;
+  color: #fff !important;
+  border: 1px solid #1976b9 !important;
+}
+@media (max-width: 700px) {
+  #stats #statsBody .stats-ranking-card table tbody tr.rank-1 > td,
+  #stats #statsBody .stats-ranking-card table tbody tr.rank-2 > td {
+    font-weight: 900 !important;
+  }
+  #stats #statsBody .stats-ranking-card table tbody tr.rank-1 .rank-badge,
+  #stats #statsBody .stats-ranking-card table tbody tr.rank-2 .rank-badge {
+    min-width: 27px !important;
+    min-height: 27px !important;
   }
 }
 </style>
