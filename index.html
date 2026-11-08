@@ -14378,5 +14378,72 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 }
 </style>
 
+
+<style id="players-unified-icon-system-20261108">
+/* توحيد أيقونات الأدوات داخل قسم اللاعبين فقط؛ قياس وشكل موحدان مع ألوان مميزة لكل وظيفة. */
+#players .players-command-icon,
+#players .player-warnings-trigger-icon,
+#players .suspended-trigger-icon{
+  box-sizing:border-box!important;
+  display:grid!important;
+  place-items:center!important;
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  min-height:44px!important;
+  flex:0 0 44px!important;
+  padding:0!important;
+  border:1px solid rgba(255,255,255,.78)!important;
+  border-radius:14px!important;
+  color:#fff!important;
+  box-shadow:0 5px 13px rgba(31,41,55,.16),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  overflow:hidden!important;
+  align-self:center!important;
+}
+#players .players-command-icon svg,
+#players .player-warnings-trigger-icon svg,
+#players .suspended-trigger-icon svg{
+  display:block!important;
+  width:26px!important;
+  height:26px!important;
+  min-width:26px!important;
+  min-height:26px!important;
+  max-width:26px!important;
+  max-height:26px!important;
+}
+/* أيقونات شريط أدوات اللاعبين */
+#players #playersCommandBar .players-command-btn .players-command-icon{color:#fff!important}
+#players #playersCommandBar .players-command-btn.add .players-command-icon{background:linear-gradient(140deg,#34d399,#059669)!important}
+#players #playersCommandBar .players-command-btn.edit .players-command-icon{background:linear-gradient(140deg,#60a5fa,#2563eb)!important}
+#players #playersCommandBar .players-command-btn.delete .players-command-icon{background:linear-gradient(140deg,#fb7185,#e11d48)!important}
+#players #playersCommandBar .players-command-btn.copy .players-command-icon{background:linear-gradient(140deg,#a78bfa,#7c3aed)!important}
+#players #playersCommandBar .players-command-btn.move .players-command-icon{background:linear-gradient(140deg,#fbbf24,#ea580c)!important}
+#players #playersCommandBar .players-command-btn.transfer .players-command-icon{background:linear-gradient(140deg,#e879f9,#9333ea)!important}
+#players #playersCommandBar .players-command-btn.public .players-command-icon{background:linear-gradient(140deg,#22d3ee,#2563eb)!important}
+#players #playersCommandBar .players-names-trigger .players-command-icon{background:linear-gradient(140deg,#22d3ee,#4f46e5)!important}
+/* أيقونة الإنذارات */
+#players .player-warnings-trigger-icon{
+  background:linear-gradient(140deg,#facc15 0%,#fb923c 52%,#f43f5e 100%)!important;
+  border-color:#fff0b3!important;
+}
+/* أيقونة اللاعبين الموقوفين */
+#players .suspended-trigger-icon{
+  background:linear-gradient(140deg,#fb7185 0%,#e11d48 55%,#9f1239 100%)!important;
+  border-color:#fecdd3!important;
+}
+/* حافظ على وضوح الرموز عند المرور أو التركيز دون تغيير سلوك الأزرار. */
+#players #playersCommandBar .players-command-btn:focus-visible,
+#players .player-warnings-trigger:focus-visible,
+#players .suspended-players-trigger:focus-visible{
+  outline:3px solid #fbbf24!important;
+  outline-offset:3px!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #players #playersCommandBar .players-command-btn,
+  #players .player-warnings-trigger,
+  #players .suspended-players-trigger{transition:none!important}
+}
+</style>
+
 </body>
 </html>
