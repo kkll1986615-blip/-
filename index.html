@@ -13969,13 +13969,20 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 #players .player-warnings-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 12px;margin:8px 0 12px;border:1px solid #eadfca;border-radius:12px;background:linear-gradient(90deg,#fff9e9,#fff)}
 #players .player-warnings-summary strong{color:#6e4b08;font-size:13px}
 #players .player-warnings-summary span{font-size:11px;color:#6d7880}
-#players .player-warnings-table-wrap{width:100%;overflow-x:auto;border-radius:12px}
-#players .player-warnings-table{width:100%;min-width:480px;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #eadfcf;border-radius:12px;overflow:hidden}
+#players .player-warnings-table-wrap{width:100%;max-width:100%;overflow:hidden;border-radius:12px}
+#players .player-warnings-table{display:table!important;width:100%!important;max-width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:separate;border-spacing:0;border:1px solid #eadfcf;border-radius:12px;overflow:hidden;white-space:normal!important}
 #players .player-warnings-table th{background:linear-gradient(135deg,#8c6518,#ba8b31)!important;color:#fff!important;font-weight:900!important}
-#players .player-warnings-table th:first-child,#players .player-warnings-table td:first-child{width:31%;text-align:right}
-#players .player-warnings-table th:nth-child(2),#players .player-warnings-table td:nth-child(2){width:27%;text-align:right}
-#players .player-warnings-table th:nth-child(n+3),#players .player-warnings-table td:nth-child(n+3){width:14%}
+#players .player-warnings-table th,#players .player-warnings-table td{box-sizing:border-box;padding:9px 4px!important}
+#players .player-warnings-table th:nth-child(1),#players .player-warnings-table td:nth-child(1){width:7%;text-align:center}
+#players .player-warnings-table th:nth-child(2),#players .player-warnings-table td:nth-child(2){width:33%;text-align:right}
+#players .player-warnings-table th:nth-child(3),#players .player-warnings-table td:nth-child(3){width:18%;text-align:right}
+#players .player-warnings-table th:nth-child(n+4),#players .player-warnings-table td:nth-child(n+4){width:14%;text-align:center}
 #players .player-warnings-table td{font-weight:800;color:#334155;background:#fff}
+#players .player-warnings-table .player-warnings-sequence{font-size:11px;font-weight:900;color:#76500b;white-space:nowrap}
+#players .player-warnings-table .player-warnings-name-cell{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;text-align:right!important}
+#players .player-warnings-table .player-warnings-name-text{display:block;width:max-content;max-width:none;overflow:visible;text-overflow:clip;white-space:nowrap!important;font-size:12px;line-height:1.35;transform-origin:right center}
+#players .player-warnings-table .player-warnings-team-cell{white-space:nowrap!important;overflow:hidden;text-overflow:clip;text-align:right!important}
+#players .player-warnings-table .player-warnings-team-text{display:block;width:max-content;max-width:none;overflow:visible;text-overflow:clip;white-space:nowrap!important;font-size:10px;line-height:1.35;font-weight:800;transform-origin:right center}
 #players .player-warnings-table .warning-yellow-count{display:inline-grid;place-items:center;min-width:30px;padding:4px 7px;border-radius:8px;background:#fff1bd;color:#8c5b00}
 #players .player-warnings-table .warning-red-count{display:inline-grid;place-items:center;min-width:30px;padding:4px 7px;border-radius:8px;background:#ffe1e1;color:#b42318}
 #players .player-warnings-table .warning-total-count{font-weight:1000;color:#075f45}
@@ -13985,8 +13992,11 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 @media(max-width:600px){
   #players .player-warnings-trigger{width:100%;min-width:0;justify-content:flex-start;padding:10px!important}
   #players .player-warnings-filters{grid-template-columns:1fr}
-  #players .player-warnings-table{min-width:430px;font-size:12px}
-  #players .player-warnings-table th,#players .player-warnings-table td{padding:9px 5px!important}
+  #players .player-warnings-table{min-width:0!important;width:100%!important;font-size:11px!important}
+  #players .player-warnings-table th,#players .player-warnings-table td{padding:8px 2px!important}
+  #players .player-warnings-table .player-warnings-name-text{font-size:11px}
+  #players .player-warnings-table .player-warnings-team-text{font-size:9px}
+  #players .player-warnings-table .warning-yellow-count,#players .player-warnings-table .warning-red-count{min-width:22px;padding:3px 4px}
 }
 </style>
 <script id="player-warnings-feature-script">
@@ -14178,13 +14188,37 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       out.innerHTML='<div class="player-warnings-empty">لا توجد إنذارات مسجلة لهذا الفريق في كشوفات البطولة المختارة.</div>';
       return;
     }
-    out.innerHTML='<div class="player-warnings-table-wrap"><table class="player-warnings-table"><thead><tr><th>اسم اللاعب</th><th>الفريق</th><th>صفراء</th><th>حمراء</th><th>المجموع</th></tr></thead><tbody>'+
-      list.map(x=>'<tr><td><b>'+E(x.name)+'</b></td><td>'+E(x.team)+'</td><td><span class="warning-yellow-count">'+x.yellow+'</span></td><td><span class="warning-red-count">'+x.red+'</span></td><td><span class="warning-total-count">'+x.total+'</span></td></tr>').join('')+
-      '</tbody><tfoot><tr><td colspan="2">المجموع الكلي للإنذارات</td><td>'+yellow+'</td><td>'+red+'</td><td>'+total+'</td></tr></tfoot></table></div>';
+    out.innerHTML='<div class="player-warnings-table-wrap"><table class="player-warnings-table"><colgroup><col style="width:7%"><col style="width:33%"><col style="width:18%"><col style="width:14%"><col style="width:14%"><col style="width:14%"></colgroup><thead><tr><th>#</th><th>اسم اللاعب</th><th>الفريق</th><th>صفراء</th><th>حمراء</th><th>المجموع</th></tr></thead><tbody>'+
+      list.map((x,i)=>'<tr><td class="player-warnings-sequence">'+(i+1)+'</td><td class="player-warnings-name-cell" title="'+E(x.name)+'"><b class="player-warnings-name-text" title="'+E(x.name)+'">'+E(x.name)+'</b></td><td class="player-warnings-team-cell" title="'+E(x.team)+'"><span class="player-warnings-team-text" title="'+E(x.team)+'">'+E(x.team)+'</span></td><td><span class="warning-yellow-count">'+x.yellow+'</span></td><td><span class="warning-red-count">'+x.red+'</span></td><td><span class="warning-total-count">'+x.total+'</span></td></tr>').join('')+
+      '</tbody><tfoot><tr><td colspan="3">المجموع الكلي للإنذارات</td><td>'+yellow+'</td><td>'+red+'</td><td>'+total+'</td></tr></tfoot></table></div>';
+    fitPlayerWarningsLabels();
   }
+  // تقليل حجم أسماء الفريق/اللاعب عند الحاجة حتى تبقى خلايا هذا الجدول داخل الشاشة.
+  function fitPlayerWarningsLabels(){
+    const root=$('playerWarningsResults');if(!root)return;
+    root.querySelectorAll('.player-warnings-name-text,.player-warnings-team-text').forEach(el=>{
+      const cell=el.closest('td');if(!cell)return;
+      const isTeam=el.classList.contains('player-warnings-team-text');
+      let size=isTeam?10:12;const min=isTeam?8:9;
+      el.style.fontSize=size+'px';el.style.transform='none';
+      el.style.width='max-content';el.style.maxWidth='none';
+      const available=Math.max(10,cell.clientWidth-8);
+      while(size>min && el.getBoundingClientRect().width>available){size-=0.5;el.style.fontSize=size+'px';}
+      const natural=el.getBoundingClientRect().width;
+      // عند طول الاسم الاستثنائي نضغطه أفقياً بدلاً من نقله إلى سطر ثانٍ أو توسيع الشاشة.
+      if(natural>available)el.style.transform='scaleX('+(available/natural)+')';
+    });
+  }
+  window.addEventListener('resize',()=>{if($('playerWarningsPanel')?.style.display!=='none')fitPlayerWarningsLabels();},{passive:true});
   function fillTournamentSelect(){
     const sel=$('playerWarningsTournament');if(!sel)return;
-    const old=S(sel.value),d=database(),tours=A(d.tournaments).filter(Boolean);
+    const old=S(sel.value),d=database();
+    const tours=A(d.tournaments).filter(t=>{
+      if(!t||t.archived===true||S(t.status).toLowerCase()==='archived')return false;
+      try{if(typeof window.tournamentIsEnded==='function'&&window.tournamentIsEnded(t))return false;}catch(e){}
+      if(t.completionState==='ended'||S(t.status).toLowerCase()==='ended')return false;
+      return true;
+    });
     sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>'<option value="'+E(t.id)+'">'+E(t.name||t.title||'بطولة')+'</option>').join('');
     if(tours.some(t=>S(t.id)===old))sel.value=old;
   }
