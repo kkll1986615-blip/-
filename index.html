@@ -14120,7 +14120,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   const N=v=>S(v).replace(/\s+/g,' ').toLowerCase();
   const E=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   const $=id=>document.getElementById(id);
-  let refreshTimer=null, observer=null, renderQueued=false;
+  let refreshTimer=null, observer=null, renderQueued=false, lastRefreshSignature="";
 
   function database(){
     try{if(window.db&&typeof window.db==='object')return window.db;}catch(e){}
@@ -14310,8 +14310,12 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     out.innerHTML='<div class="player-warnings-table-wrap"><table class="player-warnings-table"><colgroup><col style="width:7%"><col style="width:33%"><col style="width:18%"><col style="width:14%"><col style="width:14%"><col style="width:14%"></colgroup><thead><tr><th>#</th><th>اسم اللاعب</th><th>الفريق</th><th>صفراء</th><th>حمراء</th><th>المجموع</th></tr></thead><tbody>'+
       list.map((x,i)=>'<tr><td class="player-warnings-sequence">'+(i+1)+'</td><td class="player-warnings-name-cell" title="'+E(x.name)+'"><b class="player-warnings-name-text" title="'+E(x.name)+'">'+E(x.name)+'</b></td><td class="player-warnings-team-cell" title="'+E(x.team)+'"><span class="player-warnings-team-text" title="'+E(x.team)+'">'+E(x.team)+'</span></td><td><span class="warning-yellow-count">'+x.yellow+'</span></td><td><span class="warning-red-count">'+x.red+'</span></td><td><span class="warning-total-count">'+x.total+'</span></td></tr>').join('')+
       '</tbody><tfoot><tr><td colspan="3">المجموع الكلي للإنذارات</td><td>'+yellow+'</td><td>'+red+'</td><td>'+total+'</td></tr></tfoot></table></div>';
-    fitPlayerWarningsLabels();
+    if(!fitScheduled){
+      fitScheduled=true;
+      requestAnimationFrame(()=>{fitScheduled=false;if($('playerWarningsPanel')?.style.display!=='none')fitPlayerWarningsLabels();});
+    }
   }
+  let fitScheduled=false;
   // تقليل حجم أسماء الفريق/اللاعب عند الحاجة حتى تبقى خلايا هذا الجدول داخل الشاشة.
   function fitPlayerWarningsLabels(){
     const root=$('playerWarningsResults');if(!root)return;
@@ -14354,8 +14358,13 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const sel=$('playerWarningsTournament');if(!sel)return;
     const old=S(sel.value),d=database();
     const tours=A(d.tournaments).filter(t=>t&&!warningTournamentIsEnded(t,d));
-    sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>'<option value="'+E(t.id)+'">'+E(t.name||t.title||'بطولة')+'</option>').join('');
-    if(tours.some(t=>S(t.id)===old))sel.value=old;
+    const html='<option value="">— اختر البطولة —</option>'+tours.map(t=>'<option value="'+E(t.id)+'">'+E(t.name||t.title||'بطولة')+'</option>').join('');
+    // لا نعيد إنشاء عناصر القائمة إذا لم تتغير الخيارات؛ هذا يمنع إغلاق/اهتزاز
+    // منتقي الاختيار الأصلي في متصفحات الهواتف عند التحديث الدوري.
+    if(sel.innerHTML!==html){
+      sel.innerHTML=html;
+      if(tours.some(t=>S(t.id)===old))sel.value=old;
+    }
   }
   function fillTeamSelect(){
     const tourSel=$('playerWarningsTournament'),teamSel=$('playerWarningsTeam');if(!tourSel||!teamSel)return;
@@ -14363,23 +14372,51 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(!t||warningTournamentIsEnded(t,d)){
       if(t)tourSel.value='';
       teamSel.disabled=true;teamSel.value='';
-      teamSel.innerHTML='<option value="">— اختر بطولة جارية أولاً —</option>';
-      renderResults();return;
+      const emptyHtml='<option value="">— اختر بطولة جارية أولاً —</option>';
+      if(teamSel.innerHTML!==emptyHtml)teamSel.innerHTML=emptyHtml;
+      return;
     }
     const list=teamsForTournament(t,d);
-    teamSel.disabled=false;
-    teamSel.innerHTML='<option value="">— اختر الفريق —</option>'+list.map(x=>'<option value="'+E(x.id)+'">'+E(x.name)+'</option>').join('');
-    if(list.some(x=>S(x.id)===old))teamSel.value=old;
-    renderResults();
+    const html=list.length
+      ? '<option value="">— اختر الفريق —</option>'+list.map(x=>'<option value="'+E(x.id)+'">'+E(x.name)+'</option>').join('')
+      : '<option value="">— لا توجد فرق مسجلة في البطولة الجارية —</option>';
+    if(teamSel.innerHTML!==html){
+      teamSel.innerHTML=html;
+      if(list.some(x=>S(x.id)===old))teamSel.value=old;
+    }
+    teamSel.disabled=!list.length;
+    if(list.length&&old&&list.some(x=>S(x.id)===old))teamSel.value=old;
   }
-  function renderAll(){
+  // بصمة خفيفة للبطولات والفرق والبطاقات: لا نعيد رسم اللوحة إلا عند تغيّر بياناتها.
+  function warningRefreshSignature(){
+    const d=database();
+    const tours=A(d.tournaments).map(t=>[S(t?.id),S(t?.status),S(t?.completionState),S(t?.endDate),!!t?.archived]);
+    const teams=A(d.teams).map(t=>[S(t?.id),S(t?.tournamentId),S(t?.name)]);
+    const archives=A(d.archives).map(a=>S(a?.tournament?.id??a?.original?.id??a?.tournamentId));
+    const sheets=getSheets().map(sh=>[
+      S(sh?.matchId??sh?.matchID??sh?.fixtureId),timeValue(sh),
+      A(sh?.cards).map(c=>[S(c?.playerId??c?.playerID??c?.player_id??c?.playerName??c?.name),S(c?.teamId??c?.teamID??c?.team_id??c?.teamName),S(c?.type??c?.cardType??c?.kind??c?.card),!!c?.yellow,!!c?.red])
+    ]);
+    return JSON.stringify([tours,teams,archives,sheets]);
+  }
+  function renderAll(force=false){
+    const signature=warningRefreshSignature();
+    if(!force&&signature===lastRefreshSignature)return;
     fillTournamentSelect();
     fillTeamSelect();
+    renderResults();
+    lastRefreshSignature=signature;
   }
   function queueRender(){
     if(renderQueued)return;
     renderQueued=true;
-    setTimeout(()=>{renderQueued=false;if($('playerWarningsPanel')?.style.display!=='none')renderAll();},120);
+    setTimeout(()=>{
+      renderQueued=false;
+      if($('playerWarningsPanel')?.style.display==='none')return;
+      const active=document.activeElement;
+      if(active?.id==='playerWarningsTournament'||active?.id==='playerWarningsTeam')return;
+      renderAll(false);
+    },180);
   }
   function togglePanel(){
     const panel=$('playerWarningsPanel'),btn=$('playerWarningsToggle');if(!panel||!btn)return;
@@ -14403,7 +14440,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const suspended=$('suspendedPlayersPanel');
     if(suspended)suspended.insertAdjacentElement('afterend',panel);
     else trigger.insertAdjacentElement('afterend',panel);
-    $('playerWarningsTournament').addEventListener('change',()=>{if($('playerWarningsTeam'))$('playerWarningsTeam').value='';fillTeamSelect();});
+    $('playerWarningsTournament').addEventListener('change',()=>{if($('playerWarningsTeam'))$('playerWarningsTeam').value='';renderAll(true);});
     $('playerWarningsTeam').addEventListener('change',renderResults);
     const saved=$('ksReportsList');
     if(saved&&typeof MutationObserver!=='undefined'){
@@ -14414,10 +14451,13 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     window.addEventListener('focus',queueRender);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueRender();});
     if(!refreshTimer)refreshTimer=setInterval(()=>{
-      const p=$('playerWarningsPanel');
-      if(p&&p.style.display!=='none'&&!document.hidden)renderAll();
-    },4000);
-    window.refreshPlayerWarnings=renderAll;
+      const p=$('playerWarningsPanel'),active=document.activeElement;
+      if(!p||p.style.display==='none'||document.hidden)return;
+      if(active?.id==='playerWarningsTournament'||active?.id==='playerWarningsTeam')return;
+      // تحديث صامت: بصمة البيانات تمنع إعادة الرسم ما لم تتغير البطولات/الفرق/الكشوفات.
+      renderAll(false);
+    },15000);
+    window.refreshPlayerWarnings=()=>renderAll(true);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
@@ -14935,6 +14975,15 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   #players .players-team-goals-summary span{font-size:12px}
   #players .players-team-goals-summary strong{min-width:38px;height:33px;font-size:17px}
 }
+</style>
+
+<style id="player-warnings-stability-20261108">
+/* تثبيت مساحة لوحة الإنذارات فقط ومنع إعادة تهيئة القوائم من تغيير موضع الصفحة. */
+#players #playerWarningsPanel{overflow-anchor:none;isolation:isolate;}
+#players #playerWarningsPanel .player-warnings-filters{position:relative;contain:layout style;}
+#players #playerWarningsPanel select{touch-action:manipulation;}
+#players #playerWarningsResults{min-width:0;overflow-anchor:none;}
+@media (prefers-reduced-motion:reduce){#players #playerWarningsPanel *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </body>
 </html>
