@@ -14223,21 +14223,24 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     refs.forEach(([raw,name])=>{const team=resolveTeam(raw,name,d);if(team&&!out.some(x=>sameTeam(x,team)))out.push(team);});
     return out;
   }
+  function warningTeamNameKey(value){
+    return S(value).normalize('NFKC')
+      .replace(/[\u0640\u064B-\u065F\u0670]/g,'')
+      .replace(/\s+/g,' ').trim().toLocaleLowerCase('ar');
+  }
+  // قائمة الإنذارات تعتمد على سجلات الفرق المرتبطة مباشرة بالبطولة المختارة فقط.
+  // لا نضيف أسماء الفرق المستخرجة من كشوفات المباريات أو قوائم المشاركين القديمة؛
+  // لأنها قد تعيد الفريق نفسه بمعرّف/اسم مختلف فتظهر خيارات مكررة.
   function teamsForTournament(t,d){
-    const map=new Map(),add=team=>{if(team&&team.id&&!map.has(team.id))map.set(team.id,team);};
-    A(d.teams).filter(x=>teamTournamentMatches(x,t)).forEach(x=>add(resolveTeam(x,x.name,d)));
-    const nested=[t.teams,t.teamList,t.participatingTeams,t.participants];
-    nested.forEach(list=>A(list).forEach(raw=>add(resolveTeam(raw,raw?.name??raw?.teamName,d))));
-    getSheets().forEach(sh=>{
-      const m=findMatch(sh,d);
-      if(!belongsToTour(sh,m,t))return;
-      fixtureTeams(sh,m,d).forEach(add);
-      A(sh.cards).forEach(c=>{
-        const p=A(d.players).find(x=>S(x.id)===S(c?.playerId));
-        add(resolveTeam(c?.teamId??c?.team??p?.teamId,c?.teamName??c?.team_name,d));
-      });
+    const byId=new Set(),byName=new Map();
+    A(d.teams).forEach(record=>{
+      if(!record||!teamTournamentMatches(record,t))return;
+      const id=S(record.id),name=S(record.name??record.teamName),key=warningTeamNameKey(name);
+      if(!id||!key||byId.has(id)||byName.has(key))return;
+      byId.add(id);
+      byName.set(key,{id,name,record});
     });
-    return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+    return [...byName.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
   }
   function cardType(c){
     const type=N(c?.type??c?.cardType??c?.kind??c?.card??'');
