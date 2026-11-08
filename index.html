@@ -754,7 +754,6 @@ document.addEventListener('DOMContentLoaded', function(){
   </span>
   <span class="suspended-trigger-arrow" aria-hidden="true">➜</span>
   <span class="suspended-trigger-copy"><strong>اللاعبون الموقوفون</strong><small>عرض الإيقافات والعقوبات الحالية</small></span>
-  <span class="suspended-trigger-action">عرض القائمة <span aria-hidden="true">‹</span></span>
 </button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة</option></select></div><div><label>اللاعب</label><select id="manualSuspPlayer"><option value="">اختر البطولة أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>📅 تاريخ العقوبة</label><input id="manualSuspDate" type="date"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
 <div><label>🏆 اسم البطولة</label><select id="matchTour" onchange="refreshMatchTeams()"><option value="">اختر البطولة أولاً</option></select></div>
 <div><label>🥅 الفريق الأول</label><select id="homeTeam"><option value="">اختر الفريق</option></select></div>
@@ -6307,7 +6306,8 @@ document.addEventListener('DOMContentLoaded',function(){
     const selectedTeam=teamsFor(tid).find(x=>String(x.id)===String(teamId));
     if(!selectedTeam){box.innerHTML='<div class="empty">الفريق غير موجود ضمن البطولة المختارة.</div>';return;}
     const ps=(db.players||[]).filter(p=>String(p.teamId)===String(teamId));
-    box.innerHTML=ps.length?`<table class="players-public-table"><thead><tr><th>#</th><th>اسم اللاعب</th><th>رقم القميص</th><th>⚽ الأهداف من الكشوفات</th></tr></thead><tbody>${ps.map((p,i)=>`<tr><td>${i+1}</td><td>${esc2(p.name)}</td><td>${esc2(p.number||'—')}${isGoalkeeperByNumber(p)?' 🧤 حارس':''}</td><td><b>${playersPublicSheetGoalCount(p.id)}</b></td></tr>`).join('')}</tbody></table>`:`<div class="empty">لا يوجد لاعبون مسجلون في ${esc2(selectedTeam.name||'الفريق')}</div>`;
+    const teamGoals=ps.reduce((sum,p)=>sum+playersPublicSheetGoalCount(p.id),0);
+    box.innerHTML=ps.length?`<div class="players-team-goals-summary" role="status" aria-label="مجموع أهداف الفريق"><span>⚽ مجموع أهداف الفريق</span><strong>${teamGoals}</strong></div><table class="players-public-table"><thead><tr><th>#</th><th>اسم اللاعب</th><th>رقم القميص</th><th>⚽ الأهداف من الكشوفات</th></tr></thead><tbody>${ps.map((p,i)=>`<tr><td>${i+1}</td><td>${esc2(p.name)}</td><td>${esc2(p.number||'—')}${isGoalkeeperByNumber(p)?' 🧤 حارس':''}</td><td><b>${playersPublicSheetGoalCount(p.id)}</b></td></tr>`).join('')}</tbody></table>`:`<div class="empty">لا يوجد لاعبون مسجلون في ${esc2(selectedTeam.name||'الفريق')}</div>`;
   };
   function renderTransfers(){const box=document.getElementById('playersTransfersPanel');if(!box)return;const a=getTransfers().slice().sort((x,y)=>String(y.transferDate).localeCompare(String(x.transferDate)));box.innerHTML=`<div class="card" style="margin:0"><div class="section-title"><h3 style="margin:0">🔄 تنقلات اللاعبين</h3><span class="badge">اللاعبون المنقولون فقط</span></div><div class="players-transfer-wrap">${a.length?`<table class="players-transfer-table"><thead><tr><th>اللاعب</th><th>الفريق السابق</th><th>الفريق الحالي</th><th>تاريخ النقل</th><th>الأهداف</th><th>🟨</th><th>🟥</th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc2(x.playerName)}</td><td>${esc2(x.previousTeamName)}</td><td>${esc2(x.currentTeamName)}</td><td>${esc2(x.transferDate)}</td><td>${Number(x.goals||0)}</td><td>${Number(x.yellow||0)}</td><td>${Number(x.red||0)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">لا توجد تنقلات لاعبين مسجلة.</div>'}</div></div>`}
 
@@ -14371,7 +14371,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const button=document.createElement('button');
     button.type='button';button.id='playerWarningsToggle';button.className='btn player-warnings-trigger';
     button.setAttribute('aria-controls','playerWarningsPanel');button.setAttribute('aria-expanded','false');
-    button.innerHTML='<span class="player-warnings-trigger-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="8" y="5" width="23" height="32" rx="4" fill="#f6c445" stroke="#b77a12" stroke-width="2"/><rect x="18" y="11" width="23" height="32" rx="4" fill="#e45a52" stroke="#b52e2e" stroke-width="2"/><path d="M23 20h13M23 26h10M23 32h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="suspended-trigger-arrow player-warnings-arrow" aria-hidden="true">➜</span><span class="player-warnings-trigger-copy"><strong>إنذارات اللاعبين</strong><small>البطاقات الصفراء والحمراء من الكشوفات</small></span><span class="player-warnings-trigger-action">عرض الإنذارات ‹</span>';
+    button.innerHTML='<span class="player-warnings-trigger-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="8" y="5" width="23" height="32" rx="4" fill="#f6c445" stroke="#b77a12" stroke-width="2"/><rect x="18" y="11" width="23" height="32" rx="4" fill="#e45a52" stroke="#b52e2e" stroke-width="2"/><path d="M23 20h13M23 26h10M23 32h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="suspended-trigger-arrow player-warnings-arrow" aria-hidden="true">➜</span><span class="player-warnings-trigger-copy"><strong>إنذارات اللاعبين</strong><small>البطاقات الصفراء والحمراء من الكشوفات</small></span>';
     button.addEventListener('click',togglePanel);
     trigger.appendChild(button);
     const panel=document.createElement('div');panel.className='card player-warnings-panel';panel.id='playerWarningsPanel';panel.style.display='none';
@@ -14888,5 +14888,29 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   #players .player-warnings-trigger .player-warnings-arrow,
   #players .suspended-players-trigger .suspended-trigger-arrow{animation:none!important}
 }
-</style></body>
+</style>
+<style id="players-arrows-team-goals-polish-20261108">
+/* تحسينات محصورة بقسم اللاعبين: تبقى الأسهم وحدها دون أزرار نصية مكررة. */
+#players .suspended-players-trigger .suspended-trigger-action,
+#players .player-warnings-trigger .player-warnings-trigger-action{display:none!important}
+#players .players-team-goals-summary{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  width:100%;box-sizing:border-box;margin:0 0 10px;padding:12px 15px;
+  border:1px solid #a8d6f4;border-radius:13px;
+  background:linear-gradient(110deg,#eaf7ff 0%,#f2f0ff 55%,#f1fbf6 100%);
+  color:#164b78;font-weight:900;box-shadow:0 4px 13px rgba(31,104,160,.09);
+}
+#players .players-team-goals-summary span{font-size:13px;line-height:1.5}
+#players .players-team-goals-summary strong{
+  display:inline-grid;place-items:center;min-width:42px;height:36px;padding:0 10px;
+  box-sizing:border-box;border-radius:10px;background:linear-gradient(135deg,#087fc7,#4f46e5);
+  color:#fff;font-size:19px;font-weight:1000;box-shadow:0 3px 9px rgba(37,99,235,.2);
+}
+@media(max-width:480px){
+  #players .players-team-goals-summary{padding:10px 12px;margin-bottom:8px;border-radius:11px}
+  #players .players-team-goals-summary span{font-size:12px}
+  #players .players-team-goals-summary strong{min-width:38px;height:33px;font-size:17px}
+}
+</style>
+</body>
 </html>
