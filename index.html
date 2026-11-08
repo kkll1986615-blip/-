@@ -6128,7 +6128,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function activeTours(){return allTours().filter(t=>(typeof tournamentIsArchived!=='function'||!tournamentIsArchived(t))&&(typeof tourStatus!=='function'||tourStatus(t)!=='archived'))}
   function fill(sel,items,placeholder,keep){if(!sel)return;const old=keep??sel.value;sel.innerHTML='<option value="">'+placeholder+'</option>'+(items||[]).map(x=>`<option value="${esc2(x.id)}">${esc2(x.name||'بدون اسم')}</option>`).join('');if((items||[]).some(x=>String(x.id)===String(old)))sel.value=old;}
   function teamsFor(tid){return tid?(db.teams||[]).filter(t=>String(t.tournamentId)===String(tid)):[]}
-  function panel(id){document.querySelectorAll('#players .players-admin-panel,#players .players-public-panel').forEach(x=>x.classList.remove('show'));const e=document.getElementById(id);if(e)e.classList.add('show');}
+  function panel(id){document.querySelectorAll('#players .players-admin-panel,#players .players-public-panel').forEach(x=>x.classList.remove('show'));const e=document.getElementById(id);if(e)e.classList.add('show');const namesBtn=document.querySelector('#playersCommandBar .players-names-trigger');if(namesBtn)namesBtn.setAttribute('aria-expanded',id==='playersNamesPanel'?'true':'false');}
   function setStatus(id,msg,ok){const e=document.getElementById(id);if(!e)return;e.textContent=msg;e.className='players-status '+(ok?'ok':'err')}
 
   function build(){
@@ -6136,7 +6136,7 @@ document.addEventListener('DOMContentLoaded',function(){
     const bar=document.createElement('div');bar.id='playersCommandBar';bar.className='players-command-bar';
     const playerCmdIcon=(type)=>{const paths={user:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.2 3-5 7-5s6.2 1.8 7 5"/>',transfer:'<path d="M4 8h12"/><path d="m12 4 4 4-4 4"/><path d="M20 16H8"/><path d="m12 12-4 4 4 4"/>',add:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',edit:'<path d="m5 19 2.5-.5L18 8l-2-2L5.5 16.5 5 19Z"/><path d="m14.5 7.5 2 2"/>',delete:'<path d="M5 7h14M9 7V5h6v2M8 10v7M12 10v7M16 10v7M6 7l1 13h10l1-13"/>',copy:'<rect x="8" y="8" width="10" height="10" rx="2"/><path d="M6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',move:'<path d="M5 12h14M15 8l4 4-4 4"/><path d="M9 6v12"/>',clock:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',};return `<span class="players-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths[type]||paths.user}</svg></span>`};
     bar.innerHTML=`
-      <button class="players-command-btn public" type="button" onclick="playersShowNames()">${playerCmdIcon('user')}<span>أسماء اللاعبين</span></button><span class="players-admin-only" style="display:contents"><button class="players-command-btn transfer" type="button" onclick="playersShowTransfers()">${playerCmdIcon('transfer')}<span>تنقلات اللاعبين</span></button></span><span class="players-admin-only" style="display:contents"><button class="players-command-btn add" type="button" onclick="playersShowAdmin('playersAddPanel')">${playerCmdIcon('add')}<span>إضافة لاعب</span></button><button class="players-command-btn edit" type="button" onclick="playersShowAdmin('playersEditPanel')">${playerCmdIcon('edit')}<span>تعديل بيانات لاعب</span></button><button class="players-command-btn delete" type="button" onclick="playersShowAdmin('playersDeletePanel')">${playerCmdIcon('delete')}<span>حذف لاعب</span></button><button class="players-command-btn copy" type="button" onclick="playersShowAdmin('playersCopyPanel')">${playerCmdIcon('copy')}<span>نسخ لاعب</span></button><button class="players-command-btn move" type="button" onclick="playersShowAdmin('playersMovePanel')">${playerCmdIcon('move')}<span>نقل لاعب</span></button><button class="players-command-btn public" type="button" onclick="playersShowAdmin('playersWindowPanel')">${playerCmdIcon('clock')}<span>أوقات الصلاحيات</span></button></span>`;
+      <button class="players-command-btn public players-names-trigger" type="button" onclick="playersShowNames()" aria-controls="playersNamesPanel" aria-expanded="false">${playerCmdIcon('user')}<span>أسماء اللاعبين</span><span class="suspended-trigger-arrow players-names-arrow" aria-hidden="true">➜</span></button><span class="players-admin-only" style="display:contents"><button class="players-command-btn transfer" type="button" onclick="playersShowTransfers()">${playerCmdIcon('transfer')}<span>تنقلات اللاعبين</span></button></span><span class="players-admin-only" style="display:contents"><button class="players-command-btn add" type="button" onclick="playersShowAdmin('playersAddPanel')">${playerCmdIcon('add')}<span>إضافة لاعب</span></button><button class="players-command-btn edit" type="button" onclick="playersShowAdmin('playersEditPanel')">${playerCmdIcon('edit')}<span>تعديل بيانات لاعب</span></button><button class="players-command-btn delete" type="button" onclick="playersShowAdmin('playersDeletePanel')">${playerCmdIcon('delete')}<span>حذف لاعب</span></button><button class="players-command-btn copy" type="button" onclick="playersShowAdmin('playersCopyPanel')">${playerCmdIcon('copy')}<span>نسخ لاعب</span></button><button class="players-command-btn move" type="button" onclick="playersShowAdmin('playersMovePanel')">${playerCmdIcon('move')}<span>نقل لاعب</span></button><button class="players-command-btn public" type="button" onclick="playersShowAdmin('playersWindowPanel')">${playerCmdIcon('clock')}<span>أوقات الصلاحيات</span></button></span>`;
     root.insertBefore(bar,root.querySelector('.public-player-team-picker'));
 
     const box=document.createElement('div');box.id='playersManagementPanels';box.innerHTML=`
@@ -6192,7 +6192,18 @@ document.addEventListener('DOMContentLoaded',function(){
   function refreshCopyPlayers(){const box=document.getElementById('pmCopyPlayers'),tid=document.getElementById('pmCopySrcTeam').value,ps=(db.players||[]).filter(p=>String(p.teamId)===String(tid));box.innerHTML=ps.length?ps.map(p=>`<label class="players-check-row"><input type="checkbox" value="${esc2(p.id)}"><span>${esc2(p.name)}${p.number?' — رقم '+esc2(p.number):''}</span></label>`).join(''):'<div class="empty">لا يوجد لاعبون في الفريق المختار</div>'}
   window.playersCopy=function(){if(!can())return;const ids=[...document.querySelectorAll('#pmCopyPlayers input:checked')].map(x=>x.value),dst=document.getElementById('pmCopyDstTeam').value,dt=team(dst);if(!ids.length)return setStatus('pmCopyStatus','اختر لاعبًا أو عدة لاعبين.',false);if(!dst||!dt)return setStatus('pmCopyStatus','اختر الفريق الجديد.',false);let count=0;ids.forEach(id=>{const p=db.players.find(x=>String(x.id)===String(id));if(!p)return;const exists=db.players.some(x=>String(x.teamId)===String(dst)&&String(x.name).trim()===String(p.name).trim());if(exists)return;let no=p.number||'';if(no&&no!=='1'&&db.players.some(x=>String(x.teamId)===String(dst)&&String(x.number||'')===String(no)))no='';db.players.push({id:uid('P'),name:p.name,number:no,position:no==='1'?'حارس':'',teamId:dst,goals:0,yellow:0,red:0,sourcePlayerId:p.id,copiedAt:new Date().toISOString()});count++});save();setStatus('pmCopyStatus','تم نسخ '+count+' لاعب إلى الفريق الجديد. الإحصائيات تبدأ من صفر في البطولة الجديدة.',true);refreshAll()};
   window.playersMove=function(){if(!requireAction('move'))return;const id=document.getElementById('pmMovePlayer').value,dst=document.getElementById('pmMoveDstTeam').value,date=document.getElementById('pmMoveDate').value||new Date().toISOString().slice(0,10),p=(db.players||[]).find(x=>String(x.id)===String(id)),from=team(p?.teamId),to=team(dst);if(!p||!dst||!to)return setStatus('pmMoveStatus','اختر اللاعب والفريق الجديد.',false);if(String(p.teamId)===String(dst))return setStatus('pmMoveStatus','الفريق الجديد مطابق للفريق الحالي.',false);const transfer={id:uid('TR'),playerId:p.id,playerName:p.name,previousTeamId:from?.id||'',previousTeamName:from?.name||'',currentTeamId:to.id,currentTeamName:to.name,previousTournamentId:from?.tournamentId||'',currentTournamentId:to.tournamentId||'',transferDate:date,goals:Number(p.goals||0),yellow:Number(p.yellow||0),red:Number(p.red||0),createdAt:new Date().toISOString()};getTransfers().push(transfer);p.teamId=to.id;p.lastTransferDate=date;p.previousTeamId=from?.id||'';p.previousTeamName=from?.name||'';p.currentTeamId=to.id;p.currentTeamName=to.name;setTransfers(getTransfers());save();setStatus('pmMoveStatus','تم نقل اللاعب وتسجيل حركة الانتقال بنجاح.',true);refreshAll();renderTransfers();if(typeof renderPlayers==='function')renderPlayers()};
-  window.playersShowNames=function(){panel('playersNamesPanel');renderNamesPanel()};
+  window.playersShowNames=function(){
+    const box=document.getElementById('playersNamesPanel');
+    const btn=document.querySelector('#playersCommandBar .players-names-trigger');
+    if(box&&box.classList.contains('show')){
+      box.classList.remove('show');
+      if(btn)btn.setAttribute('aria-expanded','false');
+      return;
+    }
+    panel('playersNamesPanel');
+    renderNamesPanel();
+    if(btn)btn.setAttribute('aria-expanded','true');
+  };
   window.playersShowTransfers=function(){panel('playersTransfersPanel');renderTransfers()};
   function renderNamesPanel(){const box=document.getElementById('playersNamesPanel');if(!box)return;box.innerHTML=`<div class="card" style="margin:0"><div class="section-title"><h3 style="margin:0">👤 أسماء اللاعبين</h3><span class="badge">عرض للزوار</span></div><div class="players-form-grid"><div><label>🏆 اسم البطولة</label><select id="pmPublicTour"></select></div><div><label>⚽ اسم الفريق</label><select id="pmPublicTeam" disabled></select></div></div><div class="players-form-actions"><button class="btn primary" type="button" onclick="playersPublicSearch()">🔎 بحث</button></div><div id="pmPublicResults" class="players-public-wrap"><div class="empty">اختر البطولة والفريق ثم اضغط بحث</div></div></div>`;fill(document.getElementById('pmPublicTour'),activeTours(),'اختر البطولة');document.getElementById('pmPublicTour').onchange=()=>{const ts=teamsFor(document.getElementById('pmPublicTour').value);fill(document.getElementById('pmPublicTeam'),ts,'اختر الفريق');document.getElementById('pmPublicTeam').disabled=!document.getElementById('pmPublicTour').value}}
   window.playersPublicSearch=function(){const tid=document.getElementById('pmPublicTour')?.value,teamId=document.getElementById('pmPublicTeam')?.value,box=document.getElementById('pmPublicResults');if(!tid||!teamId)return box.innerHTML='<div class="empty">اختر البطولة والفريق أولاً.</div>';const t=team(teamId),ps=(db.players||[]).filter(p=>String(p.teamId)===String(teamId));box.innerHTML=ps.length?`<table class="players-public-table"><thead><tr><th>#</th><th>اسم اللاعب</th><th>رقم القميص</th><th>الأهداف</th><th>🟨</th><th>🟥</th></tr></thead><tbody>${ps.map((p,i)=>`<tr><td>${i+1}</td><td>${esc2(p.name)}</td><td>${esc2(p.number||'—')}${isGoalkeeperByNumber(p)?' 🧤 حارس':''}</td><td>${Number(p.goals||0)}</td><td>${Number(p.yellow||0)}</td><td>${Number(p.red||0)}</td></tr>`).join('')}</tbody></table>`:`<div class="empty">لا يوجد لاعبون مسجلون في ${esc2(t?.name||'الفريق')}</div>`};
@@ -14258,7 +14269,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const button=document.createElement('button');
     button.type='button';button.id='playerWarningsToggle';button.className='btn player-warnings-trigger';
     button.setAttribute('aria-controls','playerWarningsPanel');button.setAttribute('aria-expanded','false');
-    button.innerHTML='<span class="player-warnings-trigger-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="8" y="5" width="23" height="32" rx="4" fill="#f6c445" stroke="#b77a12" stroke-width="2"/><rect x="18" y="11" width="23" height="32" rx="4" fill="#e45a52" stroke="#b52e2e" stroke-width="2"/><path d="M23 20h13M23 26h10M23 32h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="player-warnings-trigger-copy"><strong>إنذارات اللاعبين</strong><small>البطاقات الصفراء والحمراء من الكشوفات</small></span><span class="player-warnings-trigger-action">عرض الإنذارات ‹</span>';
+    button.innerHTML='<span class="player-warnings-trigger-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="8" y="5" width="23" height="32" rx="4" fill="#f6c445" stroke="#b77a12" stroke-width="2"/><rect x="18" y="11" width="23" height="32" rx="4" fill="#e45a52" stroke="#b52e2e" stroke-width="2"/><path d="M23 20h13M23 26h10M23 32h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="suspended-trigger-arrow player-warnings-arrow" aria-hidden="true">➜</span><span class="player-warnings-trigger-copy"><strong>إنذارات اللاعبين</strong><small>البطاقات الصفراء والحمراء من الكشوفات</small></span><span class="player-warnings-trigger-action">عرض الإنذارات ‹</span>';
     button.addEventListener('click',togglePanel);
     trigger.appendChild(button);
     const panel=document.createElement('div');panel.className='card player-warnings-panel';panel.id='playerWarningsPanel';panel.style.display='none';
@@ -14286,6 +14297,86 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   else init();
 })();
 </script>
+
+
+<style id="players-hidden-names-vivid-arrows-20261108">
+/* تعديلات محصورة بقسم اللاعبين: إخفاء القائمة الافتراضية إلى حين طلبها بالنقر. */
+#players .public-data-note,
+#players .public-player-team-picker,
+#players #publicSelectedTeamPlayers{display:none!important}
+
+/* زر أسماء اللاعبين بنفس نمط زر الموقوفين وسهمه المتحرك. */
+#players #playersCommandBar .players-names-trigger{
+  position:relative!important;display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:11px!important;min-height:64px!important;padding:10px 13px!important;border:1px solid #9bd7fa!important;
+  border-radius:16px!important;background:linear-gradient(125deg,#087fca 0%,#2563eb 52%,#7048e8 100%)!important;
+  color:#fff!important;box-shadow:0 8px 20px rgba(37,99,235,.2)!important;font-weight:900!important;
+  transition:transform .18s ease,box-shadow .18s ease!important
+}
+#players #playersCommandBar .players-names-trigger:hover{transform:translateY(-2px)!important;box-shadow:0 12px 25px rgba(37,99,235,.28)!important}
+#players #playersCommandBar .players-names-trigger .players-command-icon{width:34px!important;height:34px!important;flex:0 0 34px!important;color:#fff!important}
+#players #playersCommandBar .players-names-trigger .players-command-icon svg{width:100%!important;height:100%!important}
+#players #playersCommandBar .players-names-trigger>span:nth-child(2){color:#fff!important;font-weight:950!important}
+
+/* السهمان يتحركان مثل سهم زر اللاعبين الموقوفين. */
+#players .players-names-arrow,
+#players .player-warnings-arrow{
+  display:grid!important;place-items:center!important;flex:0 0 25px!important;width:25px!important;height:25px!important;
+  border:1px solid rgba(255,255,255,.78)!important;border-radius:50%!important;background:rgba(255,255,255,.96)!important;
+  color:#1557b7!important;font-family:Arial,Tahoma,sans-serif!important;font-size:21px!important;font-weight:900!important;
+  line-height:1!important;text-align:center!important;box-shadow:0 3px 10px rgba(10,40,90,.2)!important;
+  animation:suspendedArrowTowardIcon 1.25s ease-in-out infinite!important;pointer-events:none!important;user-select:none!important
+}
+#players .player-warnings-arrow{color:#b42318!important;border-color:#ffd0d0!important}
+
+/* ألوان أكثر إشراقاً لبطاقة الإنذارات ولوحتها، داخل قسم اللاعبين فقط. */
+#players .player-warnings-trigger{
+  border:1px solid #f6a6a6!important;border-radius:17px!important;
+  background:linear-gradient(120deg,#fff1bd 0%,#ffd7e7 48%,#d8f2ff 100%)!important;
+  box-shadow:0 8px 22px rgba(190,65,95,.16)!important;color:#263746!important
+}
+#players .player-warnings-trigger:hover{box-shadow:0 13px 26px rgba(190,65,95,.23)!important}
+#players .player-warnings-trigger-icon{background:linear-gradient(135deg,#facc15,#fb7185)!important;border:1px solid #fda4af!important;color:#fff!important}
+#players .player-warnings-trigger-copy strong{color:#9f1239!important;font-size:15px!important}
+#players .player-warnings-trigger-copy small{color:#5b5260!important;font-weight:800!important}
+#players .player-warnings-trigger-action{background:#fff!important;border-color:#fda4af!important;color:#9f1239!important}
+#players .player-warnings-panel{border:1px solid #a5d8fa!important;background:linear-gradient(145deg,#f0f9ff 0%,#fff 48%,#fff7ed 100%)!important;box-shadow:0 10px 25px rgba(37,99,235,.1)!important}
+#players .player-warnings-panel .section-title h3{color:#075985!important}
+#players .player-warnings-panel .section-title h3:before{background:linear-gradient(#06b6d4,#8b5cf6)!important}
+#players .player-warnings-filters label{color:#075985!important}
+#players .player-warnings-summary{border-color:#a5d8fa!important;background:linear-gradient(100deg,#dbeafe,#fce7f3,#fef3c7)!important}
+#players .player-warnings-summary strong{color:#075985!important}
+#players .player-warnings-table{border-color:#a5d8fa!important}
+#players .player-warnings-table th{background:linear-gradient(110deg,#0891b2,#2563eb 55%,#7c3aed)!important;color:#fff!important}
+#players .player-warnings-table tbody tr:nth-child(even) td{background:#f0f9ff!important}
+#players .player-warnings-table tbody tr:nth-child(odd) td{background:#fff!important}
+#players .player-warnings-table tfoot td{background:linear-gradient(100deg,#dcfce7,#dbeafe)!important;color:#075985!important;border-top:2px solid #67c4dc!important}
+#players .player-warnings-empty{border-color:#7dd3fc!important;background:linear-gradient(120deg,#ecfeff,#eff6ff,#fdf2f8)!important;color:#155e75!important}
+
+/* بطاقة أسماء اللاعبين بعد فتحها بالنقر. */
+#players #playersNamesPanel.show>.card{
+  border:1px solid #a5d8fa!important;border-radius:18px!important;
+  background:linear-gradient(145deg,#f0f9ff 0%,#fff 55%,#fdf2f8 100%)!important;
+  box-shadow:0 10px 25px rgba(37,99,235,.1)!important
+}
+#players #playersNamesPanel .section-title h3{color:#075985!important;font-weight:950!important}
+#players #playersNamesPanel label{color:#075985!important}
+#players #playersNamesPanel .players-public-wrap{border-radius:12px!important}
+#players #playersNamesPanel .players-public-table{border:1px solid #93c5fd!important;border-spacing:0 4px!important}
+#players #playersNamesPanel .players-public-table th{background:linear-gradient(110deg,#0891b2,#2563eb 55%,#7c3aed)!important;color:#fff!important}
+#players #playersNamesPanel .players-public-table td{background:#fff!important;border-bottom:1px solid #dbeafe!important}
+#players #playersNamesPanel .players-public-table tbody tr:nth-child(even) td{background:#eff6ff!important}
+#players #playersNamesPanel .players-form-actions .btn{background:linear-gradient(120deg,#0891b2,#2563eb)!important;color:#fff!important}
+
+@media(max-width:480px){
+  #players #playersCommandBar .players-names-trigger{min-height:58px!important;gap:8px!important;padding:9px!important}
+  #players .players-names-arrow,#players .player-warnings-arrow{width:22px!important;height:22px!important;flex-basis:22px!important;font-size:19px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #players .players-names-arrow,#players .player-warnings-arrow{animation:none!important;transform:none!important}
+  #players #playersCommandBar .players-names-trigger{transition:none!important}
+}
+</style>
 
 </body>
 </html>
