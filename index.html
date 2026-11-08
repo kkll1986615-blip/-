@@ -14268,7 +14268,10 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const out=$('playerWarningsResults'),teamSel=$('playerWarningsTeam'),tourSel=$('playerWarningsTournament'),summary=$('playerWarningsSummary'),countBadge=$('playerWarningsCount');
     if(!out||!teamSel||!tourSel)return;
     const tid=S(tourSel.value),teamValue=S(teamSel.value),d=database(),t=selectedTour(d,tid);
-    if(!tid||!t){out.innerHTML='<div class="player-warnings-empty">🏆 اختر اسم البطولة أولاً لعرض إنذارات لاعبيها.</div>';if(summary)summary.style.display='none';if(countBadge)countBadge.textContent='اختر البطولة';return;}
+    if(!tid||!t||warningTournamentIsEnded(t,d)){
+      if(t&&warningTournamentIsEnded(t,d)){tourSel.value='';teamSel.value='';teamSel.disabled=true;teamSel.innerHTML='<option value="">— اختر بطولة جارية أولاً —</option>';}
+      out.innerHTML='<div class="player-warnings-empty">🏆 اختر بطولة جارية أولاً لعرض إنذارات لاعبيها.</div>';if(summary)summary.style.display='none';if(countBadge)countBadge.textContent='اختر البطولة';return;
+    }
     if(!teamValue){out.innerHTML='<div class="player-warnings-empty">⚽ اختر اسم الفريق لعرض جميع إنذارات لاعبيه.</div>';if(summary)summary.style.display='none';if(countBadge)countBadge.textContent='اختر الفريق';return;}
     const teams=teamsForTournament(t,d),selected=teams.find(x=>S(x.id)===teamValue)||resolveTeam(teamValue,'',d);
     if(!selected){out.innerHTML='<div class="player-warnings-empty">تعذر العثور على الفريق المختار.</div>';return;}
@@ -14323,23 +14326,41 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     });
   }
   window.addEventListener('resize',()=>{if($('playerWarningsPanel')?.style.display!=='none')fitPlayerWarningsLabels();},{passive:true});
+  // يعتمد هذا الفلتر على حالة البطولة المعتمدة في المنصة، مع دعم أسماء الحالات العربية
+  // وسجلات الأرشيف القديمة؛ وهو محصور بقائمة قسم إنذارات اللاعبين فقط.
+  function warningTournamentIsEnded(t,d){
+    if(!t)return true;
+    const status=S(t.status).trim().toLowerCase();
+    const completion=S(t.completionState).trim().toLowerCase();
+    const endedLabels=['ended','finished','completed','complete','closed','منتهية','منتهي','انتهت','مكتملة','مكتمل','مغلقة','مغلق'];
+    if(t.archived===true||status==='archived'||completion==='ended'||endedLabels.includes(status))return true;
+    const archives=A(d?.archives);
+    if(archives.some(a=>S(a?.tournament?.id??a?.original?.id??a?.tournamentId)===S(t.id)))return true;
+    // إعادة التفعيل الصريحة من الإدارة لها الأولوية على تاريخ النهاية.
+    if(completion==='active'||status==='active')return false;
+    try{if(typeof window.tournamentIsArchived==='function'&&window.tournamentIsArchived(t))return true;}catch(e){}
+    try{if(typeof window.tournamentIsEnded==='function'&&window.tournamentIsEnded(t))return true;}catch(e){}
+    const end=S(t.endDate??t.end).slice(0,10);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(end)){
+      const today=new Date().toISOString().slice(0,10);
+      if(today>end)return true;
+    }
+    return false;
+  }
   function fillTournamentSelect(){
     const sel=$('playerWarningsTournament');if(!sel)return;
     const old=S(sel.value),d=database();
-    const tours=A(d.tournaments).filter(t=>{
-      if(!t||t.archived===true||S(t.status).toLowerCase()==='archived')return false;
-      try{if(typeof window.tournamentIsEnded==='function'&&window.tournamentIsEnded(t))return false;}catch(e){}
-      if(t.completionState==='ended'||S(t.status).toLowerCase()==='ended')return false;
-      return true;
-    });
+    const tours=A(d.tournaments).filter(t=>t&&!warningTournamentIsEnded(t,d));
     sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>'<option value="'+E(t.id)+'">'+E(t.name||t.title||'بطولة')+'</option>').join('');
     if(tours.some(t=>S(t.id)===old))sel.value=old;
   }
   function fillTeamSelect(){
     const tourSel=$('playerWarningsTournament'),teamSel=$('playerWarningsTeam');if(!tourSel||!teamSel)return;
     const old=S(teamSel.value),tid=S(tourSel.value),d=database(),t=selectedTour(d,tid);
-    if(!t){
-      teamSel.disabled=true;teamSel.innerHTML='<option value="">— اختر البطولة أولاً —</option>';
+    if(!t||warningTournamentIsEnded(t,d)){
+      if(t)tourSel.value='';
+      teamSel.disabled=true;teamSel.value='';
+      teamSel.innerHTML='<option value="">— اختر بطولة جارية أولاً —</option>';
       renderResults();return;
     }
     const list=teamsForTournament(t,d);
