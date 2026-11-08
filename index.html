@@ -13940,5 +13940,318 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 })();
 </script>
 
+
+<style id="player-warnings-feature-style">
+/* ميزة سجل الإنذارات داخل قسم اللاعبين فقط */
+#players .player-warnings-trigger{
+  display:inline-flex;align-items:center;gap:11px;min-width:260px;max-width:100%;
+  padding:11px 14px!important;border:1px solid #f1c46a!important;border-radius:15px!important;
+  background:linear-gradient(135deg,#fff8e7 0%,#fff 48%,#fff0ef 100%)!important;
+  color:#263746!important;box-shadow:0 5px 16px rgba(139,91,14,.10)!important;text-align:right;
+}
+#players .player-warnings-trigger:hover{transform:translateY(-2px);box-shadow:0 9px 20px rgba(139,91,14,.15)!important}
+#players .player-warnings-trigger-icon{
+  width:45px;height:45px;flex:0 0 45px;display:grid;place-items:center;
+  border-radius:13px;background:linear-gradient(135deg,#fff0bd,#ffe6e3);
+  color:#a85a00;border:1px solid #f6dca5;
+}
+#players .player-warnings-trigger-icon svg{width:31px;height:31px;display:block}
+#players .player-warnings-trigger-copy{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+#players .player-warnings-trigger-copy strong{font-size:14px;font-weight:900;color:#754500}
+#players .player-warnings-trigger-copy small{font-size:10px;color:#7b7770;white-space:normal}
+#players .player-warnings-trigger-action{font-size:11px;font-weight:900;color:#a45a00;white-space:nowrap}
+#players .player-warnings-panel{margin:12px 0!important;border:1px solid #ead9b6!important;background:linear-gradient(145deg,#fffefa,#fff)!important}
+#players .player-warnings-panel .section-title h3{margin:0;color:#76500b;font-size:17px}
+#players .player-warnings-panel .section-title h3:before{content:"";display:inline-block;width:4px;height:19px;border-radius:8px;background:linear-gradient(#ffc247,#e35b4f);margin-left:7px;vertical-align:middle}
+#players .player-warnings-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:12px 0}
+#players .player-warnings-filters>div{min-width:0}
+#players .player-warnings-filters label{display:block;font-weight:900;color:#70511c;margin-bottom:6px}
+#players .player-warnings-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 12px;margin:8px 0 12px;border:1px solid #eadfca;border-radius:12px;background:linear-gradient(90deg,#fff9e9,#fff)}
+#players .player-warnings-summary strong{color:#6e4b08;font-size:13px}
+#players .player-warnings-summary span{font-size:11px;color:#6d7880}
+#players .player-warnings-table-wrap{width:100%;overflow-x:auto;border-radius:12px}
+#players .player-warnings-table{width:100%;min-width:480px;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #eadfcf;border-radius:12px;overflow:hidden}
+#players .player-warnings-table th{background:linear-gradient(135deg,#8c6518,#ba8b31)!important;color:#fff!important;font-weight:900!important}
+#players .player-warnings-table th:first-child,#players .player-warnings-table td:first-child{width:31%;text-align:right}
+#players .player-warnings-table th:nth-child(2),#players .player-warnings-table td:nth-child(2){width:27%;text-align:right}
+#players .player-warnings-table th:nth-child(n+3),#players .player-warnings-table td:nth-child(n+3){width:14%}
+#players .player-warnings-table td{font-weight:800;color:#334155;background:#fff}
+#players .player-warnings-table .warning-yellow-count{display:inline-grid;place-items:center;min-width:30px;padding:4px 7px;border-radius:8px;background:#fff1bd;color:#8c5b00}
+#players .player-warnings-table .warning-red-count{display:inline-grid;place-items:center;min-width:30px;padding:4px 7px;border-radius:8px;background:#ffe1e1;color:#b42318}
+#players .player-warnings-table .warning-total-count{font-weight:1000;color:#075f45}
+#players .player-warnings-table tfoot td{background:#edf7f1!important;color:#075f45!important;border-top:2px solid #9bcbb2;font-weight:1000}
+#players .player-warnings-table tfoot td:first-child{text-align:right}
+#players .player-warnings-empty{padding:22px 14px;text-align:center;border:1px dashed #decda9;border-radius:12px;background:#fffaf0;color:#87734c;font-size:13px;font-weight:700}
+@media(max-width:600px){
+  #players .player-warnings-trigger{width:100%;min-width:0;justify-content:flex-start;padding:10px!important}
+  #players .player-warnings-filters{grid-template-columns:1fr}
+  #players .player-warnings-table{min-width:430px;font-size:12px}
+  #players .player-warnings-table th,#players .player-warnings-table td{padding:9px 5px!important}
+}
+</style>
+<script id="player-warnings-feature-script">
+(function(){
+  'use strict';
+  const A=v=>Array.isArray(v)?v:[];
+  const S=v=>String(v??'').trim();
+  const N=v=>S(v).replace(/\s+/g,' ').toLowerCase();
+  const E=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const $=id=>document.getElementById(id);
+  let refreshTimer=null, observer=null, renderQueued=false;
+
+  function database(){
+    try{if(window.db&&typeof window.db==='object')return window.db;}catch(e){}
+    try{if(typeof db!=='undefined'&&db&&typeof db==='object')return db;}catch(e){}
+    try{const d=JSON.parse(localStorage.getItem('manar_sports_v2')||'null');if(d&&typeof d==='object')return d;}catch(e){}
+    return {tournaments:[],teams:[],players:[],matches:[]};
+  }
+  function unwrap(v){
+    if(v&&typeof v==='object')return S(v.id??v.teamId??v.teamID??v.team_id??v.playerId??v.playerID??v.name??v.teamName??v.playerName??v.title??v.value);
+    return S(v);
+  }
+  function timeValue(sh){
+    const v=sh?.updatedAt??sh?.updated_at??sh?.modifiedAt??sh?.savedAt??sh?.createdAt??sh?.created_at??sh?.timestamp;
+    if(typeof v==='number')return v<1e12?v*1000:v;
+    const n=Number(v);if(S(v)&&Number.isFinite(n))return n<1e12?n*1000:n;
+    const d=Date.parse(S(v));return Number.isFinite(d)?d:0;
+  }
+  function getSheets(){
+    let result=[];
+    try{if(typeof window.getAllMatchSheetsForStatusSync==='function')result=A(window.getAllMatchSheetsForStatusSync());}catch(e){}
+    if(!result.length){
+      try{if(typeof window.uniqueMatchSheets==='function')result=A(window.uniqueMatchSheets());}catch(e){}
+    }
+    const sources=[];
+    if(result.length) sources.push({rows:result,priority:40});
+    const d=database();
+    if(Array.isArray(d.matchSheets))sources.push({rows:d.matchSheets,priority:26});
+    if(Array.isArray(d.sheets))sources.push({rows:d.sheets,priority:25});
+    [['manar_match_sheets_v1',10],['manar_match_sheets_v2',20],['manar_match_sheets_v3',30]].forEach(([key,priority])=>{
+      try{const rows=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(rows))sources.push({rows,priority});}catch(e){}
+    });
+    const latest=new Map();
+    sources.forEach(src=>src.rows.forEach((sh,index)=>{
+      const id=S(sh?.matchId??sh?.matchID??sh?.fixtureId);
+      if(!id)return;
+      const stamp=timeValue(sh),old=latest.get(id);
+      if(!old||stamp>old.stamp||(stamp===old.stamp&&src.priority>old.priority))
+        latest.set(id,{sh,stamp,priority:src.priority,index});
+    }));
+    return [...latest.values()].map(x=>x.sh);
+  }
+  function findMatch(sh,d){
+    const mid=S(sh?.matchId??sh?.matchID??sh?.fixtureId);
+    return A(d.matches).find((m,i)=>S(m?.id??i)===mid)||null;
+  }
+  function tournamentValues(obj){
+    if(!obj)return [];
+    const keys=['tournamentId','tournament','tournamentID','tournament_id','tournamentName','tournament_name','competitionId','competitionName','tourId','tourName'];
+    const out=[];
+    keys.forEach(k=>{
+      const v=obj[k];if(v===undefined||v===null||S(v)==='')return;
+      if(typeof v==='object')out.push(S(v.id),S(v.name),S(v.title));
+      else out.push(S(v));
+    });
+    return out.filter(Boolean).map(N);
+  }
+  function selectedTour(d,id){
+    return A(d.tournaments).find(t=>S(t.id)===S(id)||N(t.name)===N(id)||N(t.title)===N(id))||null;
+  }
+  function belongsToTour(sh,m,t){
+    if(!t)return false;
+    const wanted=new Set([t.id,t.name,t.title].filter(Boolean).map(N));
+    if([...tournamentValues(sh),...tournamentValues(m)].some(v=>wanted.has(v)))return true;
+    const refs=[
+      sh?.homeTeamId,sh?.homeTeam,sh?.home,sh?.homeTeamName,
+      sh?.awayTeamId,sh?.awayTeam,sh?.away,sh?.awayTeamName,
+      m?.home,m?.homeTeamId,m?.homeTeam,m?.homeTeamName,
+      m?.away,m?.awayTeamId,m?.awayTeam,m?.awayTeamName
+    ];
+    return refs.some(raw=>{
+      const value=unwrap(raw);if(!value)return false;
+      const team=A(database().teams).find(x=>S(x.id)===value||N(x.name)===N(value));
+      return team && tournamentValues(team).some(v=>wanted.has(v));
+    });
+  }
+  function resolveTeam(raw,nameFallback,d){
+    const key=unwrap(raw),name=S(nameFallback)||(raw&&typeof raw==='object'?S(raw.name??raw.teamName??raw.title):'');
+    if(!key&&!name)return null;
+    const found=A(d.teams).find(t=>S(t.id)===key||N(t.name)===N(key)||N(t.name)===N(name));
+    if(found)return {id:S(found.id),name:S(found.name)||name||key,record:found};
+    return {id:key||('name:'+N(name)),name:name||key,record:null};
+  }
+  function sameTeam(a,b){
+    if(!a||!b)return false;
+    return (a.id&&b.id&&S(a.id)===S(b.id))||N(a.name)===N(b.name);
+  }
+  function teamTournamentMatches(team,t){
+    if(!team||!t)return false;
+    const wanted=new Set([t.id,t.name,t.title].filter(Boolean).map(N));
+    return tournamentValues(team).some(v=>wanted.has(v));
+  }
+  function fixtureTeams(sh,m,d){
+    const refs=[
+      [sh?.homeTeamId??sh?.homeTeam??sh?.home,sh?.homeTeamName??m?.homeTeamName??m?.homeName],
+      [sh?.awayTeamId??sh?.awayTeam??sh?.away,sh?.awayTeamName??m?.awayTeamName??m?.awayName],
+      [m?.home??m?.homeTeamId??m?.homeTeam,m?.homeTeamName??m?.homeName],
+      [m?.away??m?.awayTeamId??m?.awayTeam,m?.awayTeamName??m?.awayName]
+    ];
+    const out=[];
+    refs.forEach(([raw,name])=>{const team=resolveTeam(raw,name,d);if(team&&!out.some(x=>sameTeam(x,team)))out.push(team);});
+    return out;
+  }
+  function teamsForTournament(t,d){
+    const map=new Map(),add=team=>{if(team&&team.id&&!map.has(team.id))map.set(team.id,team);};
+    A(d.teams).filter(x=>teamTournamentMatches(x,t)).forEach(x=>add(resolveTeam(x,x.name,d)));
+    const nested=[t.teams,t.teamList,t.participatingTeams,t.participants];
+    nested.forEach(list=>A(list).forEach(raw=>add(resolveTeam(raw,raw?.name??raw?.teamName,d))));
+    getSheets().forEach(sh=>{
+      const m=findMatch(sh,d);
+      if(!belongsToTour(sh,m,t))return;
+      fixtureTeams(sh,m,d).forEach(add);
+      A(sh.cards).forEach(c=>{
+        const p=A(d.players).find(x=>S(x.id)===S(c?.playerId));
+        add(resolveTeam(c?.teamId??c?.team??p?.teamId,c?.teamName??c?.team_name,d));
+      });
+    });
+    return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  }
+  function cardType(c){
+    const type=N(c?.type??c?.cardType??c?.kind??c?.card??'');
+    if(c?.yellow===true||c?.isYellow===true||type==='yellow'||/صفراء|انذار|إنذار/.test(type))return 'yellow';
+    if(c?.red===true||c?.isRed===true||type==='red'||/حمراء|طرد/.test(type))return 'red';
+    return '';
+  }
+  function playerForCard(c,d){
+    const raw=c?.playerId??c?.playerID??c?.player_id??c?.player??'';
+    const id=unwrap(raw);
+    const name=S(c?.playerName??c?.player_name??c?.name??(raw&&typeof raw==='object'?(raw.name??raw.playerName):'')??id);
+    const p=A(d.players).find(x=>S(x.id)===id)||(name?A(d.players).find(x=>N(x.name)===N(name)):null);
+    return {record:p,id:S(p?.id||id),name:S(p?.name||name||id)||'—'};
+  }
+  function cardTeam(c,p,sh,m,d){
+    const raw=c?.teamId??c?.teamID??c?.team_id??c?.team??'';
+    let team=resolveTeam(raw,c?.teamName??c?.team_name,d);
+    if(team)return team;
+    if(p?.record?.teamId){
+      team=resolveTeam(p.record.teamId,'',d);
+      if(team)return team;
+    }
+    const candidate=fixtureTeams(sh,m,d);
+    if(candidate.length===1)return candidate[0];
+    return null;
+  }
+  function renderResults(){
+    const out=$('playerWarningsResults'),teamSel=$('playerWarningsTeam'),tourSel=$('playerWarningsTournament'),summary=$('playerWarningsSummary'),countBadge=$('playerWarningsCount');
+    if(!out||!teamSel||!tourSel)return;
+    const tid=S(tourSel.value),teamValue=S(teamSel.value),d=database(),t=selectedTour(d,tid);
+    if(!tid||!t){out.innerHTML='<div class="player-warnings-empty">🏆 اختر اسم البطولة أولاً لعرض إنذارات لاعبيها.</div>';if(summary)summary.style.display='none';if(countBadge)countBadge.textContent='اختر البطولة';return;}
+    if(!teamValue){out.innerHTML='<div class="player-warnings-empty">⚽ اختر اسم الفريق لعرض جميع إنذارات لاعبيه.</div>';if(summary)summary.style.display='none';if(countBadge)countBadge.textContent='اختر الفريق';return;}
+    const teams=teamsForTournament(t,d),selected=teams.find(x=>S(x.id)===teamValue)||resolveTeam(teamValue,'',d);
+    if(!selected){out.innerHTML='<div class="player-warnings-empty">تعذر العثور على الفريق المختار.</div>';return;}
+    const rows=new Map();
+    getSheets().forEach(sh=>{
+      const m=findMatch(sh,d);
+      if(!belongsToTour(sh,m,t))return;
+      // بطاقات الكشف الرسمي هي المصدر الوحيد لهذا الجدول.
+      const cards=A(sh?.cards);
+      cards.forEach(c=>{
+        const type=cardType(c);if(!type)return;
+        const p=playerForCard(c,d),team=cardTeam(c,p,sh,m,d);
+        if(!team||!sameTeam(team,selected))return;
+        const playerKey=p.id?'id:'+p.id:'name:'+N(p.name);
+        const key=playerKey+'|team:'+S(team.id);
+        if(!rows.has(key))rows.set(key,{name:p.name,team:team.name,yellow:0,red:0,total:0});
+        const row=rows.get(key);
+        if(type==='yellow')row.yellow++;else row.red++;
+        row.total=row.yellow+row.red;
+      });
+    });
+    const list=[...rows.values()].sort((a,b)=>b.total-a.total||b.red-a.red||b.yellow-a.yellow||a.name.localeCompare(b.name,'ar'));
+    const yellow=list.reduce((n,x)=>n+x.yellow,0),red=list.reduce((n,x)=>n+x.red,0),total=yellow+red;
+    if(summary){
+      summary.style.display='flex';
+      summary.innerHTML='<strong>🏆 '+E(t.name||'البطولة')+' &nbsp; | &nbsp; ⚽ '+E(selected.name)+'</strong><span>'+list.length+' لاعب · '+total+' إنذار</span>';
+    }
+    if(countBadge)countBadge.textContent=total+' إنذار';
+    if(!list.length){
+      out.innerHTML='<div class="player-warnings-empty">لا توجد إنذارات مسجلة لهذا الفريق في كشوفات البطولة المختارة.</div>';
+      return;
+    }
+    out.innerHTML='<div class="player-warnings-table-wrap"><table class="player-warnings-table"><thead><tr><th>اسم اللاعب</th><th>الفريق</th><th>صفراء</th><th>حمراء</th><th>المجموع</th></tr></thead><tbody>'+
+      list.map(x=>'<tr><td><b>'+E(x.name)+'</b></td><td>'+E(x.team)+'</td><td><span class="warning-yellow-count">'+x.yellow+'</span></td><td><span class="warning-red-count">'+x.red+'</span></td><td><span class="warning-total-count">'+x.total+'</span></td></tr>').join('')+
+      '</tbody><tfoot><tr><td colspan="2">المجموع الكلي للإنذارات</td><td>'+yellow+'</td><td>'+red+'</td><td>'+total+'</td></tr></tfoot></table></div>';
+  }
+  function fillTournamentSelect(){
+    const sel=$('playerWarningsTournament');if(!sel)return;
+    const old=S(sel.value),d=database(),tours=A(d.tournaments).filter(Boolean);
+    sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>'<option value="'+E(t.id)+'">'+E(t.name||t.title||'بطولة')+'</option>').join('');
+    if(tours.some(t=>S(t.id)===old))sel.value=old;
+  }
+  function fillTeamSelect(){
+    const tourSel=$('playerWarningsTournament'),teamSel=$('playerWarningsTeam');if(!tourSel||!teamSel)return;
+    const old=S(teamSel.value),tid=S(tourSel.value),d=database(),t=selectedTour(d,tid);
+    if(!t){
+      teamSel.disabled=true;teamSel.innerHTML='<option value="">— اختر البطولة أولاً —</option>';
+      renderResults();return;
+    }
+    const list=teamsForTournament(t,d);
+    teamSel.disabled=false;
+    teamSel.innerHTML='<option value="">— اختر الفريق —</option>'+list.map(x=>'<option value="'+E(x.id)+'">'+E(x.name)+'</option>').join('');
+    if(list.some(x=>S(x.id)===old))teamSel.value=old;
+    renderResults();
+  }
+  function renderAll(){
+    fillTournamentSelect();
+    fillTeamSelect();
+  }
+  function queueRender(){
+    if(renderQueued)return;
+    renderQueued=true;
+    setTimeout(()=>{renderQueued=false;if($('playerWarningsPanel')?.style.display!=='none')renderAll();},120);
+  }
+  function togglePanel(){
+    const panel=$('playerWarningsPanel'),btn=$('playerWarningsToggle');if(!panel||!btn)return;
+    const open=panel.style.display==='none'||!panel.style.display;
+    panel.style.display=open?'block':'none';
+    btn.setAttribute('aria-expanded',open?'true':'false');
+    if(open)renderAll();
+  }
+  function init(){
+    const section=$('players'),existing=$('suspendedPlayersToggle');
+    if(!section||!existing||$('playerWarningsToggle'))return;
+    const trigger=existing.parentElement;
+    const button=document.createElement('button');
+    button.type='button';button.id='playerWarningsToggle';button.className='btn player-warnings-trigger';
+    button.setAttribute('aria-controls','playerWarningsPanel');button.setAttribute('aria-expanded','false');
+    button.innerHTML='<span class="player-warnings-trigger-icon" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false"><rect x="8" y="5" width="23" height="32" rx="4" fill="#f6c445" stroke="#b77a12" stroke-width="2"/><rect x="18" y="11" width="23" height="32" rx="4" fill="#e45a52" stroke="#b52e2e" stroke-width="2"/><path d="M23 20h13M23 26h10M23 32h7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="player-warnings-trigger-copy"><strong>إنذارات اللاعبين</strong><small>البطاقات الصفراء والحمراء من الكشوفات</small></span><span class="player-warnings-trigger-action">عرض الإنذارات ‹</span>';
+    button.addEventListener('click',togglePanel);
+    trigger.appendChild(button);
+    const panel=document.createElement('div');panel.className='card player-warnings-panel';panel.id='playerWarningsPanel';panel.style.display='none';
+    panel.innerHTML='<div class="section-title"><div><h3>🟨🟥 سجل إنذارات اللاعبين</h3><small>يتم تجميع البيانات تلقائياً من كشوفات المباريات المحفوظة.</small></div><span class="badge" id="playerWarningsCount">اختر البطولة</span></div><div class="player-warnings-filters"><div><label for="playerWarningsTournament">🏆 اسم البطولة</label><select id="playerWarningsTournament"><option value="">— اختر البطولة —</option></select></div><div><label for="playerWarningsTeam">⚽ الفريق</label><select id="playerWarningsTeam" disabled><option value="">— اختر البطولة أولاً —</option></select></div></div><div class="player-warnings-summary" id="playerWarningsSummary" style="display:none"></div><div id="playerWarningsResults"><div class="player-warnings-empty">اختر اسم البطولة ثم الفريق لعرض الإنذارات.</div></div>';
+    const suspended=$('suspendedPlayersPanel');
+    if(suspended)suspended.insertAdjacentElement('afterend',panel);
+    else trigger.insertAdjacentElement('afterend',panel);
+    $('playerWarningsTournament').addEventListener('change',()=>{if($('playerWarningsTeam'))$('playerWarningsTeam').value='';fillTeamSelect();});
+    $('playerWarningsTeam').addEventListener('change',renderResults);
+    const saved=$('ksReportsList');
+    if(saved&&typeof MutationObserver!=='undefined'){
+      observer=new MutationObserver(queueRender);
+      observer.observe(saved,{childList:true,subtree:true,characterData:true});
+    }
+    window.addEventListener('storage',queueRender);
+    window.addEventListener('focus',queueRender);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueRender();});
+    if(!refreshTimer)refreshTimer=setInterval(()=>{
+      const p=$('playerWarningsPanel');
+      if(p&&p.style.display!=='none'&&!document.hidden)renderAll();
+    },4000);
+    window.refreshPlayerWarnings=renderAll;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
+
 </body>
 </html>
