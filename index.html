@@ -6205,8 +6205,110 @@ document.addEventListener('DOMContentLoaded',function(){
     if(btn)btn.setAttribute('aria-expanded','true');
   };
   window.playersShowTransfers=function(){panel('playersTransfersPanel');renderTransfers()};
-  function renderNamesPanel(){const box=document.getElementById('playersNamesPanel');if(!box)return;box.innerHTML=`<div class="card" style="margin:0"><div class="section-title"><h3 style="margin:0">👤 أسماء اللاعبين</h3><span class="badge">عرض للزوار</span></div><div class="players-form-grid"><div><label>🏆 اسم البطولة</label><select id="pmPublicTour"></select></div><div><label>⚽ اسم الفريق</label><select id="pmPublicTeam" disabled></select></div></div><div class="players-form-actions"><button class="btn primary" type="button" onclick="playersPublicSearch()">🔎 بحث</button></div><div id="pmPublicResults" class="players-public-wrap"><div class="empty">اختر البطولة والفريق ثم اضغط بحث</div></div></div>`;fill(document.getElementById('pmPublicTour'),activeTours(),'اختر البطولة');document.getElementById('pmPublicTour').onchange=()=>{const ts=teamsFor(document.getElementById('pmPublicTour').value);fill(document.getElementById('pmPublicTeam'),ts,'اختر الفريق');document.getElementById('pmPublicTeam').disabled=!document.getElementById('pmPublicTour').value}}
-  window.playersPublicSearch=function(){const tid=document.getElementById('pmPublicTour')?.value,teamId=document.getElementById('pmPublicTeam')?.value,box=document.getElementById('pmPublicResults');if(!tid||!teamId)return box.innerHTML='<div class="empty">اختر البطولة والفريق أولاً.</div>';const t=team(teamId),ps=(db.players||[]).filter(p=>String(p.teamId)===String(teamId));box.innerHTML=ps.length?`<table class="players-public-table"><thead><tr><th>#</th><th>اسم اللاعب</th><th>رقم القميص</th><th>الأهداف</th><th>🟨</th><th>🟥</th></tr></thead><tbody>${ps.map((p,i)=>`<tr><td>${i+1}</td><td>${esc2(p.name)}</td><td>${esc2(p.number||'—')}${isGoalkeeperByNumber(p)?' 🧤 حارس':''}</td><td>${Number(p.goals||0)}</td><td>${Number(p.yellow||0)}</td><td>${Number(p.red||0)}</td></tr>`).join('')}</tbody></table>`:`<div class="empty">لا يوجد لاعبون مسجلون في ${esc2(t?.name||'الفريق')}</div>`};
+  /* فلترة البطولات في واجهة أسماء اللاعبين فقط؛ لا تؤثر في أدوات الإدارة أو بقية الأقسام. */
+  function playersPublicTournamentEnded(t){
+    if(!t)return true;
+    try{if(typeof tournamentIsEnded==='function')return !!tournamentIsEnded(t);}catch(e){}
+    const status=String(t.status||'').toLowerCase();
+    if(t.archived===true||status==='archived'||status==='ended'||t.completionState==='ended')return true;
+    if(t.endDate){
+      const now=new Date();
+      const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+      if(today>String(t.endDate).slice(0,10))return true;
+    }
+    return false;
+  }
+  function playersPublicTournaments(){
+    return allTours().filter(t=>!playersPublicTournamentEnded(t));
+  }
+  function playersPublicSheetGoalCount(playerId){
+    const target=String(playerId??'');
+    if(!target)return 0;
+    let source=[];
+    try{if(typeof uniqueMatchSheets==='function')source=uniqueMatchSheets()||[];}catch(e){}
+    if(!Array.isArray(source)||!source.length){
+      const collected=[];
+      ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach((key,priority)=>{
+        try{const rows=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(rows))rows.forEach((sh,index)=>collected.push({sh,priority,index}));}catch(e){}
+      });
+      const latest=new Map();
+      collected.forEach(x=>{
+        const id=String(x.sh?.matchId??x.sh?.matchID??'');
+        if(!id)return;
+        const raw=x.sh?.updatedAt??x.sh?.modifiedAt??x.sh?.savedAt??x.sh?.createdAt??x.sh?.timestamp??'';
+        const stamp=typeof raw==='number'?raw:(Date.parse(String(raw))||0);
+        const old=latest.get(id);
+        if(!old||stamp>old.stamp||(stamp===old.stamp&&x.priority>=old.priority))latest.set(id,{sh:x.sh,stamp,priority:x.priority});
+      });
+      source=Array.from(latest.values()).map(x=>x.sh);
+    }
+    const normalizeName=v=>String(v??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/[\u200e\u200f]/g,'').replace(/\s+/g,' ').trim().toLocaleLowerCase('ar');
+    const players=Array.isArray(db.players)?db.players:[];
+    const resolveId=raw=>{
+      if(raw===undefined||raw===null)return '';
+      let id='',name='';
+      if(typeof raw==='object'){
+        const nested=raw.player&&typeof raw.player==='object'?raw.player:null;
+        const value=raw.playerId??raw.playerID??raw.player_id??raw.player?.id??raw.player??raw.id??raw.value??'';
+        id=typeof value==='object'?(value.id??value.playerId??value.playerID??''):value;
+        name=raw.playerName??raw.player_name??raw.name??nested?.name??(typeof raw.player==='string'?raw.player:'');
+      }else{id=raw;name=raw;}
+      id=String(id??'').trim();
+      if(id&&players.some(p=>String(p.id)===id))return id;
+      const key=normalizeName(name||id);
+      if(key){const found=players.find(p=>normalizeName(p.name??p.fullName??p.playerName)===key);if(found)return String(found.id);}
+      return id;
+    };
+    const asArray=v=>Array.isArray(v)?v:[];
+    let total=0;
+    asArray(source).forEach(sh=>{
+      if(!sh||sh.administrativeDecision===true||sh.decisionType)return; // الأهداف الملغاة بقرار انضباطي لا تدخل في المجموع.
+      const home=asArray(sh.homeScorers).length?asArray(sh.homeScorers):(asArray(sh.homeGoalScorers).length?asArray(sh.homeGoalScorers):asArray(sh.home_goal_scorers));
+      const away=asArray(sh.awayScorers).length?asArray(sh.awayScorers):(asArray(sh.awayGoalScorers).length?asArray(sh.awayGoalScorers):asArray(sh.away_goal_scorers));
+      let entries=(home.length||away.length)?home.concat(away):asArray(sh.goalScorers).length?asArray(sh.goalScorers):asArray(sh.scorers);
+      entries.forEach(raw=>{
+        if(resolveId(raw)!==target)return;
+        const rawCount=raw&&typeof raw==='object'?(raw.count??raw.goalCount??(typeof raw.goals==='number'?raw.goals:1)):1;
+        const count=Number(rawCount);
+        total+=Number.isFinite(count)&&count>0?Math.floor(count):1;
+      });
+    });
+    return total;
+  }
+  function renderNamesPanel(){
+    const box=document.getElementById('playersNamesPanel');if(!box)return;
+    box.innerHTML=`<div class="card" style="margin:0"><div class="section-title"><h3 style="margin:0">👤 أسماء اللاعبين</h3><span class="badge">عرض للزوار</span></div><div class="players-form-grid"><div><label>🏆 اسم البطولة</label><select id="pmPublicTour"></select></div><div><label>⚽ اسم الفريق</label><select id="pmPublicTeam" disabled></select></div></div><div class="players-form-actions"><button class="btn primary" type="button" onclick="playersPublicSearch()">🔎 بحث</button></div><div id="pmPublicResults" class="players-public-wrap"><div class="empty">اختر البطولة والفريق ثم اضغط بحث</div></div></div>`;
+    const tourSel=document.getElementById('pmPublicTour');
+    const teamSel=document.getElementById('pmPublicTeam');
+    fill(tourSel,playersPublicTournaments(),'اختر البطولة');
+    if(tourSel)tourSel.onchange=()=>{
+      const tid=tourSel.value;
+      const selected=playersPublicTournaments().find(x=>String(x.id)===String(tid));
+      const teams=selected?teamsFor(tid).filter(x=>String(x.tournamentId)===String(tid)):[];
+      fill(teamSel,teams,'اختر الفريق');
+      if(teamSel)teamSel.disabled=!tid||!teams.length;
+      const results=document.getElementById('pmPublicResults');
+      if(results)results.innerHTML=teams.length?'<div class="empty">اختر الفريق ثم اضغط بحث</div>':'<div class="empty">لا توجد فرق في البطولات الجارية أو القادمة.</div>';
+    };
+    if(teamSel)teamSel.disabled=true;
+    if(tourSel&&!playersPublicTournaments().length){
+      const results=document.getElementById('pmPublicResults');
+      if(results)results.innerHTML='<div class="empty">لا توجد بطولات جارية أو قادمة لعرض أسماء فرقها.</div>';
+    }
+  }
+  window.playersPublicSearch=function(){
+    const tid=document.getElementById('pmPublicTour')?.value||'';
+    const teamId=document.getElementById('pmPublicTeam')?.value||'';
+    const box=document.getElementById('pmPublicResults');
+    if(!box)return;
+    if(!tid||!teamId){box.innerHTML='<div class="empty">اختر البطولة والفريق أولاً.</div>';return;}
+    const t=playersPublicTournaments().find(x=>String(x.id)===String(tid));
+    if(!t){box.innerHTML='<div class="empty">هذه البطولة منتهية أو مؤرشفة، لذلك لا تظهر ضمن أسماء اللاعبين.</div>';return;}
+    const selectedTeam=teamsFor(tid).find(x=>String(x.id)===String(teamId));
+    if(!selectedTeam){box.innerHTML='<div class="empty">الفريق غير موجود ضمن البطولة المختارة.</div>';return;}
+    const ps=(db.players||[]).filter(p=>String(p.teamId)===String(teamId));
+    box.innerHTML=ps.length?`<table class="players-public-table"><thead><tr><th>#</th><th>اسم اللاعب</th><th>رقم القميص</th><th>⚽ الأهداف من الكشوفات</th></tr></thead><tbody>${ps.map((p,i)=>`<tr><td>${i+1}</td><td>${esc2(p.name)}</td><td>${esc2(p.number||'—')}${isGoalkeeperByNumber(p)?' 🧤 حارس':''}</td><td><b>${playersPublicSheetGoalCount(p.id)}</b></td></tr>`).join('')}</tbody></table>`:`<div class="empty">لا يوجد لاعبون مسجلون في ${esc2(selectedTeam.name||'الفريق')}</div>`;
+  };
   function renderTransfers(){const box=document.getElementById('playersTransfersPanel');if(!box)return;const a=getTransfers().slice().sort((x,y)=>String(y.transferDate).localeCompare(String(x.transferDate)));box.innerHTML=`<div class="card" style="margin:0"><div class="section-title"><h3 style="margin:0">🔄 تنقلات اللاعبين</h3><span class="badge">اللاعبون المنقولون فقط</span></div><div class="players-transfer-wrap">${a.length?`<table class="players-transfer-table"><thead><tr><th>اللاعب</th><th>الفريق السابق</th><th>الفريق الحالي</th><th>تاريخ النقل</th><th>الأهداف</th><th>🟨</th><th>🟥</th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc2(x.playerName)}</td><td>${esc2(x.previousTeamName)}</td><td>${esc2(x.currentTeamName)}</td><td>${esc2(x.transferDate)}</td><td>${Number(x.goals||0)}</td><td>${Number(x.yellow||0)}</td><td>${Number(x.red||0)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">لا توجد تنقلات لاعبين مسجلة.</div>'}</div></div>`}
 
   function apply(){const admin=can();document.querySelectorAll('#players .players-admin-only').forEach(e=>e.style.display=admin?'contents':'none');}
@@ -14507,5 +14609,284 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 }
 </style>
 
-</body>
+
+
+<style id="players-icons-polish-20261108">
+/* تحسين الأيقونات والأسهم في أدوات قسم اللاعبين فقط */
+#players #playersCommandBar .players-names-trigger,
+#players .player-warnings-trigger,
+#players .suspended-players-trigger{
+  min-height:78px!important;
+  align-items:center!important;
+}
+#players #playersCommandBar .players-names-trigger .players-command-icon,
+#players .player-warnings-trigger .player-warnings-trigger-icon,
+#players .suspended-players-trigger .suspended-trigger-icon{
+  box-sizing:border-box!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  min-height:48px!important;
+  max-width:48px!important;
+  max-height:48px!important;
+  flex:0 0 48px!important;
+  padding:0!important;
+  border:2px solid rgba(255,255,255,.94)!important;
+  border-radius:15px!important;
+  color:#fff!important;
+  box-shadow:0 5px 14px rgba(15,23,42,.19),inset 0 1px 0 rgba(255,255,255,.35)!important;
+  overflow:hidden!important;
+  align-self:center!important;
+  transition:transform .18s ease,filter .18s ease!important;
+}
+#players #playersCommandBar .players-names-trigger .players-command-icon svg,
+#players .player-warnings-trigger .player-warnings-trigger-icon svg,
+#players .suspended-players-trigger .suspended-trigger-icon svg{
+  display:block!important;
+  width:25px!important;
+  height:25px!important;
+  min-width:25px!important;
+  min-height:25px!important;
+  max-width:25px!important;
+  max-height:25px!important;
+}
+/* هوية لونية موحدة: أزرق للأسماء، ذهبي للإنذارات، وأحمر للإيقاف */
+#players #playersCommandBar .players-names-trigger .players-command-icon{
+  background:linear-gradient(145deg,#22d3ee 0%,#0ea5e9 48%,#2563eb 100%)!important;
+}
+#players .player-warnings-trigger .player-warnings-trigger-icon{
+  background:linear-gradient(145deg,#facc15 0%,#f59e0b 52%,#ea580c 100%)!important;
+}
+#players .suspended-players-trigger .suspended-trigger-icon{
+  background:linear-gradient(145deg,#fb7185 0%,#e11d48 56%,#9f1239 100%)!important;
+}
+#players #playersCommandBar .players-names-trigger:hover .players-command-icon,
+#players .player-warnings-trigger:hover .player-warnings-trigger-icon,
+#players .suspended-players-trigger:hover .suspended-trigger-icon{
+  transform:scale(1.045)!important;
+  filter:saturate(1.12)!important;
+}
+/* توحيد دوائر الأسهم وحجمها مع اختلاف لون كل وظيفة */
+#players #playersCommandBar .players-names-arrow,
+#players .player-warnings-arrow,
+#players .suspended-players-trigger .suspended-trigger-arrow{
+  box-sizing:border-box!important;
+  display:grid!important;
+  place-items:center!important;
+  width:29px!important;
+  height:29px!important;
+  min-width:29px!important;
+  min-height:29px!important;
+  flex:0 0 29px!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  border:1px solid #dbeafe!important;
+  font-size:21px!important;
+  line-height:1!important;
+  font-weight:900!important;
+}
+#players #playersCommandBar .players-names-arrow{color:#1d4ed8!important;border-color:#bfdbfe!important}
+#players .player-warnings-arrow{color:#c2410c!important;border-color:#fed7aa!important}
+#players .suspended-players-trigger .suspended-trigger-arrow{color:#be123c!important;border-color:#fecdd3!important}
+@media(max-width:480px){
+  #players #playersCommandBar .players-names-trigger,
+  #players .player-warnings-trigger,
+  #players .suspended-players-trigger{min-height:74px!important;padding:10px 11px!important;gap:9px!important}
+  #players #playersCommandBar .players-names-trigger .players-command-icon,
+  #players .player-warnings-trigger .player-warnings-trigger-icon,
+  #players .suspended-players-trigger .suspended-trigger-icon{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;max-width:46px!important;max-height:46px!important;flex-basis:46px!important}
+  #players #playersCommandBar .players-names-arrow,
+  #players .player-warnings-arrow,
+  #players .suspended-players-trigger .suspended-trigger-arrow{width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important;flex-basis:27px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #players #playersCommandBar .players-names-trigger .players-command-icon,
+  #players .player-warnings-trigger .player-warnings-trigger-icon,
+  #players .suspended-players-trigger .suspended-trigger-icon{transition:none!important}
+}
+</style>
+
+<style id="players-three-main-buttons-unified-20261108">
+/* تصميم موحد للأزرار الثلاثة الرئيسية في قسم اللاعبين فقط */
+#players #playersCommandBar .players-names-trigger,
+#players .player-warnings-trigger,
+#players .suspended-players-trigger{
+  appearance:none!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex:0 0 min(100%,460px)!important;
+  width:min(100%,460px)!important;
+  max-width:460px!important;
+  min-width:0!important;
+  height:84px!important;min-height:84px!important;max-height:84px!important;
+  margin:9px auto!important;
+  padding:12px 14px!important;
+  gap:12px!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  direction:rtl!important;
+  text-align:right!important;
+  border:1px solid #d8e5f1!important;
+  border-radius:19px!important;
+  font-family:inherit!important;
+  line-height:1.35!important;
+  white-space:normal!important;
+  cursor:pointer!important;
+  box-shadow:0 7px 18px rgba(29,58,92,.09), inset 0 1px 0 rgba(255,255,255,.85)!important;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,filter .18s ease!important;
+}
+#players #playersCommandBar .players-names-trigger{
+  background:linear-gradient(115deg,#eff8ff 0%,#f2f4ff 100%)!important;
+  color:#124c91!important;
+}
+#players .player-warnings-trigger{
+  background:linear-gradient(115deg,#fff9e8 0%,#fff2ec 100%)!important;
+  color:#89510b!important;
+}
+#players .suspended-players-trigger{
+  background:linear-gradient(115deg,#fff7f8 0%,#fff0f2 100%)!important;
+  color:#a51f3c!important;
+}
+#players #playersCommandBar .players-names-trigger:hover,
+#players .player-warnings-trigger:hover,
+#players .suspended-players-trigger:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:0 11px 23px rgba(29,58,92,.14)!important;
+  filter:saturate(1.04)!important;
+}
+#players #playersCommandBar .players-names-trigger:active,
+#players .player-warnings-trigger:active,
+#players .suspended-players-trigger:active{transform:translateY(0) scale(.995)!important}
+#players #playersCommandBar .players-names-trigger:focus-visible,
+#players .player-warnings-trigger:focus-visible,
+#players .suspended-players-trigger:focus-visible{
+  outline:3px solid #fbbf24!important;outline-offset:3px!important;
+}
+/* حاويات الأيقونات الثلاث: أبعاد ثابتة ومتطابقة */
+#players #playersCommandBar .players-names-trigger .players-command-icon,
+#players .player-warnings-trigger .player-warnings-trigger-icon,
+#players .suspended-players-trigger .suspended-trigger-icon{
+  box-sizing:border-box!important;
+  display:grid!important;place-items:center!important;
+  flex:0 0 48px!important;
+  width:48px!important;height:48px!important;
+  min-width:48px!important;min-height:48px!important;
+  max-width:48px!important;max-height:48px!important;
+  padding:0!important;margin:0!important;
+  border:1px solid rgba(255,255,255,.78)!important;
+  border-radius:15px!important;
+  color:#fff!important;
+  box-shadow:0 5px 12px rgba(24,47,77,.16),inset 0 1px 0 rgba(255,255,255,.3)!important;
+  overflow:hidden!important;
+  align-self:center!important;
+  order:1!important;
+  transition:transform .18s ease,filter .18s ease!important;
+}
+#players #playersCommandBar .players-names-trigger .players-command-icon{background:linear-gradient(145deg,#38bdf8,#2563eb 72%,#4f46e5)!important}
+#players .player-warnings-trigger .player-warnings-trigger-icon{background:linear-gradient(145deg,#facc15,#f59e0b 58%,#ea580c)!important}
+#players .suspended-players-trigger .suspended-trigger-icon{background:linear-gradient(145deg,#fb7185,#e11d48 58%,#9f1239)!important}
+#players #playersCommandBar .players-names-trigger .players-command-icon svg,
+#players .player-warnings-trigger .player-warnings-trigger-icon svg,
+#players .suspended-players-trigger .suspended-trigger-icon svg{
+  display:block!important;width:26px!important;height:26px!important;
+  min-width:26px!important;min-height:26px!important;
+  max-width:26px!important;max-height:26px!important;
+}
+#players #playersCommandBar .players-names-trigger:hover .players-command-icon,
+#players .player-warnings-trigger:hover .player-warnings-trigger-icon,
+#players .suspended-players-trigger:hover .suspended-trigger-icon{transform:scale(1.04)!important;filter:saturate(1.12)!important}
+/* سهم موحد الحجم والحركة */
+#players #playersCommandBar .players-names-trigger .players-names-arrow,
+#players .player-warnings-trigger .player-warnings-arrow,
+#players .suspended-players-trigger .suspended-trigger-arrow{
+  display:grid!important;place-items:center!important;
+  box-sizing:border-box!important;
+  flex:0 0 28px!important;width:28px!important;height:28px!important;
+  min-width:28px!important;min-height:28px!important;
+  margin:0!important;padding:0!important;
+  border:1px solid currentColor!important;border-radius:50%!important;
+  background:rgba(255,255,255,.94)!important;
+  font-family:Arial,Tahoma,sans-serif!important;
+  font-size:21px!important;font-weight:900!important;line-height:1!important;
+  order:2!important;pointer-events:none!important;
+  animation:playersToolsArrowUnified 1.35s ease-in-out infinite!important;
+}
+#players #playersCommandBar .players-names-trigger .players-names-arrow{color:#1d5fbd!important}
+#players .player-warnings-trigger .player-warnings-arrow{color:#b77912!important}
+#players .suspended-players-trigger .suspended-trigger-arrow{color:#be123c!important}
+@keyframes playersToolsArrowUnified{0%,100%{transform:translateX(0);opacity:.88}50%{transform:translateX(4px);opacity:1}}
+/* نصوص الأزرار بمحاذاة واحدة */
+#players #playersCommandBar .players-names-trigger>span:nth-child(2),
+#players .player-warnings-trigger .player-warnings-trigger-copy,
+#players .suspended-players-trigger .suspended-trigger-copy{
+  display:flex!important;flex:1 1 auto!important;min-width:0!important;
+  flex-direction:column!important;align-items:flex-start!important;
+  justify-content:center!important;gap:4px!important;
+  order:3!important;text-align:right!important;
+}
+#players #playersCommandBar .players-names-trigger>span:nth-child(2){
+  color:#174f9b!important;font-size:16px!important;font-weight:950!important;
+}
+#players .player-warnings-trigger .player-warnings-trigger-copy strong,
+#players .suspended-players-trigger .suspended-trigger-copy strong{
+  display:block!important;margin:0!important;font-size:16px!important;
+  line-height:1.35!important;font-weight:950!important;
+}
+#players .player-warnings-trigger .player-warnings-trigger-copy strong{color:#92570a!important}
+#players .suspended-players-trigger .suspended-trigger-copy strong{color:#a51f3c!important}
+#players .player-warnings-trigger .player-warnings-trigger-copy small,
+#players .suspended-players-trigger .suspended-trigger-copy small{
+  display:block!important;margin:0!important;font-size:11px!important;
+  line-height:1.4!important;color:#657181!important;white-space:normal!important;
+}
+#players .player-warnings-trigger .player-warnings-trigger-action,
+#players .suspended-players-trigger .suspended-trigger-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 auto!important;order:4!important;white-space:nowrap!important;
+  padding:7px 10px!important;border:1px solid currentColor!important;
+  border-radius:999px!important;background:rgba(255,255,255,.8)!important;
+  font-size:11px!important;font-weight:900!important;line-height:1.2!important;
+}
+#players .player-warnings-trigger .player-warnings-trigger-action{color:#a8660a!important}
+#players .suspended-players-trigger .suspended-trigger-action{color:#b42342!important}
+@media(max-width:480px){
+  #players #playersCommandBar .players-names-trigger,
+  #players .player-warnings-trigger,
+  #players .suspended-players-trigger{
+    flex-basis:min(100%,460px)!important;width:min(100%,460px)!important;
+    height:82px!important;min-height:82px!important;max-height:82px!important;padding:10px 11px!important;gap:9px!important;
+    border-radius:17px!important;
+  }
+  #players #playersCommandBar .players-names-trigger .players-command-icon,
+  #players .player-warnings-trigger .player-warnings-trigger-icon,
+  #players .suspended-players-trigger .suspended-trigger-icon{
+    width:48px!important;height:48px!important;flex-basis:48px!important;
+  }
+  #players #playersCommandBar .players-names-trigger .players-names-arrow,
+  #players .player-warnings-trigger .player-warnings-arrow,
+  #players .suspended-players-trigger .suspended-trigger-arrow{
+    width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;flex-basis:26px!important;
+  }
+  #players #playersCommandBar .players-names-trigger>span:nth-child(2),
+  #players .player-warnings-trigger .player-warnings-trigger-copy strong,
+  #players .suspended-players-trigger .suspended-trigger-copy strong{font-size:14px!important}
+  #players .player-warnings-trigger .player-warnings-trigger-copy small,
+  #players .suspended-players-trigger .suspended-trigger-copy small{font-size:10px!important}
+  #players .player-warnings-trigger .player-warnings-trigger-action,
+  #players .suspended-players-trigger .suspended-trigger-action{font-size:10px!important;padding:6px 7px!important}
+}
+@media(max-width:360px){
+  #players .player-warnings-trigger .player-warnings-trigger-action,
+  #players .suspended-players-trigger .suspended-trigger-action{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #players #playersCommandBar .players-names-trigger,
+  #players .player-warnings-trigger,#players .suspended-players-trigger{transition:none!important}
+  #players #playersCommandBar .players-names-trigger .players-names-arrow,
+  #players .player-warnings-trigger .player-warnings-arrow,
+  #players .suspended-players-trigger .suspended-trigger-arrow{animation:none!important}
+}
+</style></body>
 </html>
