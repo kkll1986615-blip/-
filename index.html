@@ -1280,6 +1280,7 @@ window.auditAdd=auditAdd;
   if(window.__manarAuditStorageCoverageInstalled) return;
   window.__manarAuditStorageCoverageInstalled=true;
   const originalSetItem=Storage.prototype.setItem;
+  window.addEventListener('online',()=>{if(dirty.size)queueCloudPush()});
   Storage.prototype.setItem=function(key,value){
     const isLocal=this===window.localStorage;
     const k=String(key||'');
@@ -8519,7 +8520,45 @@ $('fsCloudRestore')?.addEventListener('click',async()=>{
   finally{applyingRemote=false}
 });
 
-function patchStorage(){if(window.__manarFirebasePatched)return;window.__manarFirebasePatched=true;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){const k=String(key),result=original.call(this,key,value);if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote&&!window.__manarFirebaseResetLock){markDirty(k);try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}if(canWrite()){clearTimeout(window.__manarFirebasePushTimer);window.__manarFirebasePushTimer=setTimeout(()=>{ const pending=[...dirty]; if(!pending.length||!canWrite())return; applyingRemote=true; pushKeys(pending).then(()=>status('تم تحديث السحابة فورًا',true)).catch(e=>status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false)).finally(()=>{applyingRemote=false;}); },35)}}return result}}
+function patchStorage(){
+  if(window.__manarFirebasePatched)return;
+  window.__manarFirebasePatched=true;
+  const original=Storage.prototype.setItem;
+  let pushTimer=null,pushInFlight=false;
+  const queueCloudPush=()=>{
+    if(!canWrite()||window.__manarFirebaseResetLock)return;
+    clearTimeout(pushTimer);
+    pushTimer=setTimeout(async()=>{
+      if(pushInFlight||!canWrite()||window.__manarFirebaseResetLock)return;
+      const pending=[...dirty];
+      if(!pending.length)return;
+      pushInFlight=true;
+      applyingRemote=true;
+      let uploadSucceeded=false;
+      try{
+        await pushKeys(pending);
+        uploadSucceeded=true;
+        status('تم تحديث السحابة ومزامنة البيانات',true);
+      }catch(e){
+        status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false);
+      }finally{
+        applyingRemote=false;
+        pushInFlight=false;
+        /* أي تغيير حدث أثناء الرفع يبقى معلّمًا Dirty؛ أرسله تلقائيًا دون انتظار تعديل جديد. */
+        if(uploadSucceeded&&dirty.size&&!window.__manarFirebaseResetLock)queueCloudPush();
+      }
+    },10);
+  };
+  Storage.prototype.setItem=function(key,value){
+    const k=String(key),result=original.call(this,key,value);
+    if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote&&!window.__manarFirebaseResetLock){
+      markDirty(k);
+      try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}
+      queueCloudPush();
+    }
+    return result;
+  };
+}
 window.__manarFirebaseSaveKey=async function(key){
   if(window.__manarFirebaseResetLock)return false;
   if(!SYNC_KEYS.includes(key))return false;
@@ -9562,8 +9601,10 @@ function renderSheetsDirect(){
     const h=tname(homeRef),a=tname(awayRef);
     const hg=sheetScore(sh,m,'home');
     const ag=sheetScore(sh,m,'away');
-    const homeGoals=entries(sh.homeScorers);
-    const awayGoals=entries(sh.awayScorers);
+    const homeGoalSource=A(sh.homeScorers).length?sh.homeScorers:(A(sh.homeGoalScorers).length?sh.homeGoalScorers:A(sh.home_goal_scorers));
+    const awayGoalSource=A(sh.awayScorers).length?sh.awayScorers:(A(sh.awayGoalScorers).length?sh.awayGoalScorers:A(sh.away_goal_scorers));
+    const homeGoals=entries(homeGoalSource);
+    const awayGoals=entries(awayGoalSource);
     const goals=window.manarFormatMatchSheetScorers
       ?window.manarFormatMatchSheetScorers(sh,m,homeRef,awayRef,h,a)
       :(homeGoals.length||awayGoals.length
@@ -9577,6 +9618,19 @@ function renderSheetsDirect(){
     const decisionTypeLabel=(decisionTypeRaw==='disciplinary_loss'||decisionTypeRaw==='خسارة انضباطية')?'خسارة انضباطية':((decisionTypeRaw==='withdrawal'||decisionTypeRaw==='انسحاب الفريق')?'انسحاب الفريق':S(sh.decisionText||sh.administrativeDecisionText||'قرار إداري'));
     const decisionTeamId=sh.decisionTeamId||sh.withdrawnTeamId||sh.administrativeTeamId||sh.adminDecisionTeamId||'';
     const decisionTeamName=S(sh.withdrawnTeamName||sh.decisionTeamName||(decisionTeamId?tname(decisionTeamId):''));
+    // تحقق من تطابق نتيجة كل جانب مع عدد أهداف مسجليه؛ بعض الكشوفات القديمة حفظت الرقمين بترتيب معكوس.
+    let displayHomeScore=hg,displayAwayScore=ag;
+    if(!hasAdministrativeDecision&&(homeGoalSource.length||awayGoalSource.length)){
+      const countGoals=list=>A(list).reduce((total,item)=>{
+        const raw=item&&typeof item==='object'?(item.goals??item.count??item.goalCount??item.totalGoals??1):1;
+        const n=Number(raw);
+        return total+(Number.isFinite(n)&&n>0?Math.min(20,Math.max(1,n)):1);
+      },0);
+      const homeCount=countGoals(homeGoalSource),awayCount=countGoals(awayGoalSource);
+      const storedOrderMatches=(hg===homeCount&&ag===awayCount);
+      const storedOrderReversed=(hg===awayCount&&ag===homeCount);
+      if(!storedOrderMatches&&storedOrderReversed){displayHomeScore=ag;displayAwayScore=hg;}
+    }
     const decisionSummary=hasAdministrativeDecision
       ?'<div class="pub-line ks-administrative-decision-line"><b>⚖️ نوع القرار الإداري:</b> '+esc(decisionTypeLabel)+'</div>'
         +(decisionTeamName?'<div class="pub-line ks-administrative-decision-line"><b>الفريق المعني بالقرار:</b> '+esc(decisionTeamName)+'</div>':'')
@@ -9584,9 +9638,9 @@ function renderSheetsDirect(){
     const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
     if(hasAdministrativeDecision){
       const decisionDetails=typeof window.manarBuildAdministrativeSheetDetails==='function' ? window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,h,a) : '<div class="ks-public-summary">'+decisionSummary+'</div>';
-      return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
+      return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
     }
-    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+hg+' - '+ag+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+'<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div><div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>';
+    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+'<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div><div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>';
   }).join('');
 }
 window.renderPlayerStatsDirect=renderPlayerStatsDirect;window.renderPublicSheetsFixed=renderSheetsDirect;
@@ -15243,10 +15297,11 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 
 <!-- إصلاح اتجاه ربط الأرقام بالفريقين داخل بطاقات كشوفات المباريات فقط -->
 <style id="kashofat-score-team-direction-fix-20261109">
+  /* في بطاقة RTL: رقم الفريق الثاني إلى اليسار، ورقم الفريق الأول إلى اليمين. */
   #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed{
     display:inline-flex!important;
     flex-direction:row!important;
-    direction:rtl!important;
+    direction:ltr!important;
     unicode-bidi:isolate!important;
     align-items:center!important;
     justify-content:center!important;
@@ -15254,11 +15309,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     white-space:nowrap!important;
   }
   #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-home,
-  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-away{
-    display:inline-block!important;
-    direction:ltr!important;
-    unicode-bidi:isolate!important;
-  }
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-away,
   #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-separator{
     display:inline-block!important;
     direction:ltr!important;
@@ -15277,24 +15328,23 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     targets.forEach(el=>{
       if(el.dataset.ksScoreTeamOrderFixed==='1')return;
       const raw=(el.textContent||'').trim();
-      // النتيجة المحفوظة تبقى كما هي: أول رقم للفريق الأول (يمين البطاقة)، والثاني للثاني (يسارها).
       const nums=raw.match(/[0-9٠-٩۰-۹]+/g);
       if(!nums||nums.length<2)return;
-      const first=nums[0],second=nums[1];
-      el.innerHTML='<span class="ks-score-home" dir="ltr">'+first+'</span>'+
+      // ترتيب العارض: الفريق الثاني أولاً إلى اليسار، والفريق الأول أخيراً إلى اليمين.
+      const awayScore=nums[0],homeScore=nums[1];
+      el.innerHTML='<span class="ks-score-away" dir="ltr">'+awayScore+'</span>'+
         '<span class="ks-score-separator" aria-hidden="true">–</span>'+
-        '<span class="ks-score-away" dir="ltr">'+second+'</span>';
-      el.setAttribute('dir','rtl');
+        '<span class="ks-score-home" dir="ltr">'+homeScore+'</span>';
+      el.setAttribute('dir','ltr');
       el.classList.add('ks-score-team-order-fixed');
       el.dataset.ksScoreTeamOrderFixed='1';
-      el.setAttribute('aria-label',first+' للفريق الأول، '+second+' للفريق الثاني');
+      el.setAttribute('aria-label',homeScore+' للفريق الأول على اليمين، '+awayScore+' للفريق الثاني على اليسار');
     });
   }
   function refresh(){
     const box=document.querySelector(ROOT);
     if(box)fixScoreOrder(box);
   }
-  // يغطي فتح الكشوفات وتحديثها من داخل المنصة.
   const original=window.renderPublicSheetsFixed;
   if(typeof original==='function'&&!original.__ksScoreTeamOrderWrapped){
     const wrapped=function(){
@@ -15316,7 +15366,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',()=>{refresh();observe();},{once:true});
   }else{refresh();observe();}
-  // التبديل بين البطولات قد يستبدل صندوق الكشوفات؛ أعد ربط المراقب عند الحاجة.
   document.addEventListener('change',event=>{
     if(event.target&&event.target.id==='ksTournament')setTimeout(()=>{refresh();observe();},30);
   },true);
@@ -15325,5 +15374,35 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 })();
 </script>
 
+<script id="manar-performance-media-optimization">
+(function(){
+  'use strict';
+  function optimizeImage(img){
+    if(!(img instanceof HTMLImageElement)||img.dataset.manarPerfOptimized==='1')return;
+    img.dataset.manarPerfOptimized='1';
+    try{
+      const rect=img.getBoundingClientRect();
+      const nearViewport=rect.top < (window.innerHeight||700)*1.5 && rect.bottom > -100;
+      if(nearViewport){img.loading='eager';if(!img.fetchPriority)img.fetchPriority='high';}
+      else{img.loading='lazy';}
+      img.decoding='async';
+    }catch(e){}
+  }
+  function run(){
+    document.querySelectorAll('img').forEach(optimizeImage);
+    if(!document.body||window.__manarImagePerfObserver)return;
+    if('MutationObserver' in window){
+      const observer=new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{
+        if(node.nodeType!==1)return;
+        if(node.matches&&node.matches('img'))optimizeImage(node);
+        if(node.querySelectorAll)node.querySelectorAll('img').forEach(optimizeImage);
+      })));
+      observer.observe(document.body,{childList:true,subtree:true});
+      window.__manarImagePerfObserver=observer;
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+})();
+</script>
 </body>
 </html>
