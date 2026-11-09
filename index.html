@@ -15239,5 +15239,91 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 }
 </style>
 
+
+
+<!-- إصلاح اتجاه ربط الأرقام بالفريقين داخل بطاقات كشوفات المباريات فقط -->
+<style id="kashofat-score-team-direction-fix-20261109">
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed{
+    display:inline-flex!important;
+    flex-direction:row!important;
+    direction:rtl!important;
+    unicode-bidi:isolate!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:5px!important;
+    white-space:nowrap!important;
+  }
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-home,
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-away{
+    display:inline-block!important;
+    direction:ltr!important;
+    unicode-bidi:isolate!important;
+  }
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-separator{
+    display:inline-block!important;
+    direction:ltr!important;
+    unicode-bidi:isolate!important;
+  }
+</style>
+<script id="kashofat-score-team-direction-fix-20261109-script">
+(function(){
+  'use strict';
+  const ROOT='#matchSheetsSection #ksReportsList';
+  function fixScoreOrder(scope){
+    const root=scope&&scope.querySelectorAll?scope:document;
+    const targets=[];
+    if(root.matches&&root.matches(ROOT+' .ks-saved-match b'))targets.push(root);
+    root.querySelectorAll(ROOT+' .ks-saved-match b').forEach(el=>targets.push(el));
+    targets.forEach(el=>{
+      if(el.dataset.ksScoreTeamOrderFixed==='1')return;
+      const raw=(el.textContent||'').trim();
+      // النتيجة المحفوظة تبقى كما هي: أول رقم للفريق الأول (يمين البطاقة)، والثاني للثاني (يسارها).
+      const nums=raw.match(/[0-9٠-٩۰-۹]+/g);
+      if(!nums||nums.length<2)return;
+      const first=nums[0],second=nums[1];
+      el.innerHTML='<span class="ks-score-home" dir="ltr">'+first+'</span>'+
+        '<span class="ks-score-separator" aria-hidden="true">–</span>'+
+        '<span class="ks-score-away" dir="ltr">'+second+'</span>';
+      el.setAttribute('dir','rtl');
+      el.classList.add('ks-score-team-order-fixed');
+      el.dataset.ksScoreTeamOrderFixed='1';
+      el.setAttribute('aria-label',first+' للفريق الأول، '+second+' للفريق الثاني');
+    });
+  }
+  function refresh(){
+    const box=document.querySelector(ROOT);
+    if(box)fixScoreOrder(box);
+  }
+  // يغطي فتح الكشوفات وتحديثها من داخل المنصة.
+  const original=window.renderPublicSheetsFixed;
+  if(typeof original==='function'&&!original.__ksScoreTeamOrderWrapped){
+    const wrapped=function(){
+      const result=original.apply(this,arguments);
+      setTimeout(refresh,0);
+      return result;
+    };
+    wrapped.__ksScoreTeamOrderWrapped=true;
+    window.renderPublicSheetsFixed=wrapped;
+  }
+  function observe(){
+    const box=document.querySelector(ROOT);
+    if(!box||box.__ksScoreTeamOrderObserver)return;
+    const observer=new MutationObserver(()=>fixScoreOrder(box));
+    observer.observe(box,{childList:true,subtree:true});
+    box.__ksScoreTeamOrderObserver=observer;
+    fixScoreOrder(box);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{refresh();observe();},{once:true});
+  }else{refresh();observe();}
+  // التبديل بين البطولات قد يستبدل صندوق الكشوفات؛ أعد ربط المراقب عند الحاجة.
+  document.addEventListener('change',event=>{
+    if(event.target&&event.target.id==='ksTournament')setTimeout(()=>{refresh();observe();},30);
+  },true);
+  const bodyObserver=new MutationObserver(()=>observe());
+  if(document.documentElement)bodyObserver.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
 </body>
 </html>
