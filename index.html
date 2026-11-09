@@ -15240,210 +15240,90 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 </style>
 
 
-<script id="final-kashofat-score-orientation-20261109">
-/* إصلاح محصور بعرض نتائج قسم كشوفات المباريات: توحيد ترتيب الفريقين والنتيجة. */
+
+<!-- إصلاح اتجاه ربط الأرقام بالفريقين داخل بطاقات كشوفات المباريات فقط -->
+<style id="kashofat-score-team-direction-fix-20261109">
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed{
+    display:inline-flex!important;
+    flex-direction:row!important;
+    direction:rtl!important;
+    unicode-bidi:isolate!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:5px!important;
+    white-space:nowrap!important;
+  }
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-home,
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-away{
+    display:inline-block!important;
+    direction:ltr!important;
+    unicode-bidi:isolate!important;
+  }
+  #matchSheetsSection #ksReportsList .ks-saved-match b.ks-score-team-order-fixed .ks-score-separator{
+    display:inline-block!important;
+    direction:ltr!important;
+    unicode-bidi:isolate!important;
+  }
+</style>
+<script id="kashofat-score-team-direction-fix-20261109-script">
 (function(){
   'use strict';
-  const A=v=>Array.isArray(v)?v:[];
-  const S=v=>String(v===undefined||v===null?'':v).trim();
-  const E=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-  const DB=()=>window.db&&typeof window.db==='object'?window.db:(typeof db!=='undefined'&&db&&typeof db==='object'?db:{tournaments:[],teams:[],players:[],matches:[]});
-  const norm=v=>S(v).normalize('NFKC').replace(/[\u0640\u064B-\u065F\u0670]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/\s+/g,' ').toLocaleLowerCase('ar');
-  const HOME_KEYS=['homeTeamId','home_team_id','homeTeam','home','homeId','teamAId','team1Id','homeTeamName','homeName','team1','teamA','firstTeam'];
-  const AWAY_KEYS=['awayTeamId','away_team_id','awayTeam','away','awayId','teamBId','team2Id','awayTeamName','awayName','team2','teamB','secondTeam'];
-  const HOME_SCORE_KEYS=['homeScore','homeGoals','scoreHome','goalsHome','team1Score','teamAScore','hg','home_score','scoreA'];
-  const AWAY_SCORE_KEYS=['awayScore','awayGoals','scoreAway','goalsAway','team2Score','teamBScore','ag','away_score','scoreB'];
-  function unwrapTeam(v){
-    if(v&&typeof v==='object')return S(v.id??v.teamId??v.teamID??v.team_id??v.name??v.teamName??v.value??v.title);
-    return S(v);
-  }
-  function firstRef(obj,keys){
-    if(!obj)return '';
-    for(const k of keys){const v=obj[k];if(v!==undefined&&v!==null&&unwrapTeam(v)!=='')return v;}
-    return '';
-  }
-  function teamRecord(v){
-    const key=unwrapTeam(v);if(!key)return null;
-    return A(DB().teams).find(t=>S(t.id)===key)||A(DB().teams).find(t=>norm(t.name??t.teamName)===norm(key))||null;
-  }
-  function teamName(v,fallback){
-    const t=teamRecord(v);
-    const embedded=v&&typeof v==='object'?S(v.name??v.teamName??v.title):'';
-    return S(t?.name??t?.teamName)||embedded||S(fallback)||unwrapTeam(v)||'—';
-  }
-  function sameTeam(a,b){
-    const ak=unwrapTeam(a),bk=unwrapTeam(b);if(!ak||!bk)return false;
-    if(ak===bk)return true;
-    const at=teamRecord(a),bt=teamRecord(b);
-    if(at&&bt)return S(at.id)===S(bt.id);
-    return norm(teamName(a))===norm(teamName(b));
-  }
-  function scoreValue(obj,keys){
-    if(!obj)return null;
-    for(const k of keys){
-      const raw=obj[k];
-      if(raw===undefined||raw===null||S(raw)==='')continue;
-      const n=Number(raw);
-      if(Number.isFinite(n)&&n>=0)return n;
-    }
-    return null;
-  }
-  function scorePair(obj){
-    const h=scoreValue(obj,HOME_SCORE_KEYS),a=scoreValue(obj,AWAY_SCORE_KEYS);
-    return h===null||a===null?null:{home:h,away:a};
-  }
-  function nonEmptyArray(obj,keys){
-    for(const k of keys){const v=obj?.[k];if(Array.isArray(v)&&v.length)return v;}
-    return [];
-  }
-  function matchFor(sh,d){
-    const id=S(sh?.matchId??sh?.matchID??sh?.fixtureId);
-    return A(d.matches).find((m,i)=>S(m?.id??m?.matchId??i)===id)||{};
-  }
-  function timestamp(sh){
-    const v=sh?.updatedAt??sh?.updated_at??sh?.modifiedAt??sh?.modified_at??sh?.savedAt??sh?.createdAt??sh?.created_at??sh?.timestamp;
-    if(typeof v==='number'&&Number.isFinite(v))return v<1e12?v*1000:v;
-    if(v&&typeof v==='object'){const n=Number(v.seconds??v._seconds);if(Number.isFinite(n)&&n>0)return n*1000;}
-    const n=Number(v);if(S(v)&&Number.isFinite(n))return n<1e12?n*1000:n;
-    const t=Date.parse(S(v));return Number.isFinite(t)?t:0;
-  }
-  function fallbackSheets(){
-    const d=DB(),sources=[];
-    const add=(rows,p)=>A(rows).forEach((sh,i)=>{if(sh&&typeof sh==='object')sources.push({sh,p,i});});
-    try{if(typeof window.uniqueMatchSheets==='function')add(window.uniqueMatchSheets(),50);}catch(e){}
-    add(d.matchSheets,40);add(d.sheets,39);
-    ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach((k,i)=>{
-      try{add(JSON.parse(localStorage.getItem(k)||'[]'),10+(i*10));}catch(e){}
+  const ROOT='#matchSheetsSection #ksReportsList';
+  function fixScoreOrder(scope){
+    const root=scope&&scope.querySelectorAll?scope:document;
+    const targets=[];
+    if(root.matches&&root.matches(ROOT+' .ks-saved-match b'))targets.push(root);
+    root.querySelectorAll(ROOT+' .ks-saved-match b').forEach(el=>targets.push(el));
+    targets.forEach(el=>{
+      if(el.dataset.ksScoreTeamOrderFixed==='1')return;
+      const raw=(el.textContent||'').trim();
+      // النتيجة المحفوظة تبقى كما هي: أول رقم للفريق الأول (يمين البطاقة)، والثاني للثاني (يسارها).
+      const nums=raw.match(/[0-9٠-٩۰-۹]+/g);
+      if(!nums||nums.length<2)return;
+      const first=nums[0],second=nums[1];
+      el.innerHTML='<span class="ks-score-home" dir="ltr">'+first+'</span>'+
+        '<span class="ks-score-separator" aria-hidden="true">–</span>'+
+        '<span class="ks-score-away" dir="ltr">'+second+'</span>';
+      el.setAttribute('dir','rtl');
+      el.classList.add('ks-score-team-order-fixed');
+      el.dataset.ksScoreTeamOrderFixed='1';
+      el.setAttribute('aria-label',first+' للفريق الأول، '+second+' للفريق الثاني');
     });
-    const latest=new Map();
-    sources.forEach(x=>{
-      const id=S(x.sh.matchId??x.sh.matchID??x.sh.fixtureId);if(!id)return;
-      const ts=timestamp(x.sh),old=latest.get(id);
-      if(!old||ts>old.ts||(ts===old.ts&&x.p>old.p))latest.set(id,{sh:x.sh,ts,p:x.p,i:x.i});
-    });
-    return [...latest.values()].map(x=>x.sh);
   }
-  function sourceSheets(){
-    /* اقرأ أحدث سجل خام أولاً؛ ثم نطبّق المطابقة مرة واحدة هنا حتى لا نقلب
-       النتيجة مرتين بعد أن تكون دالة مزامنة الحالة قد أعادت ترتيبها مسبقاً. */
-    return {rows:fallbackSheets(),scoreOrientation:'sheet'};
+  function refresh(){
+    const box=document.querySelector(ROOT);
+    if(box)fixScoreOrder(box);
   }
-  function normalizeForFixture(original,match,scoresAlreadyFixture){
-    const sh=original||{},m=match||{};
-    const mHome=firstRef(m,HOME_KEYS),mAway=firstRef(m,AWAY_KEYS);
-    const sHome=firstRef(sh,HOME_KEYS),sAway=firstRef(sh,AWAY_KEYS);
-    const hasMatchSides=!!(unwrapTeam(mHome)&&unwrapTeam(mAway));
-    const hasSheetSides=!!(unwrapTeam(sHome)&&unwrapTeam(sAway));
-    const reverse=hasMatchSides&&hasSheetSides&&sameTeam(sHome,mAway)&&sameTeam(sAway,mHome)&&!sameTeam(sHome,mHome);
-    const homeRef=hasMatchSides?mHome:(sHome||mHome);
-    const awayRef=hasMatchSides?mAway:(sAway||mAway);
-    let pair=scorePair(sh);
-    if(!pair)pair=scorePair(m);
-    if(pair&&reverse&&!scoresAlreadyFixture)pair={home:pair.away,away:pair.home};
-    const view={...sh};
-    if(homeRef)view.homeTeamId=homeRef;
-    if(awayRef)view.awayTeamId=awayRef;
-    if(pair){view.homeScore=pair.home;view.awayScore=pair.away;}
-    const homeGoals=nonEmptyArray(sh,['homeScorers','homeGoalScorers','home_goal_scorers']);
-    const awayGoals=nonEmptyArray(sh,['awayScorers','awayGoalScorers','away_goal_scorers']);
-    view.homeScorers=reverse?awayGoals:homeGoals;
-    view.awayScorers=reverse?homeGoals:awayGoals;
-    view.homeGoalScorers=view.homeScorers;
-    view.awayGoalScorers=view.awayScorers;
-    view.home_goal_scorers=view.homeScorers;
-    view.away_goal_scorers=view.awayScorers;
-    if(reverse){
-      [view.shootoutHome,view.shootoutAway]=[sh.shootoutAway,sh.shootoutHome];
-      [view.homeGoalkeeperId,view.awayGoalkeeperId]=[sh.awayGoalkeeperId,sh.homeGoalkeeperId];
-    }
-    return {sheet:view,homeRef,awayRef,reverse};
+  // يغطي فتح الكشوفات وتحديثها من داخل المنصة.
+  const original=window.renderPublicSheetsFixed;
+  if(typeof original==='function'&&!original.__ksScoreTeamOrderWrapped){
+    const wrapped=function(){
+      const result=original.apply(this,arguments);
+      setTimeout(refresh,0);
+      return result;
+    };
+    wrapped.__ksScoreTeamOrderWrapped=true;
+    window.renderPublicSheetsFixed=wrapped;
   }
-  function tournamentId(sh,m){
-    const t=sh?.tournamentId??sh?.tournament??sh?.tournamentID??sh?.tournamentName??m?.tournamentId??m?.tournament??m?.tournamentID??m?.tournamentName;
-    if(t&&typeof t==='object')return S(t.id??t.tournamentId??t.name??t.title);
-    return S(t);
+  function observe(){
+    const box=document.querySelector(ROOT);
+    if(!box||box.__ksScoreTeamOrderObserver)return;
+    const observer=new MutationObserver(()=>fixScoreOrder(box));
+    observer.observe(box,{childList:true,subtree:true});
+    box.__ksScoreTeamOrderObserver=observer;
+    fixScoreOrder(box);
   }
-  function belongs(sh,tid,m){
-    if(typeof window.__manarKashofatBelongsStrict==='function'){
-      try{return !!window.__manarKashofatBelongsStrict(sh,tid);}catch(e){}
-    }
-    const d=DB(),tour=A(d.tournaments).find(t=>S(t.id)===S(tid));
-    const refs=[tournamentId(sh,m),S(tour?.name),S(tour?.title)];
-    return refs.some(v=>norm(v)===norm(tid)||norm(v)===norm(tour?.name)||norm(v)===norm(tour?.title));
-  }
-  function isArchived(tid,d){
-    const t=A(d.tournaments).find(x=>S(x.id)===S(tid)||S(x.name)===S(tid)||S(x.title)===S(tid));
-    return !!(t&&(t.archived===true||S(t.status)==='archived'||A(d.archives).some(a=>S(a?.tournament?.id??a?.original?.id??a?.tournamentId)===S(t.id))));
-  }
-  function canManage(){
-    try{return (typeof window.hasPermission==='function'&&window.hasPermission('matchSheets'))||document.body.classList.contains('admin')||document.body.classList.contains('editor');}
-    catch(e){return document.body.classList.contains('admin')||document.body.classList.contains('editor');}
-  }
-  function playerName(v){
-    const id=v&&typeof v==='object'?S(v.playerId??v.playerID??v.id??v.value):S(v);
-    const embedded=v&&typeof v==='object'?S(v.playerName??v.name??v.fullName):'';
-    const p=A(DB().players).find(x=>S(x.id??x.playerId??x.playerID)===id)||A(DB().players).find(x=>embedded&&norm(x.name??x.fullName)===norm(embedded))||A(DB().players).find(x=>typeof v==='string'&&norm(x.name)===norm(v));
-    return S(p?.name??p?.fullName??p?.playerName)||embedded||id||'—';
-  }
-  function renderSheets(){
-    const box=document.getElementById('ksReportsList'),sel=document.getElementById('ksTournament');
-    if(!box||!sel)return;
-    const tid=S(sel.value),d=DB();
-    if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';return;}
-    if(isArchived(tid,d)){sel.value='';box.innerHTML='<div class="ks-empty">🔒 هذه البطولة منتهية ومؤرشفة؛ تم إخفاء كشوفاتها من العرض اليومي مع الاحتفاظ بملف الأرشيف.</div>';return;}
-    const source=sourceSheets();
-    const list=source.rows.filter(sh=>{
-      const m=matchFor(sh,d);return belongs(sh,tid,m);
-    });
-    if(!list.length){box.innerHTML='<div class="ks-empty">📋 لا توجد كشوفات مدخلة لهذه البطولة.</div>';return;}
-    const can=canManage();
-    box.innerHTML=list.map(original=>{
-      const m=matchFor(original,d);
-      const normalized=normalizeForFixture(original,m,source.scoreOrientation==='fixture');
-      const sh=normalized.sheet,homeRef=normalized.homeRef,awayRef=normalized.awayRef;
-      const h=teamName(homeRef,sh.homeTeamName||sh.homeName),a=teamName(awayRef,sh.awayTeamName||sh.awayName);
-      const hg=scoreValue(sh,HOME_SCORE_KEYS)??0,ag=scoreValue(sh,AWAY_SCORE_KEYS)??0;
-      const goals=typeof window.manarFormatMatchSheetScorers==='function'
-        ?window.manarFormatMatchSheetScorers(sh,m,homeRef,awayRef,h,a)
-        :((sh.homeScorers.length||sh.awayScorers.length)
-          ?'<div class="ks-goal-team-group"><b>🔵 '+E(h)+'</b><div>'+sh.homeScorers.map((x,i)=>(i+1)+'- '+E(playerName(x))).join('<br>')+'</div></div><div class="ks-goal-team-group"><b>🔴 '+E(a)+'</b><div>'+sh.awayScorers.map((x,i)=>(i+1)+'- '+E(playerName(x))).join('<br>')+'</div></div>'
-          :'لا توجد أهداف مسجلة');
-      const cards=A(sh.cards);
-      const cardsText=typeof window.manarFormatMatchSheetCards==='function'
-        ?window.manarFormatMatchSheetCards(sh,m,homeRef,awayRef,h,a)
-        :(cards.length?cards.map(c=>(/red|حمراء|طرد/i.test(S(c.type))?'🟥':'🟨')+' '+E(c.playerName||playerName(c.playerId))+' — '+E(c.teamName||teamName(c.teamId))).join('، '):'لا توجد بطاقات');
-      const bp=playerName(sh.bestPlayerId??sh.bestPlayerID??sh.bestPlayer??sh.bestPlayerName??'');
-      const refs=A(sh.referees).map(x=>{
-        const found=A(d.referees).find(r=>S(r.id)===S(x)||S(r.name)===S(x));
-        return S(found?.name)||S(x);
-      }).filter(Boolean);
-      const decisionRaw=S(sh.decisionType||sh.adminDecisionType||sh.administrativeDecisionType||'').toLowerCase();
-      const hasDecision=!!(sh.administrativeDecision||sh.adminDecision||sh.isAdministrativeDecision||decisionRaw||sh.decisionText||sh.administrativeDecisionText);
-      const decisionLabel=decisionRaw==='disciplinary_loss'||decisionRaw==='خسارة انضباطية'?'خسارة انضباطية':(decisionRaw==='withdrawal'||decisionRaw==='انسحاب الفريق'?'انسحاب الفريق':S(sh.decisionText||sh.administrativeDecisionText||'قرار إداري'));
-      const decisionTeam=sh.withdrawnTeamName||sh.decisionTeamName||teamName(sh.decisionTeamId||sh.withdrawnTeamId||sh.administrativeTeamId||sh.adminDecisionTeamId,'');
-      const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+E(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+E(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
-      if(hasDecision){
-        const details=typeof window.manarBuildAdministrativeSheetDetails==='function'
-          ?window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,h,a)
-          :'<div class="ks-public-summary"><div class="pub-row"><b>⚖️ نوع القرار الإداري:</b> '+E(decisionLabel)+'</div><div class="pub-row"><b>الفريق المعني بالقرار:</b> '+E(decisionTeam||'—')+'</div><div class="pub-row"><b>النتيجة المعتمدة:</b> '+hg+' - '+ag+'</div></div>';
-        return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+E(h)+' <b>'+hg+' - '+ag+'</b> '+E(a)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+details+actions+'</div>';
-      }
-      const shootout=sh.shootoutHome!==null&&sh.shootoutHome!==undefined&&sh.shootoutAway!==null&&sh.shootoutAway!==undefined
-        ?'<div class="pub-row"><span class="pub-title">⚽ ركلات الترجيح:</span> '+Number(sh.shootoutHome)+' - '+Number(sh.shootoutAway)+' — الفائز: '+E(teamName(sh.shootoutWinnerTeamId||(Number(sh.shootoutHome)>Number(sh.shootoutAway)?homeRef:awayRef)))+'</div>':'';
-      return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+E(h)+' <b>'+hg+' - '+ag+'</b> '+E(a)+'</div><span class="badge">📋 كشف رقم '+E(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary"><div class="pub-row">📅 <b>التاريخ:</b> '+E(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+E(m.time||sh.time||'—')+'</div>'+shootout+'<div class="pub-row ks-goals-by-team"><span class="pub-title">⚽ مسجلو الأهداف حسب الفريق:</span> '+goals+'</div><div class="pub-row ks-cards-by-team"><span class="pub-title">🟨🟥 البطاقات حسب الفريق:</span> '+cardsText+'</div><div class="pub-row"><span class="pub-title">⭐ أفضل لاعب:</span> '+E(bp)+'</div><div class="pub-row"><span class="pub-title">⚖️ الحكام:</span> '+E(refs.join('، ')||'—')+'</div></div>'+actions+'</div>';
-    }).join('');
-  }
-  window.renderPublicSheetsFixed=renderSheets;
-  window.renderKashofatScoreOrientationFix=normalizeForFixture;
-  function refresh(){try{renderSheets();}catch(e){console.error('Kashofat score display repair failed:',e);}}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});else refresh();
-  const sel=document.getElementById('ksTournament');
-  if(sel)sel.addEventListener('change',()=>setTimeout(refresh,0));
-  window.addEventListener('storage',e=>{if(!e.key||/^manar_match_sheets_v[123]$/.test(e.key)||e.key==='manar_sports_v2')setTimeout(refresh,50);});
-  window.addEventListener('focus',()=>setTimeout(refresh,50));
-  window.addEventListener('load',()=>setTimeout(refresh,100));
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{refresh();observe();},{once:true});
+  }else{refresh();observe();}
+  // التبديل بين البطولات قد يستبدل صندوق الكشوفات؛ أعد ربط المراقب عند الحاجة.
+  document.addEventListener('change',event=>{
+    if(event.target&&event.target.id==='ksTournament')setTimeout(()=>{refresh();observe();},30);
+  },true);
+  const bodyObserver=new MutationObserver(()=>observe());
+  if(document.documentElement)bodyObserver.observe(document.documentElement,{childList:true,subtree:true});
 })();
-
 </script>
+
 </body>
 </html>
