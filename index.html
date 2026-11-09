@@ -10820,25 +10820,13 @@ async function vote(id){
     if(!user)throw new Error('لم يتم إنشاء جلسة زائر في Firebase.');
     const existing=pollVotes(p);
     if(hasVoted(p,id,existing)){render();alert('سبق تسجيل تصويتك في هذا الاستطلاع.');return}
-    const voteRef=f.ref(f.db,'manar_platform/'+SHARED_VOTES_KEY+'/'+id);
-    if(typeof f.runTransaction==='function'){
-      const tx=await f.runTransaction(voteRef,current=>{
-        const voters=asMap(current);
-        if(Object.prototype.hasOwnProperty.call(voters,user.uid))return;
-        return {...voters,[user.uid]:idx};
-      },{applyLocally:false});
-      if(!tx?.committed){
-        const snap=tx?.snapshot?.val();if(snap&&typeof snap==='object')sharedVotesCache={...sharedVotesCache,[id]:snap};
-        throw new Error('سبق تسجيل تصويت هذا الحساب في الاستطلاع.');
-      }
-      const saved=asMap(tx.snapshot?.val());
-      sharedVotesCache={...sharedVotesCache,[id]:saved};
-    }else{
-      const voteUserRef=f.ref(f.db,'manar_platform/'+SHARED_VOTES_KEY+'/'+id+'/'+user.uid);
-      const before=await f.get(voteUserRef);if(before.exists())throw new Error('سبق تسجيل تصويت هذا الحساب في الاستطلاع.');
-      await f.set(voteUserRef,idx);
-      sharedVotesCache={...sharedVotesCache,[id]:{...asMap(sharedVotesCache[id]),[user.uid]:idx}};
-    }
+    /* اكتب صوت المستخدم في عقدته الخاصة؛ هذا يتوافق مع قواعد Firebase التي
+       تسمح لكل UID بإنشاء صوته مرة واحدة دون الكتابة على أصوات الآخرين. */
+    const voteUserRef=f.ref(f.db,'manar_platform/'+SHARED_VOTES_KEY+'/'+id+'/'+user.uid);
+    const before=await f.get(voteUserRef);
+    if(before.exists())throw new Error('سبق تسجيل تصويت هذا الحساب في الاستطلاع.');
+    await f.set(voteUserRef,idx);
+    sharedVotesCache={...sharedVotesCache,[id]:{...asMap(sharedVotesCache[id]),[user.uid]:idx}};
     markLocalVote(id,idx);
     render();
   }catch(e){
