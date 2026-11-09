@@ -15330,8 +15330,10 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       const raw=(el.textContent||'').trim();
       const nums=raw.match(/[0-9٠-٩۰-۹]+/g);
       if(!nums||nums.length<2)return;
-      // ترتيب العارض: الفريق الثاني أولاً إلى اليسار، والفريق الأول أخيراً إلى اليمين.
-      const awayScore=nums[0],homeScore=nums[1];
+      // النص الأصلي يُحفظ بترتيب المباراة: هدفا الفريق الأول ثم الفريق الثاني.
+      // وبما أن العرض LTR يبدأ من اليسار، نضع نتيجة الفريق الثاني يسارًا
+      // ونتيجة الفريق الأول يمينًا دون تبديل القيم نفسها.
+      const homeScore=nums[0],awayScore=nums[1];
       el.innerHTML='<span class="ks-score-away" dir="ltr">'+awayScore+'</span>'+
         '<span class="ks-score-separator" aria-hidden="true">–</span>'+
         '<span class="ks-score-home" dir="ltr">'+homeScore+'</span>';
