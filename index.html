@@ -8057,7 +8057,8 @@ function initManarVisitorCounter(){
   if(visitorCounterStarted||!db)return;
   visitorCounterStarted=true;
   const totalRef=ref(db,'manar_visitors/total');
-  const onlineRef=ref(db,'manar_visitors/online');
+  /* إصدار جديد من سجل الحضور لتجاهل الاتصالات القديمة العالقة التي سببت ثبات العدد. */
+  const onlineRef=ref(db,'manar_visitors/online_v2');
   const connectedRef=ref(db,'.info/connected');
   const statusEl=()=>document.getElementById('visitorCounterStatus');
   const showVisitorStatus=message=>{const el=statusEl();if(el)el.textContent=message;};
