@@ -8022,32 +8022,32 @@ document.addEventListener('DOMContentLoaded',function(){
 <script id="firebase-realtime-sync-final" type="module">
 import {initializeApp,getApps} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut,onAuthStateChanged,signInAnonymously,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {getDatabase,ref,set,get,update,remove,onValue,runTransaction,onDisconnect,push} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import {getDatabase,ref,set,get,update,remove,onValue,runTransaction,onDisconnect,push,increment} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 
 const FIREBASE_CONFIG={apiKey:'AIzaSyBl8ETnvRg4w-7BTleNROgmzSaqtPbUWRE',authDomain:'almanar-sports.firebaseapp.com',databaseURL:'https://almanar-sports-default-rtdb.firebaseio.com',projectId:'almanar-sports',storageBucket:'almanar-sports.firebasestorage.app',messagingSenderId:'933674233471',appId:'1:933674233471:web:6dbcd5517687aa9a47194a'};
 
 const CLOUD_PATH='manar_platform';
 
 /* عداد الزوار المستقل: لا يلمس بيانات البطولات أو بقية مفاتيح المنصة.
-   الإصدار المحسّن:
-   - لكل جهاز معرّف ثابت محلياً.
-   - لكل جلسة/تبويب معرّف اتصال مستقل حتى لا يحذف جهاز اتصال جهاز آخر.
-   - المتواجدون حالياً يعتمدون على اتصالات Firebase الفعلية و onDisconnect.
-   - إجمالي الزيارات لا يعتمد على حساب المدير؛ كل جهاز/جلسة منشورة يمكنه التسجيل.
+   الإصدار المصحح:
+   - اتصال Firebase مستقل بمعرّف جديد لكل تبويب/تحميل، لمنع تعارض التبويبات.
+   - إعادة تسجيل الاتصال بعد كل عودة من انقطاع الشبكة.
+   - عدّ إجمالي الزيارات بزيادة ذرية من الخادم، دون معاملة تتطلب قراءة قيمة العداد أولاً.
+   - حفظ سجل زيارة مختصر لا يتضمن الاسم أو البريد أو عنوان IP أو بيانات شخصية.
 */
 let visitorCounterStarted=false;
 function updateVisitorCounters(total, online){
   const fmt=n=>Math.max(0,Number(n)||0).toLocaleString('ar-IQ');
-  const totalText=fmt(total), onlineText=fmt(online);
-  ['sVisitorsTotal','visitorTotalLive'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=totalText;el.dataset.value=String(Math.max(0,Number(total)||0));}});
-  ['sVisitorsNow','visitorNowLive'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=onlineText;el.dataset.value=String(Math.max(0,Number(online)||0));}});
+  const safeTotal=Math.max(0,Number(total)||0), safeOnline=Math.max(0,Number(online)||0);
+  ['sVisitorsTotal','visitorTotalLive'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=fmt(safeTotal);el.dataset.value=String(safeTotal);}});
+  ['sVisitorsNow','visitorNowLive'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=fmt(safeOnline);el.dataset.value=String(safeOnline);}});
 }
 window.updateVisitorCounters=()=>{};
 function manarVisitorId(storage,key){
   try{
     let id=storage.getItem(key);
     if(!id){
-      id=(crypto&&crypto.randomUUID)?crypto.randomUUID():('v_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2));
+      id=(globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function')?globalThis.crypto.randomUUID():('v_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2));
       storage.setItem(key,id);
     }
     return id;
@@ -8060,58 +8060,83 @@ function initManarVisitorCounter(){
   const onlineRef=ref(db,'manar_visitors/online');
   const connectedRef=ref(db,'.info/connected');
   const statusEl=()=>document.getElementById('visitorCounterStatus');
+  const showVisitorStatus=message=>{const el=statusEl();if(el)el.textContent=message;};
   const deviceId=manarVisitorId(localStorage,'manar_visitor_device_id_v2');
   const sessionId=manarVisitorId(sessionStorage,'manar_visitor_session_id_v2');
-  const connectionRef=ref(db,'manar_visitors/online/'+deviceId+'_'+sessionId);
+  /* push ينشئ مفتاح اتصال فريدًا لكل نسخة مفتوحة من الصفحة، حتى عند نسخ/فتح تبويبات متعددة. */
+  const connectionRef=push(onlineRef);
 
   onValue(totalRef,snap=>{
-    updateVisitorCounters(snap.val()||0,Number(document.getElementById('visitorNowLive')?.dataset.value||0));
+    const total=Number(snap.val())||0;
+    const online=Number(document.getElementById('visitorNowLive')?.dataset.value||0);
+    updateVisitorCounters(total,online);
   },err=>{
-    const el=statusEl();if(el)el.textContent='تعذر قراءة عداد الزيارات من Firebase';
+    showVisitorStatus('تعذرت قراءة إجمالي الزيارات من Firebase: '+(err?.message||err));
     console.warn('Visitor total read failed:',err);
   });
 
   onValue(onlineRef,snap=>{
-    const value=snap.exists()&&snap.val()&&typeof snap.val()==='object'?Object.keys(snap.val()).length:0;
+    const raw=snap.val();
+    const value=raw&&typeof raw==='object'
+      ?Object.values(raw).filter(entry=>entry&&typeof entry==='object'&&entry.deviceId&&entry.sessionId).length
+      :0;
     const total=Number(document.getElementById('visitorTotalLive')?.dataset.value||0);
     updateVisitorCounters(total,value);
   },err=>{
-    const el=statusEl();if(el)el.textContent='تعذر قراءة عدد المتواجدين حالياً';
+    showVisitorStatus('تعذر قراءة عدد المتواجدين حاليًا من Firebase: '+(err?.message||err));
     console.warn('Visitor presence read failed:',err);
   });
 
-  /* تسجيل زيارة واحدة لكل جلسة منشورة، بغض النظر عن كون الجهاز جهاز المدير أو الزائر. */
-  let countThisSession=false;
+  /* زيارة واحدة لكل جلسة تبويب، مع الاحتفاظ بعلامة الإصدار السابق لتجنب العد المكرر عند التحديث. */
+  let countThisSession=false,clearVisitMarker=()=>{};
   try{
-    countThisSession=sessionStorage.getItem('manar_visitor_counted_v2')!=='1';
-    if(countThisSession)sessionStorage.setItem('manar_visitor_counted_v2','1');
+    const marker='manar_visitor_counted_v2';
+    countThisSession=sessionStorage.getItem(marker)!=='1';
+    if(countThisSession)sessionStorage.setItem(marker,'1');
+    clearVisitMarker=()=>sessionStorage.removeItem(marker);
   }catch(e){
     const key='manar_visitor_last_counted_v2',last=Number(localStorage.getItem(key)||0);
     countThisSession=!last||Date.now()-last>30*60*1000;
     if(countThisSession)try{localStorage.setItem(key,String(Date.now()));}catch(_){}
+    clearVisitMarker=()=>{try{localStorage.removeItem(key);}catch(_){}};
   }
   if(countThisSession){
-    runTransaction(totalRef,current=>Math.max(0,Number(current)||0)+1)
-      .catch(err=>{
-        try{sessionStorage.removeItem('manar_visitor_counted_v2');}catch(e){}
-        const el=statusEl();if(el)el.textContent='لم يتم تسجيل الزيارة؛ تحقق من صلاحيات Firebase';
+    const visitRef=ref(db,'manar_visitors/visits/'+sessionId);
+    (async()=>{
+      try{
+        /* الزيادة الذرية من الخادم تمنع ضياع الزيارات عند دخول عدة أجهزة بالتزامن. */
+        await update(ref(db),{'manar_visitors/total':increment(1)});
+        try{
+          await set(visitRef,{visitedAt:Date.now(),source:'web'});
+          showVisitorStatus('تم تسجيل الزيارة وتحديث العداد بنجاح.');
+        }catch(logErr){
+          showVisitorStatus('تم تحديث إجمالي الزيارات، لكن قواعد Firebase لا تسمح بحفظ سجل الزيارة.');
+          console.warn('Visitor history log write failed:',logErr);
+        }
+      }catch(err){
+        clearVisitMarker();
+        showVisitorStatus('تعذر تحديث إجمالي الزيارات؛ تحقق من تسجيل الدخول المجهول وصلاحيات Firebase.');
         console.warn('Visitor increment failed:',err);
-      });
+      }
+    })();
   }
 
-  /* Presence حقيقية لكل اتصال، مع معرّف ثابت للجهاز ومعرّف مستقل للجلسة.
-     لا نستخدم push عند كل إعادة اتصال حتى لا نضاعف السجل لنفس الجلسة. */
+  /* Presence لكل اتصال: نسجل onDisconnect قبل set، ونعيد التسليح عند عودة الاتصال. */
   let presenceArmed=false;
   onValue(connectedRef,async snap=>{
-    if(snap.val()!==true || presenceArmed)return;
+    if(snap.val()!==true){
+      presenceArmed=false;
+      return;
+    }
+    if(presenceArmed)return;
     presenceArmed=true;
     try{
       await onDisconnect(connectionRef).remove();
       await set(connectionRef,{deviceId,sessionId,connectedAt:Date.now()});
-      const el=statusEl();if(el)el.textContent='العداد متصل ويحسب جميع الأجهزة والجلسات';
+      showVisitorStatus('العداد متصل؛ يتم احتساب الاتصالات النشطة وتسجيل الزيارات.');
     }catch(err){
       presenceArmed=false;
-      const el=statusEl();if(el)el.textContent='تعذر تشغيل عداد المتواجدين: تحقق من قواعد Firebase';
+      showVisitorStatus('تعذر تسجيل حضور هذا الجهاز في Firebase؛ تحقق من صلاحيات قاعدة البيانات.');
       console.warn('Visitor presence setup failed:',err);
     }
   });
@@ -8700,7 +8725,13 @@ async function ensureAnonymousPollUser(){
   }finally{anonymousAuthPromise=null;}
 }
 async function start(){if(started)return;started=true;try{app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);auth=getAuth(app);try{await setPersistence(auth,browserLocalPersistence)}catch(persistenceError){console.warn('Firebase session persistence unavailable:',persistenceError)}db=getDatabase(app);resolveFirebaseInit(true);window.__manarPollFirebase={auth:auth,db:db,ref:ref,set:set,get:get,onValue:onValue,runTransaction:runTransaction,remove:remove,onAuthStateChanged:onAuthStateChanged,ensureAnonymousUser:ensureAnonymousPollUser};patchStorage();const saved=localStorage.getItem('manar_firebase_email')||'';if($('fsAuthEmail'))$('fsAuthEmail').value=saved;
- if(!auth.currentUser){ensureAnonymousPollUser().catch(e=>console.warn('Anonymous poll auth unavailable:',e));}
+ /* تشغيل عداد الزوار بعد محاولة تجهيز جلسة Firebase؛ وإذا كان الدخول المجهول غير مفعّل
+    نجرب تشغيله أيضًا في حال كانت قواعد قاعدة البيانات تسمح بالقراءة/الكتابة العامة. */
+ const visitorAuthTask=auth.currentUser?Promise.resolve(auth.currentUser):ensureAnonymousPollUser();
+ visitorAuthTask.then(()=>initManarVisitorCounter()).catch(visitorAuthError=>{
+   console.warn('Anonymous visitor authentication unavailable; trying counter with configured database rules:',visitorAuthError);
+   initManarVisitorCounter();
+ });
   onAuthStateChanged(auth,async user=>{if(!authStateReadyDone){authStateReadyDone=true;resolveAuthStateReady(user)}if(user){initManarVisitorCounter();status(user.isAnonymous?'Firebase جاهز للقراءة — سجّل دخول حساب المزامنة للكتابة':'تم التعرّف على حساب Firebase — '+(user.email||''),!user.isAnonymous);if(initialDone&&localManagerRole()&&canWrite()&&!manualEmailLoginActive){try{const pushed=await pushAll();if(pushed){await pullAll()}else{status('حساب Firebase متصل لكن رفع بيانات المدير فشل؛ لم يتم تنزيل السحابة فوق البيانات المحلية.',false)}}catch(autoLoginSyncErr){status('تعذر إكمال المزامنة التلقائية: '+firebaseErrorMessage(autoLoginSyncErr),false)}}if(initialDone&&dirty.size&&canWrite()){try{const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+firebaseErrorMessage(e),false)}}else if(initialDone&&!localManagerRole()){try{await pullAll()}catch(e){}}}else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
  for(const k of SYNC_KEYS){
   onValue(ref(db,CLOUD_PATH+'/'+k),async snap=>{
