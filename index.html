@@ -8057,32 +8057,32 @@ function initManarVisitorCounter(){
   if(visitorCounterStarted||!db)return;
   visitorCounterStarted=true;
   const totalRef=ref(db,'manar_visitors/total');
-  /* إصدار جديد من سجل الحضور لتجاهل الاتصالات القديمة العالقة التي سببت ثبات العدد. */
+  /* نبقي مسار الحضور الحالي حتى لا نعزل الأجهزة التي ما زالت تستخدم النسخة المنشورة. */
   const onlineRef=ref(db,'manar_visitors/online_v2');
   const connectedRef=ref(db,'.info/connected');
   const statusEl=()=>document.getElementById('visitorCounterStatus');
   const showVisitorStatus=message=>{const el=statusEl();if(el)el.textContent=message;};
   const deviceId=manarVisitorId(localStorage,'manar_visitor_device_id_v2');
   const sessionId=manarVisitorId(sessionStorage,'manar_visitor_session_id_v2');
-  /* push ينشئ مفتاح اتصال فريدًا لكل نسخة مفتوحة من الصفحة، حتى عند نسخ/فتح تبويبات متعددة. */
-  const connectionRef=push(onlineRef);
+  let totalValue=0,onlineValue=0;
+  const publishCounters=()=>updateVisitorCounters(totalValue,onlineValue);
 
   onValue(totalRef,snap=>{
-    const total=Number(snap.val())||0;
-    const online=Number(document.getElementById('visitorNowLive')?.dataset.value||0);
-    updateVisitorCounters(total,online);
+    totalValue=Math.max(0,Number(snap.val())||0);
+    publishCounters();
   },err=>{
     showVisitorStatus('تعذرت قراءة إجمالي الزيارات من Firebase: '+(err?.message||err));
     console.warn('Visitor total read failed:',err);
   });
 
+  /* كل مفتاح في هذا المسار يمثل اتصالاً مستقلاً؛ لا نربط العدد بتطابق معرّفات الأجهزة أو الجلسات. */
   onValue(onlineRef,snap=>{
     const raw=snap.val();
-    const value=raw&&typeof raw==='object'
-      ?Object.values(raw).filter(entry=>entry&&typeof entry==='object'&&entry.deviceId&&entry.sessionId).length
+    onlineValue=raw&&typeof raw==='object'
+      ?Object.values(raw).filter(entry=>entry===true||(entry&&typeof entry==='object'&&!Array.isArray(entry)&&Object.keys(entry).length>0)).length
       :0;
-    const total=Number(document.getElementById('visitorTotalLive')?.dataset.value||0);
-    updateVisitorCounters(total,value);
+    publishCounters();
+    showVisitorStatus('سجل الحضور السحابي يعمل — الاتصالات النشطة المسجلة: '+onlineValue+'.');
   },err=>{
     showVisitorStatus('تعذر قراءة عدد المتواجدين حاليًا من Firebase: '+(err?.message||err));
     console.warn('Visitor presence read failed:',err);
@@ -8105,7 +8105,6 @@ function initManarVisitorCounter(){
     const visitRef=ref(db,'manar_visitors/visits/'+sessionId);
     (async()=>{
       try{
-        /* الزيادة الذرية من الخادم تمنع ضياع الزيارات عند دخول عدة أجهزة بالتزامن. */
         await update(ref(db),{'manar_visitors/total':increment(1)});
         try{
           await set(visitRef,{visitedAt:Date.now(),source:'web'});
@@ -8122,27 +8121,61 @@ function initManarVisitorCounter(){
     })();
   }
 
-  /* Presence لكل اتصال: نسجل onDisconnect قبل set، ونعيد التسليح عند عودة الاتصال. */
-  let presenceArmed=false;
-  onValue(connectedRef,async snap=>{
-    if(snap.val()!==true){
-      presenceArmed=false;
-      return;
-    }
-    if(presenceArmed)return;
-    presenceArmed=true;
+  /*
+    تسجيل حضور مستقل لكل اتصال، وفق نمط Firebase الرسمي:
+    - إنشاء مفتاح جديد عند كل اتصال/إعادة اتصال.
+    - تثبيت onDisconnect على المفتاح نفسه قبل كتابة الحضور.
+    - إعادة المحاولة إذا رفضت قاعدة البيانات الكتابة مؤقتًا.
+  */
+  let isConnected=false,registering=false,registered=false,generation=0,retryTimer=null;
+  const registerPresence=async()=>{
+    if(!isConnected||registering||registered)return;
+    registering=true;
+    const attempt=++generation;
+    const connectionRef=push(onlineRef);
     try{
       await onDisconnect(connectionRef).remove();
-      await set(connectionRef,{deviceId,sessionId,connectedAt:Date.now()});
-      showVisitorStatus('العداد متصل؛ يتم احتساب الاتصالات النشطة وتسجيل الزيارات.');
+      if(!isConnected||attempt!==generation)return;
+      await set(connectionRef,{
+        deviceId,
+        sessionId,
+        uid:auth?.currentUser?.uid||'',
+        connectedAt:Date.now(),
+        source:'web'
+      });
+      if(isConnected&&attempt===generation){
+        registered=true;
+        showVisitorStatus('تم تسجيل هذا الجهاز في سجل الحضور السحابي.');
+      }
     }catch(err){
-      presenceArmed=false;
-      showVisitorStatus('تعذر تسجيل حضور هذا الجهاز في Firebase؛ تحقق من صلاحيات قاعدة البيانات.');
       console.warn('Visitor presence setup failed:',err);
+      showVisitorStatus('تعذر تسجيل حضور هذا الجهاز في Firebase: '+(err?.message||err));
+      if(isConnected&&attempt===generation){
+        if(retryTimer)clearTimeout(retryTimer);
+        retryTimer=setTimeout(()=>{retryTimer=null;registerPresence();},5000);
+      }
+    }finally{
+      if(attempt===generation)registering=false;
     }
+  };
+  onValue(connectedRef,snap=>{
+    const nextConnected=snap.val()===true;
+    if(!nextConnected){
+      isConnected=false;
+      registered=false;
+      registering=false;
+      generation++;
+      if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}
+      return;
+    }
+    if(isConnected)return;
+    isConnected=true;
+    registerPresence();
+  },err=>{
+    showVisitorStatus('تعذر التحقق من اتصال Firebase: '+(err?.message||err));
+    console.warn('Visitor connection state failed:',err);
   });
 }
-
 
 /* لا نقبل الحسابات المحلية القديمة قبل اكتمال تحميل الحسابات المرجعية من السحابة. */
 /* لا نوقف الدخول إذا تعذر الاتصال بالسحابة؛ تبقى الحسابات المحفوظة محلياً متاحة. */
