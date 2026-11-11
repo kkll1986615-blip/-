@@ -6308,7 +6308,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!selectedTeam){box.innerHTML='<div class="empty">الفريق غير موجود ضمن البطولة المختارة.</div>';return;}
     const ps=(db.players||[]).filter(p=>String(p.teamId)===String(teamId));
     const teamGoals=ps.reduce((sum,p)=>sum+playersPublicSheetGoalCount(p.id),0);
-    box.innerHTML=ps.length?`<div class="players-team-goals-summary" role="status" aria-label="مجموع أهداف الفريق"><span>⚽ مجموع أهداف الفريق</span><strong>${teamGoals}</strong></div><table class="players-public-table"><thead><tr><th>#</th><th>اسم اللاعب</th><th>رقم القميص</th><th>⚽ الأهداف من الكشوفات</th></tr></thead><tbody>${ps.map((p,i)=>`<tr><td>${i+1}</td><td>${esc2(p.name)}</td><td>${esc2(p.number||'—')}${isGoalkeeperByNumber(p)?' 🧤 حارس':''}</td><td><b>${playersPublicSheetGoalCount(p.id)}</b></td></tr>`).join('')}</tbody></table>`:`<div class="empty">لا يوجد لاعبون مسجلون في ${esc2(selectedTeam.name||'الفريق')}</div>`;
+    box.innerHTML=ps.length?`<div class="players-team-goals-summary" role="status" aria-label="مجموع أهداف الفريق"><span>⚽ مجموع أهداف الفريق</span><strong>${teamGoals}</strong></div><table class="players-public-table"><thead><tr><th>#</th><th>اسم اللاعب</th><th>رقم القميص</th><th>⚽ الأهداف من الكشوفات</th></tr></thead><tbody>${ps.map((p,i)=>`<tr><td>${i+1}</td><td>${esc2(p.name)}</td><td>${esc2(p.number||'—')}${isGoalkeeperByNumber(p)?' 🧤 حارس':''}</td><td>${(goalCount=>goalCount>0?'<span class="players-goal-highlight" title="أهداف اللاعب من كشوفات المباريات" aria-label="عدد الأهداف '+goalCount+'">⚽ '+goalCount+'</span>':'<span class="players-goal-zero">0</span>')(playersPublicSheetGoalCount(p.id))}</td></tr>`).join('')}</tbody></table>`:`<div class="empty">لا يوجد لاعبون مسجلون في ${esc2(selectedTeam.name||'الفريق')}</div>`;
   };
   function renderTransfers(){const box=document.getElementById('playersTransfersPanel');if(!box)return;const a=getTransfers().slice().sort((x,y)=>String(y.transferDate).localeCompare(String(x.transferDate)));box.innerHTML=`<div class="card" style="margin:0"><div class="section-title"><h3 style="margin:0">🔄 تنقلات اللاعبين</h3><span class="badge">اللاعبون المنقولون فقط</span></div><div class="players-transfer-wrap">${a.length?`<table class="players-transfer-table"><thead><tr><th>اللاعب</th><th>الفريق السابق</th><th>الفريق الحالي</th><th>تاريخ النقل</th><th>الأهداف</th><th>🟨</th><th>🟥</th></tr></thead><tbody>${a.map(x=>`<tr><td>${esc2(x.playerName)}</td><td>${esc2(x.previousTeamName)}</td><td>${esc2(x.currentTeamName)}</td><td>${esc2(x.transferDate)}</td><td>${Number(x.goals||0)}</td><td>${Number(x.yellow||0)}</td><td>${Number(x.red||0)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">لا توجد تنقلات لاعبين مسجلة.</div>'}</div></div>`}
 
@@ -15330,8 +15330,10 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       const raw=(el.textContent||'').trim();
       const nums=raw.match(/[0-9٠-٩۰-۹]+/g);
       if(!nums||nums.length<2)return;
-      // ترتيب العارض: الفريق الثاني أولاً إلى اليسار، والفريق الأول أخيراً إلى اليمين.
-      const awayScore=nums[0],homeScore=nums[1];
+      // النص الأصلي يُحفظ بترتيب المباراة: هدفا الفريق الأول ثم الفريق الثاني.
+      // وبما أن العرض LTR يبدأ من اليسار، نضع نتيجة الفريق الثاني يسارًا
+      // ونتيجة الفريق الأول يمينًا دون تبديل القيم نفسها.
+      const homeScore=nums[0],awayScore=nums[1];
       el.innerHTML='<span class="ks-score-away" dir="ltr">'+awayScore+'</span>'+
         '<span class="ks-score-separator" aria-hidden="true">–</span>'+
         '<span class="ks-score-home" dir="ltr">'+homeScore+'</span>';
@@ -15404,5 +15406,26 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
 })();
 </script>
+
+<style id="players-names-goal-highlight">
+/* تمييز عدد أهداف اللاعب داخل نافذة أسماء اللاعبين فقط. */
+#players #playersNamesPanel .players-public-table tbody td .players-goal-highlight{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  min-width:42px;min-height:29px;padding:4px 10px;border-radius:999px;
+  background:linear-gradient(135deg,#ffe066 0%,#ffb020 100%)!important;
+  color:#4a2500!important;border:1px solid #e6a817;
+  box-shadow:0 3px 8px rgba(181,106,0,.18);
+  font-size:13px;font-weight:950;line-height:1.2;white-space:nowrap;
+}
+#players #playersNamesPanel .players-public-table tbody td .players-goal-zero{
+  display:inline-block;color:#718096;font-weight:600;font-size:12px;
+}
+@media(max-width:480px){
+  #players #playersNamesPanel .players-public-table tbody td .players-goal-highlight{
+    min-width:36px;min-height:27px;padding:3px 8px;font-size:12px;
+  }
+}
+</style>
+
 </body>
 </html>
