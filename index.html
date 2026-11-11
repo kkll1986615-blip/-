@@ -800,12 +800,16 @@ const PERMISSIONS={
   tournaments:'البطولات', teams:'الفرق', players:'اللاعبون', 
   matches:'المباريات', matchSheets:'كشوفات المباريات', stats:'الإحصائيات', referees:'حكام رابطة المنار', media:'الإعلام', delete:'الحذف', backup:'النسخ الاحتياطي', settings:'الإعدادات', audit:'سجل المراجعة'
 };
-const DEFAULT_USERS={admin:{user:'admin',pass:'admin123',label:'👑 مدير النظام',cls:'admin',permissions:Object.keys(PERMISSIONS)},editor:{user:'editor',pass:'editor123',label:'🛠️ صلاحية متوسطة',cls:'editor',permissions:['tournaments','teams','players','matches','matchSheets','stats','referees','media']}};
+const DEFAULT_USERS={admin:{user:'admin',pass:'admin44',label:'👑 مدير النظام',cls:'admin',permissions:Object.keys(PERMISSIONS)},editor:{user:'editor',pass:'editor123',label:'🛠️ صلاحية متوسطة',cls:'editor',permissions:['tournaments','teams','players','matches','matchSheets','stats','referees','media']}};
 window.__manarDefaultAdminPassword=DEFAULT_USERS.admin.pass;
 let USERS=null;
 try{USERS=JSON.parse(localStorage.getItem(USERS_KEY)||'null')}catch(e){USERS=null}
 if(!USERS||typeof USERS!=='object'||!USERS.admin||!USERS.editor){
   USERS=JSON.parse(JSON.stringify(DEFAULT_USERS));
+  try{localStorage.setItem(USERS_KEY,JSON.stringify(USERS))}catch(e){}
+}else if(USERS.admin.pass==='admin123'){
+  /* ترحيل كلمة المرور الافتراضية القديمة فقط؛ لا نغيّر أي كلمة مرور خصصها المستخدم. */
+  USERS.admin.pass=DEFAULT_USERS.admin.pass;
   try{localStorage.setItem(USERS_KEY,JSON.stringify(USERS))}catch(e){}
 }
 Object.values(USERS).forEach(u=>{if(!Array.isArray(u.permissions))u.permissions=[]});
