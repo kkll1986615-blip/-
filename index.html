@@ -703,6 +703,10 @@ document.addEventListener('DOMContentLoaded', function(){
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -15519,6 +15523,103 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   #statsBody .stats-stand-team-cell,#statsBody .stats-group-ranking-card .stand-team{gap:3px!important;}
   #statsBody .standings-card .stats-stand-team-cell b,
   #statsBody .stats-group-ranking-card .stand-team b{font-size:10px!important;}
+}
+</style>
+
+\n<style id="stats-entry-vivid-final">
+/* واجهة الدخول إلى الإحصائيات فقط — جميع القواعد محصورة داخل #stats */
+#stats{font-family:'Tajawal',Tahoma,Arial,sans-serif!important;}
+#stats .stats-hero-card{
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  padding:20px!important;border:1px solid rgba(255,255,255,.55)!important;
+  border-radius:25px!important;
+  background:linear-gradient(118deg,#075985 0%,#1479d5 36%,#6546d9 70%,#c0268c 100%)!important;
+  box-shadow:0 16px 36px rgba(48,83,178,.22)!important;
+}
+#stats .stats-hero-card:before{
+  content:""!important;position:absolute!important;inset:0 0 auto!important;height:5px!important;
+  background:linear-gradient(90deg,#5ff3d2,#fff36a,#ffb6de,#9ee7ff)!important;opacity:1!important;z-index:0!important;
+}
+#stats .stats-hero-card:after{
+  content:""!important;position:absolute!important;z-index:-1!important;
+  width:230px!important;height:230px!important;left:-75px!important;bottom:-135px!important;
+  border-radius:50%!important;border:28px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 0 0 24px rgba(255,255,255,.045),0 0 0 54px rgba(255,255,255,.035)!important;
+  pointer-events:none!important;
+}
+#stats .stats-hero-heading{
+  position:relative!important;z-index:1!important;display:flex!important;align-items:center!important;
+  flex-direction:row!important;flex-wrap:wrap!important;gap:14px!important;direction:rtl!important;
+}
+#stats .stats-hero-art{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:78px!important;height:78px!important;flex:0 0 78px!important;padding:7px!important;
+  border:1px solid rgba(255,255,255,.75)!important;border-radius:23px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(226,248,255,.88))!important;
+  box-shadow:0 9px 22px rgba(3,31,91,.22)!important;filter:none!important;
+}
+#stats .stats-hero-art svg{width:100%!important;height:100%!important;display:block!important;}
+#stats .stats-hero-copy{flex:1 1 190px!important;min-width:0!important;}
+#stats .stats-hero-copy h2{
+  margin:0 0 7px!important;color:#fff!important;font-size:clamp(23px,4vw,30px)!important;
+  line-height:1.35!important;font-weight:900!important;letter-spacing:.1px!important;
+  text-shadow:0 2px 10px rgba(5,25,75,.22)!important;
+}
+#stats .stats-hero-copy p{
+  margin:0!important;color:#effaff!important;font-size:14px!important;line-height:1.85!important;
+  font-weight:600!important;opacity:.98!important;
+}
+#stats .stats-hero-tag{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  margin-inline-start:auto!important;padding:9px 13px!important;border-radius:999px!important;
+  color:#fff!important;background:rgba(255,255,255,.17)!important;
+  border:1px solid rgba(255,255,255,.48)!important;backdrop-filter:blur(9px)!important;
+  -webkit-backdrop-filter:blur(9px)!important;font-size:12px!important;font-weight:900!important;
+  box-shadow:0 5px 14px rgba(8,25,80,.12)!important;white-space:nowrap!important;
+}
+#stats .stats-hero-card>.grid{
+  position:relative!important;z-index:1!important;display:block!important;
+  width:100%!important;max-width:560px!important;margin:18px 0 0!important;
+}
+#stats .stats-hero-card>.grid>div{
+  padding:12px 14px!important;border-radius:17px!important;
+  background:rgba(255,255,255,.16)!important;border:1px solid rgba(255,255,255,.34)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13)!important;
+  backdrop-filter:blur(9px)!important;-webkit-backdrop-filter:blur(9px)!important;
+}
+#stats .stats-hero-card>.grid label{
+  display:block!important;margin:0 0 7px!important;color:#fff!important;
+  font-size:13px!important;font-weight:900!important;
+}
+#stats .stats-hero-card>#statsTour,
+#stats .stats-hero-card select#statsTour,
+#stats .stats-hero-card>.grid select{
+  width:100%!important;min-height:49px!important;padding:11px 14px!important;
+  border:2px solid rgba(255,255,255,.9)!important;border-radius:12px!important;
+  background:linear-gradient(135deg,#fff 0%,#f0f9ff 100%)!important;
+  color:#17406b!important;font-family:'Tajawal',Tahoma,Arial,sans-serif!important;
+  font-size:15px!important;font-weight:800!important;box-shadow:0 5px 13px rgba(5,35,90,.12)!important;
+}
+#stats .stats-hero-card select#statsTour:focus,
+#stats .stats-hero-card>.grid select:focus{
+  outline:3px solid rgba(255,255,255,.3)!important;border-color:#ffe36e!important;
+  box-shadow:0 0 0 4px rgba(255,227,110,.2),0 5px 13px rgba(5,35,90,.12)!important;
+}
+@media(max-width:600px){
+  #stats .stats-hero-card{padding:14px!important;border-radius:19px!important;}
+  #stats .stats-hero-heading{gap:10px!important;flex-wrap:wrap!important;}
+  #stats .stats-hero-art{width:59px!important;height:59px!important;flex-basis:59px!important;padding:5px!important;border-radius:17px!important;}
+  #stats .stats-hero-copy{flex:1 1 155px!important;}
+  #stats .stats-hero-copy h2{font-size:20px!important;margin-bottom:4px!important;}
+  #stats .stats-hero-copy p{font-size:11px!important;line-height:1.65!important;}
+  #stats .stats-hero-tag{margin-inline-start:0!important;padding:6px 10px!important;font-size:10px!important;}
+  #stats .stats-hero-card>.grid{margin-top:12px!important;max-width:none!important;}
+  #stats .stats-hero-card>.grid>div{padding:10px!important;border-radius:14px!important;}
+  #stats .stats-hero-card select#statsTour,#stats .stats-hero-card>.grid select{min-height:46px!important;font-size:14px!important;}
+}
+@media(prefers-reduced-motion:no-preference){
+  #stats .stats-hero-card{transition:box-shadow .2s ease,transform .2s ease!important;}
+  #stats .stats-hero-card:hover{box-shadow:0 19px 40px rgba(48,83,178,.27)!important;}
 }
 </style>
 
