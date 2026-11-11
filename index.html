@@ -707,6 +707,10 @@ document.addEventListener('DOMContentLoaded', function(){
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -15620,6 +15624,227 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 @media(prefers-reduced-motion:no-preference){
   #stats .stats-hero-card{transition:box-shadow .2s ease,transform .2s ease!important;}
   #stats .stats-hero-card:hover{box-shadow:0 19px 40px rgba(48,83,178,.27)!important;}
+}
+</style>
+
+
+<style id="vivid-entry-interfaces-only-20261111">
+/* موارد الخط الخارجي: Google Fonts / Cairo. كل التنسيقات أدناه محصورة في الصفحات المطلوبة. */
+#matches,#matches *,
+#matchSheetsSection,#matchSheetsSection *,
+#predictionsSection,#predictionsSection *,
+#headToHeadSection,#headToHeadSection *{
+  font-family:'Cairo',Tahoma,Arial,sans-serif!important;
+}
+
+/* 1) واجهة الدخول إلى المباريات: نموذج التسجيل وبطاقة اختيار عرض المباريات فقط. */
+#matches .card.viewer-hide[data-perm="matches"],
+#matches .match-view-selector-card{
+  position:relative!important;
+  overflow:hidden!important;
+  border:1px solid #c9e8f7!important;
+  border-radius:20px!important;
+  background:linear-gradient(145deg,#ffffff 0%,#f0f9ff 52%,#f0fff8 100%)!important;
+  box-shadow:0 12px 28px rgba(14,116,144,.10),0 4px 12px rgba(59,130,246,.06)!important;
+}
+#matches .card.viewer-hide[data-perm="matches"]:before,
+#matches .match-view-selector-card:before{
+  content:""!important;display:block!important;position:absolute!important;
+  inset:0 0 auto 0!important;height:5px!important;
+  background:linear-gradient(90deg,#06b6d4,#2563eb,#8b5cf6,#f59e0b)!important;
+}
+#matches .card.viewer-hide[data-perm="matches"]>.section-title,
+#matches .match-view-selector-card>.section-title{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:10px!important;flex-wrap:wrap!important;
+  margin:0 0 15px!important;padding:7px 0 13px!important;
+  border-bottom:1px solid #dcecf5!important;
+}
+#matches .card.viewer-hide[data-perm="matches"] .section-title h2,
+#matches .match-view-selector-card .section-title h2{
+  color:#075985!important;font-weight:900!important;letter-spacing:-.2px!important;
+}
+#matches .card.viewer-hide[data-perm="matches"] .section-title .badge,
+#matches .match-view-selector-card .section-title .badge{
+  color:#075985!important;background:linear-gradient(135deg,#dff7ff,#e8eaff)!important;
+  border:1px solid #b9e2f5!important;border-radius:999px!important;
+  padding:7px 11px!important;font-weight:900!important;
+}
+#matches .card.viewer-hide[data-perm="matches"] .grid>div,
+#matches .match-view-selector-card .match-view-selectors>div{
+  min-width:0!important;padding:11px!important;border-radius:14px!important;
+  background:linear-gradient(140deg,#ffffff,#f2faff)!important;
+  border:1px solid #d8eaf5!important;
+}
+#matches .card.viewer-hide[data-perm="matches"] label,
+#matches .match-view-selector-card label{color:#164e73!important;font-weight:900!important;}
+#matches .card.viewer-hide[data-perm="matches"] input,
+#matches .card.viewer-hide[data-perm="matches"] select,
+#matches .match-view-selector-card select{
+  border:1.5px solid #b9dced!important;background:#fff!important;color:#123b55!important;
+  border-radius:11px!important;box-shadow:0 3px 9px rgba(14,116,144,.05)!important;
+}
+#matches .card.viewer-hide[data-perm="matches"] input:focus,
+#matches .card.viewer-hide[data-perm="matches"] select:focus,
+#matches .match-view-selector-card select:focus{
+  border-color:#0891b2!important;box-shadow:0 0 0 4px rgba(8,145,178,.13)!important;
+}
+#matches .card.viewer-hide[data-perm="matches"] .actions .btn{
+  background:linear-gradient(115deg,#0d9488,#0284c7,#4f46e5)!important;
+  color:#fff!important;border:0!important;border-radius:12px!important;
+  box-shadow:0 7px 16px rgba(2,132,199,.2)!important;font-weight:900!important;
+}
+#matches .match-view-help{
+  margin-top:12px!important;padding:11px 13px!important;border-radius:12px!important;
+  background:linear-gradient(100deg,#e0f7ff,#eaf2ff,#e8fff4)!important;
+  border:1px solid #c9e8f5!important;color:#075985!important;font-weight:800!important;
+}
+
+/* 2) واجهة الدخول إلى كشوفات المباريات: العنوان والتنبيه واختيار البطولة والمباراة فقط. */
+#matchSheetsSection .ks-root{
+  border:1px solid #c8defe!important;border-radius:20px!important;
+  background:linear-gradient(145deg,#ffffff 0%,#f3f6ff 52%,#f0fbff 100%)!important;
+  box-shadow:0 12px 30px rgba(79,70,229,.10),0 4px 12px rgba(14,165,233,.06)!important;
+}
+#matchSheetsSection .ks-root>.section-title{
+  position:relative!important;display:flex!important;align-items:center!important;
+  justify-content:space-between!important;gap:10px!important;flex-wrap:wrap!important;
+  margin:-1px -1px 14px!important;padding:17px 16px!important;
+  border:0!important;border-radius:18px 18px 12px 12px!important;
+  background:linear-gradient(115deg,#2563eb 0%,#6366f1 48%,#a855f7 100%)!important;
+  box-shadow:0 7px 18px rgba(79,70,229,.17)!important;
+}
+#matchSheetsSection .ks-root>.section-title h2{
+  margin:0!important;color:#fff!important;font-weight:900!important;font-size:20px!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.12)!important;
+}
+#matchSheetsSection .ks-root>.section-title .badge{
+  color:#3730a3!important;background:linear-gradient(135deg,#fff,#e0f2fe)!important;
+  border:1px solid #dbeafe!important;border-radius:999px!important;
+  padding:7px 11px!important;font-weight:900!important;
+}
+#matchSheetsSection .ks-note{
+  margin:0 0 13px!important;padding:12px 13px!important;border-radius:13px!important;
+  color:#3730a3!important;background:linear-gradient(105deg,#eef2ff,#e0f2fe,#f5edff)!important;
+  border:1px solid #c7d2fe!important;box-shadow:0 3px 10px rgba(99,102,241,.06)!important;
+}
+#matchSheetsSection .ks-toolbar{gap:10px!important;align-items:end!important;}
+#matchSheetsSection .ks-toolbar>div{
+  min-width:0!important;padding:11px!important;border-radius:14px!important;
+  background:linear-gradient(145deg,#fff,#f2f6ff)!important;
+  border:1px solid #d7defb!important;box-shadow:0 4px 11px rgba(79,70,229,.05)!important;
+}
+#matchSheetsSection .ks-toolbar label{color:#4338ca!important;font-weight:900!important;}
+#matchSheetsSection .ks-toolbar select{
+  width:100%!important;border:1.5px solid #c7d2fe!important;border-radius:11px!important;
+  color:#27356f!important;background:#fff!important;box-shadow:0 3px 9px rgba(79,70,229,.05)!important;
+}
+#matchSheetsSection .ks-toolbar select:focus{
+  border-color:#6366f1!important;box-shadow:0 0 0 4px rgba(99,102,241,.13)!important;
+}
+#matchSheetsSection .ks-toolbar #ksNew{
+  border:0!important;border-radius:12px!important;color:#fff!important;
+  background:linear-gradient(115deg,#7c3aed,#4f46e5,#0284c7)!important;
+  box-shadow:0 7px 16px rgba(79,70,229,.2)!important;font-weight:900!important;
+}
+
+/* 3) واجهة الدخول إلى توقع نتيجة المباراة. */
+#predictionsSection{background:linear-gradient(180deg,#f8f5ff 0%,#f0f9ff 48%,#fff7fd 100%)!important;}
+#predictionsSection .prediction-card{
+  border:1px solid #ddd6fe!important;
+  background:linear-gradient(145deg,#fff 0%,#f7f4ff 48%,#effaff 100%)!important;
+  box-shadow:0 14px 36px rgba(109,40,217,.12),0 4px 12px rgba(14,165,233,.07)!important;
+}
+#predictionsSection .prediction-head{
+  background:linear-gradient(120deg,#6d28d9 0%,#9333ea 43%,#db2777 74%,#0284c7 100%)!important;
+  border-radius:0 0 24px 24px!important;
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.2)!important;
+}
+#predictionsSection .prediction-icon{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  border:2px solid rgba(255,255,255,.72)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.25),rgba(255,255,255,.08))!important;
+  box-shadow:0 8px 20px rgba(49,18,90,.2)!important;
+}
+#predictionsSection .prediction-head h2{color:#fff!important;font-weight:900!important;}
+#predictionsSection .prediction-grid>div{
+  border:1px solid #d9d0fc!important;
+  background:linear-gradient(145deg,#fff,#f2f7ff 65%,#f5edff)!important;
+  box-shadow:0 5px 14px rgba(91,33,182,.06)!important;
+}
+#predictionsSection .prediction-grid label{color:#5b21b6!important;font-weight:900!important;}
+#predictionsSection .prediction-grid select{
+  border:1.5px solid #c4b5fd!important;background:#fff!important;color:#35235e!important;
+  border-radius:12px!important;box-shadow:0 3px 9px rgba(109,40,217,.06)!important;
+}
+#predictionsSection .prediction-grid select:focus{
+  border-color:#a855f7!important;box-shadow:0 0 0 4px rgba(168,85,247,.14)!important;
+}
+
+/* 4) واجهة تاريخ المواجهات: عنوان القسم وبطاقتا اختيار الفريقين فقط. */
+#headToHeadSection .section-page-title{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  flex-wrap:wrap!important;gap:10px!important;padding:15px 16px!important;
+  margin:0 0 15px!important;border:0!important;border-radius:18px!important;
+  background:linear-gradient(115deg,#0e7490 0%,#2563eb 48%,#7c3aed 100%)!important;
+  box-shadow:0 9px 22px rgba(37,99,235,.16)!important;
+}
+#headToHeadSection .section-page-title h2{
+  display:flex!important;margin:0!important;color:#fff!important;font-size:19px!important;
+  font-weight:900!important;text-shadow:0 1px 2px rgba(0,0,0,.13)!important;
+}
+#headToHeadSection .section-page-title .badge{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:34px!important;padding:6px 11px!important;border-radius:999px!important;
+  color:#1e3a8a!important;background:linear-gradient(135deg,#fff,#e0f2fe)!important;
+  border:1px solid #dbeafe!important;font-size:11px!important;font-weight:900!important;
+  box-shadow:0 3px 8px rgba(30,58,138,.08)!important;
+}
+#headToHeadSection .h2h-card{
+  padding:15px!important;border:1px solid #c7e5f5!important;border-radius:19px!important;
+  background:linear-gradient(145deg,#fff 0%,#f1faff 55%,#f6f1ff 100%)!important;
+  box-shadow:0 11px 26px rgba(14,116,144,.09)!important;overflow:hidden!important;
+}
+#headToHeadSection .h2h-card>.section-title{display:flex!important;}
+#headToHeadSection .h2h-card>.section-title h2{color:#075985!important;font-weight:900!important;}
+#headToHeadSection .h2h-card>.section-title small{color:#52718a!important;font-weight:700!important;}
+#headToHeadSection .h2h-select-grid{gap:12px!important;margin:0!important;}
+#headToHeadSection .h2h-select-grid>div{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  min-height:0!important;padding:14px!important;border-radius:15px!important;
+  background:linear-gradient(145deg,#fff,#eaf8ff 72%,#f0edff)!important;
+  border:1px solid #c8e6f4!important;box-shadow:0 5px 14px rgba(37,99,235,.07)!important;
+}
+#headToHeadSection .h2h-select-grid>div:before,
+#headToHeadSection .h2h-select-grid>div:after{display:none!important;content:none!important;}
+#headToHeadSection .h2h-select-grid label{color:#075985!important;font-weight:900!important;}
+#headToHeadSection .h2h-select-grid select{
+  min-height:46px!important;border:1.5px solid #b9dced!important;
+  background:#fff!important;color:#123b55!important;border-radius:11px!important;
+  box-shadow:0 3px 9px rgba(14,116,144,.06)!important;
+}
+#headToHeadSection .h2h-select-grid select:focus{
+  border-color:#0ea5e9!important;box-shadow:0 0 0 4px rgba(14,165,233,.13)!important;
+}
+
+@media(max-width:700px){
+  #matches .card.viewer-hide[data-perm="matches"],#matches .match-view-selector-card{border-radius:16px!important;}
+  #matches .card.viewer-hide[data-perm="matches"]>.section-title,
+  #matches .match-view-selector-card>.section-title{align-items:flex-start!important;}
+  #matches .card.viewer-hide[data-perm="matches"] .grid>div,
+  #matches .match-view-selector-card .match-view-selectors>div{padding:10px!important;}
+  #matchSheetsSection .ks-root{border-radius:16px!important;}
+  #matchSheetsSection .ks-root>.section-title{padding:14px 12px!important;border-radius:14px 14px 10px 10px!important;}
+  #matchSheetsSection .ks-root>.section-title h2{font-size:17px!important;}
+  #matchSheetsSection .ks-toolbar{gap:9px!important;}
+  #matchSheetsSection .ks-toolbar>div{padding:9px!important;}
+  #matchSheetsSection .ks-toolbar #ksNew{min-height:45px!important;}
+  #predictionsSection .prediction-head{border-radius:0 0 18px 18px!important;}
+  #headToHeadSection .section-page-title{padding:13px!important;border-radius:15px!important;}
+  #headToHeadSection .section-page-title h2{font-size:17px!important;}
+  #headToHeadSection .h2h-card{padding:11px!important;border-radius:16px!important;}
+  #headToHeadSection .h2h-select-grid{grid-template-columns:1fr!important;gap:10px!important;}
+  #headToHeadSection .h2h-select-grid>div{min-height:0!important;padding:12px!important;border-radius:13px!important;}
 }
 </style>
 
