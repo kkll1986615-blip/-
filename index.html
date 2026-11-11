@@ -699,6 +699,10 @@ document.addEventListener('DOMContentLoaded', function(){
 }
 </style>
 
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -6748,7 +6752,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     box.innerHTML=`
       ${isGroupTournament(tourObj) ? `<div class="stats-stage-control"><div><b>🏆 مرحلة البطولة:</b> ${tourObj.stage==='knockout'?'خروج المغلوب':'المجموعات'}</div><div class="stats-stage-note">${tourObj.stage==='knockout'?'تم الانتقال إلى مرحلة خروج المغلوب. تبقى بيانات المجموعات محفوظة.':'بعد انتهاء مرحلة المجموعات يمكن الانتقال إلى خروج المغلوب.'}</div>${currentRole!=='viewer' ? `<button type="button" class="stage-toggle-switch ${tourObj.stage==='knockout'?'is-on':'is-off'}" role="switch" aria-checked="${tourObj.stage==='knockout'?'true':'false'}" aria-label="تحويل البطولة إلى خروج المغلوب" onclick="toggleTournamentKnockoutStage('${esc(tid)}')"><span class="stage-toggle-label">خروج المغلوب</span><span class="stage-toggle-track"><span class="stage-toggle-state">${tourObj.stage==='knockout'?'ON':'OFF'}</span><span class="stage-toggle-knob"></span></span></button>`:''}</div>` : ''}
       <div class="stats-summary-grid"><div class="stat"><span class="stat-emoji" aria-hidden="true">🏟️</span><b>${totalTournamentMatches}</b><span>عدد المباريات</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">📋</span><b>${totalFinished}</b><span>الكشوفات المدخلة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">⚽</span><b>${totalGoals}</b><span>عدد الأهداف المسجلة في البطولة</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🎯</span><b>${totalPenalties}</b><span>عدد ركلات الجزاء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟨</span><b>${totalYellow}</b><span>عدد البطاقات الصفراء</span></div><div class="stat"><span class="stat-emoji" aria-hidden="true">🟥</span><b>${totalRed}</b><span>عدد البطاقات الحمراء</span></div></div>
-      ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=groupStandingsFromReports(gi).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد مباريات مكتملة لهذه البطولة.')}
+      ${isGroupTournament(tourObj) ? (()=>{ const n=Math.max(2,Number(tourObj.groupCount)||0); let out=''; for(let gi=1;gi<=n;gi++){ const letter=String.fromCharCode(64+gi); const rows=groupStandingsFromReports(gi).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar')); out+=addTable(`جدول ترتيب المجموعة ${letter} في ${name}`,'📋',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],rows.map((x,i)=>`<tr><td>${i+1}</td><td style="text-align:right;font-weight:800">${esc(x.name)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`),'لا توجد فرق أو مباريات مكتملة في هذه المجموعة.'); } return out || '<div class="empty">لا توجد مجموعات.</div>'; })() : addTable(`ترتيب الفرق المشاركة في ${name}`,'🏆',['#','الفريق','لعب','فاز','تعادل','خسر','له','عليه','فارق','نقاط'],standing.map((x,i)=>{const logo=teamLogo(x.id);const logoMarkup=logo?`<img class="stats-standing-logo-img" src="${esc(logo)}" alt="شعار ${esc(x.name)}" loading="lazy" decoding="async">`:`<span class="stats-standing-logo-fallback" aria-hidden="true">⚽</span>`;return `<tr class="${i===0?'rank-1':i===1?'rank-2':''}"><td>${i+1}</td><td><div class="stats-stand-team-cell">${logoMarkup}<b>${esc(x.name)}</b></div></td><td>${x.p}</td><td>${x.w}</td><td>${x.d}</td><td>${x.l}</td><td>${x.gf}</td><td>${x.ga}</td><td><b>${x.gd>0?'+':''}${x.gd}</b></td><td><b>${x.pts}</b></td></tr>`;}),'لا توجد مباريات مكتملة لهذه البطولة.')}
       ${isGroupTournament(tourObj) ? (()=>{
         const roundOf=({m,sh})=>String(m?.knockoutRound||sh?.knockoutRound||m?.roundName||sh?.roundName||m?.stageName||sh?.stageName||m?.matchStage||sh?.matchStage||'').trim();
         const norm=r=>r.replace(/\s+/g,' ').replace(/^مرحلة\s*/,'');
@@ -15455,6 +15459,66 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   #players #playersNamesPanel .players-public-table tbody td .players-goal-highlight{
     min-width:36px;min-height:27px;padding:3px 8px;font-size:12px;
   }
+}
+</style>
+
+
+<style id="stats-standings-team-logos-vivid-final">
+/* تحسين جدول ترتيب الفرق داخل الإحصائيات فقط؛ لا تتغير نسب الأعمدة أو عرض الجدول. */
+#statsBody .standings-card .stats-stand-team-cell,
+#statsBody .stats-group-ranking-card .stand-team{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex-direction:row!important;direction:rtl!important;gap:4px!important;
+  width:100%!important;min-width:0!important;text-align:right!important;
+  font-family:'Tajawal',Tahoma,Arial,sans-serif!important;
+}
+#statsBody .standings-card .stats-stand-team-cell b,
+#statsBody .stats-group-ranking-card .stand-team b{
+  display:block!important;flex:1 1 auto!important;min-width:0!important;
+  max-width:100%!important;text-align:right!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;word-break:normal!important;
+  line-height:1.2!important;font-family:'Tajawal',Tahoma,Arial,sans-serif!important;
+}
+#statsBody .stats-standing-logo-img,
+#statsBody .stats-group-ranking-card .stand-team>img{
+  display:block!important;flex:0 0 22px!important;width:22px!important;
+  min-width:22px!important;max-width:22px!important;height:22px!important;
+  min-height:22px!important;max-height:22px!important;object-fit:contain!important;
+  padding:1px!important;border:1px solid #9bd8e8!important;border-radius:7px!important;
+  background:#fff!important;box-shadow:0 1px 4px rgba(8,80,110,.13)!important;
+}
+#statsBody .stats-standing-logo-fallback{
+  display:inline-flex!important;flex:0 0 22px!important;width:22px!important;height:22px!important;
+  align-items:center!important;justify-content:center!important;border-radius:7px!important;
+  border:1px solid #8bd5e9!important;background:linear-gradient(135deg,#e0f7ff,#e7fff3)!important;
+  font-size:13px!important;line-height:1!important;
+}
+/* المركز الأول: ذهبي مشرق، والمركز الثاني: أزرق سماوي مختلف بوضوح. */
+#statsBody .stats-ranking-card.standings-card table.standings-mobile-table tbody tr.rank-1>td,
+#statsBody .stats-ranking-card.standings-card table.standings-mobile-table tbody tr.rank-1:hover>td,
+#statsBody .stats-group-ranking-card table.standings-mobile-table tbody tr.rank-1>td,
+#statsBody .stats-group-ranking-card table.standings-mobile-table tbody tr.rank-1:hover>td{
+  background:linear-gradient(105deg,#fff4a8 0%,#ffe16a 52%,#fff8d5 100%)!important;
+  color:#654000!important;border-top:1px solid #efc441!important;border-bottom:1px solid #efc441!important;
+}
+#statsBody .stats-ranking-card.standings-card table.standings-mobile-table tbody tr.rank-1>td:first-child,
+#statsBody .stats-group-ranking-card table.standings-mobile-table tbody tr.rank-1>td:first-child{border-right:4px solid #f0a900!important;}
+#statsBody .stats-ranking-card.standings-card table.standings-mobile-table tbody tr.rank-2>td,
+#statsBody .stats-ranking-card.standings-card table.standings-mobile-table tbody tr.rank-2:hover>td,
+#statsBody .stats-group-ranking-card table.standings-mobile-table tbody tr.rank-2>td,
+#statsBody .stats-group-ranking-card table.standings-mobile-table tbody tr.rank-2:hover>td{
+  background:linear-gradient(105deg,#dff5ff 0%,#b5e7ff 52%,#effaff 100%)!important;
+  color:#124b70!important;border-top:1px solid #8fd1ef!important;border-bottom:1px solid #8fd1ef!important;
+}
+#statsBody .stats-ranking-card.standings-card table.standings-mobile-table tbody tr.rank-2>td:first-child,
+#statsBody .stats-group-ranking-card table.standings-mobile-table tbody tr.rank-2>td:first-child{border-right:4px solid #269bd2!important;}
+@media(max-width:600px){
+  #statsBody .stats-standing-logo-img,
+  #statsBody .stats-standing-logo-fallback,
+  #statsBody .stats-group-ranking-card .stand-team>img{flex-basis:19px!important;width:19px!important;min-width:19px!important;max-width:19px!important;height:19px!important;min-height:19px!important;max-height:19px!important;}
+  #statsBody .stats-stand-team-cell,#statsBody .stats-group-ranking-card .stand-team{gap:3px!important;}
+  #statsBody .standings-card .stats-stand-team-cell b,
+  #statsBody .stats-group-ranking-card .stand-team b{font-size:10px!important;}
 }
 </style>
 
