@@ -13661,7 +13661,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 
   function refreshState(){
     activeById=new Map();
-    activeByName=new Map(); // متروك للتوافق فقط؛ لا يُستخدم إطلاقًا في إسناد العقوبة.
+    activeByName=new Map();
     playersById=new Map(arr(db().players).map(p=>[S(p.id),p]));
     teamsById=new Map(arr(db().teams).map(t=>[S(t.id),t]));
     let state=[];
@@ -13669,12 +13669,11 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     state.forEach(item=>{
       if(!item||item.active!==true)return;
       const pid=S(item.playerId||item.p?.id);
-      // لا تُعتمد العقوبة إلا إذا كان المعرّف يعود إلى لاعب موجود فعليًا في سجل اللاعبين.
-      const player=pid?playersById.get(pid):null;
-      if(!player)return;
-      const rec={playerId:pid,tournamentId:S(item.tournamentId),teamId:S(item.teamId||player.teamId)};
-      if(!activeById.has(pid))activeById.set(pid,[]);
-      activeById.get(pid).push(rec);
+      const name=norm(item.p?.name||item.playerName);
+      if(!pid&&!name)return;
+      const rec={playerId:pid,name,tournamentId:S(item.tournamentId),teamId:S(item.teamId||item.p?.teamId)};
+      if(pid){if(!activeById.has(pid))activeById.set(pid,[]);activeById.get(pid).push(rec);}
+      if(name){if(!activeByName.has(name))activeByName.set(name,[]);activeByName.get(name).push(rec);}
     });
   }
 
@@ -13731,14 +13730,12 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     return !tid||!record.tournamentId||same(record.tournamentId,tid);
   }
   function isSuspended(player,tid){
-    // الإيقاف خاص بمعرّف اللاعب فقط؛ يمنع تمامًا توريثه بالاسم أو بصفة الحكم.
     const pid=S(player?.id);
-    if(!pid||!playersById.has(pid))return false;
-    const byId=activeById.get(pid)||[];
-    return byId.some(r=>recordMatchesContext(r,tid));
-  }
-  function isRefereeContext(el){
-    return !!el?.closest?.('#referees,#ksRef1,#ksRef2,#ksRef3,#ksRef4,.pub-referees,.referee-grid,.referee-directory-card,[data-role="referee"],[data-referee-id]');
+    const byId=pid?activeById.get(pid)||[]:[];
+    if(byId.some(r=>recordMatchesContext(r,tid)))return true;
+    const name=norm(player?.name);
+    const byName=name?activeByName.get(name)||[]:[];
+    return byName.some(r=>recordMatchesContext(r,tid));
   }
   function toggleNameClass(el,on){
     if(!el||!el.classList)return;
@@ -13757,14 +13754,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(root?.matches?.('select'))selects.push(root);
     if(root?.querySelectorAll)selects.push(...root.querySelectorAll('select'));
     selects.forEach(select=>{
-      // قوائم الحكام مستقلة تمامًا، ولا تُفحص ضمن إيقافات اللاعبين.
-      if(isRefereeContext(select)){
-        Array.from(select.options||[]).forEach(option=>{
-          option.style.color='';option.style.backgroundColor='';option.style.fontWeight='';
-          if(option.title==='لاعب معاقب — إيقاف سارٍ')option.removeAttribute('title');
-        });
-        return;
-      }
       const tid=contextTournament(select,null);
       Array.from(select.options||[]).forEach(option=>{
         const pid=S(option.value);
@@ -13786,19 +13775,13 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(root?.querySelectorAll)nodes.push(...root.querySelectorAll(selector));
     nodes.forEach(el=>{
       if(el.tagName==='OPTION')return;
-      // عرض حالة العقوبة النصية محصور في قسم اللاعبين فقط؛ لا يُطبّق على سجل الحكام.
-      if(isRefereeContext(el)||!el.closest?.('#players')){
-        toggleNameClass(el,false);
-        return;
-      }
       if(el.children&&el.children.length)return;
       const name=norm(el.textContent);
       if(!name)return;
       const candidates=activeByName.get(name)||[];
       let on=false;
       for(const rec of candidates){
-        const player=playersById.get(rec.playerId);
-        if(!player)continue;
+        const player=playersById.get(rec.playerId)||{id:rec.playerId,name:el.textContent,teamId:rec.teamId};
         const tid=contextTournament(el,player);
         if(recordMatchesContext(rec,tid)){on=true;break;}
       }
