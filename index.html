@@ -15506,5 +15506,114 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
  setTimeout(paintHomeEntryCards,500);
 })();
 </script>
+
+<!-- MANAR ROLE SEPARATION: player discipline is independent from referee appointments. -->
+<style id="manar-player-referee-role-separation-style">
+#players .role-separation-note,#referees .role-separation-note{
+  display:block;margin:9px 0 0;padding:9px 12px;border:1px solid #cde7dc;
+  border-radius:11px;background:linear-gradient(135deg,#effcf5,#f7fbff);
+  color:#155b43;font-size:12px;font-weight:800;line-height:1.8;text-align:center
+}
+</style>
+<script id="manar-player-referee-role-separation-v1">
+(function(){
+  'use strict';
+  const S=v=>String(v==null?'':v).trim();
+  const A=v=>Array.isArray(v)?v:[];
+  const $=id=>document.getElementById(id);
+  const E=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+  /* سجل اللاعبين مستقل: لا تُضاف إليه أي بيانات من سجل الحكام. */
+  function playerRecords(){return A(window.db&&window.db.players).filter(p=>p&&S(p.id??p.playerId??p.playerID??p.player_id));}
+
+  /* سجل الحكام مستقل: لا نقرأ أسماء اللاعبين أو قائمة اللاعبين إطلاقاً. */
+  function refereeRecords(){
+    let list=[];
+    try{list=JSON.parse(localStorage.getItem('manar_referees_v1')||'[]')}catch(e){list=[]}
+    if(!Array.isArray(list)||!list.length)list=A(window.db&&window.db.referees);
+    const out=[],seen=new Set();
+    list.forEach((r,i)=>{
+      if(!r)return;
+      const name=S(r.name??r.refereeName??r.fullName);
+      if(!name)return;
+      const id=S(r.id??r.refereeId??r.refereeID)||name;
+      const key=id+'|'+name;
+      if(seen.has(key))return;
+      seen.add(key);out.push({id,name});
+    });
+    return out;
+  }
+
+  /* أعد بناء قوائم الحكام من سجل الحكام حصراً، مع دعم الكشوفات القديمة المحفوظة بالاسم. */
+  function fillRefereeSelectors(saved){
+    const list=refereeRecords();
+    for(let i=1;i<=4;i++){
+      const select=$('ksRef'+i);if(!select)continue;
+      const old=S(saved?.['referee'+i]??saved?.referees?.[i-1]??select.value);
+      const placeholder=i===4?'اختر الحكم الرابع (اختياري)':'اختر الحكم '+i;
+      select.innerHTML='<option value="">'+placeholder+'</option>'+list.map(r=>'<option value="'+E(r.id)+'">'+E(r.name)+'</option>').join('');
+      const match=list.find(r=>S(r.id)===old||S(r.name)===old);
+      if(match)select.value=S(match.id);
+    }
+    updateRefereeOptions();
+  }
+  function updateRefereeOptions(){
+    const chosen=new Set();
+    for(let i=1;i<=4;i++){const v=S($('ksRef'+i)?.value);if(v)chosen.add(v)}
+    for(let i=1;i<=4;i++){
+      const select=$('ksRef'+i);if(!select)continue;
+      const own=S(select.value);
+      Array.from(select.options).forEach(option=>{
+        if(option.value)option.disabled=chosen.has(option.value)&&option.value!==own;
+      });
+    }
+  }
+  function validateReferees(){
+    const list=refereeRecords(),allowed=new Set(list.map(r=>S(r.id)));
+    const values=[1,2,3,4].map(i=>S($('ksRef'+i)?.value)).filter(Boolean);
+    return values.every(v=>allowed.has(v))&&new Set(values).size===values.length;
+  }
+  /* تُستخدم هذه الدوال من شاشة إنشاء الكشف نفسها. */
+  window.fillRefs=fillRefereeSelectors;
+  window.updateRefereeOptions=updateRefereeOptions;
+  window.validateReferees=validateReferees;
+  window.manarGetRefereeRecords=refereeRecords;
+  window.manarGetPlayerRecords=playerRecords;
+
+  /* الإيقاف يرتبط بمعرّف لاعب مسجل فقط، ولا ينتقل إلى سجل الحكم حتى عند تطابق الاسم. */
+  const previousSuspensionState=window.suspensionCurrentState;
+  if(typeof previousSuspensionState==='function'&&!previousSuspensionState.__manarRoleSeparated){
+    const playerOnlyState=function(){
+      let state=[];
+      try{state=A(previousSuspensionState.apply(this,arguments))}catch(e){return []}
+      const ids=new Set(playerRecords().map(p=>S(p.id??p.playerId??p.playerID??p.player_id)));
+      return state.filter(item=>{
+        const playerId=S(item?.playerId??item?.p?.id??item?.p?.playerId??'');
+        return !!playerId&&ids.has(playerId);
+      });
+    };
+    playerOnlyState.__manarRoleSeparated=true;
+    window.suspensionCurrentState=playerOnlyState;
+  }
+
+  function addRoleNotes(){
+    const playerNote=document.querySelector('#players .public-data-note');
+    if(playerNote&&!playerNote.querySelector('.role-separation-note')){
+      const note=document.createElement('span');note.className='role-separation-note';
+      note.textContent='👤 هذا سجل اللاعبين فقط — الإيقاف المسجل على الشخص بصفته لاعبًا لا يمنعه من العمل حكمًا.';
+      playerNote.appendChild(note);
+    }
+    const refereeNote=document.querySelector('#referees .referee-subtitle');
+    if(refereeNote&&!refereeNote.querySelector('.role-separation-note')){
+      const note=document.createElement('span');note.className='role-separation-note';
+      note.textContent='⚖️ سجل مستقل عن أسماء اللاعبين — إيقاف اللاعب لا ينتقل إلى صفته كحكم ولا يمنع اختياره في كشف المباراة.';
+      refereeNote.appendChild(note);
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addRoleNotes,{once:true});
+  else addRoleNotes();
+})();
+</script>
+
 </body>
 </html>
