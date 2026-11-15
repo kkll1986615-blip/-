@@ -6142,9 +6142,9 @@ document.addEventListener('DOMContentLoaded',function(){
   function build(){
     const root=document.querySelector('#players .card'); if(!root||document.getElementById('playersCommandBar'))return;
     const bar=document.createElement('div');bar.id='playersCommandBar';bar.className='players-command-bar';
-    const playerCmdIcon=(type)=>{const paths={user:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.2 3-5 7-5s6.2 1.8 7 5"/>',transfer:'<path d="M4 8h12"/><path d="m12 4 4 4-4 4"/><path d="M20 16H8"/><path d="m12 12-4 4 4 4"/>',add:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',edit:'<path d="m5 19 2.5-.5L18 8l-2-2L5.5 16.5 5 19Z"/><path d="m14.5 7.5 2 2"/>',delete:'<path d="M5 7h14M9 7V5h6v2M8 10v7M12 10v7M16 10v7M6 7l1 13h10l1-13"/>',copy:'<rect x="8" y="8" width="10" height="10" rx="2"/><path d="M6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',move:'<path d="M5 12h14M15 8l4 4-4 4"/><path d="M9 6v12"/>',clock:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',};return `<span class="players-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths[type]||paths.user}</svg></span>`};
+    const playerCmdIcon=(type)=>{const paths={user:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.2 3-5 7-5s6.2 1.8 7 5"/>',transfer:'<path d="M4 8h12"/><path d="m12 4 4 4-4 4"/><path d="M20 16H8"/><path d="m12 12-4 4 4 4"/>',add:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',edit:'<path d="m5 19 2.5-.5L18 8l-2-2L5.5 16.5 5 19Z"/><path d="m14.5 7.5 2 2"/>',delete:'<path d="M5 7h14M9 7V5h6v2M8 10v7M12 10v7M16 10v7M6 7l1 13h10l1-13"/>',copy:'<rect x="8" y="8" width="10" height="10" rx="2"/><path d="M6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',move:'<path d="M5 12h14M15 8l4 4-4 4"/><path d="M9 6v12"/>',clock:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',penalty:'<path d="M12 3 20 6v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/>',};return `<span class="players-command-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths[type]||paths.user}</svg></span>`};
     bar.innerHTML=`
-      <button class="players-command-btn public players-names-trigger" type="button" onclick="playersShowNames()" aria-controls="playersNamesPanel" aria-expanded="false">${playerCmdIcon('user')}<span>أسماء اللاعبين</span><span class="suspended-trigger-arrow players-names-arrow" aria-hidden="true">➜</span></button><span class="players-admin-only" style="display:contents"><button class="players-command-btn transfer" type="button" onclick="playersShowTransfers()">${playerCmdIcon('transfer')}<span>تنقلات اللاعبين</span></button></span><span class="players-admin-only" style="display:contents"><button class="players-command-btn add" type="button" onclick="playersShowAdmin('playersAddPanel')">${playerCmdIcon('add')}<span>إضافة لاعب</span></button><button class="players-command-btn edit" type="button" onclick="playersShowAdmin('playersEditPanel')">${playerCmdIcon('edit')}<span>تعديل بيانات لاعب</span></button><button class="players-command-btn delete" type="button" onclick="playersShowAdmin('playersDeletePanel')">${playerCmdIcon('delete')}<span>حذف لاعب</span></button><button class="players-command-btn copy" type="button" onclick="playersShowAdmin('playersCopyPanel')">${playerCmdIcon('copy')}<span>نسخ لاعب</span></button><button class="players-command-btn move" type="button" onclick="playersShowAdmin('playersMovePanel')">${playerCmdIcon('move')}<span>نقل لاعب</span></button><button class="players-command-btn public" type="button" onclick="playersShowAdmin('playersWindowPanel')">${playerCmdIcon('clock')}<span>أوقات الصلاحيات</span></button></span>`;
+      <button class="players-command-btn public players-names-trigger" type="button" onclick="playersShowNames()" aria-controls="playersNamesPanel" aria-expanded="false">${playerCmdIcon('user')}<span>أسماء اللاعبين</span><span class="suspended-trigger-arrow players-names-arrow" aria-hidden="true">➜</span></button><span class="players-admin-only" style="display:contents"><button class="players-command-btn transfer" type="button" onclick="playersShowTransfers()">${playerCmdIcon('transfer')}<span>تنقلات اللاعبين</span></button></span><span class="players-admin-only" style="display:contents"><button class="players-command-btn add" type="button" onclick="playersShowAdmin('playersAddPanel')">${playerCmdIcon('add')}<span>إضافة لاعب</span></button><button class="players-command-btn edit" type="button" onclick="playersShowAdmin('playersEditPanel')">${playerCmdIcon('edit')}<span>تعديل بيانات لاعب</span></button><button class="players-command-btn delete" type="button" onclick="playersShowAdmin('playersDeletePanel')">${playerCmdIcon('delete')}<span>حذف لاعب</span></button><button class="players-command-btn copy" type="button" onclick="playersShowAdmin('playersCopyPanel')">${playerCmdIcon('copy')}<span>نسخ لاعب</span></button><button class="players-command-btn move" type="button" onclick="playersShowAdmin('playersMovePanel')">${playerCmdIcon('move')}<span>نقل لاعب</span></button><button class="players-command-btn public" type="button" onclick="playersShowAdmin('playersWindowPanel')">${playerCmdIcon('clock')}<span>أوقات الصلاحيات</span></button><button class="players-command-btn penalty" type="button" onclick="playersOpenPenaltyForm()">${playerCmdIcon('penalty')}<span>إدراج عقوبة</span></button></span>`;
     root.insertBefore(bar,root.querySelector('.public-player-team-picker'));
 
     const box=document.createElement('div');box.id='playersManagementPanels';box.innerHTML=`
@@ -15730,6 +15730,58 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     sel.__scorerTeamTieBreakBound=true;
     sel.addEventListener('change',()=>setTimeout(()=>{try{window.renderPlayerStatsDirect?.();}catch(e){}},320));
   }
+})();
+</script>
+
+
+
+<style id="players-penalty-entry-icon-style-20261115">
+/* أيقونة إدراج العقوبة — محصورة بقسم اللاعبين فقط */
+#players #playersCommandBar .players-command-btn.penalty{
+  background:linear-gradient(135deg,#9f1239,#e11d48 58%,#f97316)!important;
+  color:#fff!important;
+  border:1px solid #fecdd3!important;
+}
+#players #playersCommandBar .players-command-btn.penalty .players-command-icon{
+  background:linear-gradient(145deg,#fb7185,#be123c 68%,#881337)!important;
+  border-color:#ffe4e6!important;
+}
+#players #playersCommandBar .players-command-btn.penalty:focus-visible{
+  outline:3px solid #fbbf24!important;outline-offset:3px!important;
+}
+#players #suspendedPlayersPanel .penalty-form-focus{
+  border:2px solid #e11d48!important;
+  box-shadow:0 0 0 4px rgba(225,29,72,.10),0 12px 28px rgba(159,18,57,.12)!important;
+}
+</style>
+<script id="players-penalty-entry-icon-script-20261115">
+(function(){
+  'use strict';
+  window.playersOpenPenaltyForm=function(){
+    if(typeof window.hasPermission!=='function'||!window.hasPermission('players')){
+      alert('إدراج العقوبات متاح لمدير النظام أو من يملك صلاحية اللاعبين.');
+      return;
+    }
+    const suspended=document.getElementById('suspendedPlayersPanel');
+    const form=suspended?.querySelector('.card[data-perm="players"]');
+    if(!suspended||!form){
+      alert('تعذر فتح نموذج العقوبة. أعد تحميل المنصة ثم حاول مرة أخرى.');
+      return;
+    }
+    if(typeof window.toggleSuspendedPlayers==='function')window.toggleSuspendedPlayers(true);
+    if(typeof window.cancelManualSuspension==='function')window.cancelManualSuspension();
+    if(typeof window.fillManualSuspensionForm==='function')window.fillManualSuspensionForm();
+    form.classList.add('penalty-form-focus');
+    window.setTimeout(()=>{
+      form.scrollIntoView({behavior:'smooth',block:'center'});
+      const first=document.getElementById('manualSuspTournament');
+      if(first)first.focus({preventScroll:true});
+    },120);
+    window.setTimeout(()=>form.classList.remove('penalty-form-focus'),1800);
+  };
+
+  // The icon is inserted by the existing players command-bar builder.
+
 })();
 </script>
 
