@@ -762,7 +762,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </span>
   <span class="suspended-trigger-arrow" aria-hidden="true">➜</span>
   <span class="suspended-trigger-copy"><strong>اللاعبون الموقوفون</strong><small>عرض الإيقافات والعقوبات الحالية</small></span>
-</button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة</option></select></div><div><label>اللاعب</label><select id="manualSuspPlayer"><option value="">اختر البطولة أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>📅 تاريخ العقوبة</label><input id="manualSuspDate" type="date"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
+</button></div><div class="card" id="suspendedPlayersPanel" style="display:none;margin:12px 0"><div class="section-title"><h3>⛔ اللاعبين الموقوفين</h3><span class="badge">يُحسب تلقائيًا </span></div><div id="suspendedPlayersBody"></div><div class="card viewer-hide" data-perm="players" style="margin-top:12px"><div class="section-title"><h4 style="margin:0">➕ إضافة عقوبة يدوية</h4><span class="badge">للمدير أو من يملك صلاحية اللاعبين</span></div><div class="grid"><div><label>البطولة</label><select id="manualSuspTournament" onchange="refreshManualSuspTeams()"><option value="">اختر البطولة</option></select></div><div><label for="manualSuspTeam">الفريق</label><select id="manualSuspTeam" disabled onchange="refreshManualSuspPlayers()"><option value="">اختر البطولة أولًا</option></select></div><div><label for="manualSuspPlayer">اللاعب</label><select id="manualSuspPlayer" disabled><option value="">اختر الفريق أولًا</option></select></div><div><label>نوع العقوبة</label><select id="manualSuspType"><option value="administrative">إدارية</option><option value="cards">تراكم بطاقات</option></select></div><div><label>عدد مباريات الإيقاف</label><input id="manualSuspMatches" min="1" type="number" value="1"/></div><div><label>📅 تاريخ العقوبة</label><input id="manualSuspDate" type="date"/></div><div><label>المباراة التي تبدأ بعدها العقوبة</label><select id="manualSuspStartMatch"><option value="">تلقائي: المباراة التالية</option></select></div><div><label>ملاحظات</label><input id="manualSuspNote" placeholder="سبب أو ملاحظة العقوبة"/></div></div><div class="actions"><button class="btn" onclick="saveManualSuspension()" type="button">💾 حفظ العقوبة</button><button class="btn secondary" onclick="cancelManualSuspension()" type="button">إلغاء</button></div></div></div><div class="public-data-note">👁️ أسماء اللاعبين متاحة لجميع الزوار. اختر اسم الفريق من القائمة لعرض لاعبي الفريق المختار فقط.</div><div class="public-player-team-picker"><label for="publicPlayersTeamSelect">⚽ اختر اسم الفريق</label><select id="publicPlayersTeamSelect__dup2" onchange="renderPublicSelectedTeamPlayers()"><option value="">— اختر الفريق —</option></select></div><div id="publicSelectedTeamPlayers"><div class="empty">اختر اسم الفريق أولاً لعرض أسماء اللاعبين</div></div></div></section><section class="page" id="matches"><div class="card viewer-hide" data-perm="matches"><div class="section-title"><h2>⚽ تسجيل مباراة</h2><span class="badge">🔐 المدير أو المخوّل بصلاحية المباريات</span></div><div class="grid">
 <div><label>🏆 اسم البطولة</label><select id="matchTour" onchange="refreshMatchTeams()"><option value="">اختر البطولة أولاً</option></select></div>
 <div><label>🥅 الفريق الأول</label><select id="homeTeam"><option value="">اختر الفريق</option></select></div>
 <div><label>🥅 الفريق الثاني</label><select id="awayTeam"><option value="">اختر الفريق</option></select></div>
@@ -6739,30 +6739,7 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       return rows;
     };
     const standing=Object.values(tm).filter(x=>x.p>0).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
-    /* عند تساوي أهداف اللاعبين: أولوية نقاط الفريق، ثم مركزه في الترتيب المعروض. */
-    const scorerTeamPriority=new Map();
-    if(isGroupTournament(tourObj)){
-      const scorerGroupCount=Math.max(0,Number(tourObj.groupCount)||0);
-      for(let gi=1;gi<=scorerGroupCount;gi++){
-        const groupRows=groupStandingsFromReports(gi).map(x=>({...x,gd:x.gf-x.ga}))
-          .sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
-        groupRows.forEach((x,i)=>scorerTeamPriority.set(S(x.id),{points:Number(x.pts)||0,rank:i+1}));
-      }
-    }else{
-      standing.forEach((x,i)=>scorerTeamPriority.set(S(x.id),{points:Number(x.pts)||0,rank:i+1}));
-    }
-    const compareScorerTeams=(a,b)=>{
-      const ta=scorerTeamPriority.get(S(a.p?.teamId))||{points:-1,rank:Infinity};
-      const tb=scorerTeamPriority.get(S(b.p?.teamId))||{points:-1,rank:Infinity};
-      const pointsDiff=tb.points-ta.points;
-      if(pointsDiff)return pointsDiff;
-      if(Number.isFinite(ta.rank)&&Number.isFinite(tb.rank))return ta.rank-tb.rank;
-      if(Number.isFinite(ta.rank))return -1;
-      if(Number.isFinite(tb.rank))return 1;
-      return 0;
-    };
-    const topScorers=Object.entries(scorers).map(([id,n])=>({p:player(id),n})).filter(x=>x.p)
-      .sort((a,b)=>b.n-a.n||compareScorerTeams(a,b)||a.p.name.localeCompare(b.p.name,'ar')).slice(0,5);
+    const topScorers=Object.entries(scorers).map(([id,n])=>({p:player(id),n})).filter(x=>x.p).sort((a,b)=>b.n-a.n||a.p.name.localeCompare(b.p.name,'ar')).slice(0,5);
     const attack=standing.slice().sort((a,b)=>b.gf-a.gf||b.pts-a.pts).slice(0,4);
     const defense=standing.slice().sort((a,b)=>a.ga-b.ga||b.gd-a.gd).slice(0,4);
     const refereeRows=Object.entries(refs).map(([name,n])=>({name,n})).sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar')).slice(0,12);
@@ -9487,19 +9464,8 @@ function sheetPlayerStats(tid){
     const bp=player(sh.bestPlayerId??sh.bestPlayer??sh.bestPlayerID??sh.bestPlayerName);
     if(bp)best.set(S(bp.id),(best.get(S(bp.id))||0)+1);
   });
-  const teamPriority=typeof window.manarGetScorerTeamPriorityMap==='function'?window.manarGetScorerTeamPriorityMap():new Map();
-  const compareScorerTeams=(a,b)=>{
-    const ta=teamPriority.get(S(a.p?.teamId))||{points:-1,rank:Infinity};
-    const tb=teamPriority.get(S(b.p?.teamId))||{points:-1,rank:Infinity};
-    const pointsDiff=tb.points-ta.points;
-    if(pointsDiff)return pointsDiff;
-    if(Number.isFinite(ta.rank)&&Number.isFinite(tb.rank))return ta.rank-tb.rank;
-    if(Number.isFinite(ta.rank))return -1;
-    if(Number.isFinite(tb.rank))return 1;
-    return 0;
-  };
   const pRows=Array.from(goals.entries()).map(([id,n])=>({p:player(id),n}))
-    .filter(x=>x.p).sort((a,b)=>b.n-a.n||compareScorerTeams(a,b)||S(a.p.name).localeCompare(S(b.p.name),'ar'));
+    .filter(x=>x.p).sort((a,b)=>b.n-a.n||S(a.p.name).localeCompare(S(b.p.name),'ar'));
   const bRows=Array.from(best.entries()).map(([id,n])=>({p:player(id),n}))
     .filter(x=>x.p).sort((a,b)=>b.n-a.n||S(a.p.name).localeCompare(S(b.p.name),'ar'));
   return {scorers:pRows,best:bRows};
@@ -9647,19 +9613,7 @@ function renderPlayerStatsDirect(){
   all.forEach(v=>{const p=player(v);if(p)goals.set(S(p.id),(goals.get(S(p.id))||0)+1)});
   const bp=player(bestValue(sh));if(bp)best.set(S(bp.id),(best.get(S(bp.id))||0)+1);
  });
- const teamPriority=typeof window.manarGetScorerTeamPriorityMap==='function'?window.manarGetScorerTeamPriorityMap():new Map();
- const compareScorerTeams=(a,b)=>{
-  const ta=teamPriority.get(S(a.p?.teamId))||{points:-1,rank:Infinity};
-  const tb=teamPriority.get(S(b.p?.teamId))||{points:-1,rank:Infinity};
-  const pointsDiff=tb.points-ta.points;
-  if(pointsDiff)return pointsDiff;
-  if(Number.isFinite(ta.rank)&&Number.isFinite(tb.rank))return ta.rank-tb.rank;
-  if(Number.isFinite(ta.rank))return -1;
-  if(Number.isFinite(tb.rank))return 1;
-  return 0;
- };
- const scorerRows=[...goals].map(([id,n])=>({p:player(id),n})).filter(x=>x.p)
-  .sort((a,b)=>b.n-a.n||compareScorerTeams(a,b)||S(a.p.name).localeCompare(S(b.p.name),'ar')).slice(0,3);
+ const scorerRows=[...goals].map(([id,n])=>({p:player(id),n})).filter(x=>x.p).sort((a,b)=>b.n-a.n||S(a.p.name).localeCompare(S(b.p.name),'ar')).slice(0,3);
  const bestRows=[...best].map(([id,n])=>({p:player(id),n})).filter(x=>x.p).sort((a,b)=>b.n-a.n||S(a.p.name).localeCompare(S(b.p.name),'ar')).slice(0,3);
  const cards=[...box.querySelectorAll('.stats-ranking-card')];
  function put(match,title,rows,msg){const c=cards.find(x=>match((x.querySelector('h3')?.textContent||'')));if(!c)return;const h=c.querySelector('h3');if(h)h.textContent=title;const tableHeaders=title.includes('أفضل لاعب')?'<th>ت</th><th>اسم اللاعب</th><th>اسم الفريق</th><th>العدد</th>':'<th>#</th><th>اللاعب</th><th>الفريق</th><th>عدد المباريات</th>';const html=rows.length?'<div class="table-wrap"><table><thead><tr>'+tableHeaders+'</tr></thead><tbody>'+rows.map((x,i)=>'<tr><td>'+((i+1))+'</td><td style="text-align:right;font-weight:900">'+esc(x.p.name)+'</td><td>'+esc(tname(x.p.teamId))+'</td><td><b>'+x.n+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="empty">'+msg+'</div>';const old=c.querySelector('.table-wrap,.empty');if(old)old.outerHTML=html;else c.insertAdjacentHTML('beforeend',html)}
@@ -12871,15 +12825,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       return {...live,goalDifference:live.goalsFor-live.goalsAgainst,fairPlay:live.yellow+live.red*3};
     });
     const overallRanking=ranked(overallRows,matchData);
-    const scorerTeamPriority=new Map(overallRanking.map(x=>[S(x.id),{points:Number(x.points)||0,rank:Number(x.rank)||Infinity}]));
-    const topScorers=[...scorerMap.values()].sort((a,b)=>{
-      const goalsDiff=b.goals-a.goals;if(goalsDiff)return goalsDiff;
-      const ta=scorerTeamPriority.get(S(a.teamId))||{points:-1,rank:Infinity};
-      const tb=scorerTeamPriority.get(S(b.teamId))||{points:-1,rank:Infinity};
-      const pointsDiff=tb.points-ta.points;if(pointsDiff)return pointsDiff;
-      const rankDiff=ta.rank-tb.rank;if(Number.isFinite(rankDiff))return rankDiff;
-      return a.name.localeCompare(b.name,'ar');
-    }).slice(0,10);
+    const topScorers=[...scorerMap.values()].sort((a,b)=>b.goals-a.goals||a.name.localeCompare(b.name,'ar')).slice(0,10);
     const bestPlayers=[...bestMap.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar')).slice(0,10);
     const referees=[...refMap.entries()].map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar')).slice(0,12);
     const teamCards=teams.map(tm=>{const x=teamStats.get(S(tm.id));return {id:S(tm.id),name:S(tm.name)||'فريق',yellow:x.yellow,red:x.red,total:x.yellow+x.red,fairPlay:x.fairPlay};}).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ar'));
@@ -15677,61 +15623,218 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 }
 </style>
 
-
-<script id="stats-goal-scorers-team-standing-tiebreak-v1">
+<script id="manual-suspension-tournament-team-player-flow">
 (function(){
   'use strict';
-  const S=v=>String(v===undefined||v===null?'':v).trim();
+  if(window.__manualSuspensionTeamFlowInstalled)return;
+  window.__manualSuspensionTeamFlowInstalled=true;
+
+  const $=id=>document.getElementById(id);
   const A=v=>Array.isArray(v)?v:[];
-  const normalize=v=>S(v).toLocaleLowerCase().replace(/[ًٌٍَُِّْـ]/g,'').replace(/\s+/g,' ');
-  window.manarGetScorerTeamPriorityMap=function(){
-    const sel=document.getElementById('statsTour');
-    const body=document.getElementById('statsBody');
-    const map=new Map();
-    if(!sel||!body||!S(sel.value))return map;
-    const tid=S(sel.value);
-    const db=(window.db&&typeof window.db==='object')?window.db:{};
-    const teams=A(db.teams);
-    const tables=[...body.querySelectorAll('.stats-ranking-card.standings-card table, .stats-group-ranking-card table, table.standings-mobile-table')];
-    tables.forEach(table=>{
-      [...(table.tBodies?.[0]?.rows||[])].forEach(tr=>{
-        const cells=tr.cells;
-        if(!cells||cells.length<3)return;
-        const rankRaw=S(cells[0].innerText||cells[0].textContent).replace(/[^0-9٠-٩]/g,'');
-        const rank=Number(rankRaw.replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))));
-        const nameCell=cells[1];
-        const teamName=S(nameCell.querySelector('b')?.textContent||nameCell.innerText||nameCell.textContent);
-        if(!teamName)return;
-        const pointsRaw=S(cells[cells.length-1].innerText||cells[cells.length-1].textContent).replace(/[^0-9٠-٩.-]/g,'');
-        const points=Number(pointsRaw.replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))));
-        if(!Number.isFinite(rank)||rank<=0)return;
-        const candidates=teams.filter(t=>normalize(t?.name)===normalize(teamName));
-        const team=candidates.find(t=>S(t?.tournamentId)===tid)||candidates[0];
-        if(!team||!S(team.id))return;
-        const next={points:Number.isFinite(points)?points:-1,rank};
-        const previous=map.get(S(team.id));
-        if(!previous||next.points>previous.points||(next.points===previous.points&&next.rank<previous.rank))map.set(S(team.id),next);
-      });
-    });
-    return map;
+  const S=v=>String(v??'').trim();
+  const same=(a,b)=>S(a)===S(b);
+  const E=v=>S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const DB=()=>window.db&&typeof window.db==='object'?window.db:{};
+
+  function tournamentEnded(t){
+    if(!t)return true;
+    try{if(typeof window.tournamentIsArchived==='function'&&window.tournamentIsArchived(t))return true;}catch(e){}
+    try{if(typeof window.tournamentIsEnded==='function'&&window.tournamentIsEnded(t))return true;}catch(e){}
+    const status=S(t.status).toLowerCase();
+    const completion=S(t.completionState).toLowerCase();
+    if(t.archived===true||status==='archived'||completion==='ended'||status==='ended'||
+       ['finished','complete','completed','final','منتهية','منتهي','انتهت','مكتملة','مكتمل','مغلقة','مغلق'].includes(status))return true;
+    if(completion==='active'||status==='active')return false;
+    const end=S(t.endDate??t.end).slice(0,10);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(end)){
+      const now=new Date();
+      const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      return today>end;
+    }
+    return false;
+  }
+
+  function teamTournamentId(t){
+    return t?.tournamentId??t?.tournamentID??t?.tournament_id??t?.tourId??'';
+  }
+  function selectedTournament(){
+    const id=S($('manualSuspTournament')?.value);
+    return A(DB().tournaments).find(t=>same(t.id,id)&&!tournamentEnded(t))||null;
+  }
+  function teamsForSelectedTournament(){
+    const tour=selectedTournament();
+    if(!tour)return [];
+    return A(DB().teams).filter(t=>t&&S(t.id)&&S(t.name)&&same(teamTournamentId(t),tour.id))
+      .sort((a,b)=>S(a.name).localeCompare(S(b.name),'ar'));
+  }
+  function playerTeamMatches(player,team){
+    if(!player||!team)return false;
+    const raw=player.teamId??player.teamID??player.team_id??player.team??player.teamName??player.team_name??'';
+    if(raw&&typeof raw==='object'){
+      const id=raw.id??raw.teamId??raw.teamID??raw.team_id??'';
+      const name=raw.name??raw.teamName??'';
+      if(id&&same(id,team.id))return true;
+      if(name&&same(name,team.name))return true;
+    }else if(raw){
+      if(same(raw,team.id)||same(raw,team.name))return true;
+    }
+    const named=player.teamName??player.team_name??'';
+    return !!named&&same(named,team.name);
+  }
+
+  function refreshStartMatches(){
+    const playerId=S($('manualSuspPlayer')?.value);
+    const teamId=S($('manualSuspTeam')?.value);
+    const tournament=selectedTournament();
+    const select=$('manualSuspStartMatch');
+    if(!select)return;
+    const old=S(select.value);
+    const player=A(DB().players).find(p=>same(p.id,playerId));
+    let matches=[];
+    if(player&&teamId&&tournament){
+      if(typeof window.orderedAllMatchesForTeam==='function'){
+        try{matches=A(window.orderedAllMatchesForTeam(teamId,tournament.id));}catch(e){}
+      }
+      if(!matches.length){
+        matches=A(DB().matches).filter(m=>same(m.tournamentId,tournament.id)&&
+          (same(m.home,teamId)||same(m.away,teamId)));
+      }
+    }
+    const options='<option value="">تلقائي: أول مباراة قادمة</option>'+matches.map((m,i)=>
+      `<option value="${E(m.id)}">${i+1}. ${E(typeof window.matchLabelForSusp==='function'?window.matchLabelForSusp(m):(m.date||'بدون تاريخ'))}</option>`
+    ).join('');
+    select.innerHTML=options;
+    if(old&&matches.some(m=>same(m.id,old)))select.value=old;
+  }
+
+  function refreshPlayers(){
+    const teamSelect=$('manualSuspTeam');
+    const playerSelect=$('manualSuspPlayer');
+    if(!teamSelect||!playerSelect)return;
+    const old=S(playerSelect.value);
+    const team=teamsForSelectedTournament().find(t=>same(t.id,teamSelect.value));
+    const players=team?A(DB().players).filter(p=>p&&S(p.id)&&S(p.name)&&playerTeamMatches(p,team))
+      .sort((a,b)=>S(a.name).localeCompare(S(b.name),'ar')):[];
+    playerSelect.innerHTML=team
+      ? (players.length
+        ? '<option value="">اختر اللاعب</option>'+players.map(p=>`<option value="${E(p.id)}">${E(p.name)}${p.number!=null&&S(p.number)?' — رقم '+E(p.number):''}</option>`).join('')
+        : '<option value="">لا يوجد لاعبون مسجلون في هذا الفريق</option>')
+      : '<option value="">اختر الفريق أولًا</option>';
+    playerSelect.disabled=!team||players.length===0;
+    if(old&&players.some(p=>same(p.id,old)))playerSelect.value=old;
+    playerSelect.onchange=refreshStartMatches;
+    refreshStartMatches();
+  }
+
+  function refreshTeams(){
+    const teamSelect=$('manualSuspTeam');
+    const playerSelect=$('manualSuspPlayer');
+    if(!teamSelect)return;
+    const old=S(teamSelect.value);
+    const teams=teamsForSelectedTournament();
+    teamSelect.innerHTML=selectedTournament()
+      ? (teams.length
+        ? '<option value="">اختر الفريق</option>'+teams.map(t=>`<option value="${E(t.id)}">${E(t.name)}</option>`).join('')
+        : '<option value="">لا توجد فرق مسجلة في هذه البطولة</option>')
+      : '<option value="">اختر بطولة جارية أولًا</option>';
+    teamSelect.disabled=!selectedTournament()||teams.length===0;
+    if(old&&teams.some(t=>same(t.id,old)))teamSelect.value=old;
+    teamSelect.onchange=refreshPlayers;
+    if(playerSelect){playerSelect.value='';playerSelect.disabled=true;}
+    refreshPlayers();
+  }
+
+  window.refreshManualSuspTeams=refreshTeams;
+  /* الدالة القديمة كانت تُستدعى من معالجات سابقة؛ ندعمها مع تحديد مصدر التغيير. */
+  window.refreshManualSuspPlayers=function(event){
+    if(event?.target?.id==='manualSuspTournament')return refreshTeams();
+    return refreshPlayers();
   };
-  const original=window.renderStats;
-  if(typeof original==='function'&&!original.__scorerTeamTieBreakWrapped){
-    const wrapped=function(){
-      const result=original.apply(this,arguments);
-      setTimeout(()=>{try{window.renderPlayerStatsDirect?.();}catch(e){}},280);
-      return result;
+  window.refreshManualSuspStartMatches=refreshStartMatches;
+
+  window.fillManualSuspensionForm=function(){
+    const select=$('manualSuspTournament');
+    if(!select)return;
+    const old=S(select.value);
+    const now=new Date();
+    const date=$('manualSuspDate');
+    if(date&&!date.value)date.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const tournaments=A(DB().tournaments).filter(t=>t&&!tournamentEnded(t));
+    select.innerHTML='<option value="">اختر البطولة</option>'+tournaments.map(t=>`<option value="${E(t.id)}">${E(t.name||'بطولة')}</option>`).join('');
+    if(old&&tournaments.some(t=>same(t.id,old)))select.value=old;
+    select.onchange=refreshTeams;
+    const teamSelect=$('manualSuspTeam');
+    if(teamSelect)teamSelect.onchange=refreshPlayers;
+    refreshTeams();
+  };
+
+  const baseSave=window.saveManualSuspension;
+  if(typeof baseSave==='function'){
+    window.saveManualSuspension=async function(){
+      const tournament=selectedTournament();
+      const teamId=S($('manualSuspTeam')?.value);
+      const playerId=S($('manualSuspPlayer')?.value);
+      const team=teamsForSelectedTournament().find(t=>same(t.id,teamId));
+      const player=A(DB().players).find(p=>same(p.id,playerId));
+      if(!tournament||!team||!player||!playerTeamMatches(player,team)){
+        alert('يرجى اختيار بطولة جارية ثم الفريق ثم اللاعب من القوائم بالترتيب.');
+        return false;
+      }
+      return await baseSave.apply(this,arguments);
     };
-    wrapped.__scorerTeamTieBreakWrapped=true;
-    window.renderStats=wrapped;
   }
-  const sel=document.getElementById('statsTour');
-  if(sel&&!sel.__scorerTeamTieBreakBound){
-    sel.__scorerTeamTieBreakBound=true;
-    sel.addEventListener('change',()=>setTimeout(()=>{try{window.renderPlayerStatsDirect?.();}catch(e){}},320));
-  }
+
+  const baseCancel=window.cancelManualSuspension;
+  window.cancelManualSuspension=function(){
+    if(typeof baseCancel==='function')baseCancel.apply(this,arguments);
+    const teamSelect=$('manualSuspTeam');
+    if(teamSelect)teamSelect.value='';
+    const playerSelect=$('manualSuspPlayer');
+    if(playerSelect){playerSelect.value='';playerSelect.disabled=true;}
+    refreshTeams();
+  };
+
+  window.editSuspension=function(id){
+    if(typeof window.requirePermission==='function'&&!window.requirePermission('players'))return;
+    const record=A(DB().suspensions).find(x=>same(x.id,id));
+    if(!record)return;
+    const player=A(DB().players).find(p=>same(p.id,record.playerId));
+    if(!player){alert('لا يمكن تعديل العقوبة لأن اللاعب غير موجود في سجل اللاعبين.');return;}
+    const tour=A(DB().tournaments).find(t=>same(t.id,record.tournamentId));
+    if(!tour||tournamentEnded(tour)){
+      alert('هذه العقوبة مرتبطة ببطولة منتهية، والبطولات المنتهية مخفية من قائمة الإيقاف.');
+      return;
+    }
+    if(typeof window.toggleSuspendedPlayers==='function')window.toggleSuspendedPlayers(true);
+    window.fillManualSuspensionForm();
+    const tournamentSelect=$('manualSuspTournament');
+    if(tournamentSelect)tournamentSelect.value=record.tournamentId;
+    refreshTeams();
+    const rawTeam=record.teamId??player.teamId??player.teamID??player.team_id??'';
+    const team=teamsForSelectedTournament().find(t=>same(t.id,rawTeam)||playerTeamMatches(player,t));
+    const teamSelect=$('manualSuspTeam');
+    if(teamSelect&&team){teamSelect.value=team.id;refreshPlayers();}
+    const playerSelect=$('manualSuspPlayer');
+    if(playerSelect)playerSelect.value=record.playerId;
+    refreshStartMatches();
+    if($('manualSuspType'))$('manualSuspType').value=record.type||'administrative';
+    if($('manualSuspMatches'))$('manualSuspMatches').value=record.matches||1;
+    if($('manualSuspDate'))$('manualSuspDate').value=record.penaltyStartDate||record.createdAt?.slice(0,10)||record.updatedAt?.slice(0,10)||'';
+    if($('manualSuspStartMatch'))$('manualSuspStartMatch').value=record.startMatchId||'';
+    if($('manualSuspNote'))$('manualSuspNote').value=record.note||'';
+    let hidden=$('manualSuspensionEditing');
+    if(!hidden){hidden=document.createElement('input');hidden.type='hidden';hidden.id='manualSuspensionEditing';document.querySelector('#suspendedPlayersPanel .viewer-hide[data-perm="players"]')?.appendChild(hidden);}
+    if(hidden)hidden.value=id;
+  };
+
+  /* ربط المتحكمات عند وجودها، وتظل إعادة الملء آمنة عند فتح اللوحة لاحقًا. */
+  const tournamentSelect=$('manualSuspTournament');
+  if(tournamentSelect)tournamentSelect.onchange=refreshTeams;
+  const teamSelect=$('manualSuspTeam');
+  if(teamSelect)teamSelect.onchange=refreshPlayers;
+  const playerSelect=$('manualSuspPlayer');
+  if(playerSelect)playerSelect.onchange=refreshStartMatches;
 })();
 </script>
-
 </body>
 </html>
