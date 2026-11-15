@@ -6739,7 +6739,30 @@ window.addEventListener('load',function(){document.documentElement.classList.add
       return rows;
     };
     const standing=Object.values(tm).filter(x=>x.p>0).map(x=>({...x,gd:x.gf-x.ga})).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
-    const topScorers=Object.entries(scorers).map(([id,n])=>({p:player(id),n})).filter(x=>x.p).sort((a,b)=>b.n-a.n||a.p.name.localeCompare(b.p.name,'ar')).slice(0,5);
+    /* عند تساوي أهداف اللاعبين: أولوية نقاط الفريق، ثم مركزه في الترتيب المعروض. */
+    const scorerTeamPriority=new Map();
+    if(isGroupTournament(tourObj)){
+      const scorerGroupCount=Math.max(0,Number(tourObj.groupCount)||0);
+      for(let gi=1;gi<=scorerGroupCount;gi++){
+        const groupRows=groupStandingsFromReports(gi).map(x=>({...x,gd:x.gf-x.ga}))
+          .sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name,'ar'));
+        groupRows.forEach((x,i)=>scorerTeamPriority.set(S(x.id),{points:Number(x.pts)||0,rank:i+1}));
+      }
+    }else{
+      standing.forEach((x,i)=>scorerTeamPriority.set(S(x.id),{points:Number(x.pts)||0,rank:i+1}));
+    }
+    const compareScorerTeams=(a,b)=>{
+      const ta=scorerTeamPriority.get(S(a.p?.teamId))||{points:-1,rank:Infinity};
+      const tb=scorerTeamPriority.get(S(b.p?.teamId))||{points:-1,rank:Infinity};
+      const pointsDiff=tb.points-ta.points;
+      if(pointsDiff)return pointsDiff;
+      if(Number.isFinite(ta.rank)&&Number.isFinite(tb.rank))return ta.rank-tb.rank;
+      if(Number.isFinite(ta.rank))return -1;
+      if(Number.isFinite(tb.rank))return 1;
+      return 0;
+    };
+    const topScorers=Object.entries(scorers).map(([id,n])=>({p:player(id),n})).filter(x=>x.p)
+      .sort((a,b)=>b.n-a.n||compareScorerTeams(a,b)||a.p.name.localeCompare(b.p.name,'ar')).slice(0,5);
     const attack=standing.slice().sort((a,b)=>b.gf-a.gf||b.pts-a.pts).slice(0,4);
     const defense=standing.slice().sort((a,b)=>a.ga-b.ga||b.gd-a.gd).slice(0,4);
     const refereeRows=Object.entries(refs).map(([name,n])=>({name,n})).sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar')).slice(0,12);
@@ -9464,8 +9487,19 @@ function sheetPlayerStats(tid){
     const bp=player(sh.bestPlayerId??sh.bestPlayer??sh.bestPlayerID??sh.bestPlayerName);
     if(bp)best.set(S(bp.id),(best.get(S(bp.id))||0)+1);
   });
+  const teamPriority=typeof window.manarGetScorerTeamPriorityMap==='function'?window.manarGetScorerTeamPriorityMap():new Map();
+  const compareScorerTeams=(a,b)=>{
+    const ta=teamPriority.get(S(a.p?.teamId))||{points:-1,rank:Infinity};
+    const tb=teamPriority.get(S(b.p?.teamId))||{points:-1,rank:Infinity};
+    const pointsDiff=tb.points-ta.points;
+    if(pointsDiff)return pointsDiff;
+    if(Number.isFinite(ta.rank)&&Number.isFinite(tb.rank))return ta.rank-tb.rank;
+    if(Number.isFinite(ta.rank))return -1;
+    if(Number.isFinite(tb.rank))return 1;
+    return 0;
+  };
   const pRows=Array.from(goals.entries()).map(([id,n])=>({p:player(id),n}))
-    .filter(x=>x.p).sort((a,b)=>b.n-a.n||S(a.p.name).localeCompare(S(b.p.name),'ar'));
+    .filter(x=>x.p).sort((a,b)=>b.n-a.n||compareScorerTeams(a,b)||S(a.p.name).localeCompare(S(b.p.name),'ar'));
   const bRows=Array.from(best.entries()).map(([id,n])=>({p:player(id),n}))
     .filter(x=>x.p).sort((a,b)=>b.n-a.n||S(a.p.name).localeCompare(S(b.p.name),'ar'));
   return {scorers:pRows,best:bRows};
@@ -9613,7 +9647,19 @@ function renderPlayerStatsDirect(){
   all.forEach(v=>{const p=player(v);if(p)goals.set(S(p.id),(goals.get(S(p.id))||0)+1)});
   const bp=player(bestValue(sh));if(bp)best.set(S(bp.id),(best.get(S(bp.id))||0)+1);
  });
- const scorerRows=[...goals].map(([id,n])=>({p:player(id),n})).filter(x=>x.p).sort((a,b)=>b.n-a.n||S(a.p.name).localeCompare(S(b.p.name),'ar')).slice(0,3);
+ const teamPriority=typeof window.manarGetScorerTeamPriorityMap==='function'?window.manarGetScorerTeamPriorityMap():new Map();
+ const compareScorerTeams=(a,b)=>{
+  const ta=teamPriority.get(S(a.p?.teamId))||{points:-1,rank:Infinity};
+  const tb=teamPriority.get(S(b.p?.teamId))||{points:-1,rank:Infinity};
+  const pointsDiff=tb.points-ta.points;
+  if(pointsDiff)return pointsDiff;
+  if(Number.isFinite(ta.rank)&&Number.isFinite(tb.rank))return ta.rank-tb.rank;
+  if(Number.isFinite(ta.rank))return -1;
+  if(Number.isFinite(tb.rank))return 1;
+  return 0;
+ };
+ const scorerRows=[...goals].map(([id,n])=>({p:player(id),n})).filter(x=>x.p)
+  .sort((a,b)=>b.n-a.n||compareScorerTeams(a,b)||S(a.p.name).localeCompare(S(b.p.name),'ar')).slice(0,3);
  const bestRows=[...best].map(([id,n])=>({p:player(id),n})).filter(x=>x.p).sort((a,b)=>b.n-a.n||S(a.p.name).localeCompare(S(b.p.name),'ar')).slice(0,3);
  const cards=[...box.querySelectorAll('.stats-ranking-card')];
  function put(match,title,rows,msg){const c=cards.find(x=>match((x.querySelector('h3')?.textContent||'')));if(!c)return;const h=c.querySelector('h3');if(h)h.textContent=title;const tableHeaders=title.includes('أفضل لاعب')?'<th>ت</th><th>اسم اللاعب</th><th>اسم الفريق</th><th>العدد</th>':'<th>#</th><th>اللاعب</th><th>الفريق</th><th>عدد المباريات</th>';const html=rows.length?'<div class="table-wrap"><table><thead><tr>'+tableHeaders+'</tr></thead><tbody>'+rows.map((x,i)=>'<tr><td>'+((i+1))+'</td><td style="text-align:right;font-weight:900">'+esc(x.p.name)+'</td><td>'+esc(tname(x.p.teamId))+'</td><td><b>'+x.n+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="empty">'+msg+'</div>';const old=c.querySelector('.table-wrap,.empty');if(old)old.outerHTML=html;else c.insertAdjacentHTML('beforeend',html)}
@@ -12825,7 +12871,15 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       return {...live,goalDifference:live.goalsFor-live.goalsAgainst,fairPlay:live.yellow+live.red*3};
     });
     const overallRanking=ranked(overallRows,matchData);
-    const topScorers=[...scorerMap.values()].sort((a,b)=>b.goals-a.goals||a.name.localeCompare(b.name,'ar')).slice(0,10);
+    const scorerTeamPriority=new Map(overallRanking.map(x=>[S(x.id),{points:Number(x.points)||0,rank:Number(x.rank)||Infinity}]));
+    const topScorers=[...scorerMap.values()].sort((a,b)=>{
+      const goalsDiff=b.goals-a.goals;if(goalsDiff)return goalsDiff;
+      const ta=scorerTeamPriority.get(S(a.teamId))||{points:-1,rank:Infinity};
+      const tb=scorerTeamPriority.get(S(b.teamId))||{points:-1,rank:Infinity};
+      const pointsDiff=tb.points-ta.points;if(pointsDiff)return pointsDiff;
+      const rankDiff=ta.rank-tb.rank;if(Number.isFinite(rankDiff))return rankDiff;
+      return a.name.localeCompare(b.name,'ar');
+    }).slice(0,10);
     const bestPlayers=[...bestMap.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar')).slice(0,10);
     const referees=[...refMap.entries()].map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ar')).slice(0,12);
     const teamCards=teams.map(tm=>{const x=teamStats.get(S(tm.id));return {id:S(tm.id),name:S(tm.name)||'فريق',yellow:x.yellow,red:x.red,total:x.yellow+x.red,fairPlay:x.fairPlay};}).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ar'));
@@ -15622,6 +15676,62 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   #stats .stats-hero-card:hover{box-shadow:0 19px 40px rgba(48,83,178,.27)!important;}
 }
 </style>
+
+
+<script id="stats-goal-scorers-team-standing-tiebreak-v1">
+(function(){
+  'use strict';
+  const S=v=>String(v===undefined||v===null?'':v).trim();
+  const A=v=>Array.isArray(v)?v:[];
+  const normalize=v=>S(v).toLocaleLowerCase().replace(/[ًٌٍَُِّْـ]/g,'').replace(/\s+/g,' ');
+  window.manarGetScorerTeamPriorityMap=function(){
+    const sel=document.getElementById('statsTour');
+    const body=document.getElementById('statsBody');
+    const map=new Map();
+    if(!sel||!body||!S(sel.value))return map;
+    const tid=S(sel.value);
+    const db=(window.db&&typeof window.db==='object')?window.db:{};
+    const teams=A(db.teams);
+    const tables=[...body.querySelectorAll('.stats-ranking-card.standings-card table, .stats-group-ranking-card table, table.standings-mobile-table')];
+    tables.forEach(table=>{
+      [...(table.tBodies?.[0]?.rows||[])].forEach(tr=>{
+        const cells=tr.cells;
+        if(!cells||cells.length<3)return;
+        const rankRaw=S(cells[0].innerText||cells[0].textContent).replace(/[^0-9٠-٩]/g,'');
+        const rank=Number(rankRaw.replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))));
+        const nameCell=cells[1];
+        const teamName=S(nameCell.querySelector('b')?.textContent||nameCell.innerText||nameCell.textContent);
+        if(!teamName)return;
+        const pointsRaw=S(cells[cells.length-1].innerText||cells[cells.length-1].textContent).replace(/[^0-9٠-٩.-]/g,'');
+        const points=Number(pointsRaw.replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))));
+        if(!Number.isFinite(rank)||rank<=0)return;
+        const candidates=teams.filter(t=>normalize(t?.name)===normalize(teamName));
+        const team=candidates.find(t=>S(t?.tournamentId)===tid)||candidates[0];
+        if(!team||!S(team.id))return;
+        const next={points:Number.isFinite(points)?points:-1,rank};
+        const previous=map.get(S(team.id));
+        if(!previous||next.points>previous.points||(next.points===previous.points&&next.rank<previous.rank))map.set(S(team.id),next);
+      });
+    });
+    return map;
+  };
+  const original=window.renderStats;
+  if(typeof original==='function'&&!original.__scorerTeamTieBreakWrapped){
+    const wrapped=function(){
+      const result=original.apply(this,arguments);
+      setTimeout(()=>{try{window.renderPlayerStatsDirect?.();}catch(e){}},280);
+      return result;
+    };
+    wrapped.__scorerTeamTieBreakWrapped=true;
+    window.renderStats=wrapped;
+  }
+  const sel=document.getElementById('statsTour');
+  if(sel&&!sel.__scorerTeamTieBreakBound){
+    sel.__scorerTeamTieBreakBound=true;
+    sel.addEventListener('change',()=>setTimeout(()=>{try{window.renderPlayerStatsDirect?.();}catch(e){}},320));
+  }
+})();
+</script>
 
 </body>
 </html>
