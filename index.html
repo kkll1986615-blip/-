@@ -10217,6 +10217,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(txt.includes('عدد البطاقات الصفراء'))b.textContent=String(data.totalY);
       if(txt.includes('عدد البطاقات الحمراء'))b.textContent=String(data.totalR);
     });
+    // أضف إجمالي البطاقات أسفل جدول الفرق من المصدر نفسه المستخدم في الملخص العلوي.
+    const cardsTable=body.querySelector('table.cards-statistics-table');
+    if(cardsTable){
+      let foot=cardsTable.tFoot;
+      if(!foot)foot=cardsTable.createTFoot();
+      foot.className='cards-statistics-total-footer';
+      foot.innerHTML=`<tr><th scope="row" colspan="2">المجموع الكلي</th><td><b>${data.totalY}</b></td><td><b>${data.totalR}</b></td><td><b>${data.totalY+data.totalR}</b></td></tr>`;
+    }
     console.log('[cards-stats-fix]',{reports:data.reportCount,yellow:data.totalY,red:data.totalR,total:data.totalCards,teams:data.stats});
   }
   window.refreshCardsStatistics=renderCardTables;
@@ -15940,6 +15948,37 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 }
 @media(prefers-reduced-motion:reduce){
   #players #playersCommandBar .players-command-btn{transition:none!important}
+}
+</style>
+
+
+<style id="stats-cards-totals-style">
+/* تنسيق صف الإجمالي داخل جدول البطاقات في قسم الإحصائيات فقط */
+#statsBody .cards-statistics-table tfoot.cards-statistics-total-footer tr{
+  background:linear-gradient(135deg,#e6f7ef,#eef6ff)!important;
+}
+#statsBody .cards-statistics-table tfoot.cards-statistics-total-footer th,
+#statsBody .cards-statistics-table tfoot.cards-statistics-total-footer td{
+  padding:12px 8px!important;
+  border-top:2px solid #087f5b!important;
+  font-weight:900!important;
+  color:#064d3a!important;
+}
+#statsBody .cards-statistics-table tfoot.cards-statistics-total-footer th{
+  background:linear-gradient(135deg,#d8f3e6,#e6efff)!important;
+  text-align:center!important;
+}
+#statsBody .cards-statistics-table tfoot.cards-statistics-total-footer td b{
+  display:inline-block;
+  min-width:28px;
+  padding:4px 8px;
+  border-radius:8px;
+  background:#fff;
+  box-shadow:0 1px 4px #12362a12;
+}
+@media(max-width:600px){
+  #statsBody .cards-statistics-table tfoot.cards-statistics-total-footer th,
+  #statsBody .cards-statistics-table tfoot.cards-statistics-total-footer td{padding:9px 4px!important}
 }
 </style>
 
