@@ -7848,7 +7848,7 @@ if(adminDecisionMode){
  const as=[...($('ksAwayGoals')?.querySelectorAll('select')||[])].map(x=>S(x.value)).filter(Boolean);
  const referee1=S($('ksRef1')?.value),referee2=S($('ksRef2')?.value),referee3=S($('ksRef3')?.value),referee4=S($('ksRef4')?.value);
  const refereeList=[referee1,referee2,referee3,referee4].filter(Boolean);
- const bestPlayerId=S($('ksBestPlayer')?.value);
+ const bestPlayerId=S($('ksBestPlayer')?.value);const bestPlayerTeamId=playerTeamId(pObj(bestPlayerId));const bestPlayerTeamName=bestPlayerTeamId?tName(bestPlayerTeamId):'';
  const homeGoalkeeperId=S($('ksHomeGoalkeeper')?.value),awayGoalkeeperId=S($('ksAwayGoalkeeper')?.value);
  const shootoutHomeRaw=S($('ksShootoutHome')?.value).trim(),shootoutAwayRaw=S($('ksShootoutAway')?.value).trim();
  const shootoutHome=shootoutHomeRaw===''?null:Math.max(0,Math.min(30,parseInt(shootoutHomeRaw,10)||0));
@@ -7856,12 +7856,12 @@ if(adminDecisionMode){
  const img=await imageData();
  const savedCards=cards.filter(c=>S(c.playerId)&&S(c.teamId)&&S(c.type)).map(c=>({playerId:S(c.playerId),playerName:S(c.playerName||pName(c.playerId)),teamId:S(c.teamId),teamName:S(c.teamName||tName(c.teamId)),type:c.type==='red'?'red':'yellow'}));
  const penalties=$('ksPenYes')?.value==='yes'?Math.max(0,Number($('ksPenalties')?.value)||0):0;
- const sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeGoalkeeperId,awayGoalkeeperId,shootoutHome,shootoutAway,shootoutWinnerTeamId:shootoutHome!==null&&shootoutAway!==null&&shootoutHome!==shootoutAway?(shootoutHome>shootoutAway?teamId(m,'home'):teamId(m,'away')):'',homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId,bestPlayerName:bestPlayerId?pName(bestPlayerId):'',cards:savedCards,referees:refereeList,referee1,referee2,referee3,referee4,supervisor:S($('ksSupervisor')?.value).trim(),penalties,images:img?[img]:(old?.images||[]),administrativeDecision:true,decisionType,decisionTeamId:withdrawn,withdrawnTeamId:withdrawn,withdrawnTeamName:tName(withdrawn),decisionText:(decisionType==='disciplinary_loss'?'خسارة انضباطية للفريق ':'انسحاب الفريق ')+tName(withdrawn)+' — فوز الفريق الآخر 3-0',createdAt:old?.createdAt||now,updatedAt:now};
+ const sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeGoalkeeperId,awayGoalkeeperId,shootoutHome,shootoutAway,shootoutWinnerTeamId:shootoutHome!==null&&shootoutAway!==null&&shootoutHome!==shootoutAway?(shootoutHome>shootoutAway?teamId(m,'home'):teamId(m,'away')):'',homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId,bestPlayerName:bestPlayerId?pName(bestPlayerId):'',bestPlayerTeamId,bestPlayerTeamName,cards:savedCards,referees:refereeList,referee1,referee2,referee3,referee4,supervisor:S($('ksSupervisor')?.value).trim(),penalties,images:img?[img]:(old?.images||[]),administrativeDecision:true,decisionType,decisionTeamId:withdrawn,withdrawnTeamId:withdrawn,withdrawnTeamName:tName(withdrawn),decisionText:(decisionType==='disciplinary_loss'?'خسارة انضباطية للفريق ':'انسحاب الفريق ')+tName(withdrawn)+' — فوز الفريق الآخر 3-0',createdAt:old?.createdAt||now,updatedAt:now};
  const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);
  if(m){m.status='finished';m.hg=hg;m.ag=ag;m.shootoutHome=shootoutHome;m.shootoutAway=shootoutAway;try{window.db=db;}catch(e){}try{if(typeof window.save==='function')window.save();}catch(e){console.warn('Match status save skipped:',e);}}
  showStatus('تم حفظ القرار الإداري والنتيجة 3-0 مع حفظ التفاصيل المدخلة اختياريًا');fillMatches();renderPending();renderSaved();close();return;
 }
-const hg=Math.max(0,Number($('ksHomeScore').value)||0),ag=Math.max(0,Number($('ksAwayScore').value)||0);const shootoutHomeRaw=S($('ksShootoutHome')?.value).trim(),shootoutAwayRaw=S($('ksShootoutAway')?.value).trim();const hasShootout=shootoutHomeRaw!==''||shootoutAwayRaw!=='';const shootoutHome=hasShootout?Math.max(0,Math.min(30,parseInt(shootoutHomeRaw,10)||0)):null;const shootoutAway=hasShootout?Math.max(0,Math.min(30,parseInt(shootoutAwayRaw,10)||0)):null;if(hasShootout&&!isKnockoutMatch(m))return alert('ركلات الترجيح متاحة للمباريات الإقصائية فقط.');if(hasShootout&&(shootoutHomeRaw===''||shootoutAwayRaw===''))return alert('أدخل نتيجة ركلات الترجيح للفريقين.');if(hasShootout&&hg!==ag)return alert('لا تُسجل ركلات الترجيح إلا إذا انتهى وقت المباراة بالتعادل.');if(hasShootout&&shootoutHome===shootoutAway)return alert('يجب أن تكون نتيجة ركلات الترجيح حاسمة دون تعادل.');const hs=[...$('ksHomeGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean),as=[...$('ksAwayGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean);if(hs.length!==hg||as.length!==ag)return alert('يجب اختيار لاعب لكل هدف مسجل.');if(!$('ksRef1').value||!$('ksRef2').value||!$('ksRef3').value)return alert('يجب اختيار الحكام الأول والثاني والثالث.');if(!validateReferees())return alert('لا يجوز تكرار الحكم نفسه في كشف المباراة. اختر حكامًا مختلفين.');if(!$('ksBestPlayer').value)return alert('اختر أفضل لاعب في المباراة.');const homeGoalkeeperId=S($('ksHomeGoalkeeper')?.value),awayGoalkeeperId=S($('ksAwayGoalkeeper')?.value);const homeKeeper=pObj(homeGoalkeeperId),awayKeeper=pObj(awayGoalkeeperId);if(!homeGoalkeeperId||!awayGoalkeeperId||!homeKeeper||!awayKeeper)return alert('اختر الحارس الذي شارك فعلياً لكل فريق.');if(playerTeamId(homeKeeper)!==S(teamId(m,'home'))||playerTeamId(awayKeeper)!==S(teamId(m,'away')))return alert('تأكد من اختيار حارس كل فريق من قائمته الصحيحة.');if(cards.some(c=>!c.playerId||!c.teamId||!c.type))return alert('يوجد إنذار غير مكتمل.');const redThenYellow=cards.find(c=>c.type==='yellow'&&cards.some(d=>S(d.playerId)===S(c.playerId)&&d.type==='red'));if(redThenYellow)return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');const duplicateCard=cards.find((c,i)=>cards.some((d,j)=>i!==j&&S(c.playerId)===S(d.playerId)&&S(c.type)===S(d.type)));if(duplicateCard)return alert(duplicateCard.type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');const totalGoals=hg+ag;const penalties=$('ksPenYes').value==='yes'?Math.max(0,Number($('ksPenalties').value)||0):0;if(penalties>totalGoals)return alert('عدد ركلات الجزاء لا يجوز أن يتجاوز مجموع أهداف الفريقين ('+totalGoals+').');const old=findSheet(active),now=new Date().toISOString(),img=await imageData(),sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeGoalkeeperId,awayGoalkeeperId,shootoutHome:hasShootout?shootoutHome:null,shootoutAway:hasShootout?shootoutAway:null,shootoutWinnerTeamId:hasShootout?(shootoutHome>shootoutAway?teamId(m,'home'):teamId(m,'away')):'',homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId:S($('ksBestPlayer').value),bestPlayerName:pName($('ksBestPlayer').value),cards:cards.map(c=>({playerId:S(c.playerId),playerName:S(c.playerName||pName(c.playerId)),teamId:S(c.teamId),teamName:S(c.teamName||tName(c.teamId)),type:c.type==='red'?'red':'yellow'})),referees:[1,2,3,4].map(i=>S($('ksRef'+i).value)).filter(Boolean),referee1:S($('ksRef1').value),referee2:S($('ksRef2').value),referee3:S($('ksRef3').value),referee4:S($('ksRef4').value),supervisor:S($('ksSupervisor').value).trim(),penalties:$('ksPenYes').value==='yes'?Math.min(Math.max(0,Number($('ksPenalties').value)||0),hg+ag):0,images:img?[img]:(old?.images||[]),createdAt:old?.createdAt||now,updatedAt:now};const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);
+const hg=Math.max(0,Number($('ksHomeScore').value)||0),ag=Math.max(0,Number($('ksAwayScore').value)||0);const shootoutHomeRaw=S($('ksShootoutHome')?.value).trim(),shootoutAwayRaw=S($('ksShootoutAway')?.value).trim();const hasShootout=shootoutHomeRaw!==''||shootoutAwayRaw!=='';const shootoutHome=hasShootout?Math.max(0,Math.min(30,parseInt(shootoutHomeRaw,10)||0)):null;const shootoutAway=hasShootout?Math.max(0,Math.min(30,parseInt(shootoutAwayRaw,10)||0)):null;if(hasShootout&&!isKnockoutMatch(m))return alert('ركلات الترجيح متاحة للمباريات الإقصائية فقط.');if(hasShootout&&(shootoutHomeRaw===''||shootoutAwayRaw===''))return alert('أدخل نتيجة ركلات الترجيح للفريقين.');if(hasShootout&&hg!==ag)return alert('لا تُسجل ركلات الترجيح إلا إذا انتهى وقت المباراة بالتعادل.');if(hasShootout&&shootoutHome===shootoutAway)return alert('يجب أن تكون نتيجة ركلات الترجيح حاسمة دون تعادل.');const hs=[...$('ksHomeGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean),as=[...$('ksAwayGoals').querySelectorAll('select')].map(s=>s.value).filter(Boolean);if(hs.length!==hg||as.length!==ag)return alert('يجب اختيار لاعب لكل هدف مسجل.');if(!$('ksRef1').value||!$('ksRef2').value||!$('ksRef3').value)return alert('يجب اختيار الحكام الأول والثاني والثالث.');if(!validateReferees())return alert('لا يجوز تكرار الحكم نفسه في كشف المباراة. اختر حكامًا مختلفين.');if(!$('ksBestPlayer').value)return alert('اختر أفضل لاعب في المباراة.');const homeGoalkeeperId=S($('ksHomeGoalkeeper')?.value),awayGoalkeeperId=S($('ksAwayGoalkeeper')?.value);const homeKeeper=pObj(homeGoalkeeperId),awayKeeper=pObj(awayGoalkeeperId);if(!homeGoalkeeperId||!awayGoalkeeperId||!homeKeeper||!awayKeeper)return alert('اختر الحارس الذي شارك فعلياً لكل فريق.');if(playerTeamId(homeKeeper)!==S(teamId(m,'home'))||playerTeamId(awayKeeper)!==S(teamId(m,'away')))return alert('تأكد من اختيار حارس كل فريق من قائمته الصحيحة.');if(cards.some(c=>!c.playerId||!c.teamId||!c.type))return alert('يوجد إنذار غير مكتمل.');const redThenYellow=cards.find(c=>c.type==='yellow'&&cards.some(d=>S(d.playerId)===S(c.playerId)&&d.type==='red'));if(redThenYellow)return alert('لا يجوز تسجيل إنذار أصفر للاعب لديه بطاقة حمراء في نفس المباراة.');const duplicateCard=cards.find((c,i)=>cards.some((d,j)=>i!==j&&S(c.playerId)===S(d.playerId)&&S(c.type)===S(d.type)));if(duplicateCard)return alert(duplicateCard.type==='yellow'?'لا يجوز تسجيل إنذارين أصفرين لنفس اللاعب في المباراة.':'لا يجوز تسجيل بطاقتين حمراوين لنفس اللاعب في المباراة.');const totalGoals=hg+ag;const penalties=$('ksPenYes').value==='yes'?Math.max(0,Number($('ksPenalties').value)||0):0;if(penalties>totalGoals)return alert('عدد ركلات الجزاء لا يجوز أن يتجاوز مجموع أهداف الفريقين ('+totalGoals+').');const old=findSheet(active),now=new Date().toISOString(),img=await imageData(),sh={...(old||{}),id:old?.id||'KS_'+Date.now(),sheetNumber:old?.sheetNumber||nextNo(),matchId:active,tournamentId:tourId(m),homeTeamId:teamId(m,'home'),awayTeamId:teamId(m,'away'),homeScore:hg,awayScore:ag,homeGoalkeeperId,awayGoalkeeperId,shootoutHome:hasShootout?shootoutHome:null,shootoutAway:hasShootout?shootoutAway:null,shootoutWinnerTeamId:hasShootout?(shootoutHome>shootoutAway?teamId(m,'home'):teamId(m,'away')):'',homeScorers:hs,awayScorers:as,goalScorers:[...hs,...as],bestPlayerId,bestPlayerName:pName(bestPlayerId),bestPlayerTeamId,bestPlayerTeamName,cards:cards.map(c=>({playerId:S(c.playerId),playerName:S(c.playerName||pName(c.playerId)),teamId:S(c.teamId),teamName:S(c.teamName||tName(c.teamId)),type:c.type==='red'?'red':'yellow'})),referees:[1,2,3,4].map(i=>S($('ksRef'+i).value)).filter(Boolean),referee1:S($('ksRef1').value),referee2:S($('ksRef2').value),referee3:S($('ksRef3').value),referee4:S($('ksRef4').value),supervisor:S($('ksSupervisor').value).trim(),penalties:$('ksPenYes').value==='yes'?Math.min(Math.max(0,Number($('ksPenalties').value)||0),hg+ag):0,images:img?[img]:(old?.images||[]),createdAt:old?.createdAt||now,updatedAt:now};const all=rows(),ix=all.findIndex(x=>S(x.matchId)===active);if(ix>=0)all[ix]=sh;else all.push(sh);write(all);
 /* أي كشف محفوظ يجعل المباراة منتهية فورًا، دون النظر إلى تاريخ المباراة.
    نحدّث سجل المباراة الرئيسي أيضًا حتى لا تعود إلى «مجدولة» بعد إعادة التحميل أو المزامنة. */
 if(m){
@@ -9698,6 +9698,10 @@ function renderSheetsDirect(){
     const cards=A(sh.cards);
     const ct=window.manarFormatMatchSheetCards?window.manarFormatMatchSheetCards(sh,m,homeRef,awayRef,h,a):(cards.length?cards.map(c=>(S(c.type).toLowerCase()==='red'?'🟥':'🟨')+' '+esc(c.playerName||player(c.playerId)?.name||S(c.playerId))).join('، '):'لا توجد بطاقات');
     const bp=player(bestValue(sh));
+    const bestPlayerName=bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—';
+    const bestPlayerTeamRef=sh.bestPlayerTeamId||bp?.teamId||bp?.teamID||bp?.team_id||sh.bestPlayerTeam||'';
+    const bestPlayerTeamName=S(sh.bestPlayerTeamName|| (bestPlayerTeamRef?tname(bestPlayerTeamRef):''));
+    const bestPlayerLine='<div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bestPlayerName)+' / <span class="ks-best-player-team">'+esc(bestPlayerTeamName||'الفريق غير محدد')+'</span></div>';
     const decisionTypeRaw=S(sh.decisionType||sh.adminDecisionType||sh.administrativeDecisionType||'').toLowerCase();
     const hasAdministrativeDecision=!!(sh.administrativeDecision||sh.adminDecision||sh.isAdministrativeDecision||decisionTypeRaw||sh.decisionText||sh.administrativeDecisionText);
     const decisionTypeLabel=(decisionTypeRaw==='disciplinary_loss'||decisionTypeRaw==='خسارة انضباطية')?'خسارة انضباطية':((decisionTypeRaw==='withdrawal'||decisionTypeRaw==='انسحاب الفريق')?'انسحاب الفريق':S(sh.decisionText||sh.administrativeDecisionText||'قرار إداري'));
@@ -9725,7 +9729,7 @@ function renderSheetsDirect(){
       const decisionDetails=typeof window.manarBuildAdministrativeSheetDetails==='function' ? window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,h,a) : '<div class="ks-public-summary">'+decisionSummary+'</div>';
       return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
     }
-    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+'<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div><div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div><div class="pub-line">⭐ <b>أفضل لاعب:</b> '+esc(bp?.name||objName(bestValue(sh))||S(bestValue(sh))||'—')+'</div></div>'+actions+'</div>';
+    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+'<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div><div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div>'+bestPlayerLine+'</div>'+actions+'</div>';
   }).join('');
 }
 window.renderPlayerStatsDirect=renderPlayerStatsDirect;window.renderPublicSheetsFixed=renderSheetsDirect;
@@ -15324,7 +15328,8 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   background:rgba(255,255,255,.88);
   overflow-wrap:anywhere;
 }
-#matchSheetsSection #ksReportsList .ks-public-summary .pub-row{
+#matchSheetsSection #ksReportsList .ks-public-summary .pub-row,
+#matchSheetsSection #ksReportsList .ks-public-summary .pub-line{
   margin:6px 0;
   padding:8px 10px;
   border:0!important;
@@ -15335,7 +15340,8 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   line-height:1.85;
   overflow-wrap:anywhere;
 }
-#matchSheetsSection #ksReportsList .ks-public-summary .pub-title{
+#matchSheetsSection #ksReportsList .ks-public-summary .pub-title,
+#matchSheetsSection #ksReportsList .ks-public-summary .pub-line > b{
   color:var(--sheet-accent)!important;
   font-weight:1000;
 }
@@ -16035,12 +16041,17 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   min-width:0!important;
 }
 #matchSheetsSection #ksReportsList .ks-public-summary .ks-goals-by-team > .pub-title,
-#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team > .pub-title{
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team > .pub-title,
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-goals-by-team > b,
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team > b{
   grid-column:1/-1!important;
   margin:0 0 2px!important;
 }
 #matchSheetsSection #ksReportsList .ks-goals-by-team > .ks-goal-team-group,
 #matchSheetsSection #ksReportsList .ks-cards-by-team > .ks-goal-team-group{
+  display:inline-block!important;
+  vertical-align:top!important;
+  width:calc(50% - 4px)!important;
   min-width:0!important;
   margin:0!important;
   padding:6px 7px!important;
@@ -16163,5 +16174,320 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 #matchSheetsSection #ksReportsList .ks-referee-number{display:inline-grid;place-items:center;min-width:21px;height:21px;border-radius:6px;background:#155ca8;color:#fff;font-size:11px;}
 @media(max-width:600px){#matchSheetsSection #ksReportsList .ks-referees-ordered{gap:5px}#matchSheetsSection #ksReportsList .ks-referees-ordered .ks-referee-item{padding:5px 7px;font-size:11px}}
 </style>
+
+<style id="kashofat-professional-compact-colorful-20261117">
+/* تحسين عرض الكشوفات المدخلة فقط: حدود أقل، تسلسل واضح، وتباين مريح. */
+#matchSheetsSection #ksReportsList{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:11px!important;
+  min-width:0!important;
+}
+#matchSheetsSection #ksReportsList > .ks-saved{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:12px!important;
+  border:0!important;
+  border-right:4px solid var(--sheet-accent,#0b8f68)!important;
+  border-radius:13px!important;
+  background:#fff!important;
+  box-shadow:0 2px 9px rgba(24,55,45,.075)!important;
+  overflow:hidden!important;
+  transition:box-shadow .18s ease,transform .18s ease!important;
+}
+#matchSheetsSection #ksReportsList > .ks-saved:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 6px 16px rgba(24,55,45,.11)!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  flex-wrap:wrap!important;
+  gap:7px 10px!important;
+  margin:-12px -12px 10px!important;
+  padding:9px 11px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:var(--sheet-tint,#e9f8f1)!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-match{
+  min-width:0!important;
+  color:#18382f!important;
+  font-size:14px!important;
+  font-weight:900!important;
+  line-height:1.65!important;
+  overflow-wrap:anywhere!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-match b{
+  min-width:52px!important;
+  margin:0 4px!important;
+  padding:4px 8px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:linear-gradient(135deg,var(--sheet-accent,#087f5b),var(--sheet-accent-2,#0ca678))!important;
+  color:#fff!important;
+  font-size:14px!important;
+  box-shadow:0 2px 5px rgba(15,50,38,.14)!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-head .badge{
+  margin:0!important;
+  padding:4px 8px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.82)!important;
+  color:var(--sheet-accent,#087f5b)!important;
+  box-shadow:none!important;
+  font-size:11px!important;
+}
+/* إلغاء الإطار المكرر حول كامل الملخص والاكتفاء بخلفيات خفيفة للبيانات. */
+#matchSheetsSection #ksReportsList .ks-public-summary,
+#matchSheetsSection #ksReportsList .ks-saved-admin-details{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow-wrap:anywhere!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  gap:7px!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .pub-row{
+  min-width:0!important;
+  margin:0!important;
+  padding:7px 9px!important;
+  border:0!important;
+  border-right:3px solid var(--sheet-accent,#0b8f68)!important;
+  border-radius:8px!important;
+  background:var(--sheet-soft,#f2fbf7)!important;
+  color:#284238!important;
+  font-size:12px!important;
+  line-height:1.65!important;
+  overflow-wrap:anywhere!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .pub-title{
+  color:var(--sheet-accent,#087f5b)!important;
+  font-size:12px!important;
+  font-weight:900!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-goals-by-team,
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team{
+  grid-column:1/-1!important;
+  display:block!important;
+  align-content:start!important;
+  gap:6px!important;
+  padding:8px!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-goals-by-team{
+  border-right-color:#15945f!important;
+  background:#f0faf4!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-goals-by-team > .pub-title,
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team > .pub-title{
+  grid-column:1/-1!important;
+  margin:0!important;
+  padding:0 1px 2px!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team{
+  border-right-color:#d18a00!important;
+  background:#fff8e9!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team .pub-title{
+  color:#925900!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-goals-by-team > b,
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team > b{
+  display:block!important;
+  margin:0 0 6px!important;
+  color:#087443!important;
+  font-weight:900!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team > b{
+  color:#925900!important;
+}
+/* مجموعتا الفريقين تظهران بخلفية ناعمة دون صناديق وحدود متراكبة. */
+#matchSheetsSection #ksReportsList .ks-goals-by-team > .ks-goal-team-group,
+#matchSheetsSection #ksReportsList .ks-cards-by-team > .ks-goal-team-group{
+  min-width:0!important;
+  margin:0!important;
+  padding:6px 7px!important;
+  border:0!important;
+  border-radius:7px!important;
+  border-right:2px solid #8bd5b2!important;
+  background:rgba(255,255,255,.8)!important;
+  line-height:1.5!important;
+}
+#matchSheetsSection #ksReportsList .ks-goals-by-team > .ks-goal-team-group.away,
+#matchSheetsSection #ksReportsList .ks-cards-by-team > .ks-goal-team-group.away{
+  border-right-color:#91bce9!important;
+  background:rgba(255,255,255,.82)!important;
+}
+#matchSheetsSection #ksReportsList .ks-goal-team-group > b{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:5px!important;
+  margin:0 0 5px!important;
+  font-size:11px!important;
+  line-height:1.4!important;
+}
+#matchSheetsSection #ksReportsList .ks-goal-team-players{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:4px!important;
+  min-width:0!important;
+}
+#matchSheetsSection #ksReportsList .ks-goal-scorer{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  min-width:0!important;
+  max-width:100%!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  border:0!important;
+  border-radius:6px!important;
+  background:#fff!important;
+  color:#294237!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+  overflow-wrap:anywhere!important;
+}
+#matchSheetsSection #ksReportsList .ks-card-scorer-chip small{
+  margin:0!important;
+  padding:1px 4px!important;
+  border:0!important;
+  border-radius:5px!important;
+  background:#fff0c9!important;
+  color:#805300!important;
+  font-size:10px!important;
+}
+#matchSheetsSection #ksReportsList .ks-public-summary .ks-best-player-team{
+  display:inline-flex!important;
+  align-items:center!important;
+  margin:2px 3px!important;
+  padding:3px 8px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:#e8f2ff!important;
+  color:#155ca8!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+#matchSheetsSection #ksReportsList .ks-referees-ordered{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin-top:5px!important;
+}
+#matchSheetsSection #ksReportsList .ks-referees-ordered .ks-referee-item{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin:0!important;
+  padding:4px 7px!important;
+  border:0!important;
+  border-radius:7px!important;
+  background:#edf5ff!important;
+  color:#155ca8!important;
+  font-size:11px!important;
+  font-weight:800!important;
+}
+#matchSheetsSection #ksReportsList .ks-referee-number{
+  display:inline-grid!important;
+  place-items:center!important;
+  min-width:19px!important;
+  height:19px!important;
+  border:0!important;
+  border-radius:5px!important;
+  background:#1769aa!important;
+  color:#fff!important;
+  font-size:10px!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-admin-details .ks-meta{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:5px 10px!important;
+  margin:0 0 7px!important;
+  color:#60766c!important;
+  font-size:11px!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-admin-details .ks-saved-stats{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-admin-details .ks-stat{
+  padding:7px 5px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:#f3f8f5!important;
+  color:#60746b!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-admin-details .ks-stat b{
+  color:var(--sheet-accent,#087f5b)!important;
+  font-size:16px!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-actions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:7px!important;
+  margin-top:9px!important;
+}
+#matchSheetsSection #ksReportsList .ks-saved-actions .btn{
+  min-height:36px!important;
+  padding:7px 12px!important;
+  border:0!important;
+  border-radius:8px!important;
+  font-size:12px!important;
+  box-shadow:none!important;
+}
+#matchSheetsSection #ksReportsList > .ks-admin-decision-saved{
+  border-right-color:#d18a00!important;
+  background:#fffdf7!important;
+}
+#matchSheetsSection #ksReportsList > .ks-admin-decision-saved .ks-saved-head{
+  background:#fff2d4!important;
+}
+@media(max-width:600px){
+  #matchSheetsSection #ksReportsList{gap:9px!important}
+  #matchSheetsSection #ksReportsList > .ks-saved{padding:10px!important;border-right-width:4px!important;border-radius:11px!important}
+  #matchSheetsSection #ksReportsList .ks-saved-head{margin:-10px -10px 8px!important;padding:8px 9px!important;align-items:flex-start!important}
+  #matchSheetsSection #ksReportsList .ks-saved-match{font-size:13px!important}
+  #matchSheetsSection #ksReportsList .ks-saved-match b{min-width:47px!important;padding:3px 6px!important;font-size:12px!important}
+  #matchSheetsSection #ksReportsList .ks-public-summary{gap:6px!important}
+  #matchSheetsSection #ksReportsList .ks-public-summary .pub-row,
+  #matchSheetsSection #ksReportsList .ks-public-summary .pub-line{padding:7px!important;font-size:11.5px!important}
+  #matchSheetsSection #ksReportsList .ks-public-summary .ks-goals-by-team,
+  #matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team{gap:5px!important;padding:7px!important}
+  #matchSheetsSection #ksReportsList .ks-goals-by-team > .ks-goal-team-group,
+  #matchSheetsSection #ksReportsList .ks-cards-by-team > .ks-goal-team-group{padding:5px!important}
+  #matchSheetsSection #ksReportsList .ks-saved-actions{flex-direction:row!important}
+  #matchSheetsSection #ksReportsList .ks-saved-actions .btn{flex:1 1 130px!important;width:auto!important;min-width:0!important}
+}
+@media(max-width:390px){
+  #matchSheetsSection #ksReportsList .ks-public-summary{grid-template-columns:minmax(0,1fr)!important}
+  #matchSheetsSection #ksReportsList .ks-public-summary .ks-goals-by-team,
+  #matchSheetsSection #ksReportsList .ks-public-summary .ks-cards-by-team{display:block!important}
+  #matchSheetsSection #ksReportsList .ks-saved-admin-details .ks-saved-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:320px){
+  #matchSheetsSection #ksReportsList .ks-goals-by-team > .ks-goal-team-group,
+  #matchSheetsSection #ksReportsList .ks-cards-by-team > .ks-goal-team-group{width:100%!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #matchSheetsSection #ksReportsList > .ks-saved{transition:none!important}
+  #matchSheetsSection #ksReportsList > .ks-saved:hover{transform:none!important}
+}
+</style>
+
 </body>
 </html>
