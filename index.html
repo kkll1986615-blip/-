@@ -2538,7 +2538,7 @@ function buildDetailedArchiveReport(ar){
       const goalsList=allGoalEntries(sh).map(x=>playerName(players,x&&typeof x==='object'?(x.playerId||x.id||x.name):x)).filter(Boolean);
       const cardsList=A(sh.cards).map(c=>{
         const pn=c?.playerName||playerName(players,c?.playerId);
-        return `${S(c?.type).toLowerCase()==='red'?'🟥 حمراء':'🟨 صفراء'} — ${pn||'لاعب غير محدد'}${c?.teamName?' — '+c.teamName:''}`;
+        return `${S(c?.type).toLowerCase()==='red'?'🟥':'🟨'} — ${pn||'لاعب غير محدد'}${c?.teamName?' — '+c.teamName:''}`;
       });
       const supervisor=sh.supervisor||sh.matchSupervisor||'—';
       const pens=Number(sh.penalties||0)||0;
@@ -14186,8 +14186,8 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   }
   const arabicNumber=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[Number(d)]);
   function cardChip(c,i){
-    const isRed=S(c.type).toLowerCase()==='red',icon=isRed?'🟥':'🟨',type=isRed?'حمراء':'صفراء';
-    return '<span class="ks-goal-scorer ks-card-scorer-chip"><b class="ks-card-order">'+arabicNumber(i+1)+'-</b><span class="ks-card-symbol">'+icon+'</span><span class="ks-card-player">'+E(playerName(c))+'</span><small>'+type+'</small></span>';
+    const isRed=S(c.type).toLowerCase()==='red',icon=isRed?'🟥':'🟨';
+    return '<span class="ks-goal-scorer ks-card-scorer-chip"><b class="ks-card-order">'+arabicNumber(i+1)+'-</b><span class="ks-card-symbol">'+icon+'</span><span class="ks-card-player">'+E(playerName(c))+'</span></span>';
   }
   function teamGroup(label,kind,items){
     const chips=items.length?'<div class="ks-goal-team-players">'+items.map(cardChip).join('')+'</div>':'<div class="ks-goal-team-empty">لا توجد إنذارات مسجلة</div>';
