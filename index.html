@@ -775,18 +775,6 @@ document.addEventListener('DOMContentLoaded', function(){
       يتم جمع نتائج المباريات المنتهية للفرق المسجلة في البطولات الرسمية وعرضها في جدول واحد.
     </div><div class="overall-ranking-new-body" id="overallRankingBody"><div class="empty">جاري تحميل التصنيف العام...</div></div></div></section><section class="page" id="stats"><div class="card stats-hero-card"><div class="stats-hero-heading"><span class="stats-hero-art" aria-hidden="true"><svg viewBox="0 0 96 96" role="img" aria-label="رسم بياني للإحصائيات"><defs><linearGradient id="statsIconGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c1c3"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect x="8" y="8" width="80" height="80" rx="23" fill="url(#statsIconGradient)"/><path d="M25 68V51h10v17M43 68V38h10v30M61 68V26h10v42" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 74h52" stroke="#dff7ff" stroke-width="4" stroke-linecap="round"/></svg></span><div class="stats-hero-copy"><h2>إحصائيات البطولة</h2><p>قراءة واضحة لأرقام البطولة وأداء الفرق واللاعبين</p></div><span class="stats-hero-tag">📊 تحليل الأداء</span></div><div class="grid"><div><label>اختر البطولة</label><select id="statsTour" onchange="renderStats()"></select></div></div></div><div id="statsBody"></div></section><section class="page" id="settings">
 <div class="dash-banner"><div><strong>⚙️ إعدادات مدير النظام</strong><br/><small>إدارة إعدادات المنصة والحسابات والصلاحيات وسجل المراجعة.</small></div><span class="badge">Admin فقط</span></div>
-<div class="card settings-card" data-perm="settings">
-<h2>🔐 تغيير اسم المستخدم وكلمة المرور</h2>
-<div class="notice">لا يُعتمد تغيير كلمة المرور إلا بعد تأكيد حفظ بيانات الحساب في Firebase؛ وعند نجاحه تُنهى جلسات المنصة المفتوحة.</div>
-<div class="grid">
-<div><label>اسم المستخدم الجديد</label><input autocomplete="username" id="newAdminUser" placeholder="أدخل اسم المستخدم الجديد"/></div>
-<div><label>كلمة المرور الحالية</label><input autocomplete="current-password" id="oldAdminPass" placeholder="أدخل كلمة المرور الحالية" type="password"/></div>
-<div><label>كلمة المرور الجديدة</label><input autocomplete="new-password" id="newAdminPass" oninput="updatePasswordStrength()" placeholder="أدخل كلمة مرور جديدة" type="password"/><div class="password-strength"><span id="passwordStrengthBar"></span></div></div>
-<div><label>تأكيد كلمة المرور الجديدة</label><input autocomplete="new-password" id="confirmAdminPass" placeholder="أعد كتابة كلمة المرور الجديدة" type="password"/></div>
-</div>
-<div id="passwordMessage" style="margin-top:10px;display:none;font-size:13px"></div>
-<div class="actions"><button class="btn" onclick="changeAdminPassword()">🔒 حفظ بيانات الدخول الجديدة</button></div>
-</div>
 <div class="card settings-card" data-perm="settings" id="settingsControlCenter">
 <div class="section-title"><div><h2>⚙️ إدارة المنصة</h2><small>اختر أيقونة لفتح خياراتها، وانقر عليها مرة أخرى لإخفائها.</small></div><span class="badge">خمسة أقسام</span></div>
 <div class="settings-icon-grid" role="group" aria-label="خيارات إعدادات المنصة">
@@ -805,7 +793,24 @@ document.addEventListener('DOMContentLoaded', function(){
 <div id="platformLogoMessage" style="font-size:13px;margin-top:8px;color:#0b5d3b" role="status"></div>
 </div>
 <div class="grid settings-platform-fields">
-<div><label for="platformDescriptionInput">📝 وصف المنصة</label><textarea id="platformDescriptionInput" rows="3" placeholder="اكتب وصفاً مختصراً يظهر أسفل اسم المنصة"></textarea><small>يظهر الوصف في ترويسة المنصة للزوار أيضاً بعد مزامنة الإعدادات.</small></div>
+<div class="platform-description-editor">
+<label for="platformDescriptionInput">📝 وصف المنصة</label>
+<div class="platform-description-toolbar" aria-label="أدوات تنسيق وصف المنصة">
+  <div><label for="platformDescriptionFont">نوع الخط</label><select id="platformDescriptionFont"><option value="Tahoma, Arial, sans-serif">Tahoma</option><option value="Arial, sans-serif">Arial</option><option value="'Traditional Arabic', Tahoma, sans-serif">Traditional Arabic</option><option value="'Simplified Arabic', Tahoma, sans-serif">Simplified Arabic</option><option value="'Times New Roman', serif">Times New Roman</option><option value="Georgia, serif">Georgia</option></select></div>
+  <div><label for="platformDescriptionSize">حجم الخط</label><select id="platformDescriptionSize"><option value="12px">12</option><option value="13px">13</option><option value="14px" selected>14</option><option value="15px">15</option><option value="16px">16</option><option value="18px">18</option><option value="20px">20</option><option value="22px">22</option><option value="24px">24</option></select></div>
+  <div><label for="platformDescriptionColor">لون الخط</label><input id="platformDescriptionColor" type="color" value="#ffffff" aria-label="اختر لون خط الوصف"/></div>
+  <div class="platform-description-align" role="group" aria-label="محاذاة وصف المنصة">
+    <span class="platform-description-align-label">المحاذاة</span>
+    <button type="button" data-description-align="right" aria-pressed="false" title="محاذاة إلى اليمين">يمين</button>
+    <button type="button" data-description-align="center" aria-pressed="true" title="توسيط">توسيط</button>
+    <button type="button" data-description-align="left" aria-pressed="false" title="محاذاة إلى اليسار">يسار</button>
+    <button type="button" data-description-align="justify" aria-pressed="false" title="ضبط النص ومساواة الطرفين">ضبط</button>
+  </div>
+</div>
+<textarea id="platformDescriptionInput" rows="3" placeholder="اكتب وصفاً مختصراً يظهر أسفل اسم المنصة"></textarea>
+<div class="platform-description-preview-wrap"><span>معاينة الوصف</span><div id="platformDescriptionPreview" class="platform-description-preview" aria-live="polite">يظهر وصف المنصة هنا بالشكل الذي اخترته.</div></div>
+<small>يمكنك تغيير نوع الخط وحجمه ولونه ومحاذاته. خيار «ضبط» يوزع الكلمات على السطر لمساواة طرفي الفقرة كما في Word. يظهر التنسيق للزوار بعد حفظ الإعدادات ومزامنتها.</small>
+</div>
 <div><label for="platformStadiumsInput">🏟️ الملاعب المعتمدة</label><textarea id="platformStadiumsInput" rows="3" placeholder="ملعب المنار الرئيسي&#10;ملعب آخر"></textarea><small>اكتب اسم كل ملعب في سطر مستقل. ستظهر الأسماء في قائمة الملعب عند تسجيل المباراة.</small></div>
 </div>
 <div class="actions"><button class="btn" type="button" onclick="savePlatformSettings()">💾 حفظ إعدادات المنصة</button></div>
@@ -955,50 +960,6 @@ window.addEventListener('storage',e=>{
   if(e.key===AUTH_REVOCATION_KEY&&e.newValue){forcePlatformViewer();return;}
   if(e.key===USERS_KEY&&e.newValue)window.__manarReloadPlatformUsers(e.newValue);
 });
-function updatePasswordStrength(){let v=$('newAdminPass').value||'',score=0;if(v.length>=6)score++;if(v.length>=10)score++;if(/[A-Z]/.test(v))score++;if(/[0-9]/.test(v))score++;if(/[^A-Za-z0-9]/.test(v))score++;let bar=$('passwordStrengthBar');bar.style.width=(score*20)+'%';bar.style.background=score<=1?'#e03131':score<=3?'#f59f00':'#12b886';}
-async function changeAdminPassword(){
-  if(currentRole!=='admin'){openLogin();return}
-  const old=$('oldAdminPass').value;
-  const newPass=$('newAdminPass').value;
-  const confirmPass=$('confirmAdminPass').value;
-  const newUser=($('newAdminUser').value||'').trim();
-  const msg=$('passwordMessage');
-  msg.style.display='block';
-  const fail=t=>{msg.style.color='#b42318';msg.textContent=t;};
-  if(old!==USERS.admin.pass){fail('كلمة المرور الحالية غير صحيحة.');return;}
-  if(!newUser){fail('أدخل اسم المستخدم الجديد.');return;}
-  if(newUser.length<3){fail('اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل.');return;}
-  if(Object.entries(USERS).some(([k,u])=>k!=='admin'&&String(u.user||'').toLocaleLowerCase()===newUser.toLocaleLowerCase())){fail('اسم المستخدم مستخدم في حساب آخر.');return;}
-  if(newPass.length<6){fail('يجب أن تكون كلمة المرور الجديدة 6 أحرف/أرقام على الأقل.');return;}
-  if(newPass===DEFAULT_USERS.admin.pass){fail('لا يمكن اعتماد كلمة المرور الافتراضية (admin123). اختر كلمة مرور مختلفة.');return;}
-  if(newPass===old){fail('اختر كلمة مرور جديدة مختلفة عن كلمة المرور الحالية.');return;}
-  if(newPass!==confirmPass){fail('تأكيد كلمة المرور غير مطابق.');return;}
-  if(typeof window.__manarFirebaseCanWrite!=='function'||!window.__manarFirebaseCanWrite()){
-    fail('لم يتم تغيير كلمة المرور. سجّل الدخول أولاً إلى حساب Firebase المصرّح له بالكتابة من زر ☁️ المزامنة؛ لأن تغيير كلمة المرور يجب أن يُحفظ في السحابة حتى يُرفض القديم على بقية الأجهزة.');
-    return;
-  }
-  const oldUsers=JSON.stringify(USERS);
-  const oldRaw=localStorage.getItem(USERS_KEY);
-  USERS.admin.user=newUser;
-  USERS.admin.pass=newPass;
-  USERS.admin.sessionVersion=newAuthSessionVersion();
-  try{
-    localStorage.setItem(USERS_KEY,JSON.stringify(USERS));
-    const saved=await window.__manarFirebaseSaveKey(USERS_KEY);
-    if(saved!==true)throw new Error('لم تؤكد Firebase حفظ بيانات الحسابات. لم يتم اعتماد التغيير.');
-  }catch(err){
-    try{const restored=JSON.parse(oldUsers);USERS=restored;if(oldRaw===null)localStorage.removeItem(USERS_KEY);else localStorage.setItem(USERS_KEY,oldRaw);}catch(restoreError){console.error('Account rollback failed:',restoreError)}
-    refreshLoginUsers();
-    fail('تعذر تثبيت كلمة المرور الجديدة في Firebase؛ لم يتم اعتماد التغيير. '+(err&&err.message?err.message:'تحقق من اتصال Firebase وصلاحية الكتابة.'));
-    return;
-  }
-  auditAdd('تعديل','settings','تم تغيير اسم المستخدم وكلمة مرور مدير النظام، وتأكيد حفظهما في Firebase.');
-  refreshLoginUsers();
-  $('newAdminUser').value='';$('oldAdminPass').value='';$('newAdminPass').value='';$('confirmAdminPass').value='';
-  updatePasswordStrength();
-  revokePlatformSessionsEverywhere();
-  alert('✅ تم تغيير اسم المستخدم وكلمة المرور وتأكيد حفظهما في Firebase. تم تسجيل الخروج من جميع صفحات المنصة المفتوحة على النطاق نفسه، وستُنهى جلسات الأجهزة المتصلة عند وصول تحديث الحسابات. كلمة المرور الافتراضية والقديمة لم تعد صالحتين.');
-}
 function saveUsers(){
 localStorage.setItem(USERS_KEY,JSON.stringify(USERS));refreshLoginUsers();renderUsers();}
 function addManagedUser(){if(currentRole!=='admin'){openLogin();return}let u=$('newManagedUser').value.trim(),p=$('newManagedPass').value,role='u_'+Date.now().toString(36);if(!u||!p)return alert('أدخل اسم المستخدم وكلمة المرور');if(Object.values(USERS).some(x=>x.user===u))return alert('اسم المستخدم موجود مسبقًا');let permissions=[...document.querySelectorAll('#userPermissions input:checked')].map(x=>x.value);USERS[role]={user:u,pass:p,label:'👤 '+u,cls:'custom',permissions};$('newManagedUser').value='';$('newManagedPass').value='';document.querySelectorAll('#userPermissions input').forEach(x=>x.checked=false);saveUsers();auditUserChange('إدارة الحسابات',`تم إنشاء حساب «${u}» ومنحه الصلاحيات المحددة: ${(permissions||[]).map(x=>PERMISSIONS[x]||x).join('، ')||'بدون صلاحيات إدارة'}.`);alert('تم إنشاء الحساب ومنحه الصلاحيات المحددة.');}
@@ -1069,7 +1030,7 @@ async function saveManagedAccountChanges(){
 const KEY='manar_sports_v2';
 const LEGACY_MAIN_KEY='manar_match_sheets_v1';
 function loadMainDatabase(){
-  const empty={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[],platformSettings:{description:'',stadiums:['ملعب المنار الرئيسي']}};
+  const empty={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[],platformSettings:{description:'',descriptionStyle:{fontFamily:'Tahoma, Arial, sans-serif',fontSize:'14px',color:'#ffffff',textAlign:'center'},stadiums:['ملعب المنار الرئيسي']}};
   /* لا ندمج النسخ القديمة بعد التصفير: المعلومة تُحفظ داخل القاعدة الرئيسية وتُزامن مع Firebase. */
   let resetMeta=null;
   try{
@@ -1094,7 +1055,7 @@ function loadMainDatabase(){
       suspensions:Array.isArray(x.suspensions)?x.suspensions:[]
      };
      if(x.platformSettings&&typeof x.platformSettings==='object'){
-       data.platformSettings={description:typeof x.platformSettings.description==='string'?x.platformSettings.description:'',stadiums:Array.isArray(x.platformSettings.stadiums)?x.platformSettings.stadiums.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()):['ملعب المنار الرئيسي']};
+       data.platformSettings={description:typeof x.platformSettings.description==='string'?x.platformSettings.description:'',descriptionStyle:x.platformSettings.descriptionStyle&&typeof x.platformSettings.descriptionStyle==='object'?{...x.platformSettings.descriptionStyle}:undefined,stadiums:Array.isArray(x.platformSettings.stadiums)?x.platformSettings.stadiums.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()):['ملعب المنار الرئيسي']};
      }
      /* الشعار جزء من إعدادات المنصة، ويُحفظ مع سجل Firebase الرئيسي كي يصل إلى الزوار. */
     if(Object.prototype.hasOwnProperty.call(x,'platformLogo'))data.platformLogo=typeof x.platformLogo==='string'?x.platformLogo:'';
@@ -1217,7 +1178,7 @@ try{
       archives:Array.isArray(db.archives)?db.archives:[],
       suspensions:Array.isArray(db.suspensions)?db.suspensions:[],
        platformLogo:typeof db.platformLogo==='string'?db.platformLogo:undefined,
-       platformSettings:db.platformSettings&&typeof db.platformSettings==='object'?{description:typeof db.platformSettings.description==='string'?db.platformSettings.description:'',stadiums:Array.isArray(db.platformSettings.stadiums)?db.platformSettings.stadiums.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()):['ملعب المنار الرئيسي']}:undefined,
+       platformSettings:db.platformSettings&&typeof db.platformSettings==='object'?{description:typeof db.platformSettings.description==='string'?db.platformSettings.description:'',descriptionStyle:db.platformSettings.descriptionStyle&&typeof db.platformSettings.descriptionStyle==='object'?{...db.platformSettings.descriptionStyle}:undefined,stadiums:Array.isArray(db.platformSettings.stadiums)?db.platformSettings.stadiums.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()):['ملعب المنار الرئيسي']}:undefined,
        __manarResetMeta:db.__manarResetMeta&&typeof db.__manarResetMeta==='object'?db.__manarResetMeta:undefined
     };
     if(normalized.tournaments.length||normalized.teams.length||normalized.players.length||normalized.matches.length||
@@ -4838,6 +4799,7 @@ window.__manarReplaceMainDatabase=function(next){
      if(!Object.prototype.hasOwnProperty.call(target,'platformSettings')&&db&&db.platformSettings)target.platformSettings=db.platformSettings;
      if(!target.platformSettings||typeof target.platformSettings!=='object')target.platformSettings={description:'',stadiums:['ملعب المنار الرئيسي']};
      if(!Array.isArray(target.platformSettings.stadiums))target.platformSettings.stadiums=['ملعب المنار الرئيسي'];
+     if(!target.platformSettings.descriptionStyle||typeof target.platformSettings.descriptionStyle!=='object')target.platformSettings.descriptionStyle={fontFamily:'Tahoma, Arial, sans-serif',fontSize:'14px',color:'#ffffff',textAlign:'center'};
      ['tournaments','teams','players','matches','officialPlayers','archives','suspensions'].forEach(k=>{
       if(!Array.isArray(target[k]))target[k]=[];
     });
@@ -17267,6 +17229,18 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 #settings .settings-panel-heading h3{margin:0;color:#075f45;font-size:17px;font-weight:900}
 #settings .settings-logo-block{border:1px solid #cfe4dc;border-radius:14px;padding:14px;background:linear-gradient(135deg,#f4fbf8,#fff);margin-bottom:14px}
 #settings .settings-platform-fields{margin-top:12px}
+#settings .platform-description-editor{min-width:0;grid-column:1/-1}
+#settings .platform-description-toolbar{display:grid;grid-template-columns:minmax(145px,1.3fr) minmax(90px,.7fr) minmax(95px,.6fr) minmax(240px,1.8fr);gap:9px;align-items:end;margin:8px 0 10px}
+#settings .platform-description-toolbar>div>label{font-size:12px}
+#settings #platformDescriptionColor{width:100%;height:45px;min-height:45px;padding:5px!important;cursor:pointer}
+#settings .platform-description-align{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+#settings .platform-description-align-label{width:100%;font-size:12px;font-weight:800;color:#39564c}
+#settings .platform-description-align button{flex:1;min-width:46px;border:1px solid #cbd9d3;border-radius:8px;background:#f3f7f5;color:#31584a;padding:8px 5px;font-weight:800}
+#settings .platform-description-align button.is-active{background:linear-gradient(135deg,#087f5b,#0ca678);color:#fff;border-color:#087f5b;box-shadow:0 3px 8px #087f5b30}
+#settings #platformDescriptionInput{min-height:112px;line-height:1.8;resize:vertical}
+#settings .platform-description-preview-wrap{margin:10px 0 8px}
+#settings .platform-description-preview-wrap>span{display:block;font-size:12px;font-weight:900;color:#39564c;margin-bottom:6px}
+#settings .platform-description-preview{min-height:62px;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,#064b36,#087f5b);border:1px solid #0c7956;color:#fff;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;direction:rtl}
 #settings .settings-inline-message{font-size:13px;font-weight:800;margin-top:10px;color:#087f5b;min-height:18px}
 #settings .settings-platform-fields small{display:block;color:#718096;font-size:11px;margin-top:6px;line-height:1.6}
 #settings #platformDescriptionInput,#settings #platformStadiumsInput{width:100%;min-height:94px;resize:vertical}
@@ -17274,7 +17248,8 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 #settings #settingsAuditLogList .audit-table{min-width:850px}
 @keyframes settingsPanelIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:850px){#settings .settings-icon-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:560px){#settings .settings-icon-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#settings .settings-icon-btn{min-height:104px;padding:10px 6px}#settings .settings-icon-label{font-size:12px}#settings .settings-panel{padding:12px}#settings .settings-platform-fields{grid-template-columns:1fr}}
+@media(max-width:760px){#settings .platform-description-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}#settings .platform-description-align{grid-column:1/-1}}
+@media(max-width:560px){#settings .settings-icon-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#settings .settings-icon-btn{min-height:104px;padding:10px 6px}#settings .settings-icon-label{font-size:12px}#settings .settings-panel{padding:12px}#settings .settings-platform-fields{grid-template-columns:1fr}#settings .platform-description-toolbar{grid-template-columns:1fr 1fr}}
 </style>
 <script id="settings-five-icons-script">
 (function(){
@@ -17282,13 +17257,59 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   const MAIN_KEY='manar_sports_v2';
   const DEFAULT_DESCRIPTION='نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.';
   const DEFAULT_STADIUMS=['ملعب المنار الرئيسي'];
+  const DEFAULT_DESCRIPTION_STYLE={fontFamily:'Tahoma, Arial, sans-serif',fontSize:'14px',color:'#ffffff',textAlign:'center'};
+  const ALLOWED_FONTS=["Tahoma, Arial, sans-serif","Arial, sans-serif","'Traditional Arabic', Tahoma, sans-serif","'Simplified Arabic', Tahoma, sans-serif","'Times New Roman', serif","Georgia, serif"];
+  const ALLOWED_SIZES=['12px','13px','14px','15px','16px','18px','20px','22px','24px'];
   const $id=id=>document.getElementById(id);
   const safeText=value=>String(value??'');
+  function normalizeDescriptionStyle(style){
+    const value=style&&typeof style==='object'?style:{};
+    const color=typeof value.color==='string'&&/^#[0-9a-f]{6}$/i.test(value.color)?value.color:'#ffffff';
+    return {
+      fontFamily:ALLOWED_FONTS.includes(value.fontFamily)?value.fontFamily:DEFAULT_DESCRIPTION_STYLE.fontFamily,
+      fontSize:ALLOWED_SIZES.includes(value.fontSize)?value.fontSize:DEFAULT_DESCRIPTION_STYLE.fontSize,
+      color,
+      textAlign:['right','left','center','justify'].includes(value.textAlign)?value.textAlign:DEFAULT_DESCRIPTION_STYLE.textAlign
+    };
+  }
   function getRoot(){return window.db&&typeof window.db==='object'?window.db:null;}
   function getSettings(root){
     const value=root&&root.platformSettings&&typeof root.platformSettings==='object'?root.platformSettings:{};
     const stadiums=Array.isArray(value.stadiums)?value.stadiums.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim()):DEFAULT_STADIUMS.slice();
-    return {description:typeof value.description==='string'?value.description:'',stadiums:stadiums.length?Array.from(new Set(stadiums.filter(x=>x!=='ملعب آخر'))):DEFAULT_STADIUMS.slice()};
+    return {description:typeof value.description==='string'?value.description:'',descriptionStyle:normalizeDescriptionStyle(value.descriptionStyle),stadiums:stadiums.length?Array.from(new Set(stadiums.filter(x=>x!=='ملعب آخر'))):DEFAULT_STADIUMS.slice()};
+  }
+  function readDescriptionStyleFromControls(fallback){
+    const current=normalizeDescriptionStyle(fallback||DEFAULT_DESCRIPTION_STYLE);
+    const selectedAlign=document.querySelector('#settings [data-description-align].is-active');
+    return normalizeDescriptionStyle({
+      fontFamily:$id('platformDescriptionFont')?.value||current.fontFamily,
+      fontSize:$id('platformDescriptionSize')?.value||current.fontSize,
+      color:$id('platformDescriptionColor')?.value||current.color,
+      textAlign:selectedAlign?.dataset.descriptionAlign||current.textAlign
+    });
+  }
+  function styleDescriptionElement(element,style){
+    if(!element)return;
+    const safe=normalizeDescriptionStyle(style);
+    element.style.setProperty('font-family',safe.fontFamily,'important');
+    element.style.setProperty('font-size',safe.fontSize,'important');
+    element.style.setProperty('color',safe.color,'important');
+    element.style.setProperty('text-align',safe.textAlign,'important');
+    element.style.setProperty('text-justify','inter-word','important');
+    element.style.setProperty('direction','rtl','important');
+    element.style.setProperty('white-space','pre-wrap','important');
+  }
+  function updateDescriptionPreview(style){
+    const safe=normalizeDescriptionStyle(style||readDescriptionStyleFromControls());
+    const text=safeText($id('platformDescriptionInput')?.value).trim()||'يظهر وصف المنصة هنا بالشكل الذي اخترته.';
+    const preview=$id('platformDescriptionPreview');
+    if(preview){preview.textContent=text;styleDescriptionElement(preview,safe)}
+    const editor=$id('platformDescriptionInput');
+    if(editor){editor.style.fontFamily=safe.fontFamily;editor.style.fontSize=safe.fontSize;editor.style.textAlign=safe.textAlign;editor.style.textJustify='inter-word'}
+    document.querySelectorAll('#settings [data-description-align]').forEach(button=>{
+      const active=button.dataset.descriptionAlign===safe.textAlign;
+      button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',active?'true':'false');
+    });
   }
   function applyPlatformSettings(root){
     const settings=getSettings(root||getRoot());
@@ -17296,8 +17317,12 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(description&&document.activeElement!==description)description.value=settings.description;
     const stadiumBox=$id('platformStadiumsInput');
     if(stadiumBox&&document.activeElement!==stadiumBox)stadiumBox.value=settings.stadiums.join('\n');
+    const font=$id('platformDescriptionFont');if(font&&document.activeElement!==font)font.value=settings.descriptionStyle.fontFamily;
+    const size=$id('platformDescriptionSize');if(size&&document.activeElement!==size)size.value=settings.descriptionStyle.fontSize;
+    const color=$id('platformDescriptionColor');if(color&&document.activeElement!==color)color.value=settings.descriptionStyle.color;
     const headerDescription=$id('platformDescriptionText');
-    if(headerDescription)headerDescription.textContent=settings.description.trim()||DEFAULT_DESCRIPTION;
+    if(headerDescription){headerDescription.textContent=settings.description.trim()||DEFAULT_DESCRIPTION;styleDescriptionElement(headerDescription,settings.descriptionStyle)}
+    updateDescriptionPreview(readDescriptionStyleFromControls(settings.descriptionStyle));
     const select=$id('matchStadium');
     if(select){
       const old=select.value;
@@ -17316,11 +17341,12 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const root=getRoot();
     if(!root){alert('بيانات المنصة غير جاهزة. أعد تحميل الصفحة ثم حاول مجددًا.');return false;}
     const description=safeText($id('platformDescriptionInput')?.value).trim();
+    const descriptionStyle=readDescriptionStyleFromControls(getSettings(root).descriptionStyle);
     const stadiumText=safeText($id('platformStadiumsInput')?.value);
     const stadiums=Array.from(new Set(stadiumText.split(/[\n,،;；]+/).map(x=>x.trim()).filter(x=>x&&x!=='ملعب آخر')));
     if(!stadiums.length){alert('أدخل اسم ملعب واحد على الأقل.');$id('platformStadiumsInput')?.focus();return false;}
     if(stadiums.some(x=>x.length>80)){alert('اسم الملعب يجب ألا يتجاوز 80 حرفًا.');return false;}
-    root.platformSettings={description,stadiums};
+    root.platformSettings={description,descriptionStyle,stadiums};
     try{localStorage.setItem(MAIN_KEY,JSON.stringify(root));window.db=root;}
     catch(error){alert('تعذر حفظ إعدادات المنصة على هذا الجهاز. تحقق من مساحة التخزين.');return false;}
     applyPlatformSettings(root);
@@ -17329,13 +17355,13 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(canWrite&&typeof window.__manarFirebaseSaveKey==='function'){
       try{
         const synced=await window.__manarFirebaseSaveKey(MAIN_KEY);
-        if(synced===true){if(message)message.textContent='✅ تم حفظ إعدادات المنصة ومزامنتها مع Firebase؛ ستظهر للزوار والأجهزة الأخرى بعد تحديث الصفحة.';if(typeof window.auditAdd==='function')window.auditAdd('تعديل','settings','تم تحديث وصف المنصة وقائمة الملاعب.');return true;}
+        if(synced===true){if(message)message.textContent='✅ تم حفظ إعدادات المنصة ومزامنتها مع Firebase؛ ستظهر للزوار والأجهزة الأخرى بعد تحديث الصفحة.';if(typeof window.auditAdd==='function')window.auditAdd('تعديل','settings','تم تحديث وصف المنصة وتنسيقه وقائمة الملاعب.');return true;}
       }catch(error){console.warn('Platform settings sync failed:',error)}
       if(message)message.textContent='حُفظت الإعدادات على هذا الجهاز، لكن Firebase لم يؤكد المزامنة. تحقق من صلاحيات الكتابة ثم أعد المحاولة.';
       return false;
     }
     if(message)message.textContent='✅ حُفظت الإعدادات على هذا الجهاز. لمزامنتها مع الزوار والأجهزة الأخرى، سجّل الدخول إلى Firebase ثم ارفع البيانات إلى السحابة.';
-    if(typeof window.auditAdd==='function')window.auditAdd('تعديل','settings','تم حفظ وصف المنصة وقائمة الملاعب محليًا.');
+    if(typeof window.auditAdd==='function')window.auditAdd('تعديل','settings','تم حفظ وصف المنصة وتنسيقه وقائمة الملاعب محليًا.');
     return true;
   };
   window.toggleSettingsPanel=function(key){
@@ -17375,6 +17401,16 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       button.addEventListener('click',()=>window.toggleSettingsPanel(button.dataset.settingsToggle));
     });
     document.querySelectorAll('#settings [data-settings-panel]').forEach(panel=>panel.hidden=true);
+    ['platformDescriptionInput','platformDescriptionFont','platformDescriptionSize','platformDescriptionColor'].forEach(id=>{
+      const control=$id(id);if(!control||control.dataset.descriptionStyleBound==='1')return;
+      control.dataset.descriptionStyleBound='1';
+      control.addEventListener(id==='platformDescriptionInput'?'input':'change',()=>updateDescriptionPreview(readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle)));
+    });
+    document.querySelectorAll('#settings [data-description-align]').forEach(button=>{
+      if(button.dataset.descriptionAlignBound==='1')return;
+      button.dataset.descriptionAlignBound='1';
+      button.addEventListener('click',()=>updateDescriptionPreview(normalizeDescriptionStyle({...readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle),textAlign:button.dataset.descriptionAlign})));
+    });
     applyPlatformSettings(getRoot());
     const replace=window.__manarReplaceMainDatabase;
     if(typeof replace==='function'&&!replace.__settingsWrapped){
