@@ -16526,5 +16526,190 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 }
 #matchSheetsSection #ksReportsList .ks-admin-decision-details .ks-supervisor-bottom b{color:#5146b5!important;}
 </style>
+<script id="yellow-cycle-suspension-final-v1">
+(function(){
+  'use strict';
+
+  /*
+   * دورة الإنذارات مستقلة عن إجمالي بطاقات الفريق واللاعب:
+   * - نقرأ البطاقات من كشوف المباريات كما هي، ولا نحذف أو نعدّل أي بطاقة.
+   * - عند بلوغ حد الإيقاف نربط العقوبة بالمباراة التالية للفريق.
+   * - لا تبدأ دورة صفراء جديدة إلا بعد اكتمال مباراة الإيقاف فعلياً.
+   */
+  function isMatchUnplayed(m){
+    if(!m)return false;
+    const status=String(m.status||'').trim().toLowerCase();
+    if(['scheduled','upcoming','pending','مجدولة','قادمة','لم تبدأ','قيد الانتظار'].includes(status))return true;
+    if(['finished','played','complete','completed','منتهية','انتهت','مكتملة','مكتمل'].includes(status))return false;
+    const time=new Date(`${m.date||'2999-12-31'}T${m.time||'23:59'}`).getTime();
+    return Number.isFinite(time)?time>=Date.now():true;
+  }
+
+  function cardMatchLabel(m){
+    return typeof matchLabelForSusp==='function'
+      ? matchLabelForSusp(m)
+      : `${teamName(m.home)} × ${teamName(m.away)} — ${m.date||'بدون تاريخ'}`;
+  }
+
+  window.automaticSuspensions=function(){
+    const out=[];
+    const sheets=typeof uniqueMatchSheets==='function'?uniqueMatchSheets():[];
+    const groups=new Map();
+
+    (Array.isArray(sheets)?sheets:[]).forEach(function(sh){
+      if(!sh||!sh.matchId)return;
+      const m=(db.matches||[]).find(x=>String(x.id)===String(sh.matchId));
+      if(!m)return;
+      const tid=String(sh.tournamentId||m.tournamentId||'');
+      const tour=(db.tournaments||[]).find(t=>String(t.id)===tid);
+      if(!tour)return;
+      (Array.isArray(sh.cards)?sh.cards:[]).forEach(function(c){
+        const pid=String(c?.playerId||'');
+        const type=String(c?.type||'').toLowerCase();
+        if(!pid||(type!=='yellow'&&type!=='red'))return;
+        const player=(db.players||[]).find(x=>String(x.id)===pid);
+        if(!player)return;
+        const key=JSON.stringify([pid,tid]);
+        if(!groups.has(key))groups.set(key,{pid:pid,tid:tid,tour:tour,events:[]});
+        groups.get(key).events.push({match:m,card:{...c,type:type}});
+      });
+    });
+
+    groups.forEach(function(group){
+      const player=(db.players||[]).find(x=>String(x.id)===group.pid);
+      if(!player)return;
+      const teamMatches=typeof orderedAllMatchesForTeam==='function'
+        ? (orderedAllMatchesForTeam(player.teamId,group.tid)||[])
+        : [];
+      const matchIndex=new Map(teamMatches.map((m,i)=>[String(m.id),i]));
+
+      /* نجمع بطاقات اللاعب في المباراة الواحدة حتى لا تتولد عقوبتان للمباراة نفسها. */
+      const byMatch=new Map();
+      group.events.forEach(function(e){
+        const id=String(e.match.id);
+        if(!byMatch.has(id))byMatch.set(id,{match:e.match,cards:[]});
+        byMatch.get(id).cards.push(e.card);
+      });
+      const events=Array.from(byMatch.values()).sort(function(a,b){
+        const ai=matchIndex.has(String(a.match.id))?matchIndex.get(String(a.match.id)):Number.MAX_SAFE_INTEGER;
+        const bi=matchIndex.has(String(b.match.id))?matchIndex.get(String(b.match.id)):Number.MAX_SAFE_INTEGER;
+        if(ai!==bi)return ai-bi;
+        const da=new Date(`${a.match.date||'2999-12-31'}T${a.match.time||'23:59'}`).getTime();
+        const dbb=new Date(`${b.match.date||'2999-12-31'}T${b.match.time||'23:59'}`).getTime();
+        return da-dbb||String(a.match.id).localeCompare(String(b.match.id));
+      });
+
+      const system=typeof suspensionTournamentType==='function'
+        ? suspensionTournamentType(group.tour)
+        : 'groups_knockout';
+      const threshold=system==='league'?4:2;
+      let cycleYellowCount=0;
+      let pendingMatchId='';
+      let pendingMatchIndex=-1;
+      let resetYellowAfterService=false;
+
+      events.forEach(function(event){
+        const currentId=String(event.match.id);
+        const currentIndex=matchIndex.has(currentId)?matchIndex.get(currentId):-1;
+
+        /* مباراة الإيقاف نفسها لا تُحسب ضمن دورة جديدة، حتى لو أُدخلت بطاقة بالخطأ في كشفها. */
+        if(pendingMatchId){
+          if(currentId===pendingMatchId)return;
+          if(currentIndex>=0&&pendingMatchIndex>=0&&currentIndex>pendingMatchIndex){
+            const serviceMatch=teamMatches[pendingMatchIndex];
+            if(serviceMatch&&!isMatchUnplayed(serviceMatch)){
+              if(resetYellowAfterService)cycleYellowCount=0;
+              pendingMatchId='';
+              pendingMatchIndex=-1;
+              resetYellowAfterService=false;
+            }else{
+              return;
+            }
+          }else if(currentIndex>=pendingMatchIndex){
+            return;
+          }
+        }
+
+        const yellowInMatch=event.cards.filter(c=>c.type==='yellow').length;
+        const hasRed=event.cards.some(c=>c.type==='red');
+        cycleYellowCount+=yellowInMatch;
+        const yellowReached=cycleYellowCount>=threshold;
+        if(!hasRed&&!yellowReached)return;
+
+        const next=currentIndex>=0?teamMatches[currentIndex+1]:null;
+        const reason=hasRed
+          ? 'بطاقة حمراء من الكشف'
+          : `تراكم ${threshold} بطاقات صفراء من الكشوفات`;
+        out.push({
+          id:`${hasRed?'AUTO_RED':'AUTO_YEL'}_${event.match.id}_${group.pid}`,
+          playerId:group.pid,
+          tournamentId:group.tid,
+          type:'cards',
+          reason:reason,
+          matches:1,
+          triggerMatchId:event.match.id,
+          triggerLabel:cardMatchLabel(event.match),
+          nextMatchId:next?.id||'',
+          nextMatchNo:currentIndex>=0?currentIndex+2:null,
+          automatic:true,
+          active:true,
+          source:'match-sheet'
+        });
+
+        pendingMatchId=String(next?.id||'');
+        pendingMatchIndex=next&&currentIndex>=0?currentIndex+1:-1;
+        /* الإيقاف بسبب التراكم يعيد عدّاد الدورة فقط بعد خدمة المباراة؛ الإجمالي التاريخي لا يتغير. */
+        resetYellowAfterService=yellowReached;
+      });
+    });
+
+    return out;
+  };
+
+  /* تصحيح حالة الإيقاف: لا ينتقل الإيقاف إلى المباراة التي تلي مباراة الإيقاف. */
+  window.suspensionCurrentState=function(){
+    const all=typeof allSuspensions==='function'?allSuspensions():[];
+    const result=[];
+    all.forEach(function(x){
+      const p=(db.players||[]).find(z=>String(z.id)===String(x.playerId));
+      if(!p)return;
+      const tm=typeof orderedAllMatchesForTeam==='function'
+        ? (orderedAllMatchesForTeam(p.teamId,x.tournamentId)||[])
+        : [];
+      let startIndex=-1;
+      if(x.startMatchId)startIndex=tm.findIndex(m=>String(m.id)===String(x.startMatchId));
+      if(startIndex<0&&x.nextMatchId)startIndex=tm.findIndex(m=>String(m.id)===String(x.nextMatchId));
+      if(startIndex<0&&x.triggerMatchId){
+        const ix=tm.findIndex(m=>String(m.id)===String(x.triggerMatchId));
+        if(ix>=0)startIndex=ix+1;
+      }
+      if(startIndex<0)startIndex=x.automatic?tm.length:0;
+      const count=Math.max(1,parseInt(x.matches,10)||1);
+      let nextMatches=[];
+      let active=false;
+
+      if(x.automatic){
+        /* نتحقق من مباريات العقوبة المحددة نفسها، لا من أي مباراة لاحقة غير منتهية. */
+        const planned=tm.slice(startIndex,startIndex+count);
+        nextMatches=planned.filter(isMatchUnplayed);
+        active=planned.length===0||planned.length<count||planned.some(isMatchUnplayed);
+      }else{
+        nextMatches=tm.slice(startIndex).filter(isMatchUnplayed).slice(0,count);
+        active=nextMatches.length>0;
+      }
+      result.push({...x,p:p,nextMatches:nextMatches,active:active});
+    });
+    return result;
+  };
+
+  function refresh(){
+    if(typeof window.renderSuspendedPlayers==='function'){
+      try{window.renderSuspendedPlayers();}catch(e){console.warn('تعذر تحديث قائمة الموقوفين:',e);}
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
+  else setTimeout(refresh,0);
+})();
+</script>
 </body>
 </html>
