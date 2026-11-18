@@ -816,12 +816,12 @@ body>header #platformDescriptionText{
     <button type="button" data-description-align="right" aria-pressed="false" title="محاذاة إلى اليمين">يمين</button>
     <button type="button" data-description-align="center" aria-pressed="true" title="توسيط">توسيط</button>
     <button type="button" data-description-align="left" aria-pressed="false" title="محاذاة إلى اليسار">يسار</button>
-    <button type="button" data-description-align="justify" aria-pressed="false" title="توازن أطوال الأسطر دون توسيع المسافات بين الكلمات">توازن</button>
+    <button type="button" data-description-align="justify" aria-pressed="false" title="ضبط النص ومساواة الطرفين">ضبط</button>
   </div>
 </div>
 <textarea id="platformDescriptionInput" rows="3" placeholder="اكتب وصفاً مختصراً يظهر أسفل اسم المنصة"></textarea>
 <div class="platform-description-preview-wrap"><span>معاينة الوصف</span><div id="platformDescriptionPreview" class="platform-description-preview" aria-live="polite">يظهر وصف المنصة هنا بالشكل الذي اخترته.</div></div>
-<small>يمكنك تغيير نوع الخط وحجمه ولونه ومحاذاته. خيار «توازن» يوازن أطوال الأسطر دون زيادة الفراغات بين الكلمات، مع التفاف طبيعي يناسب الهاتف. يظهر التنسيق للزوار بعد حفظ الإعدادات ومزامنتها.</small>
+<small>يمكنك تغيير نوع الخط وحجمه ولونه ومحاذاته. خيار «ضبط» يوزع الكلمات على السطر لمساواة طرفي الفقرة كما في Word. يظهر التنسيق للزوار بعد حفظ الإعدادات ومزامنتها.</small>
 </div>
 <div class="platform-stadium-manager">
   <div class="platform-stadium-heading"><div><label for="platformStadiumNameInput">🏟️ الملاعب المعتمدة</label><small>أضف كل ملعب باسمه واحفظه مباشرة؛ ستظهر الملاعب المحفوظة في نموذج تسجيل المباراة.</small></div><span class="badge">إدارة الملاعب</span></div>
@@ -17407,11 +17407,10 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     set('text-size-adjust','100%');
     set('-webkit-text-size-adjust','100%');
     set('color',safe.color);
-    /* وضع «الضبط المتوازن» يوازن أطوال الأسطر من دون تمديد الفراغات بين الكلمات. */
-    const displayAlign=safe.textAlign==='justify'?'right':safe.textAlign;
-    set('text-align',displayAlign);
-    set('text-align-last',displayAlign);
-    set('text-justify','auto');
+    set('text-align',safe.textAlign);
+    /* محاذاة Word الطبيعية: الأسطر الوسطى ممتدة للطرفين، أما السطر الأخير فيبقى طبيعياً حتى لا تتضخم المسافات. */
+    set('text-align-last',safe.textAlign==='justify'?'start':'auto');
+    set('text-justify','inter-word');
     set('text-wrap','balance');
     set('word-spacing','normal');
     set('direction','rtl');
@@ -17434,17 +17433,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     const preview=$id('platformDescriptionPreview');
     if(preview){preview.textContent=text;styleDescriptionElement(preview,safe)}
     const editor=$id('platformDescriptionInput');
-    if(editor){
-      const displayAlign=safe.textAlign==='justify'?'right':safe.textAlign;
-      editor.style.fontFamily=safe.fontFamily;
-      editor.style.fontSize=safe.fontSize;
-      editor.style.textAlign=displayAlign;
-      editor.style.textAlignLast=displayAlign;
-      editor.style.textJustify='auto';
-      editor.style.textWrap='balance';
-      editor.style.wordSpacing='normal';
-      editor.style.direction='rtl';
-    }
+    if(editor){editor.style.fontFamily=safe.fontFamily;editor.style.fontSize=safe.fontSize;editor.style.textAlign=safe.textAlign;editor.style.textAlignLast=safe.textAlign==='justify'?'start':'auto';editor.style.textJustify='inter-word';editor.style.textWrap='balance';editor.style.wordSpacing='normal';editor.style.direction='rtl'}
     document.querySelectorAll('#settings [data-description-align]').forEach(button=>{
       const active=button.dataset.descriptionAlign===safe.textAlign;
       button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',active?'true':'false');
@@ -17574,86 +17563,5 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
-
-<style id="platform-description-professional-mobile-layout">
-/* توازن مريح للوصف: لا نمدّ المسافات بين الكلمات، ونمنح الوصف عرضاً كاملاً على الهاتف. */
-body>header #platformDescriptionText,
-#settings .platform-description-preview {
-  word-spacing:normal!important;
-  letter-spacing:normal!important;
-  text-justify:auto!important;
-  text-wrap:balance!important;
-  overflow-wrap:break-word!important;
-  word-break:normal!important;
-  white-space:normal!important;
-}
-/* خيار «ضبط» القديم يبقى محفوظاً في البيانات لكنه يعرض كتوازن طبيعي بلا فراغات متمددة. */
-@media(max-width:760px){
-  body>header .brand{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) 68px!important;
-    grid-template-rows:auto auto auto!important;
-    grid-template-areas:"heading logo" "description description" "actions actions"!important;
-    gap:9px!important;
-    align-items:center!important;
-    direction:ltr!important;
-    width:100%!important;
-    min-width:0!important;
-    min-height:0!important;
-    padding:4px 0!important;
-  }
-  body>header .brand-text{display:contents!important}
-  body>header .brand-text h1{
-    grid-area:heading!important;
-    width:100%!important;
-    min-width:0!important;
-    margin:0!important;
-    text-align:center!important;
-    direction:rtl!important;
-    line-height:1.25!important;
-    overflow-wrap:anywhere!important;
-  }
-  body>header .brand-logo{
-    grid-area:logo!important;
-    width:64px!important;
-    height:64px!important;
-    min-width:64px!important;
-    max-width:64px!important;
-    justify-self:center!important;
-    align-self:center!important;
-    margin:0!important;
-  }
-  body>header #platformDescriptionText{
-    grid-area:description!important;
-    display:block!important;
-    width:100%!important;
-    max-width:none!important;
-    min-width:0!important;
-    box-sizing:border-box!important;
-    padding:7px 5px!important;
-    line-height:1.65!important;
-  }
-  body>header #authBar{
-    grid-area:actions!important;
-    position:static!important;
-    inset:auto!important;
-    display:flex!important;
-    flex-wrap:wrap!important;
-    align-items:center!important;
-    justify-content:center!important;
-    width:100%!important;
-    max-width:100%!important;
-    margin:2px auto 0!important;
-    padding:0!important;
-  }
-  body>header .header-clock{display:none!important}
-}
-@media(max-width:420px){
-  body>header .brand{grid-template-columns:minmax(0,1fr) 60px!important;gap:7px!important}
-  body>header .brand-logo{width:58px!important;height:58px!important;min-width:58px!important;max-width:58px!important}
-  body>header #platformDescriptionText{padding:6px 2px!important;line-height:1.6!important}
-}
-</style>
-
 </body>
 </html>
