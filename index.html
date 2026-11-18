@@ -13680,9 +13680,12 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     try{window.cancelManualSuspension?.();}catch(e){}
     try{window.renderSuspendedPlayers?.();}catch(e){}
     if(cloudSaved){
-      alert(oldIndex>=0?'تم تعديل العقوبة وحفظها في السحابة بنجاح.':'تم تسجيل العقوبة وحفظها في السحابة بنجاح.');
+      alert(oldIndex>=0?'تم التعديل بنجاح.':'تم تسجيل العقوبة بنجاح.');
     }else{
-      alert('تم حفظ العقوبة على هذا الجهاز، لكن لم يتم تأكيد مزامنتها مع Firebase.'+(cloudError?'\\nسبب التعذر: '+cloudError:'\\nتحقق من تسجيل الدخول إلى حساب Firebase المصرّح له بالكتابة ثم أعد المزامنة.'));
+      const syncNote=(cloudError?'\\nسبب التعذر: '+cloudError:'\\nتحقق من تسجيل الدخول إلى حساب Firebase المصرّح له بالكتابة ثم أعد المزامنة.');
+      alert(oldIndex>=0
+        ? 'تم التعديل بنجاح على هذا الجهاز، لكن لم يتم تأكيد مزامنته مع Firebase.'+syncNote
+        : 'تم حفظ العقوبة على هذا الجهاز، لكن لم يتم تأكيد مزامنتها مع Firebase.'+syncNote);
     }
     return true;
   };
@@ -16914,17 +16917,30 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   // دعم تعديل سجل قديم حتى لو انتهت بطولته؛ البطولات المنتهية لا تظهر عند إنشاء عقوبة جديدة.
   const baseEdit=window.editSuspension;
   if(typeof baseEdit==='function'){
-    window.editSuspension=function(id){
+    window.editSuspension=async function(id){
+      if(typeof window.hasPermission==='function'&&!window.hasPermission('players'))return;
       const db=database(),record=A(db.suspensions).find(item=>same(item.id,id));
       if(!record)return baseEdit.apply(this,arguments);
+
+      // افتح لوحة الإيقافات ونفّذ تعبئة النموذج الأساسية أولاً.
       baseEdit.apply(this,arguments);
+
       const tournament=$('manualSuspTournament'),teamSelect=$('manualSuspTeam'),playerSelect=$('manualSuspPlayer');
-      if(!tournament||!teamSelect||!playerSelect)return;
+      const panel=$('suspendedPlayersPanel');
+      const form=panel?.querySelector('.card[data-perm="players"]');
+      if(!tournament||!teamSelect||!playerSelect||!form)return;
+
+      // أضف البطولة المنتهية مؤقتاً عند تعديل سجل قديم فقط.
       const savedTournament=A(db.tournaments).find(t=>same(t.id,record.tournamentId));
       if(savedTournament&&!Array.from(tournament.options).some(option=>same(option.value,savedTournament.id))){
-        tournament.insertAdjacentHTML('beforeend',`<option value="${esc(savedTournament.id)}">${esc(savedTournament.name||'بطولة')} — منتهية (تعديل سجل محفوظ)</option>`);
+        const option=document.createElement('option');
+        option.value=S(savedTournament.id);
+        option.textContent=(savedTournament.name||savedTournament.title||'بطولة')+' — منتهية (تعديل سجل محفوظ)';
+        tournament.appendChild(option);
       }
       tournament.value=S(record.tournamentId);
+
+      // أعد تحميل الفرق واللاعبين بالترتيب، ثم استعد كل حقول السجل.
       const player=A(db.players).find(item=>same(item.id,record.playerId));
       const team=player?playerTeam(db,player):A(db.teams).find(item=>same(item.id,record.teamId));
       window.refreshManualSuspTeams();
@@ -16933,8 +16949,38 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
         window.refreshManualSuspPlayers();
         playerSelect.value=S(record.playerId);
         window.refreshManualSuspStartMatches();
-        if($('manualSuspStartMatch'))$('manualSuspStartMatch').value=S(record.startMatchId);
       }
+      if($('manualSuspType'))$('manualSuspType').value=S(record.type)||'administrative';
+      if($('manualSuspMatches'))$('manualSuspMatches').value=Math.max(1,parseInt(record.matches,10)||1);
+      if($('manualSuspDate'))$('manualSuspDate').value=S(record.penaltyStartDate||record.createdAt||record.updatedAt).slice(0,10);
+      if($('manualSuspStartMatch'))$('manualSuspStartMatch').value=S(record.startMatchId);
+      if($('manualSuspNote'))$('manualSuspNote').value=S(record.note);
+
+      // تأكد من ربط زر الحفظ بمعرّف السجل الجاري تعديله.
+      let editing=$('manualSuspensionEditing');
+      if(!editing){
+        editing=document.createElement('input');
+        editing.type='hidden';
+        editing.id='manualSuspensionEditing';
+        form.appendChild(editing);
+      }
+      editing.value=S(record.id);
+
+      // ميّز النموذج كحالة تعديل وانقل المستخدم إليه مباشرة.
+      const heading=form.querySelector('.section-title h4');
+      if(heading)heading.textContent='✏️ تعديل العقوبة اليدوية';
+      const saveButton=form.querySelector('button[onclick*="saveManualSuspension"]');
+      if(saveButton)saveButton.textContent='💾 حفظ التعديل';
+      form.classList.add('penalty-form-focus');
+      try{
+        // scrollIntoView قد يعيد Promise في المتصفحات الحديثة، وawait يعمل أيضًا مع المتصفحات الأقدم.
+        await form.scrollIntoView({behavior:'smooth',block:'center'});
+      }catch(error){
+        form.scrollIntoView();
+      }
+      const firstEditable=$('manualSuspType')||$('manualSuspMatches')||$('manualSuspNote');
+      if(firstEditable)firstEditable.focus({preventScroll:true});
+      window.setTimeout(()=>form.classList.remove('penalty-form-focus'),2200);
     };
   }
 
@@ -16942,8 +16988,15 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   if(typeof baseCancel==='function'){
     window.cancelManualSuspension=function(){
       baseCancel.apply(this,arguments);
+      // أعد قائمة البطولات النشطة فقط؛ حتى لا تبقى بطولة منتهية ظهرت مؤقتًا للتعديل.
+      window.fillManualSuspensionForm?.();
       const team=$('manualSuspTeam');if(team){team.value='';}
       window.refreshManualSuspTeams();
+      const form=$('suspendedPlayersPanel')?.querySelector('.card[data-perm="players"]');
+      const heading=form?.querySelector('.section-title h4');
+      const saveButton=form?.querySelector('button[onclick*="saveManualSuspension"]');
+      if(heading)heading.textContent='➕ إضافة عقوبة يدوية';
+      if(saveButton)saveButton.textContent='💾 حفظ العقوبة';
     };
   }
 
