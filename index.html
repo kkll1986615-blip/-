@@ -823,7 +823,16 @@ body>header #platformDescriptionText{
 <div class="platform-description-preview-wrap"><span>معاينة الوصف</span><div id="platformDescriptionPreview" class="platform-description-preview" aria-live="polite">يظهر وصف المنصة هنا بالشكل الذي اخترته.</div></div>
 <small>يمكنك تغيير نوع الخط وحجمه ولونه ومحاذاته. خيار «ضبط» يوزع الكلمات على السطر لمساواة طرفي الفقرة كما في Word. يظهر التنسيق للزوار بعد حفظ الإعدادات ومزامنتها.</small>
 </div>
-<div><label for="platformStadiumsInput">🏟️ الملاعب المعتمدة</label><textarea id="platformStadiumsInput" rows="3" placeholder="ملعب المنار الرئيسي&#10;ملعب آخر"></textarea><small>اكتب اسم كل ملعب في سطر مستقل. ستظهر الأسماء في قائمة الملعب عند تسجيل المباراة.</small></div>
+<div class="platform-stadium-manager">
+  <div class="platform-stadium-heading"><div><label for="platformStadiumNameInput">🏟️ الملاعب المعتمدة</label><small>أضف كل ملعب باسمه واحفظه مباشرة؛ ستظهر الملاعب المحفوظة في نموذج تسجيل المباراة.</small></div><span class="badge">إدارة الملاعب</span></div>
+  <div class="platform-stadium-entry">
+    <input id="platformStadiumNameInput" type="text" maxlength="80" autocomplete="off" placeholder="اكتب اسم الملعب هنا" aria-label="اسم الملعب الجديد"/>
+    <button class="btn blue" id="addPlatformStadiumButton" type="button">💾 حفظ الملعب</button>
+  </div>
+  <div class="platform-stadium-list-heading"><b>الملاعب المسجلة</b><span id="platformStadiumCount" class="badge">0 ملعب</span></div>
+  <div id="platformStadiumList" class="platform-stadium-list" aria-live="polite"></div>
+  <textarea id="platformStadiumsInput" rows="3" hidden aria-hidden="true"></textarea>
+</div>
 </div>
 <div class="actions"><button class="btn" type="button" onclick="savePlatformSettings()">💾 حفظ إعدادات المنصة</button></div>
 <div id="platformSettingsMessage" class="settings-inline-message" role="status"></div>
@@ -11951,14 +11960,16 @@ function render(){
   // مع إضافة الموقوفين تلقائيًا دون تكرار اللاعب نفسه.
   const playerKey=x=>S(x?.playerId??x?.p?.id??x?.player?.id);
   const automaticPlayerIds=new Set(active.filter(x=>x.automatic).map(playerKey).filter(Boolean));
+  // جميع العقوبات اليدوية تُحتسب، بما فيها النوع اليدوي «تراكم بطاقات».
+  // نعدّ اللاعبين الفريدين لا عدد السجلات حتى لا يتكرر اللاعب في الإجمالي.
   const manualPlayerIds=new Set(arr(db.suspensions)
-    .filter(x=>x&&x.automatic!==true&&S(x.type||'administrative')!=='cards')
+    .filter(x=>x&&x.automatic!==true)
     .map(playerKey).filter(Boolean));
   const totalPlayerIds=new Set([...active.map(playerKey).filter(Boolean),...manualPlayerIds]);
   const automatic=automaticPlayerIds.size,manual=manualPlayerIds.size,totalSuspendedPlayers=totalPlayerIds.size;
   if(!active.length&&!manual){box.innerHTML='<div class="suspended-empty"><span class="empty-icon">🎉</span><strong>لا يوجد لاعبون موقوفون حاليًا</strong><div style="margin-top:5px;font-size:11px">ستظهر هنا العقوبات الفعّالة تلقائيًا بعد تسجيلها في كشوفات المباريات.</div></div>';return}
   const cards=active.map((x,i)=>{const p=x.p||{},reason=x.reason||x.note||'عقوبة';const next=x.nextMatches?.[0];return '<article class="suspended-player-card"><div class="spc-head"><div class="spc-avatar">⛔</div><div class="spc-name"><strong>'+esc(p.name||'لاعب غير معروف')+'</strong><small>لاعب موقوف حاليًا • رقم القائمة '+(i+1)+'</small></div><span class="spc-status">موقوف</span></div><div class="spc-info"><div class="spc-item"><label>⚽ الفريق</label><b>'+esc(teamName(db,p.teamId))+'</b></div><div class="spc-item"><label>🏆 البطولة</label><b>'+esc(tourName(db,x.tournamentId))+'</b></div><div class="spc-item"><label>📌 سبب الإيقاف</label><b>'+esc(reason)+'</b></div><div class="spc-item"><label>🔢 مدة الإيقاف</label><b>'+esc(String(Math.max(1,Number(x.matches)||1)))+' مباراة</b></div><div class="spc-item next"><label>📅 المباراة الموقوف عنها</label><b>'+matchMarkup(db,next)+'</b></div></div></article>'}).join('');
-  box.innerHTML='<div class="suspension-hero"><div class="hero-icon">⛔</div><div><strong>قائمة اللاعبين الموقوفين الآن</strong><small>تُحدّث تلقائيًا من كشوفات المباريات والعقوبات المسجلة</small></div><div class="count">'+totalSuspendedPlayers+'</div></div><div class="suspended-summary"><span>🚫 إجمالي الموقوفين <b>'+totalSuspendedPlayers+'</b></span><span>🟨🟥 عقوبات تلقائية <b>'+automatic+'</b></span><span>📝 عقوبات إدارية <b>'+manual+'</b></span></div><div class="suspended-player-list">'+cards+'</div>';
+  box.innerHTML='<div class="suspension-hero"><div class="hero-icon">⛔</div><div><strong>قائمة اللاعبين الموقوفين الآن</strong><small>تُحدّث تلقائيًا من كشوفات المباريات والعقوبات المسجلة</small></div><div class="count">'+totalSuspendedPlayers+'</div></div><div class="suspended-summary"><span>🚫 إجمالي الموقوفين <b>'+totalSuspendedPlayers+'</b></span><span>🟨🟥 عقوبات تلقائية <b>'+automatic+'</b></span><span>📝 عقوبات يدوية <b>'+manual+'</b></span></div><div class="suspended-player-list">'+cards+'</div>';
 }
 window.renderSuspendedPlayers=render;
 function later(){setTimeout(render,50);setTimeout(render,300);setTimeout(render,1000)}
@@ -17263,6 +17274,33 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 @media(max-width:760px){#settings .platform-description-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}#settings .platform-description-align{grid-column:1/-1}}
 @media(max-width:560px){#settings .settings-icon-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#settings .settings-icon-btn{min-height:104px;padding:10px 6px}#settings .settings-icon-label{font-size:12px}#settings .settings-panel{padding:12px}#settings .settings-platform-fields{grid-template-columns:1fr}#settings .platform-description-toolbar{grid-template-columns:1fr 1fr}}
 </style>
+
+<style id="platform-description-balanced-lines-and-stadium-ui">
+/* وصف المنصة: أسطر متوازنة، وضبط Word من دون تمديد السطر الأخير أو خلق فراغات مبالغ بها. */
+body>header .brand-text{min-width:0!important;width:100%!important;max-width:100%!important}
+body>header #platformDescriptionText{max-width:100%!important;min-width:0!important;white-space:normal!important;overflow-wrap:break-word!important;word-spacing:normal!important;text-wrap:balance!important;line-height:1.5!important}
+/* لوحة الملاعب داخل إعدادات المنصة فقط */
+#settings .platform-stadium-manager{min-width:0;padding:15px;border:1px solid #d5e8df;border-radius:16px;background:linear-gradient(145deg,#f8fcfa,#ffffff);box-shadow:0 5px 16px rgba(8,80,57,.06)}
+#settings .platform-stadium-heading,#settings .platform-stadium-list-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#settings .platform-stadium-heading small{display:block;color:#718096;font-size:12px;line-height:1.65;margin-top:4px}
+#settings .platform-stadium-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:13px;align-items:stretch}
+#settings #platformStadiumNameInput{min-width:0;width:100%;min-height:46px}
+#settings #addPlatformStadiumButton{min-width:132px;white-space:nowrap}
+#settings .platform-stadium-list-heading{margin:16px 0 8px;color:#31584a}
+#settings .platform-stadium-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px}
+#settings .platform-stadium-item{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:10px 11px;border:1px solid #dcebe4;border-radius:12px;background:#fff;box-shadow:0 2px 7px rgba(8,80,57,.04)}
+#settings .platform-stadium-name{min-width:0;overflow-wrap:anywhere;font-weight:800;color:#174b3b}
+#settings .platform-stadium-remove{flex:0 0 auto;border:1px solid #f1c9c9;border-radius:9px;padding:7px 9px;background:#fff3f3;color:#ad3030;font-size:12px;font-weight:800}
+#settings .platform-stadium-empty{padding:13px;border:1px dashed #cbdcd3;border-radius:11px;background:#fff;color:#718096;text-align:center;font-size:12px;line-height:1.7}
+@media(max-width:520px){
+  #settings .platform-stadium-manager{padding:12px}
+  #settings .platform-stadium-entry{grid-template-columns:1fr}
+  #settings #addPlatformStadiumButton{width:100%;min-width:0}
+  #settings .platform-stadium-list{grid-template-columns:1fr}
+  body>header #platformDescriptionText{text-wrap:balance!important;line-height:1.48!important}
+}
+</style>
+
 <script id="settings-five-icons-script">
 (function(){
   'use strict';
@@ -17290,6 +17328,58 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const stadiums=Array.isArray(value.stadiums)?value.stadiums.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim()):DEFAULT_STADIUMS.slice();
     return {description:typeof value.description==='string'?value.description:'',descriptionStyle:normalizeDescriptionStyle(value.descriptionStyle),stadiums:stadiums.length?Array.from(new Set(stadiums.filter(x=>x!=='ملعب آخر'))):DEFAULT_STADIUMS.slice()};
   }
+  function getStadiumDraft(){
+    const box=$id('platformStadiumsInput');
+    const raw=box?safeText(box.value):'';
+    const list=raw.split(/[\n,،;；]+/).map(x=>x.trim()).filter(x=>x&&x!=='ملعب آخر');
+    return Array.from(new Set(list));
+  }
+  function renderPlatformStadiumList(list){
+    const host=$id('platformStadiumList');
+    const count=$id('platformStadiumCount');
+    if(!host)return;
+    const names=Array.isArray(list)?list:getStadiumDraft();
+    host.replaceChildren();
+    if(count)count.textContent=names.length+' ملعب';
+    if(!names.length){
+      const empty=document.createElement('div');empty.className='platform-stadium-empty';empty.textContent='لم تتم إضافة ملاعب بعد. اكتب اسم الملعب ثم اضغط «حفظ الملعب».';host.appendChild(empty);return;
+    }
+    names.forEach((name,index)=>{
+      const item=document.createElement('div');item.className='platform-stadium-item';
+      const title=document.createElement('span');title.className='platform-stadium-name';title.textContent=name;
+      const remove=document.createElement('button');remove.type='button';remove.className='platform-stadium-remove';remove.dataset.stadiumRemove=String(index);remove.setAttribute('aria-label','حذف '+name);remove.title='حذف الملعب';remove.textContent='حذف ✕';
+      item.append(title,remove);host.appendChild(item);
+    });
+  }
+  function setStadiumDraft(list){
+    const clean=Array.from(new Set((list||[]).map(x=>safeText(x).trim()).filter(x=>x&&x!=='ملعب آخر')));
+    const box=$id('platformStadiumsInput');if(box)box.value=clean.join('\n');
+    renderPlatformStadiumList(clean);
+  }
+  window.addPlatformStadium=async function(){
+    if(typeof currentRole!=='undefined'&&currentRole!=='admin'){alert('إضافة الملاعب متاحة لمدير النظام فقط.');return false;}
+    const input=$id('platformStadiumNameInput');
+    const name=safeText(input?.value).trim().replace(/[\r\n]+/g,' ');
+    if(!name){alert('اكتب اسم الملعب أولاً.');input?.focus();return false;}
+    if(name.length>80){alert('اسم الملعب يجب ألا يتجاوز 80 حرفًا.');input?.focus();return false;}
+    const names=getStadiumDraft();
+    if(names.some(x=>x.localeCompare(name,'ar',{sensitivity:'base'})===0)){alert('هذا الملعب مسجل بالفعل.');input?.focus();return false;}
+    names.push(name);setStadiumDraft(names);
+    if(input)input.value='';
+    const saved=await window.savePlatformSettings();
+    if(saved){const message=$id('platformSettingsMessage');if(message)message.textContent='✅ تمت إضافة «'+name+'» وحفظه ضمن ملاعب المنصة.';}
+    return saved;
+  };
+  window.removePlatformStadium=async function(index){
+    if(typeof currentRole!=='undefined'&&currentRole!=='admin'){alert('حذف الملاعب متاح لمدير النظام فقط.');return false;}
+    const names=getStadiumDraft();
+    if(!Number.isInteger(index)||index<0||index>=names.length)return false;
+    if(names.length===1){alert('يجب الإبقاء على ملعب واحد على الأقل.');return false;}
+    const removed=names[index];names.splice(index,1);setStadiumDraft(names);
+    const saved=await window.savePlatformSettings();
+    if(saved){const message=$id('platformSettingsMessage');if(message)message.textContent='✅ تم حذف «'+removed+'» وحفظ قائمة الملاعب.';}
+    return saved;
+  };
   function readDescriptionStyleFromControls(fallback){
     const current=normalizeDescriptionStyle(fallback||DEFAULT_DESCRIPTION_STYLE);
     const selectedAlign=document.querySelector('#settings [data-description-align].is-active');
@@ -17318,8 +17408,11 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     set('-webkit-text-size-adjust','100%');
     set('color',safe.color);
     set('text-align',safe.textAlign);
-    set('text-align-last',safe.textAlign==='justify'?'justify':'auto');
+    /* محاذاة Word الطبيعية: الأسطر الوسطى ممتدة للطرفين، أما السطر الأخير فيبقى طبيعياً حتى لا تتضخم المسافات. */
+    set('text-align-last',safe.textAlign==='justify'?'start':'auto');
     set('text-justify','inter-word');
+    set('text-wrap','balance');
+    set('word-spacing','normal');
     set('direction','rtl');
     set('unicode-bidi','plaintext');
     set('display','block');
@@ -17340,7 +17433,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     const preview=$id('platformDescriptionPreview');
     if(preview){preview.textContent=text;styleDescriptionElement(preview,safe)}
     const editor=$id('platformDescriptionInput');
-    if(editor){editor.style.fontFamily=safe.fontFamily;editor.style.fontSize=safe.fontSize;editor.style.textAlign=safe.textAlign;editor.style.textJustify='inter-word'}
+    if(editor){editor.style.fontFamily=safe.fontFamily;editor.style.fontSize=safe.fontSize;editor.style.textAlign=safe.textAlign;editor.style.textAlignLast=safe.textAlign==='justify'?'start':'auto';editor.style.textJustify='inter-word';editor.style.textWrap='balance';editor.style.wordSpacing='normal';editor.style.direction='rtl'}
     document.querySelectorAll('#settings [data-description-align]').forEach(button=>{
       const active=button.dataset.descriptionAlign===safe.textAlign;
       button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',active?'true':'false');
@@ -17352,6 +17445,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(description&&document.activeElement!==description)description.value=settings.description;
     const stadiumBox=$id('platformStadiumsInput');
     if(stadiumBox&&document.activeElement!==stadiumBox)stadiumBox.value=settings.stadiums.join('\n');
+    renderPlatformStadiumList(settings.stadiums);
     const font=$id('platformDescriptionFont');if(font&&document.activeElement!==font)font.value=settings.descriptionStyle.fontFamily;
     const size=$id('platformDescriptionSize');if(size&&document.activeElement!==size)size.value=settings.descriptionStyle.fontSize;
     const color=$id('platformDescriptionColor');if(color&&document.activeElement!==color)color.value=settings.descriptionStyle.color;
@@ -17446,6 +17540,18 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       button.dataset.descriptionAlignBound='1';
       button.addEventListener('click',()=>updateDescriptionPreview(normalizeDescriptionStyle({...readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle),textAlign:button.dataset.descriptionAlign})));
     });
+    const stadiumInput=$id('platformStadiumNameInput');
+    if(stadiumInput&&!stadiumInput.dataset.stadiumBound){
+      stadiumInput.dataset.stadiumBound='1';
+      stadiumInput.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();window.addPlatformStadium();}});
+    }
+    const stadiumAdd=$id('addPlatformStadiumButton');
+    if(stadiumAdd&&!stadiumAdd.dataset.stadiumBound){stadiumAdd.dataset.stadiumBound='1';stadiumAdd.addEventListener('click',()=>window.addPlatformStadium());}
+    const stadiumList=$id('platformStadiumList');
+    if(stadiumList&&!stadiumList.dataset.stadiumBound){
+      stadiumList.dataset.stadiumBound='1';
+      stadiumList.addEventListener('click',event=>{const button=event.target.closest('[data-stadium-remove]');if(button)window.removePlatformStadium(Number(button.dataset.stadiumRemove));});
+    }
     applyPlatformSettings(getRoot());
     const replace=window.__manarReplaceMainDatabase;
     if(typeof replace==='function'&&!replace.__settingsWrapped){
