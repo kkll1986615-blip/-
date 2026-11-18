@@ -702,11 +702,23 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+
+<style id="platform-description-cross-device-fix">
+/* وصف الترويسة فقط: تنسيق موحد دون التأثير في عنوان المنصة أو بقية الأقسام. */
+body>header #platformDescriptionText{
+  display:block!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  margin:8px auto 0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;white-space:normal!important;overflow-wrap:break-word!important;word-break:normal!important;
+  line-height:1.6!important;font-weight:800!important;letter-spacing:0!important;text-size-adjust:100%!important;
+  -webkit-text-size-adjust:100%!important;font-synthesis:none!important;font-kerning:normal!important;
+}
+</style>
+
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -796,7 +808,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <div class="platform-description-editor">
 <label for="platformDescriptionInput">📝 وصف المنصة</label>
 <div class="platform-description-toolbar" aria-label="أدوات تنسيق وصف المنصة">
-  <div><label for="platformDescriptionFont">نوع الخط</label><select id="platformDescriptionFont"><option value="Tahoma, Arial, sans-serif">Tahoma</option><option value="Arial, sans-serif">Arial</option><option value="'Traditional Arabic', Tahoma, sans-serif">Traditional Arabic</option><option value="'Simplified Arabic', Tahoma, sans-serif">Simplified Arabic</option><option value="'Times New Roman', serif">Times New Roman</option><option value="Georgia, serif">Georgia</option></select></div>
+  <div><label for="platformDescriptionFont">نوع الخط</label><select id="platformDescriptionFont"><option value="'Tajawal', Tahoma, Arial, sans-serif">Tajawal</option><option value="'Cairo', Tahoma, Arial, sans-serif">Cairo</option><option value="'Almarai', Tahoma, Arial, sans-serif">Almarai</option><option value="'Amiri', Georgia, serif">Amiri</option></select></div>
   <div><label for="platformDescriptionSize">حجم الخط</label><select id="platformDescriptionSize"><option value="12px">12</option><option value="13px">13</option><option value="14px" selected>14</option><option value="15px">15</option><option value="16px">16</option><option value="18px">18</option><option value="20px">20</option><option value="22px">22</option><option value="24px">24</option></select></div>
   <div><label for="platformDescriptionColor">لون الخط</label><input id="platformDescriptionColor" type="color" value="#ffffff" aria-label="اختر لون خط الوصف"/></div>
   <div class="platform-description-align" role="group" aria-label="محاذاة وصف المنصة">
@@ -1030,7 +1042,7 @@ async function saveManagedAccountChanges(){
 const KEY='manar_sports_v2';
 const LEGACY_MAIN_KEY='manar_match_sheets_v1';
 function loadMainDatabase(){
-  const empty={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[],platformSettings:{description:'',descriptionStyle:{fontFamily:'Tahoma, Arial, sans-serif',fontSize:'14px',color:'#ffffff',textAlign:'center'},stadiums:['ملعب المنار الرئيسي']}};
+  const empty={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[],platformSettings:{description:'',descriptionStyle:{fontFamily:"'Tajawal', Tahoma, Arial, sans-serif",fontSize:'14px',color:'#ffffff',textAlign:'center'},stadiums:['ملعب المنار الرئيسي']}};
   /* لا ندمج النسخ القديمة بعد التصفير: المعلومة تُحفظ داخل القاعدة الرئيسية وتُزامن مع Firebase. */
   let resetMeta=null;
   try{
@@ -4799,7 +4811,7 @@ window.__manarReplaceMainDatabase=function(next){
      if(!Object.prototype.hasOwnProperty.call(target,'platformSettings')&&db&&db.platformSettings)target.platformSettings=db.platformSettings;
      if(!target.platformSettings||typeof target.platformSettings!=='object')target.platformSettings={description:'',stadiums:['ملعب المنار الرئيسي']};
      if(!Array.isArray(target.platformSettings.stadiums))target.platformSettings.stadiums=['ملعب المنار الرئيسي'];
-     if(!target.platformSettings.descriptionStyle||typeof target.platformSettings.descriptionStyle!=='object')target.platformSettings.descriptionStyle={fontFamily:'Tahoma, Arial, sans-serif',fontSize:'14px',color:'#ffffff',textAlign:'center'};
+     if(!target.platformSettings.descriptionStyle||typeof target.platformSettings.descriptionStyle!=='object')target.platformSettings.descriptionStyle={fontFamily:"'Tajawal', Tahoma, Arial, sans-serif",fontSize:'14px',color:'#ffffff',textAlign:'center'};
      ['tournaments','teams','players','matches','officialPlayers','archives','suspensions'].forEach(k=>{
       if(!Array.isArray(target[k]))target[k]=[];
     });
@@ -17257,8 +17269,8 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   const MAIN_KEY='manar_sports_v2';
   const DEFAULT_DESCRIPTION='نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.';
   const DEFAULT_STADIUMS=['ملعب المنار الرئيسي'];
-  const DEFAULT_DESCRIPTION_STYLE={fontFamily:'Tahoma, Arial, sans-serif',fontSize:'14px',color:'#ffffff',textAlign:'center'};
-  const ALLOWED_FONTS=["Tahoma, Arial, sans-serif","Arial, sans-serif","'Traditional Arabic', Tahoma, sans-serif","'Simplified Arabic', Tahoma, sans-serif","'Times New Roman', serif","Georgia, serif"];
+  const DEFAULT_DESCRIPTION_STYLE={fontFamily:"'Tajawal', Tahoma, Arial, sans-serif",fontSize:'14px',color:'#ffffff',textAlign:'center'};
+  const ALLOWED_FONTS=["'Tajawal', Tahoma, Arial, sans-serif","'Cairo', Tahoma, Arial, sans-serif","'Almarai', Tahoma, Arial, sans-serif","'Amiri', Georgia, serif"];
   const ALLOWED_SIZES=['12px','13px','14px','15px','16px','18px','20px','22px','24px'];
   const $id=id=>document.getElementById(id);
   const safeText=value=>String(value??'');
@@ -17291,13 +17303,36 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   function styleDescriptionElement(element,style){
     if(!element)return;
     const safe=normalizeDescriptionStyle(style);
-    element.style.setProperty('font-family',safe.fontFamily,'important');
-    element.style.setProperty('font-size',safe.fontSize,'important');
-    element.style.setProperty('color',safe.color,'important');
-    element.style.setProperty('text-align',safe.textAlign,'important');
-    element.style.setProperty('text-justify','inter-word','important');
-    element.style.setProperty('direction','rtl','important');
-    element.style.setProperty('white-space','pre-wrap','important');
+    const set=(name,value)=>element.style.setProperty(name,value,'important');
+    /* خط ويب واحد متاح على كل الأجهزة، مع إيقاف تكبير النص التلقائي في متصفحات الهاتف. */
+    set('font-family',safe.fontFamily);
+    set('font-size',safe.fontSize);
+    set('font-weight','800');
+    set('font-style','normal');
+    set('font-synthesis','none');
+    set('font-kerning','normal');
+    set('font-feature-settings','"kern" 1, "liga" 1, "calt" 1');
+    set('line-height','1.6');
+    set('letter-spacing','0');
+    set('text-size-adjust','100%');
+    set('-webkit-text-size-adjust','100%');
+    set('color',safe.color);
+    set('text-align',safe.textAlign);
+    set('text-align-last',safe.textAlign==='justify'?'justify':'auto');
+    set('text-justify','inter-word');
+    set('direction','rtl');
+    set('unicode-bidi','plaintext');
+    set('display','block');
+    set('box-sizing','border-box');
+    set('width','100%');
+    set('max-width','100%');
+    set('min-width','0');
+    set('margin-left','auto');
+    set('margin-right','auto');
+    set('padding','0');
+    set('white-space','normal');
+    set('word-break','normal');
+    set('overflow-wrap','break-word');
   }
   function updateDescriptionPreview(style){
     const safe=normalizeDescriptionStyle(style||readDescriptionStyleFromControls());
