@@ -807,52 +807,85 @@ body>header #platformDescriptionText{
 <div class="grid settings-platform-fields">
 <div class="platform-description-editor">
 <label for="platformDescriptionRichEditor">📝 وصف المنصة</label>
-<div class="platform-description-toolbar" aria-label="إعدادات تنسيق وصف المنصة">
-  <div><label for="platformDescriptionFont">نوع الخط</label><select id="platformDescriptionFont"><option value="'Tajawal', Tahoma, Arial, sans-serif">Tajawal</option><option value="'Cairo', Tahoma, Arial, sans-serif">Cairo</option><option value="'Almarai', Tahoma, Arial, sans-serif">Almarai</option><option value="'Amiri', Georgia, serif">Amiri</option><option value="'Noto Kufi Arabic', Tahoma, Arial, sans-serif">Noto Kufi Arabic</option><option value="'IBM Plex Sans Arabic', Tahoma, Arial, sans-serif">IBM Plex Sans Arabic</option><option value="'Readex Pro', Tahoma, Arial, sans-serif">Readex Pro</option></select></div>
-  <div><label for="platformDescriptionSize">حجم الخط</label><select id="platformDescriptionSize"><option value="12px">12</option><option value="13px">13</option><option value="14px" selected>14</option><option value="15px">15</option><option value="16px">16</option><option value="18px">18</option><option value="20px">20</option><option value="22px">22</option><option value="24px">24</option><option value="26px">26</option><option value="28px">28</option></select></div>
-  <div><label for="platformDescriptionColor">اللون الأساسي</label><input id="platformDescriptionColor" type="color" value="#ffffff" aria-label="اختر اللون الأساسي لوصف المنصة"/></div>
-  <div class="platform-description-align" role="group" aria-label="محاذاة وصف المنصة">
-    <span class="platform-description-align-label">المحاذاة</span>
-    <button type="button" data-description-align="right" aria-pressed="false" title="محاذاة إلى اليمين">يمين</button>
-    <button type="button" data-description-align="center" aria-pressed="true" title="توسيط">توسيط</button>
-    <button type="button" data-description-align="left" aria-pressed="false" title="محاذاة إلى اليسار">يسار</button>
-    <button type="button" data-description-align="justify" aria-pressed="false" title="ضبط النص ومساواة الطرفين">ضبط</button>
+<div class="platform-description-toolbar" aria-label="إعدادات الخط والمظهر">
+  <div class="platform-control-card platform-font-control">
+    <label for="platformDescriptionFont">نوع الخط</label>
+    <select id="platformDescriptionFont">
+      <option value="'Tajawal', Tahoma, Arial, sans-serif">Tajawal — واضح ومتوازن</option>
+      <option value="'Cairo', Tahoma, Arial, sans-serif">Cairo — عصري</option>
+      <option value="'Almarai', Tahoma, Arial, sans-serif">Almarai — ناعم</option>
+      <option value="'Amiri', Georgia, serif">Amiri — كلاسيكي</option>
+      <option value="'Noto Kufi Arabic', Tahoma, Arial, sans-serif">Noto Kufi Arabic — رسمي</option>
+      <option value="'IBM Plex Sans Arabic', Tahoma, Arial, sans-serif">IBM Plex Sans Arabic</option>
+      <option value="'Readex Pro', Tahoma, Arial, sans-serif">Readex Pro — هندسي</option>
+    </select>
+  </div>
+  <div class="platform-control-card platform-size-control">
+    <label for="platformDescriptionSize">حجم الخط</label>
+    <select id="platformDescriptionSize">
+      <option value="12px">12 صغير</option><option value="13px">13</option>
+      <option value="14px" selected>14 عادي</option><option value="15px">15</option>
+      <option value="16px">16 متوسط</option><option value="18px">18</option>
+      <option value="20px">20 كبير</option><option value="22px">22</option>
+      <option value="24px">24</option><option value="26px">26</option><option value="28px">28 كبير جداً</option>
+    </select>
+  </div>
+  <div class="platform-control-card platform-base-color">
+    <label for="platformDescriptionColor">لون الوصف الأساسي</label>
+    <div class="platform-color-input-wrap"><input id="platformDescriptionColor" type="color" value="#ffffff" aria-label="اختر اللون الأساسي لوصف المنصة"/><span>اختر لون النص</span></div>
+  </div>
+  <div class="platform-control-card platform-align-control">
+    <span class="platform-control-label">محاذاة الوصف</span>
+    <div class="platform-description-align" role="group" aria-label="محاذاة وصف المنصة">
+      <button type="button" data-description-align="right" aria-pressed="false" title="محاذاة إلى اليمين">يمين</button>
+      <button type="button" data-description-align="center" aria-pressed="true" title="توسيط">وسط</button>
+      <button type="button" data-description-align="left" aria-pressed="false" title="محاذاة إلى اليسار">يسار</button>
+      <button type="button" data-description-align="justify" aria-pressed="false" title="ضبط النص">ضبط</button>
+    </div>
   </div>
 </div>
-<div class="platform-rich-toolbar" role="toolbar" aria-label="تنسيق النص والألوان">
-  <div class="platform-rich-group" aria-label="تنسيق الخط">
-    <button type="button" class="platform-rich-btn platform-rich-bold" data-description-command="bold" title="خط غامق" aria-label="خط غامق"><b>B</b></button>
-    <button type="button" class="platform-rich-btn" data-description-command="italic" title="خط مائل" aria-label="خط مائل"><i>I</i></button>
-    <button type="button" class="platform-rich-btn" data-description-command="underline" title="تسطير" aria-label="تسطير"><u>U</u></button>
-    <button type="button" class="platform-rich-btn" data-description-command="strikeThrough" title="يتوسطه خط" aria-label="يتوسطه خط"><s>S</s></button>
-    <button type="button" class="platform-rich-btn" data-description-command="insertUnorderedList" title="قائمة نقطية" aria-label="قائمة نقطية">• قائمة</button>
-    <button type="button" class="platform-rich-btn" data-description-command="insertOrderedList" title="قائمة مرقمة" aria-label="قائمة مرقمة">١. قائمة</button>
-    <button type="button" class="platform-rich-btn platform-rich-clear" data-description-command="removeFormat" title="إزالة تنسيق النص المحدد">إزالة التنسيق</button>
-  </div>
-  <div class="platform-rich-group platform-rich-colors" aria-label="ألوان النص">
-    <span class="platform-rich-label">لون النص</span>
-    <button type="button" class="platform-color-swatch" data-description-color="#ffffff" style="--swatch:#ffffff" title="أبيض" aria-label="لون أبيض"></button>
-    <button type="button" class="platform-color-swatch" data-description-color="#ffdf5d" style="--swatch:#ffdf5d" title="ذهبي" aria-label="لون ذهبي"></button>
-    <button type="button" class="platform-color-swatch" data-description-color="#ff8a65" style="--swatch:#ff8a65" title="برتقالي" aria-label="لون برتقالي"></button>
-    <button type="button" class="platform-color-swatch" data-description-color="#ff6b81" style="--swatch:#ff6b81" title="وردي" aria-label="لون وردي"></button>
-    <button type="button" class="platform-color-swatch" data-description-color="#8bd3ff" style="--swatch:#8bd3ff" title="أزرق سماوي" aria-label="لون أزرق سماوي"></button>
-    <button type="button" class="platform-color-swatch" data-description-color="#b9f6ca" style="--swatch:#b9f6ca" title="أخضر فاتح" aria-label="لون أخضر فاتح"></button>
-    <input id="platformDescriptionInlineColor" type="color" value="#ffdf5d" title="لون نص مخصص" aria-label="لون نص مخصص"/>
-  </div>
-  <div class="platform-rich-group platform-rich-colors" aria-label="ألوان التمييز خلف النص">
-    <span class="platform-rich-label">تمييز الخلفية</span>
-    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#fff0a6" style="--swatch:#fff0a6" title="تمييز أصفر" aria-label="تمييز أصفر"></button>
-    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#b9f6ca" style="--swatch:#b9f6ca" title="تمييز أخضر" aria-label="تمييز أخضر"></button>
-    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#bde0ff" style="--swatch:#bde0ff" title="تمييز أزرق" aria-label="تمييز أزرق"></button>
-    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#ffd1dc" style="--swatch:#ffd1dc" title="تمييز وردي" aria-label="تمييز وردي"></button>
-    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#e5d5ff" style="--swatch:#e5d5ff" title="تمييز بنفسجي" aria-label="تمييز بنفسجي"></button>
-    <input id="platformDescriptionHighlightColor" type="color" value="#fff0a6" title="لون تمييز مخصص" aria-label="لون تمييز مخصص"/>
-  </div>
+<div class="platform-rich-toolbar" role="toolbar" aria-label="أدوات تنسيق وصف المنصة">
+  <section class="platform-rich-group platform-format-group" aria-label="تنسيق النص">
+    <span class="platform-rich-group-title">تنسيق الكتابة</span>
+    <div class="platform-rich-actions">
+      <button type="button" class="platform-rich-btn platform-rich-bold" data-description-command="bold" title="غامق (B)" aria-label="خط غامق"><b>B</b><small>غامق</small></button>
+      <button type="button" class="platform-rich-btn" data-description-command="italic" title="مائل" aria-label="خط مائل"><i>I</i><small>مائل</small></button>
+      <button type="button" class="platform-rich-btn" data-description-command="underline" title="تسطير" aria-label="تسطير"><u>U</u><small>تسطير</small></button>
+      <button type="button" class="platform-rich-btn" data-description-command="strikeThrough" title="يتوسطه خط" aria-label="يتوسطه خط"><s>S</s><small>شطب</small></button>
+      <button type="button" class="platform-rich-btn" data-description-command="insertUnorderedList" title="قائمة نقطية" aria-label="قائمة نقطية">•<small>نقطية</small></button>
+      <button type="button" class="platform-rich-btn" data-description-command="insertOrderedList" title="قائمة مرقمة" aria-label="قائمة مرقمة">١.<small>مرقمة</small></button>
+      <button type="button" class="platform-rich-btn platform-rich-clear" data-description-command="removeFormat" title="إزالة تنسيق النص المحدد">↺<small>مسح التنسيق</small></button>
+    </div>
+  </section>
+  <section class="platform-rich-group platform-rich-colors" aria-label="ألوان النص">
+    <span class="platform-rich-group-title">لون الخط</span>
+    <div class="platform-swatch-row">
+      <button type="button" class="platform-color-swatch" data-description-color="#ffffff" style="--swatch:#ffffff" title="أبيض" aria-label="لون أبيض"></button>
+      <button type="button" class="platform-color-swatch" data-description-color="#1f2937" style="--swatch:#1f2937" title="فحمي" aria-label="لون فحمي"></button>
+      <button type="button" class="platform-color-swatch" data-description-color="#facc15" style="--swatch:#facc15" title="ذهبي" aria-label="لون ذهبي"></button>
+      <button type="button" class="platform-color-swatch" data-description-color="#fb923c" style="--swatch:#fb923c" title="برتقالي" aria-label="لون برتقالي"></button>
+      <button type="button" class="platform-color-swatch" data-description-color="#f472b6" style="--swatch:#f472b6" title="وردي" aria-label="لون وردي"></button>
+      <button type="button" class="platform-color-swatch" data-description-color="#60a5fa" style="--swatch:#60a5fa" title="أزرق" aria-label="لون أزرق"></button>
+      <button type="button" class="platform-color-swatch" data-description-color="#34d399" style="--swatch:#34d399" title="أخضر" aria-label="لون أخضر"></button>
+      <label class="platform-custom-color" for="platformDescriptionInlineColor">لون مخصص<input id="platformDescriptionInlineColor" type="color" value="#facc15" title="لون نص مخصص" aria-label="لون نص مخصص"/></label>
+    </div>
+  </section>
+  <section class="platform-rich-group platform-rich-colors" aria-label="تمييز خلفية النص">
+    <span class="platform-rich-group-title">تمييز خلفية النص</span>
+    <div class="platform-swatch-row">
+      <button type="button" class="platform-color-swatch highlight" data-description-highlight="#fef08a" style="--swatch:#fef08a" title="أصفر فاتح" aria-label="تمييز أصفر"></button>
+      <button type="button" class="platform-color-swatch highlight" data-description-highlight="#bbf7d0" style="--swatch:#bbf7d0" title="أخضر فاتح" aria-label="تمييز أخضر"></button>
+      <button type="button" class="platform-color-swatch highlight" data-description-highlight="#bfdbfe" style="--swatch:#bfdbfe" title="أزرق فاتح" aria-label="تمييز أزرق"></button>
+      <button type="button" class="platform-color-swatch highlight" data-description-highlight="#fbcfe8" style="--swatch:#fbcfe8" title="وردي فاتح" aria-label="تمييز وردي"></button>
+      <button type="button" class="platform-color-swatch highlight" data-description-highlight="#ddd6fe" style="--swatch:#ddd6fe" title="بنفسجي فاتح" aria-label="تمييز بنفسجي"></button>
+      <label class="platform-custom-color" for="platformDescriptionHighlightColor">لون مخصص<input id="platformDescriptionHighlightColor" type="color" value="#fef08a" title="لون تمييز مخصص" aria-label="لون تمييز مخصص"/></label>
+    </div>
+  </section>
 </div>
 <div id="platformDescriptionRichEditor" class="platform-description-rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="محرر وصف المنصة" data-placeholder="اكتب وصف المنصة هنا، وحدد أي جزء لتغيير لونه أو جعله غامقاً أو مائلاً…" spellcheck="true" dir="rtl"></div>
 <textarea id="platformDescriptionInput" rows="3" hidden aria-hidden="true" tabindex="-1"></textarea>
 <div class="platform-description-preview-wrap"><span>معاينة الوصف</span><div id="platformDescriptionPreview" class="platform-description-preview" aria-live="polite">يظهر وصف المنصة هنا بالشكل الذي اخترته.</div></div>
-<small>حدد النص ثم استخدم B للغامق، أو المائل والتسطير والألوان وتمييز الخلفية. يمكنك أيضاً تغيير نوع الخط وحجمه ومحاذاة الوصف بالكامل. تُحفظ التنسيقات وتظهر للزوار بعد مزامنة الإعدادات.</small>
+<small>حدد الكلمة أو العبارة أولاً لتطبيق التنسيق عليها، أو اكتب مباشرة داخل المحرر. استخدم أزرار التنسيق والألوان، ثم راجع المعاينة قبل حفظ إعدادات المنصة.</small>
 </div>
 <div class="platform-stadium-manager">
   <div class="platform-stadium-heading"><div><label for="platformStadiumNameInput">🏟️ الملاعب المعتمدة</label><small>أضف كل ملعب باسمه واحفظه مباشرة؛ ستظهر الملاعب المحفوظة في نموذج تسجيل المباراة.</small></div><span class="badge">إدارة الملاعب</span></div>
@@ -3654,6 +3687,64 @@ header .header-clock{display:none !important}
   header .brand-text small{font-size:12px !important;padding:8px}
 }
 </style>
+
+<style id="platform-description-editor-professional-redesign">
+/* تصميم محرر وصف المنصة فقط — معزول عن بقية الواجهات */
+#settings .platform-description-editor{padding:clamp(12px,2vw,20px);border:1px solid #dce8e2;border-radius:20px;background:linear-gradient(155deg,#fbfefd 0%,#f4f8f6 100%);box-shadow:0 10px 28px rgba(16,55,40,.055)}
+#settings .platform-description-editor>label{display:flex;align-items:center;gap:9px;margin:0 0 13px;color:#124b39;font-size:17px;font-weight:900}
+#settings .platform-description-toolbar{display:grid;grid-template-columns:1.25fr .75fr .9fr 1.2fr;gap:10px;margin:0 0 12px}
+#settings .platform-control-card{min-width:0;padding:11px 12px;border:1px solid #e0eae5;border-radius:13px;background:#fff;box-shadow:0 3px 10px rgba(20,60,45,.035)}
+#settings .platform-control-card>label,#settings .platform-control-label{display:block;margin:0 0 7px;color:#557064;font-size:11px;font-weight:900;letter-spacing:.1px}
+#settings .platform-control-card select{width:100%;height:40px;min-height:40px;padding:0 10px;border:1px solid #d8e4de;border-radius:9px;background:#f9fcfa;color:#1c4434;font-size:12px;font-weight:800;outline:none}
+#settings .platform-control-card select:focus{border-color:#15966e;box-shadow:0 0 0 3px #15966e1c}
+#settings .platform-color-input-wrap{display:flex;align-items:center;gap:9px;min-height:40px;color:#526b60;font-size:11px;font-weight:700}
+#settings .platform-color-input-wrap input{width:43px;height:36px;min-height:36px;padding:3px!important;border:1px solid #dbe7e0!important;border-radius:9px!important;background:#fff;cursor:pointer}
+#settings .platform-description-align{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+#settings .platform-description-align button{min-width:0;height:36px;padding:5px 3px;border:1px solid #dce7e1;border-radius:8px;background:#f7faf8;color:#426052;font-size:11px;font-weight:800}
+#settings .platform-description-align button.is-active{border-color:#087f5b;background:linear-gradient(135deg,#087f5b,#12a579);color:#fff;box-shadow:0 3px 8px #087f5b24}
+#settings .platform-rich-toolbar{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,.9fr);gap:9px;margin:0 0 10px;padding:0;border:0;background:transparent}
+#settings .platform-rich-group{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0;padding:11px;border:1px solid #e0eae5;border-radius:13px;background:#fff;box-shadow:0 3px 10px rgba(20,60,45,.035)}
+#settings .platform-rich-group+.platform-rich-group{border-right:1px solid #e0eae5;padding-right:11px}
+#settings .platform-rich-group-title{color:#557064;font-size:11px;font-weight:900}
+#settings .platform-rich-actions{display:flex;flex-wrap:wrap;gap:5px}
+#settings .platform-rich-btn{display:flex;align-items:center;justify-content:center;gap:5px;min-width:39px;min-height:37px;padding:5px 8px;border:1px solid #dce7e1;border-radius:9px;background:#f9fbfa;color:#244d3d;font-size:13px;box-shadow:none}
+#settings .platform-rich-btn small{font-size:10px;font-weight:800}
+#settings .platform-rich-btn:hover{transform:translateY(-1px);border-color:#15966e;background:#effaf5}
+#settings .platform-rich-bold{color:#075f45;font-size:17px}
+#settings .platform-rich-clear{background:#fff8f7;border-color:#f0ddda;color:#a34b45}
+#settings .platform-swatch-row{display:flex;align-items:center;flex-wrap:wrap;gap:9px;min-height:30px}
+#settings .platform-color-swatch{width:24px;min-width:24px;height:24px;min-height:24px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--swatch);box-shadow:0 0 0 1px #c9d8d0;transition:transform .15s,box-shadow .15s}
+#settings .platform-color-swatch:hover{transform:scale(1.13);box-shadow:0 0 0 2px #168a65}
+#settings .platform-color-swatch.highlight{width:26px;min-width:26px;height:21px;min-height:21px;border-radius:6px}
+#settings .platform-custom-color{display:inline-flex;align-items:center;gap:5px;color:#5b7167;font-size:10px;font-weight:800;white-space:nowrap}
+#settings .platform-custom-color input{width:27px;min-width:27px;height:27px;min-height:27px;padding:2px!important;border:1px solid #d7e3dc!important;border-radius:7px!important;background:#fff;cursor:pointer}
+#settings .platform-description-rich-editor{min-height:155px;padding:17px 18px;border:1.5px solid #d5e3dc;border-radius:13px;background:#fff;color:#263b32;font-size:16px;line-height:1.85;box-shadow:inset 0 1px 3px rgba(20,60,45,.035);transition:border-color .18s,box-shadow .18s}
+#settings .platform-description-rich-editor:focus{border-color:#0c9870;box-shadow:0 0 0 4px #0c98701a}
+#settings .platform-description-rich-editor p{margin:0 0 .55em}
+#settings .platform-description-rich-editor ul,#settings .platform-description-rich-editor ol{padding-right:25px;margin:7px 0}
+#settings .platform-description-preview-wrap{margin:13px 0 8px;padding:12px;border:1px dashed #cbdcd2;border-radius:13px;background:#f8fbf9}
+#settings .platform-description-preview-wrap>span{display:flex;align-items:center;gap:7px;margin-bottom:9px;color:#426354;font-size:11px;font-weight:900}
+#settings .platform-description-preview{min-height:60px;padding:14px 16px;border-radius:10px;background:linear-gradient(135deg,#07583f,#0a8a63);box-shadow:inset 0 0 0 1px #ffffff22;line-height:1.8}
+#settings .platform-description-editor>small{display:block;margin-top:9px;padding:9px 11px;border-radius:9px;background:#eef6f1;color:#587166;font-size:11px;line-height:1.7}
+#settings .platform-description-editor :focus-visible{outline:3px solid #15966e55;outline-offset:2px}
+@media(max-width:900px){#settings .platform-description-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}#settings .platform-rich-toolbar{grid-template-columns:1fr 1fr}#settings .platform-rich-group:first-child{grid-column:1/-1}}
+@media(max-width:560px){
+ #settings .platform-description-editor{padding:11px;border-radius:15px}
+ #settings .platform-description-toolbar{grid-template-columns:1fr 1fr;gap:7px}
+ #settings .platform-control-card{padding:9px}
+ #settings .platform-rich-toolbar{grid-template-columns:1fr;gap:7px}
+ #settings .platform-rich-group:first-child{grid-column:auto}
+ #settings .platform-rich-group{padding:10px}
+ #settings .platform-rich-group+.platform-rich-group{border-right:1px solid #e0eae5;padding-right:10px}
+ #settings .platform-rich-actions{gap:5px}
+ #settings .platform-rich-btn{flex:1;min-width:0;min-height:39px;padding:5px 6px}
+ #settings .platform-rich-btn small{font-size:9px}
+ #settings .platform-description-rich-editor{min-height:135px;padding:13px;font-size:15px}
+ #settings .platform-swatch-row{gap:10px}
+}
+@media(max-width:360px){#settings .platform-description-toolbar{grid-template-columns:1fr}#settings .platform-rich-btn{flex:0 1 auto}}
+</style>
+
 </head><body><embed type="application/pdf" src="'+String(a.pdfData).replace(/"/g,'&quot;')+'">
 <style id="ended-card-admin-reference-override">
 #endedTournamentList .ended-card-admin-footer{padding:14px 18px 18px!important;border-top:1px solid #dce8f3!important;background:linear-gradient(180deg,#ffffff,#f7fbff)!important}
