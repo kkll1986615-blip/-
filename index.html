@@ -702,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Readex+Pro:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&display=swap">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -806,11 +806,11 @@ body>header #platformDescriptionText{
 </div>
 <div class="grid settings-platform-fields">
 <div class="platform-description-editor">
-<label for="platformDescriptionInput">📝 وصف المنصة</label>
-<div class="platform-description-toolbar" aria-label="أدوات تنسيق وصف المنصة">
-  <div><label for="platformDescriptionFont">نوع الخط</label><select id="platformDescriptionFont"><option value="'Tajawal', Tahoma, Arial, sans-serif">Tajawal</option><option value="'Cairo', Tahoma, Arial, sans-serif">Cairo</option><option value="'Almarai', Tahoma, Arial, sans-serif">Almarai</option><option value="'Amiri', Georgia, serif">Amiri</option></select></div>
-  <div><label for="platformDescriptionSize">حجم الخط</label><select id="platformDescriptionSize"><option value="12px">12</option><option value="13px">13</option><option value="14px" selected>14</option><option value="15px">15</option><option value="16px">16</option><option value="18px">18</option><option value="20px">20</option><option value="22px">22</option><option value="24px">24</option></select></div>
-  <div><label for="platformDescriptionColor">لون الخط</label><input id="platformDescriptionColor" type="color" value="#ffffff" aria-label="اختر لون خط الوصف"/></div>
+<label for="platformDescriptionRichEditor">📝 وصف المنصة</label>
+<div class="platform-description-toolbar" aria-label="إعدادات تنسيق وصف المنصة">
+  <div><label for="platformDescriptionFont">نوع الخط</label><select id="platformDescriptionFont"><option value="'Tajawal', Tahoma, Arial, sans-serif">Tajawal</option><option value="'Cairo', Tahoma, Arial, sans-serif">Cairo</option><option value="'Almarai', Tahoma, Arial, sans-serif">Almarai</option><option value="'Amiri', Georgia, serif">Amiri</option><option value="'Noto Kufi Arabic', Tahoma, Arial, sans-serif">Noto Kufi Arabic</option><option value="'IBM Plex Sans Arabic', Tahoma, Arial, sans-serif">IBM Plex Sans Arabic</option><option value="'Readex Pro', Tahoma, Arial, sans-serif">Readex Pro</option></select></div>
+  <div><label for="platformDescriptionSize">حجم الخط</label><select id="platformDescriptionSize"><option value="12px">12</option><option value="13px">13</option><option value="14px" selected>14</option><option value="15px">15</option><option value="16px">16</option><option value="18px">18</option><option value="20px">20</option><option value="22px">22</option><option value="24px">24</option><option value="26px">26</option><option value="28px">28</option></select></div>
+  <div><label for="platformDescriptionColor">اللون الأساسي</label><input id="platformDescriptionColor" type="color" value="#ffffff" aria-label="اختر اللون الأساسي لوصف المنصة"/></div>
   <div class="platform-description-align" role="group" aria-label="محاذاة وصف المنصة">
     <span class="platform-description-align-label">المحاذاة</span>
     <button type="button" data-description-align="right" aria-pressed="false" title="محاذاة إلى اليمين">يمين</button>
@@ -819,9 +819,40 @@ body>header #platformDescriptionText{
     <button type="button" data-description-align="justify" aria-pressed="false" title="ضبط النص ومساواة الطرفين">ضبط</button>
   </div>
 </div>
-<textarea id="platformDescriptionInput" rows="3" placeholder="اكتب وصفاً مختصراً يظهر أسفل اسم المنصة"></textarea>
+<div class="platform-rich-toolbar" role="toolbar" aria-label="تنسيق النص والألوان">
+  <div class="platform-rich-group" aria-label="تنسيق الخط">
+    <button type="button" class="platform-rich-btn platform-rich-bold" data-description-command="bold" title="خط غامق" aria-label="خط غامق"><b>B</b></button>
+    <button type="button" class="platform-rich-btn" data-description-command="italic" title="خط مائل" aria-label="خط مائل"><i>I</i></button>
+    <button type="button" class="platform-rich-btn" data-description-command="underline" title="تسطير" aria-label="تسطير"><u>U</u></button>
+    <button type="button" class="platform-rich-btn" data-description-command="strikeThrough" title="يتوسطه خط" aria-label="يتوسطه خط"><s>S</s></button>
+    <button type="button" class="platform-rich-btn" data-description-command="insertUnorderedList" title="قائمة نقطية" aria-label="قائمة نقطية">• قائمة</button>
+    <button type="button" class="platform-rich-btn" data-description-command="insertOrderedList" title="قائمة مرقمة" aria-label="قائمة مرقمة">١. قائمة</button>
+    <button type="button" class="platform-rich-btn platform-rich-clear" data-description-command="removeFormat" title="إزالة تنسيق النص المحدد">إزالة التنسيق</button>
+  </div>
+  <div class="platform-rich-group platform-rich-colors" aria-label="ألوان النص">
+    <span class="platform-rich-label">لون النص</span>
+    <button type="button" class="platform-color-swatch" data-description-color="#ffffff" style="--swatch:#ffffff" title="أبيض" aria-label="لون أبيض"></button>
+    <button type="button" class="platform-color-swatch" data-description-color="#ffdf5d" style="--swatch:#ffdf5d" title="ذهبي" aria-label="لون ذهبي"></button>
+    <button type="button" class="platform-color-swatch" data-description-color="#ff8a65" style="--swatch:#ff8a65" title="برتقالي" aria-label="لون برتقالي"></button>
+    <button type="button" class="platform-color-swatch" data-description-color="#ff6b81" style="--swatch:#ff6b81" title="وردي" aria-label="لون وردي"></button>
+    <button type="button" class="platform-color-swatch" data-description-color="#8bd3ff" style="--swatch:#8bd3ff" title="أزرق سماوي" aria-label="لون أزرق سماوي"></button>
+    <button type="button" class="platform-color-swatch" data-description-color="#b9f6ca" style="--swatch:#b9f6ca" title="أخضر فاتح" aria-label="لون أخضر فاتح"></button>
+    <input id="platformDescriptionInlineColor" type="color" value="#ffdf5d" title="لون نص مخصص" aria-label="لون نص مخصص"/>
+  </div>
+  <div class="platform-rich-group platform-rich-colors" aria-label="ألوان التمييز خلف النص">
+    <span class="platform-rich-label">تمييز الخلفية</span>
+    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#fff0a6" style="--swatch:#fff0a6" title="تمييز أصفر" aria-label="تمييز أصفر"></button>
+    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#b9f6ca" style="--swatch:#b9f6ca" title="تمييز أخضر" aria-label="تمييز أخضر"></button>
+    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#bde0ff" style="--swatch:#bde0ff" title="تمييز أزرق" aria-label="تمييز أزرق"></button>
+    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#ffd1dc" style="--swatch:#ffd1dc" title="تمييز وردي" aria-label="تمييز وردي"></button>
+    <button type="button" class="platform-color-swatch highlight" data-description-highlight="#e5d5ff" style="--swatch:#e5d5ff" title="تمييز بنفسجي" aria-label="تمييز بنفسجي"></button>
+    <input id="platformDescriptionHighlightColor" type="color" value="#fff0a6" title="لون تمييز مخصص" aria-label="لون تمييز مخصص"/>
+  </div>
+</div>
+<div id="platformDescriptionRichEditor" class="platform-description-rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="محرر وصف المنصة" data-placeholder="اكتب وصف المنصة هنا، وحدد أي جزء لتغيير لونه أو جعله غامقاً أو مائلاً…" spellcheck="true" dir="rtl"></div>
+<textarea id="platformDescriptionInput" rows="3" hidden aria-hidden="true" tabindex="-1"></textarea>
 <div class="platform-description-preview-wrap"><span>معاينة الوصف</span><div id="platformDescriptionPreview" class="platform-description-preview" aria-live="polite">يظهر وصف المنصة هنا بالشكل الذي اخترته.</div></div>
-<small>يمكنك تغيير نوع الخط وحجمه ولونه ومحاذاته. خيار «ضبط» يوزع الكلمات على السطر لمساواة طرفي الفقرة كما في Word. يظهر التنسيق للزوار بعد حفظ الإعدادات ومزامنتها.</small>
+<small>حدد النص ثم استخدم B للغامق، أو المائل والتسطير والألوان وتمييز الخلفية. يمكنك أيضاً تغيير نوع الخط وحجمه ومحاذاة الوصف بالكامل. تُحفظ التنسيقات وتظهر للزوار بعد مزامنة الإعدادات.</small>
 </div>
 <div class="platform-stadium-manager">
   <div class="platform-stadium-heading"><div><label for="platformStadiumNameInput">🏟️ الملاعب المعتمدة</label><small>أضف كل ملعب باسمه واحفظه مباشرة؛ ستظهر الملاعب المحفوظة في نموذج تسجيل المباراة.</small></div><span class="badge">إدارة الملاعب</span></div>
@@ -1051,7 +1082,7 @@ async function saveManagedAccountChanges(){
 const KEY='manar_sports_v2';
 const LEGACY_MAIN_KEY='manar_match_sheets_v1';
 function loadMainDatabase(){
-  const empty={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[],platformSettings:{description:'',descriptionStyle:{fontFamily:"'Tajawal', Tahoma, Arial, sans-serif",fontSize:'14px',color:'#ffffff',textAlign:'center'},stadiums:['ملعب المنار الرئيسي']}};
+  const empty={tournaments:[],teams:[],players:[],matches:[],officialPlayers:[],archives:[],suspensions:[],platformSettings:{description:'',descriptionHtml:'',descriptionStyle:{fontFamily:"'Tajawal', Tahoma, Arial, sans-serif",fontSize:'14px',color:'#ffffff',textAlign:'center'},stadiums:['ملعب المنار الرئيسي']}};
   /* لا ندمج النسخ القديمة بعد التصفير: المعلومة تُحفظ داخل القاعدة الرئيسية وتُزامن مع Firebase. */
   let resetMeta=null;
   try{
@@ -1076,7 +1107,7 @@ function loadMainDatabase(){
       suspensions:Array.isArray(x.suspensions)?x.suspensions:[]
      };
      if(x.platformSettings&&typeof x.platformSettings==='object'){
-       data.platformSettings={description:typeof x.platformSettings.description==='string'?x.platformSettings.description:'',descriptionStyle:x.platformSettings.descriptionStyle&&typeof x.platformSettings.descriptionStyle==='object'?{...x.platformSettings.descriptionStyle}:undefined,stadiums:Array.isArray(x.platformSettings.stadiums)?x.platformSettings.stadiums.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()):['ملعب المنار الرئيسي']};
+       data.platformSettings={description:typeof x.platformSettings.description==='string'?x.platformSettings.description:'',descriptionHtml:typeof x.platformSettings.descriptionHtml==='string'?x.platformSettings.descriptionHtml:'',descriptionStyle:x.platformSettings.descriptionStyle&&typeof x.platformSettings.descriptionStyle==='object'?{...x.platformSettings.descriptionStyle}:undefined,stadiums:Array.isArray(x.platformSettings.stadiums)?x.platformSettings.stadiums.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()):['ملعب المنار الرئيسي']};
      }
      /* الشعار جزء من إعدادات المنصة، ويُحفظ مع سجل Firebase الرئيسي كي يصل إلى الزوار. */
     if(Object.prototype.hasOwnProperty.call(x,'platformLogo'))data.platformLogo=typeof x.platformLogo==='string'?x.platformLogo:'';
@@ -1199,7 +1230,7 @@ try{
       archives:Array.isArray(db.archives)?db.archives:[],
       suspensions:Array.isArray(db.suspensions)?db.suspensions:[],
        platformLogo:typeof db.platformLogo==='string'?db.platformLogo:undefined,
-       platformSettings:db.platformSettings&&typeof db.platformSettings==='object'?{description:typeof db.platformSettings.description==='string'?db.platformSettings.description:'',descriptionStyle:db.platformSettings.descriptionStyle&&typeof db.platformSettings.descriptionStyle==='object'?{...db.platformSettings.descriptionStyle}:undefined,stadiums:Array.isArray(db.platformSettings.stadiums)?db.platformSettings.stadiums.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()):['ملعب المنار الرئيسي']}:undefined,
+       platformSettings:db.platformSettings&&typeof db.platformSettings==='object'?{description:typeof db.platformSettings.description==='string'?db.platformSettings.description:'',descriptionHtml:typeof db.platformSettings.descriptionHtml==='string'?db.platformSettings.descriptionHtml:'',descriptionStyle:db.platformSettings.descriptionStyle&&typeof db.platformSettings.descriptionStyle==='object'?{...db.platformSettings.descriptionStyle}:undefined,stadiums:Array.isArray(db.platformSettings.stadiums)?db.platformSettings.stadiums.filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()):['ملعب المنار الرئيسي']}:undefined,
        __manarResetMeta:db.__manarResetMeta&&typeof db.__manarResetMeta==='object'?db.__manarResetMeta:undefined
     };
     if(normalized.tournaments.length||normalized.teams.length||normalized.players.length||normalized.matches.length||
@@ -17301,6 +17332,31 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 }
 </style>
 
+<style id="platform-description-rich-editor-ui">
+#settings .platform-description-rich-editor{min-height:126px;width:100%;padding:15px 16px;border:1.5px solid #bdcfc6;border-radius:14px;background:linear-gradient(180deg,#fff,#fbfefd);color:#1d352d;font-family:'Tajawal',Tahoma,Arial,sans-serif;font-size:16px;font-weight:500;line-height:1.9;direction:rtl;text-align:right;overflow-wrap:anywhere;outline:none;box-shadow:inset 0 1px 3px rgba(16,55,40,.04);transition:border-color .18s,box-shadow .18s}
+#settings .platform-description-rich-editor:focus{border-color:#0a9870;box-shadow:0 0 0 4px rgba(10,152,112,.12),inset 0 1px 3px rgba(16,55,40,.03);background:#fff}
+#settings .platform-description-rich-editor:empty:before{content:attr(data-placeholder);display:block;color:#9aa9a2;pointer-events:none}
+#settings .platform-description-rich-editor p{margin:0 0 .45em}
+#settings .platform-description-rich-editor ul,#settings .platform-description-rich-editor ol{padding-right:24px;margin:5px 0}
+#settings .platform-rich-toolbar{display:flex;flex-wrap:wrap;gap:9px;padding:10px;margin:0 0 9px;border:1px solid #dce8e2;border-radius:13px;background:linear-gradient(135deg,#f7fbf9,#eef7f3)}
+#settings .platform-rich-group{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:3px 5px}
+#settings .platform-rich-group+.platform-rich-group{border-right:1px solid #d3e2da;padding-right:12px}
+#settings .platform-rich-btn{min-width:36px;min-height:35px;padding:6px 10px;border:1px solid #cbdad2;border-radius:9px;background:#fff;color:#24513f;font-weight:800;box-shadow:0 2px 4px rgba(17,60,43,.05);transition:transform .15s,border-color .15s,background .15s}
+#settings .platform-rich-btn:hover{transform:translateY(-1px);border-color:#0a9870;background:#f0fbf6}
+#settings .platform-rich-bold{font-size:18px;color:#075f45}
+#settings .platform-rich-clear{font-size:11px;color:#8b3f45;background:#fff6f6;border-color:#efcece}
+#settings .platform-rich-label{font-size:11px;font-weight:900;color:#49675a;margin-left:3px;white-space:nowrap}
+#settings .platform-color-swatch{width:25px;height:25px;min-width:25px;min-height:25px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--swatch);box-shadow:0 0 0 1px #b9c9c1,0 2px 4px #1232;cursor:pointer}
+#settings .platform-color-swatch.highlight{border-radius:7px;width:29px;min-width:29px;height:20px;min-height:20px}
+#settings .platform-color-swatch:focus-visible,#settings .platform-rich-btn:focus-visible{outline:3px solid #0a987055;outline-offset:2px}
+#settings #platformDescriptionInlineColor,#settings #platformDescriptionHighlightColor{width:35px;min-width:35px;height:35px;min-height:35px;padding:4px!important;border-radius:9px!important;cursor:pointer}
+#settings .platform-description-preview{overflow-wrap:anywhere}
+#settings .platform-description-preview p{margin:0 0 .35em}
+#settings .platform-description-preview ul,#settings .platform-description-preview ol{padding-right:22px;margin:4px 0}
+@media(max-width:760px){#settings .platform-rich-toolbar{gap:5px;padding:7px}#settings .platform-rich-group{gap:5px;padding:2px}#settings .platform-rich-group+.platform-rich-group{border-right:0;padding-right:4px}#settings .platform-rich-label{width:100%}}
+@media(max-width:420px){#settings .platform-rich-btn{min-width:33px;min-height:33px;padding:5px 8px}#settings .platform-description-rich-editor{min-height:118px;padding:12px;font-size:15px}}
+</style>
+
 <script id="settings-five-icons-script">
 (function(){
   'use strict';
@@ -17308,8 +17364,8 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   const DEFAULT_DESCRIPTION='نظام إلكتروني متكامل لإدارة البطولات الرياضية في المنار ومتابعة الفرق واللاعبين والمباريات والحكام والإحصائيات باحترافية.';
   const DEFAULT_STADIUMS=['ملعب المنار الرئيسي'];
   const DEFAULT_DESCRIPTION_STYLE={fontFamily:"'Tajawal', Tahoma, Arial, sans-serif",fontSize:'14px',color:'#ffffff',textAlign:'center'};
-  const ALLOWED_FONTS=["'Tajawal', Tahoma, Arial, sans-serif","'Cairo', Tahoma, Arial, sans-serif","'Almarai', Tahoma, Arial, sans-serif","'Amiri', Georgia, serif"];
-  const ALLOWED_SIZES=['12px','13px','14px','15px','16px','18px','20px','22px','24px'];
+  const ALLOWED_FONTS=["'Tajawal', Tahoma, Arial, sans-serif","'Cairo', Tahoma, Arial, sans-serif","'Almarai', Tahoma, Arial, sans-serif","'Amiri', Georgia, serif","'Noto Kufi Arabic', Tahoma, Arial, sans-serif","'IBM Plex Sans Arabic', Tahoma, Arial, sans-serif","'Readex Pro', Tahoma, Arial, sans-serif"];
+  const ALLOWED_SIZES=['12px','13px','14px','15px','16px','18px','20px','22px','24px','26px','28px'];
   const $id=id=>document.getElementById(id);
   const safeText=value=>String(value??'');
   function normalizeDescriptionStyle(style){
@@ -17322,11 +17378,124 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       textAlign:['right','left','center','justify'].includes(value.textAlign)?value.textAlign:DEFAULT_DESCRIPTION_STYLE.textAlign
     };
   }
+  function escapeDescriptionHtml(value){
+    const node=document.createElement('div');node.textContent=safeText(value);return node.innerHTML.replace(/\r?\n/g,'<br>');
+  }
+  function isSafeDescriptionColor(value){
+    const v=String(value||'').trim();
+    return /^#[0-9a-f]{3,8}$/i.test(v)||/^rgba?\(\s*[0-9.% ,]+\)$/i.test(v);
+  }
+  function matchDescriptionFont(value){
+    const raw=String(value||'').replace(/["']/g,'').trim().toLowerCase();
+    if(!raw)return '';
+    return ALLOWED_FONTS.find(font=>{
+      const first=font.split(',')[0].replace(/["']/g,'').trim().toLowerCase();
+      return raw===first||raw.includes(first)||first.includes(raw);
+    })||'';
+  }
+  function sanitizeDescriptionHtml(input){
+    const template=document.createElement('template');
+    template.innerHTML=String(input||'');
+    const allowed=new Set(['B','STRONG','I','EM','U','S','DEL','BR','SPAN','P','DIV','UL','OL','LI','FONT']);
+    function clean(parent){
+      Array.from(parent.children||[]).forEach(element=>{
+        clean(element);
+        if(!allowed.has(element.tagName)){
+          element.replaceWith(...Array.from(element.childNodes));
+          return;
+        }
+        if(element.tagName==='FONT'){
+          const span=document.createElement('span');
+          const color=element.getAttribute('color');
+          const font=matchDescriptionFont(element.getAttribute('face'));
+          if(isSafeDescriptionColor(color))span.style.color=color;
+          if(font)span.style.fontFamily=font;
+          span.innerHTML=element.innerHTML;
+          element.replaceWith(span);
+          clean(span);
+          return;
+        }
+        if(element.tagName==='SPAN'){
+          const raw=element.getAttribute('style')||'';
+          const probe=document.createElement('span');probe.setAttribute('style',raw);
+          const safe={};
+          const color=probe.style.color,background=probe.style.backgroundColor;
+          const font=matchDescriptionFont(probe.style.fontFamily);
+          const size=probe.style.fontSize;
+          const weight=probe.style.fontWeight;
+          const fontStyle=probe.style.fontStyle;
+          const decoration=probe.style.textDecoration;
+          if(isSafeDescriptionColor(color))safe.color=color;
+          if(isSafeDescriptionColor(background))safe.backgroundColor=background;
+          if(font)safe.fontFamily=font;
+          if(/^(1[2-9]|2[0-8])px$/.test(size))safe.fontSize=size;
+          if(['bold','700','800','900','600'].includes(weight))safe.fontWeight=weight==='bold'?'700':weight;
+          if(fontStyle==='italic')safe.fontStyle='italic';
+          if(/underline/.test(decoration)||/line-through/.test(decoration))safe.textDecoration=decoration;
+          element.removeAttribute('style');
+          Object.entries(safe).forEach(([key,value])=>element.style.setProperty(key.replace(/[A-Z]/g,m=>'-'+m.toLowerCase()),value));
+        }else{
+          element.removeAttribute('style');
+        }
+        Array.from(element.attributes).forEach(attribute=>{
+          if(attribute.name!=='style')element.removeAttribute(attribute.name);
+        });
+      });
+    }
+    clean(template.content);
+    return template.innerHTML;
+  }
+  function descriptionHtmlToText(html){
+    const holder=document.createElement('div');holder.innerHTML=sanitizeDescriptionHtml(html);
+    holder.querySelectorAll('br').forEach(node=>node.replaceWith(document.createTextNode('\n')));
+    holder.querySelectorAll('p,div,li').forEach(node=>node.appendChild(document.createTextNode('\n')));
+    return String(holder.textContent||'').replace(/\u00a0/g,' ').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+  }
+  function getDescriptionEditor(){return $id('platformDescriptionRichEditor');}
+  function getDescriptionDraftHtml(){
+    const editor=getDescriptionEditor();
+    return sanitizeDescriptionHtml(editor?editor.innerHTML:'');
+  }
+  let savedDescriptionRange=null;
+  function rememberDescriptionSelection(){
+    const editor=getDescriptionEditor(),selection=window.getSelection&&window.getSelection();
+    if(!editor||!selection||!selection.rangeCount)return;
+    const range=selection.getRangeAt(0);
+    if(editor.contains(range.commonAncestorContainer))savedDescriptionRange=range.cloneRange();
+  }
+  function restoreDescriptionSelection(){
+    const editor=getDescriptionEditor();if(!editor)return;
+    editor.focus();
+    const selection=window.getSelection&&window.getSelection();
+    if(selection&&savedDescriptionRange){
+      try{selection.removeAllRanges();selection.addRange(savedDescriptionRange)}catch(e){}
+    }
+  }
+  function syncDescriptionPlainField(){
+    const hidden=$id('platformDescriptionInput');
+    if(hidden)hidden.value=descriptionHtmlToText(getDescriptionDraftHtml());
+  }
+  function runDescriptionCommand(command,value){
+    const editor=getDescriptionEditor();if(!editor)return;
+    restoreDescriptionSelection();
+    try{document.execCommand(command,false,value||null)}catch(error){console.warn('Description formatting command unavailable:',command,error)}
+    rememberDescriptionSelection();syncDescriptionPlainField();
+    updateDescriptionPreview(readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle));
+  }
+  function applyDescriptionPaste(event){
+    const clipboard=event.clipboardData;if(!clipboard)return;
+    event.preventDefault();
+    const html=clipboard.getData('text/html');
+    const plain=clipboard.getData('text/plain');
+    const safe=html?sanitizeDescriptionHtml(html):escapeDescriptionHtml(plain);
+    try{document.execCommand('insertHTML',false,safe)}catch(e){document.execCommand('insertText',false,plain||'')}
+    syncDescriptionPlainField();updateDescriptionPreview(readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle));
+  }
   function getRoot(){return window.db&&typeof window.db==='object'?window.db:null;}
   function getSettings(root){
     const value=root&&root.platformSettings&&typeof root.platformSettings==='object'?root.platformSettings:{};
     const stadiums=Array.isArray(value.stadiums)?value.stadiums.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim()):DEFAULT_STADIUMS.slice();
-    return {description:typeof value.description==='string'?value.description:'',descriptionStyle:normalizeDescriptionStyle(value.descriptionStyle),stadiums:stadiums.length?Array.from(new Set(stadiums.filter(x=>x!=='ملعب آخر'))):DEFAULT_STADIUMS.slice()};
+    return {description:typeof value.description==='string'?value.description:'',descriptionHtml:typeof value.descriptionHtml==='string'?value.descriptionHtml:'',descriptionStyle:normalizeDescriptionStyle(value.descriptionStyle),stadiums:stadiums.length?Array.from(new Set(stadiums.filter(x=>x!=='ملعب آخر'))):DEFAULT_STADIUMS.slice()};
   }
   function getStadiumDraft(){
     const box=$id('platformStadiumsInput');
@@ -17397,7 +17566,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     /* خط ويب واحد متاح على كل الأجهزة، مع إيقاف تكبير النص التلقائي في متصفحات الهاتف. */
     set('font-family',safe.fontFamily);
     set('font-size',safe.fontSize);
-    set('font-weight','800');
+    set('font-weight','600');
     set('font-style','normal');
     set('font-synthesis','none');
     set('font-kerning','normal');
@@ -17429,11 +17598,21 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   }
   function updateDescriptionPreview(style){
     const safe=normalizeDescriptionStyle(style||readDescriptionStyleFromControls());
-    const text=safeText($id('platformDescriptionInput')?.value).trim()||'يظهر وصف المنصة هنا بالشكل الذي اخترته.';
+    const editor=getDescriptionEditor();
+    const hidden=$id('platformDescriptionInput');
+    const html=editor?getDescriptionDraftHtml():escapeDescriptionHtml(hidden?.value||'');
+    const plain=descriptionHtmlToText(html);
     const preview=$id('platformDescriptionPreview');
-    if(preview){preview.textContent=text;styleDescriptionElement(preview,safe)}
-    const editor=$id('platformDescriptionInput');
-    if(editor){editor.style.fontFamily=safe.fontFamily;editor.style.fontSize=safe.fontSize;editor.style.textAlign=safe.textAlign;editor.style.textAlignLast=safe.textAlign==='justify'?'start':'auto';editor.style.textJustify='inter-word';editor.style.textWrap='balance';editor.style.wordSpacing='normal';editor.style.direction='rtl'}
+    if(preview){
+      preview.innerHTML=plain?html:'يظهر وصف المنصة هنا بالشكل الذي اخترته.';
+      styleDescriptionElement(preview,safe);
+    }
+    if(editor){
+      editor.style.fontFamily=safe.fontFamily;editor.style.fontSize=safe.fontSize;
+      editor.style.textAlign=safe.textAlign;editor.style.textAlignLast=safe.textAlign==='justify'?'start':'auto';
+      editor.style.textJustify='inter-word';editor.style.textWrap='balance';editor.style.wordSpacing='normal';editor.style.direction='rtl';
+    }
+    if(hidden)hidden.value=plain;
     document.querySelectorAll('#settings [data-description-align]').forEach(button=>{
       const active=button.dataset.descriptionAlign===safe.textAlign;
       button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',active?'true':'false');
@@ -17442,7 +17621,11 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   function applyPlatformSettings(root){
     const settings=getSettings(root||getRoot());
     const description=$id('platformDescriptionInput');
-    if(description&&document.activeElement!==description)description.value=settings.description;
+    const richEditor=getDescriptionEditor();
+    if(richEditor&&document.activeElement!==richEditor){
+      richEditor.innerHTML=settings.descriptionHtml?sanitizeDescriptionHtml(settings.descriptionHtml):escapeDescriptionHtml(settings.description);
+    }
+    if(description)description.value=settings.description;
     const stadiumBox=$id('platformStadiumsInput');
     if(stadiumBox&&document.activeElement!==stadiumBox)stadiumBox.value=settings.stadiums.join('\n');
     renderPlatformStadiumList(settings.stadiums);
@@ -17450,7 +17633,11 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     const size=$id('platformDescriptionSize');if(size&&document.activeElement!==size)size.value=settings.descriptionStyle.fontSize;
     const color=$id('platformDescriptionColor');if(color&&document.activeElement!==color)color.value=settings.descriptionStyle.color;
     const headerDescription=$id('platformDescriptionText');
-    if(headerDescription){headerDescription.textContent=settings.description.trim()||DEFAULT_DESCRIPTION;styleDescriptionElement(headerDescription,settings.descriptionStyle)}
+    if(headerDescription){
+      if(settings.description.trim())headerDescription.innerHTML=settings.descriptionHtml?sanitizeDescriptionHtml(settings.descriptionHtml):escapeDescriptionHtml(settings.description);
+      else headerDescription.textContent=DEFAULT_DESCRIPTION;
+      styleDescriptionElement(headerDescription,settings.descriptionStyle);
+    }
     updateDescriptionPreview(readDescriptionStyleFromControls(settings.descriptionStyle));
     const select=$id('matchStadium');
     if(select){
@@ -17469,13 +17656,14 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     }
     const root=getRoot();
     if(!root){alert('بيانات المنصة غير جاهزة. أعد تحميل الصفحة ثم حاول مجددًا.');return false;}
-    const description=safeText($id('platformDescriptionInput')?.value).trim();
+    const descriptionHtml=getDescriptionDraftHtml();
+    const description=descriptionHtmlToText(descriptionHtml)||safeText($id('platformDescriptionInput')?.value).trim();
     const descriptionStyle=readDescriptionStyleFromControls(getSettings(root).descriptionStyle);
     const stadiumText=safeText($id('platformStadiumsInput')?.value);
     const stadiums=Array.from(new Set(stadiumText.split(/[\n,،;；]+/).map(x=>x.trim()).filter(x=>x&&x!=='ملعب آخر')));
     if(!stadiums.length){alert('أدخل اسم ملعب واحد على الأقل.');$id('platformStadiumsInput')?.focus();return false;}
     if(stadiums.some(x=>x.length>80)){alert('اسم الملعب يجب ألا يتجاوز 80 حرفًا.');return false;}
-    root.platformSettings={description,descriptionStyle,stadiums};
+    root.platformSettings={description,descriptionHtml,descriptionStyle,stadiums};
     try{localStorage.setItem(MAIN_KEY,JSON.stringify(root));window.db=root;}
     catch(error){alert('تعذر حفظ إعدادات المنصة على هذا الجهاز. تحقق من مساحة التخزين.');return false;}
     applyPlatformSettings(root);
@@ -17530,12 +17718,45 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       button.addEventListener('click',()=>window.toggleSettingsPanel(button.dataset.settingsToggle));
     });
     document.querySelectorAll('#settings [data-settings-panel]').forEach(panel=>panel.hidden=true);
-    ['platformDescriptionInput','platformDescriptionFont','platformDescriptionSize','platformDescriptionColor'].forEach(id=>{
+    ['platformDescriptionFont','platformDescriptionSize','platformDescriptionColor'].forEach(id=>{
       const control=$id(id);if(!control||control.dataset.descriptionStyleBound==='1')return;
       control.dataset.descriptionStyleBound='1';
-      control.addEventListener(id==='platformDescriptionInput'?'input':'change',()=>updateDescriptionPreview(readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle)));
+      control.addEventListener('change',()=>updateDescriptionPreview(readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle)));
+      control.addEventListener('input',()=>updateDescriptionPreview(readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle)));
     });
-    document.querySelectorAll('#settings [data-description-align]').forEach(button=>{
+    const richEditor=getDescriptionEditor();
+    if(richEditor&&!richEditor.dataset.descriptionEditorBound){
+      richEditor.dataset.descriptionEditorBound='1';
+      richEditor.addEventListener('input',()=>{syncDescriptionPlainField();updateDescriptionPreview(readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle));rememberDescriptionSelection()});
+      richEditor.addEventListener('keyup',rememberDescriptionSelection);
+      richEditor.addEventListener('mouseup',rememberDescriptionSelection);
+      richEditor.addEventListener('focus',rememberDescriptionSelection);
+      richEditor.addEventListener('paste',applyDescriptionPaste);
+      document.addEventListener('selectionchange',rememberDescriptionSelection);
+    }
+    document.querySelectorAll('#settings [data-description-command]').forEach(button=>{
+      if(button.dataset.descriptionCommandBound==='1')return;
+      button.dataset.descriptionCommandBound='1';
+      button.addEventListener('mousedown',event=>event.preventDefault());
+      button.addEventListener('click',()=>runDescriptionCommand(button.dataset.descriptionCommand));
+    });
+    document.querySelectorAll('#settings [data-description-color]').forEach(button=>{
+      if(button.dataset.descriptionColorBound==='1')return;
+      button.dataset.descriptionColorBound='1';
+      button.addEventListener('mousedown',event=>event.preventDefault());
+      button.addEventListener('click',()=>runDescriptionCommand('foreColor',button.dataset.descriptionColor));
+    });
+    document.querySelectorAll('#settings [data-description-highlight]').forEach(button=>{
+      if(button.dataset.descriptionHighlightBound==='1')return;
+      button.dataset.descriptionHighlightBound='1';
+      button.addEventListener('mousedown',event=>event.preventDefault());
+      button.addEventListener('click',()=>runDescriptionCommand('hiliteColor',button.dataset.descriptionHighlight));
+    });
+    const inlineColor=$id('platformDescriptionInlineColor');
+    if(inlineColor&&!inlineColor.dataset.descriptionColorBound){inlineColor.dataset.descriptionColorBound='1';inlineColor.addEventListener('change',()=>runDescriptionCommand('foreColor',inlineColor.value));}
+    const highlightColor=$id('platformDescriptionHighlightColor');
+    if(highlightColor&&!highlightColor.dataset.descriptionColorBound){highlightColor.dataset.descriptionColorBound='1';highlightColor.addEventListener('change',()=>runDescriptionCommand('hiliteColor',highlightColor.value));}
+    document.querySelectorAll('#settings [data-description-align]').forEach(button=>{ 
       if(button.dataset.descriptionAlignBound==='1')return;
       button.dataset.descriptionAlignBound='1';
       button.addEventListener('click',()=>updateDescriptionPreview(normalizeDescriptionStyle({...readDescriptionStyleFromControls(getSettings(getRoot()).descriptionStyle),textAlign:button.dataset.descriptionAlign})));
