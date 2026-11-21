@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.21.4"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.21.5"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.21.4', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.21.5', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -11803,7 +11803,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.21.4';
+  const VERSION='2026.11.21.5';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -18040,7 +18040,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.21.4');
+  const APP_BUILD=String(meta?.content||'2026.11.21.5');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -18372,7 +18372,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     dialog.id='teamDetailsDialog';
     dialog.className='team-details-dialog';
     dialog.setAttribute('aria-labelledby','teamDetailsTitle');
-    dialog.innerHTML='<div class="team-details-shell"><header class="team-details-hero"><div class="team-details-logo" id="teamDetailsLogo">⚽</div><div class="team-details-heading"><span class="team-details-kicker">🏅 بطاقة تعريف الفريق</span><h2 id="teamDetailsTitle">تفاصيل الفريق</h2><div class="team-details-subtitle" id="teamDetailsSubtitle"></div></div><button type="button" class="team-details-close" id="teamDetailsClose" aria-label="إغلاق التفاصيل">×</button></header><div class="team-details-content" id="teamDetailsContent"></div></div>';
+    dialog.innerHTML='<div class="team-details-shell"><header class="team-details-hero"><div class="team-details-watermark" aria-hidden="true"><img id="teamDetailsWatermarkImage" alt=""></div><div class="team-details-logo" id="teamDetailsLogo">⚽</div><div class="team-details-heading"><span class="team-details-kicker">🏅 بطاقة تعريف الفريق</span><h2 id="teamDetailsTitle">تفاصيل الفريق</h2><div class="team-details-subtitle" id="teamDetailsSubtitle"></div></div><button type="button" class="team-details-close" id="teamDetailsClose" aria-label="إغلاق التفاصيل">×</button></header><div class="team-details-content" id="teamDetailsContent"></div></div>';
     document.body.appendChild(dialog);
     const closeDialog=()=>{if(typeof dialog.close==='function'&&dialog.open)dialog.close();else{dialog.removeAttribute('open');document.body.classList.remove('team-details-open');}};
     dialog.querySelector('#teamDetailsClose').addEventListener('click',closeDialog);
@@ -18389,6 +18389,11 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     const players=(Array.isArray(data.players)?data.players:[]).filter(player=>belongsToTeam(player,team)).sort((a,b)=>String(a?.name||a?.playerName||'').localeCompare(String(b?.name||b?.playerName||''),'ar'));
     const dialog=ensureDialog();
     const logo=String(team.logo??team.teamLogo??team.logoUrl??team.image??'').trim();
+    const watermarkImage=dialog.querySelector('#teamDetailsWatermarkImage');
+    if(watermarkImage){
+      if(logo){watermarkImage.setAttribute('src',logo);watermarkImage.hidden=false;}
+      else{watermarkImage.removeAttribute('src');watermarkImage.hidden=true;}
+    }
     const logoBox=dialog.querySelector('#teamDetailsLogo');
     logoBox.innerHTML=logo?'<img src="'+safe(logo)+'" alt="شعار '+safe(team.name||'الفريق')+'">':'⚽';
     dialog.querySelector('#teamDetailsTitle').textContent=team.name||'فريق بدون اسم';
@@ -18428,6 +18433,70 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   });
 })();
 </script>
+
+
+<style id="team-details-sports-watermark-20261121">
+  /* تحسين بصري محصور ببطاقة تفاصيل الفريق فقط */
+  .team-details-dialog{background:#071b2b;border:1px solid rgba(255,255,255,.32);}
+  .team-details-shell{background:linear-gradient(180deg,#f2f8ff 0%,#fff 48%,#f1fbf6 100%);}
+  .team-details-hero{
+    position:relative;isolation:isolate;overflow:hidden;min-height:168px;
+    background-image:
+      linear-gradient(112deg,rgba(3,20,39,.94) 0%,rgba(8,47,79,.88) 48%,rgba(4,103,78,.84) 100%),
+      url("https://images.unsplash.com/photo-1765130729366-b54d7b2c8ea2?auto=format&fit=crop&w=1800&q=82");
+    background-position:center 52%;background-size:cover;background-repeat:no-repeat;
+    border-bottom:1px solid rgba(255,255,255,.18);
+    box-shadow:inset 0 -26px 45px rgba(0,0,0,.16);
+  }
+  .team-details-hero:before{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.27;
+    background:
+      linear-gradient(90deg,transparent calc(50% - 1px),rgba(255,255,255,.65) 50%,transparent calc(50% + 1px)),
+      radial-gradient(circle at 50% 50%,transparent 0 42px,rgba(255,255,255,.58) 43px 44px,transparent 45px),
+      linear-gradient(0deg,transparent 73%,rgba(255,255,255,.28) 73.3%,transparent 73.7%),
+      repeating-linear-gradient(135deg,transparent 0 34px,rgba(255,255,255,.07) 35px 36px,transparent 37px 70px);
+  }
+  .team-details-hero:after{
+    content:"";position:absolute;z-index:0;pointer-events:none;width:270px;height:270px;
+    right:-118px;bottom:-194px;border:1px solid rgba(255,255,255,.25);border-radius:50%;
+    box-shadow:0 0 0 22px rgba(255,255,255,.045),0 0 0 44px rgba(255,255,255,.035),0 0 0 66px rgba(255,255,255,.025);
+  }
+  .team-details-watermark{
+    position:absolute;z-index:1;left:26%;top:-54px;width:245px;height:245px;
+    display:grid;place-items:center;pointer-events:none;opacity:.16;
+    transform:rotate(-9deg);filter:grayscale(1) brightness(0) invert(1);
+    mix-blend-mode:screen;
+  }
+  .team-details-watermark[hidden]{display:none!important;}
+  .team-details-watermark img{display:block;width:100%;height:100%;object-fit:contain;}
+  .team-details-logo,.team-details-heading{position:relative;z-index:2;}
+  .team-details-logo{
+    border:3px solid rgba(255,255,255,.95);border-radius:25px;
+    box-shadow:0 12px 28px rgba(0,0,0,.28),0 0 0 7px rgba(255,255,255,.10);
+  }
+  .team-details-heading h2{letter-spacing:.1px;text-shadow:0 3px 12px rgba(0,0,0,.32);}
+  .team-details-kicker{background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.28);backdrop-filter:blur(8px);}
+  .team-details-subtitle{color:#d9f8ee;text-shadow:0 2px 7px rgba(0,0,0,.32);}
+  .team-details-close{z-index:4;backdrop-filter:blur(8px);box-shadow:0 5px 15px rgba(0,0,0,.16);}
+  .team-details-content{
+    background-image:radial-gradient(circle at 100% 0%,rgba(16,185,129,.055),transparent 36%),
+      linear-gradient(180deg,rgba(242,249,255,.95),rgba(255,255,255,.98) 42%,rgba(244,252,248,.98));
+  }
+  .team-details-metric{border-color:#d6e5f1;box-shadow:0 7px 18px rgba(17,65,105,.075);}
+  .team-details-leader{border-color:#d8e8ef;box-shadow:0 7px 18px rgba(12,66,61,.06);}
+  .team-details-leader-icon{background:linear-gradient(145deg,#dff1ff,#e9e5ff);}
+  .team-details-leader:nth-child(2) .team-details-leader-icon{background:linear-gradient(145deg,#d9fff0,#fff0ce);}
+  .team-details-players-wrap{border-color:#d8e7ed;box-shadow:0 8px 20px rgba(14,57,76,.06);}
+  .team-details-players-head{background:linear-gradient(100deg,#e0efff,#dcfff0);}
+  .team-details-player-count{background:linear-gradient(135deg,#1769d2,#089b78);box-shadow:0 4px 10px rgba(23,105,210,.18);}
+  .team-details-player-index{background:linear-gradient(135deg,#e3f0ff,#e9f7ff);}
+  .team-details-shirt{background:#fff5d9;border-color:#f2dfaa;}
+  @media(max-width:560px){
+    .team-details-hero{min-height:132px;background-position:center 52%;}
+    .team-details-watermark{left:18%;top:-38px;width:190px;height:190px;opacity:.14;}
+    .team-details-logo{box-shadow:0 8px 19px rgba(0,0,0,.25),0 0 0 5px rgba(255,255,255,.10);}
+  }
+</style>
 
 </body>
 </html>
