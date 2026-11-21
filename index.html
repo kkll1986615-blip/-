@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.21.1"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js', {scope:'./'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.21.1', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -11796,7 +11796,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.01.1';
+  const VERSION='2026.11.21.1';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -11890,7 +11890,7 @@ window.__getPredictionForMatch=function(m){
   window.addEventListener('load',async()=>{
     if('serviceWorker' in navigator){
       try{
-        swRegistration=await navigator.serviceWorker.register('./sw.js',{scope:'./'});
+        swRegistration=await navigator.serviceWorker.register('./sw.js?build='+encodeURIComponent(VERSION),{scope:'./',updateViaCache:'none'});
         await navigator.serviceWorker.ready;
       }catch(e){}
     }
@@ -17990,6 +17990,194 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scheduleRefresh,{once:true});
   else scheduleRefresh();
   setTimeout(scheduleRefresh,700);setTimeout(scheduleRefresh,1800);setTimeout(scheduleRefresh,3500);
+})();
+</script>
+
+
+
+<!-- نظام إشعارات تحديثات المنصة: إضافة مستقلة لا تغيّر أقسام البيانات -->
+<style id="manar-update-notifications-style">
+#manarUpdateWidget{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:10050;direction:rtl;font-family:Tahoma,Arial,sans-serif}
+#manarUpdateBell{position:relative;width:56px;height:56px;border:0;border-radius:50%;display:grid;place-items:center;background:linear-gradient(140deg,#075f45,#0ca678);color:#fff;font-size:25px;box-shadow:0 8px 24px rgba(0,55,38,.30);cursor:pointer}
+#manarUpdateBell:focus-visible,#manarUpdatePanel button:focus-visible{outline:3px solid #f2b84b;outline-offset:3px}
+#manarUpdateCount{position:absolute;top:-4px;right:-3px;min-width:19px;height:19px;padding:0 5px;border-radius:20px;background:#e03131;color:#fff;font:900 11px/19px Tahoma,Arial,sans-serif;display:none}
+#manarUpdateBell.has-update #manarUpdateCount{display:block}
+#manarUpdatePanel{position:absolute;left:0;bottom:68px;width:min(340px,calc(100vw - 32px));padding:15px;border:1px solid #d5e6dd;border-radius:18px;background:#fff;color:#183b30;box-shadow:0 16px 42px rgba(10,50,38,.22)}
+#manarUpdatePanel[hidden]{display:none!important}
+#manarUpdatePanel .manar-update-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid #e7efeb}
+#manarUpdatePanel .manar-update-head strong{font-size:16px;color:#075f45}
+#manarUpdateClose{border:0;background:#edf4f0;color:#31594b;width:30px;height:30px;border-radius:9px;font-size:19px;cursor:pointer}
+#manarUpdateMessage{font-size:13px;line-height:1.8;color:#52665e;margin:7px 0 12px}
+#manarUpdatePanel .manar-update-actions{display:flex;flex-wrap:wrap;gap:8px}
+#manarUpdatePanel .manar-update-actions button{flex:1;min-width:125px;border:0;border-radius:10px;padding:10px 11px;font-weight:900;cursor:pointer}
+#manarEnableNotifications{background:#eaf6f0;color:#075f45;border:1px solid #cce5d8!important}
+#manarUpdateNow{background:linear-gradient(135deg,#087f5b,#0ca678);color:#fff}
+#manarNotificationHint{display:block;margin-top:9px;color:#7a8982;font-size:10px;line-height:1.6}
+@media(max-width:600px){#manarUpdateWidget{left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}#manarUpdateBell{width:51px;height:51px;font-size:23px}#manarUpdatePanel{bottom:62px}}
+</style>
+<div id="manarUpdateWidget" aria-label="إشعارات تحديثات المنصة">
+  <button id="manarUpdateBell" type="button" aria-label="فتح إشعارات المنصة" aria-expanded="false">
+    <span aria-hidden="true">🔔</span><span id="manarUpdateCount" aria-hidden="true">1</span>
+  </button>
+  <section id="manarUpdatePanel" hidden role="dialog" aria-label="إشعارات المنصة" aria-live="polite">
+    <div class="manar-update-head"><strong>🔔 إشعارات المنصة</strong><button id="manarUpdateClose" type="button" aria-label="إغلاق">×</button></div>
+    <p id="manarUpdateMessage">لا توجد تحديثات جديدة حاليًا. سنفحص توفر الإصدارات الجديدة تلقائيًا.</p>
+    <div class="manar-update-actions">
+      <button id="manarEnableNotifications" type="button">تفعيل إشعارات الجهاز</button>
+      <button id="manarUpdateNow" type="button" hidden>تحديث المنصة الآن</button>
+    </div>
+    <small id="manarNotificationHint">يتم فحص التحديثات أثناء فتح المنصة. يتطلب إشعار الجهاز موافقتك.</small>
+  </section>
+</div>
+<script id="manar-live-update-notifications">
+(function(){
+  'use strict';
+  const meta=document.querySelector('meta[name="manar-app-build"]');
+  const APP_BUILD=String(meta?.content||'2026.11.21.1');
+  const $=id=>document.getElementById(id);
+  let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
+  const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
+  const updateBtn=$('manarUpdateNow'), permissionBtn=$('manarEnableNotifications'), hint=$('manarNotificationHint');
+  if(!bell||!panel||!message)return;
+
+  function panelOpen(open){panel.hidden=!open;bell.setAttribute('aria-expanded',open?'true':'false');}
+  function setMessage(text){message.textContent=text;}
+  function updatePermissionUI(){
+    if(!permissionBtn)return;
+    if(!window.isSecureContext){permissionBtn.hidden=true;hint.textContent='إشعارات الجهاز تحتاج إلى فتح المنصة عبر رابط HTTPS.';return;}
+    if(!('Notification' in window)){permissionBtn.hidden=true;hint.textContent='هذا المتصفح لا يدعم إشعارات الجهاز؛ ستظهر التنبيهات داخل المنصة.';return;}
+    if(Notification.permission==='granted'){
+      permissionBtn.hidden=true;
+      hint.textContent='✅ إشعارات الجهاز مفعّلة. ستظهر عند اكتشاف إصدار جديد أثناء تشغيل المنصة.';
+    }else if(Notification.permission==='denied'){
+      permissionBtn.hidden=true;
+      hint.textContent='تم منع الإشعارات من إعدادات المتصفح. اسمح بها من إعدادات الموقع لتفعيلها.';
+    }else{
+      permissionBtn.hidden=false;
+      hint.textContent='اضغط «تفعيل إشعارات الجهاز» واسمح للمتصفح بإرسال التنبيهات.';
+    }
+  }
+  async function nativeNotice(build){
+    if(!('Notification' in window)||Notification.permission!=='granted')return;
+    if(lastNativeNotice===build)return;
+    lastNativeNotice=build;
+    const options={body:'يتوفر إصدار جديد ('+build+') من المنصة الرياضية. افتح إشعارات المنصة لتحديثها.',icon:'./icons/icon-192-v20261101.png?v=20261101',badge:'./icons/favicon-48-v20261101.png?v=20261101',tag:'manar-platform-update',renotify:false,requireInteraction:true};
+    try{
+      const reg=swRegistration||(('serviceWorker' in navigator)?await navigator.serviceWorker.ready:null);
+      if(reg&&typeof reg.showNotification==='function')await reg.showNotification('تحديث جديد للمنصة الرياضية',options);
+      else if(typeof Notification==='function')new Notification('تحديث جديد للمنصة الرياضية',options);
+    }catch(error){console.warn('Manar update notification could not be displayed:',error);}
+  }
+  function announceUpdate(build,source){
+    build=String(build||'').trim();
+    if(!build||(build===APP_BUILD&&source!=='service-worker'))return;
+    const changed=!updateAvailable||latestBuild!==build;
+    updateAvailable=true;latestBuild=build;
+    bell.classList.add('has-update');
+    bell.setAttribute('aria-label','يوجد تحديث جديد للمنصة');
+    if(updateBtn)updateBtn.hidden=false;
+    setMessage(source==='service-worker'?'🆕 تم اكتشاف ملفات تحديث جديدة للمنصة. حدّث الصفحة لتطبيقها.':'🆕 يتوفر تحديث جديد للمنصة الرياضية'+(build?' — الإصدار '+build:'')+'. حدّث الصفحة للحصول على المزايا والإصلاحات الجديدة.');
+    const installStatus=$('installUpdateStatus');
+    if(installStatus){installStatus.textContent='🆕 يتوفر تحديث جديد للمنصة. اضغط «تحديث المنصة الآن».';installStatus.dataset.state='ok';}
+    if(changed){
+      try{
+        const storageKey='manar_update_notice_seen_'+build;
+        if(localStorage.getItem(storageKey)!=='1'){
+          nativeNotice(build);
+          localStorage.setItem(storageKey,'1');
+        }
+      }catch(_){nativeNotice(build);}
+    }
+    if(source==='service-worker')hint.textContent='تم اكتشاف نسخة جديدة من ملفات التطبيق عبر خدمة التحديث.';
+  }
+
+  /* قراءة بادئة HTML فقط: لا ننزّل كامل ملف المنصة الكبير عند كل فحص. */
+  async function fetchPublishedBuild(){
+    const url=new URL(location.href);
+    url.hash='';
+    url.searchParams.delete('platformUpdate');
+    url.searchParams.delete('v');
+    url.searchParams.set('__manar_update_probe',String(Date.now()));
+    const response=await fetch(url.href,{method:'GET',cache:'no-store',credentials:'same-origin',headers:{'Cache-Control':'no-cache','Pragma':'no-cache','Range':'bytes=0-16383'}});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    let prefix='';
+    if(response.body&&typeof response.body.getReader==='function'){
+      const reader=response.body.getReader(),decoder=new TextDecoder();let total=0;
+      try{
+        while(total<16384){
+          const part=await reader.read();if(part.done)break;
+          const bytes=part.value;const take=bytes.subarray(0,Math.max(0,16384-total));
+          prefix+=decoder.decode(take,{stream:true});total+=take.length;
+          if(total>=16384){try{await reader.cancel();}catch(_){}break;}
+        }
+        prefix+=decoder.decode();
+      }catch(error){try{await reader.cancel();}catch(_){}throw error;}
+    }else{
+      prefix=(await response.text()).slice(0,16384);
+    }
+    const match=prefix.match(/<meta\s+name=["']manar-app-build["']\s+content=["']([^"']+)["']/i);
+    if(!match)throw new Error('تعذر العثور على رقم إصدار الصفحة المنشورة');
+    return match[1].trim();
+  }
+  async function checkForUpdate(){
+    if(checking||document.hidden||!navigator.onLine)return;
+    checking=true;
+    try{
+      const published=await fetchPublishedBuild();
+      if(published&&published!==APP_BUILD)announceUpdate(published,'page');
+    }catch(error){console.debug('Manar update check skipped:',error?.message||error);}
+    finally{checking=false;}
+  }
+  async function applyUpdate(){
+    const btn=updateBtn;
+    if(btn){btn.disabled=true;btn.textContent='⏳ جارٍ تحديث المنصة...';}
+    try{if(swRegistration&&typeof swRegistration.update==='function')await swRegistration.update();}catch(_){}
+    const url=new URL(location.href);
+    url.searchParams.set('platformUpdate',APP_BUILD);
+    url.searchParams.set('v',String(Date.now()));
+    location.replace(url.href);
+  }
+  async function enableNotifications(){
+    if(!('Notification' in window))return;
+    try{
+      const result=await Notification.requestPermission();
+      updatePermissionUI();
+      if(result==='granted'){
+        setMessage(updateAvailable?'الإشعارات مفعّلة، وهناك تحديث جديد جاهز للتثبيت.':'✅ تم تفعيل إشعارات تحديثات المنصة بنجاح.');
+        if(updateAvailable)nativeNotice(latestBuild);
+      }else if(result==='denied')setMessage('لم يتم السماح بالإشعارات. يمكنك تغيير ذلك من إعدادات الموقع في المتصفح.');
+      else setMessage('لم يتم اختيار السماح بالإشعارات. يمكنك تفعيلها لاحقًا من هذه النافذة.');
+    }catch(error){setMessage('تعذر طلب إذن الإشعارات من المتصفح.');}
+  }
+  function watchRegistration(reg){
+    if(!reg||swRegistration===reg)return;
+    swRegistration=reg;
+    function watchWorker(worker){
+      if(!worker||worker.__manarUpdateWatched)return;
+      worker.__manarUpdateWatched=true;
+      worker.addEventListener('statechange',()=>{
+        if(worker.state==='installed'&&navigator.serviceWorker.controller)announceUpdate(APP_BUILD,'service-worker');
+      });
+    }
+    reg.addEventListener('updatefound',()=>watchWorker(reg.installing));
+    if(reg.installing)watchWorker(reg.installing);
+    if(reg.waiting&&navigator.serviceWorker.controller)announceUpdate(APP_BUILD,'service-worker');
+  }
+
+  bell.addEventListener('click',()=>panelOpen(panel.hidden));
+  $('manarUpdateClose')?.addEventListener('click',()=>panelOpen(false));
+  permissionBtn?.addEventListener('click',enableNotifications);
+  updateBtn?.addEventListener('click',applyUpdate);
+  document.addEventListener('click',event=>{if(!panel.hidden&&!event.target.closest('#manarUpdateWidget'))panelOpen(false);});
+  window.addEventListener('online',checkForUpdate);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkForUpdate();});
+  updatePermissionUI();
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistration('./').then(reg=>{if(reg)watchRegistration(reg);}).catch(()=>{});
+    navigator.serviceWorker.ready.then(watchRegistration).catch(()=>{});
+  }
+  setTimeout(checkForUpdate,2500);
+  setInterval(checkForUpdate,5*60*1000);
 })();
 </script>
 
