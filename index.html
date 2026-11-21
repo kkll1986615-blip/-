@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.21.3"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.21.4"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.21.3', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.21.4', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -11803,7 +11803,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.21.3';
+  const VERSION='2026.11.21.4';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -12156,7 +12156,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   function header(title,sub,count){return `<div class="teams-ultimate-head"><div class="title"><span class="icon">⚽</span><div><h3>${escTeam(title)}</h3><p>${escTeam(sub)}</p></div></div><span class="teams-ultimate-count">👥 ${count} فريق</span></div>`}
   function row(t,i,opts={}){
     const p=tone(i);
-    return `<article class="teamline-card team-logo-name-only" style="${p}"><div class="teamline-logo">${logoHtml(t.id)}</div><div class="teamline-main"><h3 class="teamline-name">${escTeam(t.name||'فريق')}</h3>${opts.admin?`<div class="teamline-actions"><button class="btn blue edit-action" onclick="editTeamCard('${escTeam(t.id)}')">✏️ تعديل</button><button class="btn danger delete-action" onclick="del('teams','${escTeam(t.id)}')">🗑️ حذف</button></div>`:''}</div></article>`;
+    return `<article class="teamline-card team-logo-name-only" style="${p}"><div class="teamline-logo">${logoHtml(t.id)}</div><div class="teamline-main"><h3 class="teamline-name teamline-name-trigger" data-team-detail-id="${escTeam(t.id)}" role="button" tabindex="0" aria-label="عرض تفاصيل فريق ${escTeam(t.name||'فريق')}" title="اضغط لعرض تفاصيل الفريق">${escTeam(t.name||'فريق')}</h3>${opts.admin?`<div class="teamline-actions"><button class="btn blue edit-action" onclick="editTeamCard('${escTeam(t.id)}')">✏️ تعديل</button><button class="btn danger delete-action" onclick="del('teams','${escTeam(t.id)}')">🗑️ حذف</button></div>`:''}</div></article>`;
   }
   window.renderTeams=function(){
     if(!teamList)return;
@@ -18040,7 +18040,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.21.3');
+  const APP_BUILD=String(meta?.content||'2026.11.21.4');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -18257,11 +18257,177 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 
 </script>
 
-<style id="manar-floating-tools-spacing-20261121">
-/* فصل زر المزامنة عن زر الإشعارات في الشاشات الصغيرة والكبيرة */
-#firebaseSyncFab{bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;left:12px!important}
-#manarUpdateWidget{bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;left:12px!important}
-@media(max-width:600px){#firebaseSyncFab{bottom:calc(78px + env(safe-area-inset-bottom,0px))!important}#manarUpdateWidget{bottom:calc(12px + env(safe-area-inset-bottom,0px))!important}}
+<style id="stats-empty-squares-professional-fix-20261121">
+/* تحويل المربعات الفارغة في بطاقات الملخص إلى شارات ترتيب أنيقة؛ محصور بقسم الإحصائيات. */
+#statsBody .stats-summary-grid{counter-reset:stats-summary-index!important;}
+#statsBody .stats-summary-grid .stat{position:relative!important;}
+#statsBody .stats-summary-grid .stat::after{
+  counter-increment:stats-summary-index!important;
+  content:counter(stats-summary-index,decimal-leading-zero)!important;
+  position:absolute!important;left:15px!important;bottom:14px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:46px!important;height:46px!important;margin:0!important;padding:0!important;
+  border-radius:14px!important;border:1px solid #c9dced!important;
+  background:linear-gradient(145deg,#e7f5ff 0%,#e8fff5 100%)!important;
+  color:#2363a7!important;font-size:15px!important;font-weight:1000!important;
+  line-height:1!important;letter-spacing:.4px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 9px rgba(35,91,145,.08)!important;
+}
+#statsBody .stats-summary-grid .stat:nth-child(7n+2)::after{background:linear-gradient(145deg,#fff1d6,#fff8e8)!important;color:#a76508!important;border-color:#f2dfb9!important}
+#statsBody .stats-summary-grid .stat:nth-child(7n+3)::after{background:linear-gradient(145deg,#eee8ff,#f8f2ff)!important;color:#7048c8!important;border-color:#ddd1fa!important}
+#statsBody .stats-summary-grid .stat:nth-child(7n+4)::after{background:linear-gradient(145deg,#dcf8f0,#e9fff8)!important;color:#07815e!important;border-color:#c5eadf!important}
+#statsBody .stats-summary-grid .stat:nth-child(7n+5)::after{background:linear-gradient(145deg,#ffe8ef,#fff1f5)!important;color:#c04470!important;border-color:#f4d2de!important}
+#statsBody .stats-summary-grid .stat:nth-child(7n+6)::after{background:linear-gradient(145deg,#fff4d6,#fff9e9)!important;color:#a66a00!important;border-color:#f0e1b7!important}
+#statsBody .stats-summary-grid .stat:nth-child(7n)::after{background:linear-gradient(145deg,#ffe7e7,#fff1f1)!important;color:#c23b45!important;border-color:#f0cccc!important}
+@media(max-width:600px){#statsBody .stats-summary-grid .stat::after{left:12px!important;bottom:12px!important;width:40px!important;height:40px!important;border-radius:12px!important;font-size:13px!important;}}
 </style>
+
+
+<style id="team-details-click-view-20261121">
+  #teams .teamline-name-trigger,#publicTeamList .teamline-name-trigger{cursor:pointer!important;display:inline-block!important;max-width:100%!important;outline:none!important;transition:color .18s ease,transform .18s ease!important;}
+  #teams .teamline-name-trigger:hover,#publicTeamList .teamline-name-trigger:hover{color:#1769d2!important;text-decoration:underline!important;text-decoration-thickness:2px!important;text-underline-offset:4px!important;transform:translateY(-1px)!important;}
+  #teams .teamline-name-trigger:focus-visible,#publicTeamList .teamline-name-trigger:focus-visible{border-radius:8px!important;outline:3px solid #38bdf8!important;outline-offset:3px!important;}
+  .team-details-dialog{width:min(760px,calc(100vw - 24px));max-width:760px;max-height:min(90vh,850px);margin:auto;padding:0;border:0;border-radius:26px;background:#f7fbff;color:#172b42;overflow:hidden;box-shadow:0 28px 90px rgba(5,27,56,.35);}
+  .team-details-dialog::backdrop{background:rgba(4,18,38,.68);backdrop-filter:blur(5px);}
+  .team-details-shell{max-height:min(90vh,850px);display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(180deg,#f4f9ff 0%,#fff 46%,#f7fffb 100%);}
+  .team-details-hero{position:relative;display:flex;align-items:center;gap:16px;padding:22px 22px 20px;background:linear-gradient(125deg,#123e8a 0%,#236be0 47%,#00a98f 100%);color:#fff;isolation:isolate;}
+  .team-details-hero:after{content:"";position:absolute;z-index:-1;width:210px;height:210px;border-radius:50%;left:-55px;top:-105px;background:rgba(255,255,255,.10);}
+  .team-details-logo{width:104px;height:104px;flex:0 0 104px;display:grid;place-items:center;border:4px solid rgba(255,255,255,.88);border-radius:27px;background:#fff;box-shadow:0 10px 24px rgba(0,0,0,.18);overflow:hidden;color:#1769d2;font-size:48px;}
+  .team-details-logo img{width:100%;height:100%;object-fit:contain;padding:7px;background:#fff;}
+  .team-details-heading{min-width:0;flex:1;}
+  .team-details-kicker{display:inline-flex;align-items:center;gap:6px;margin-bottom:7px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);font-size:10px;font-weight:900;}
+  .team-details-heading h2{margin:0;color:#fff!important;font-size:25px;line-height:1.35;font-weight:1000;overflow-wrap:anywhere;text-shadow:0 2px 7px rgba(0,0,0,.14);}
+  .team-details-subtitle{margin-top:7px;color:#e5f3ff;font-size:12px;font-weight:800;line-height:1.55;}
+  .team-details-close{position:absolute;left:13px;top:13px;width:38px;height:38px;border:1px solid rgba(255,255,255,.35);border-radius:13px;background:rgba(255,255,255,.16);color:#fff;font-size:23px;font-weight:900;line-height:1;cursor:pointer;}
+  .team-details-close:hover{background:rgba(255,255,255,.28);}
+  .team-details-content{padding:17px 18px 20px;overflow:auto;overscroll-behavior:contain;}
+  .team-details-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:13px;}
+  .team-details-metric{padding:12px 8px;text-align:center;border:1px solid #dce8f3;border-radius:16px;background:linear-gradient(145deg,#fff,#f0f7ff);box-shadow:0 5px 13px rgba(25,72,122,.06);}
+  .team-details-metric:nth-child(2){background:linear-gradient(145deg,#fff,#eefcf5);border-color:#d5efe2;}
+  .team-details-metric:nth-child(3){background:linear-gradient(145deg,#fff,#fff7e8);border-color:#f2e3c3;}
+  .team-details-metric .symbol{display:block;font-size:19px;margin-bottom:4px;}
+  .team-details-metric b{display:block;color:#164d91;font-size:22px;font-weight:1000;line-height:1.2;}
+  .team-details-metric:nth-child(2) b{color:#07845f;}
+  .team-details-metric:nth-child(3) b{color:#b87908;}
+  .team-details-metric small{display:block;margin-top:4px;color:#687b8e;font-size:10px;font-weight:850;}
+  .team-details-section-title{display:flex;align-items:center;gap:8px;margin:13px 1px 9px;color:#183d63;font-size:14px;font-weight:1000;}
+  .team-details-section-title:before{content:"";width:5px;height:19px;border-radius:9px;background:linear-gradient(#16b987,#2784ed);}
+  .team-details-leaders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+  .team-details-leader{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid #dce8f2;border-radius:15px;background:#fff;box-shadow:0 5px 14px rgba(21,65,102,.05);}
+  .team-details-leader-icon{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#e7f2ff,#f0eaff);font-size:22px;}
+  .team-details-leader:nth-child(2) .team-details-leader-icon{background:linear-gradient(145deg,#e3fff3,#fff4dc);}
+  .team-details-leader small{display:block;color:#7a8b9b;font-size:10px;font-weight:850;}
+  .team-details-leader b{display:block;margin-top:4px;color:#173b5d;font-size:13px;font-weight:950;overflow-wrap:anywhere;}
+  .team-details-players-wrap{border:1px solid #dfe9f1;border-radius:17px;background:#fff;overflow:hidden;box-shadow:0 6px 17px rgba(22,62,96,.05);}
+  .team-details-players-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;background:linear-gradient(100deg,#eaf4ff,#e9fff5);border-bottom:1px solid #e2edf4;color:#21476a;font-size:11px;font-weight:950;}
+  .team-details-player-count{padding:5px 9px;border-radius:999px;background:#1769d2;color:#fff;font-size:10px;font-weight:950;white-space:nowrap;}
+  .team-details-player-list{margin:0;padding:0;list-style:none;max-height:290px;overflow:auto;}
+  .team-details-player-list li{display:grid;grid-template-columns:31px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #edf2f6;}
+  .team-details-player-list li:last-child{border-bottom:0;}
+  .team-details-player-list li:nth-child(even){background:#f8fbfe;}
+  .team-details-player-index{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:#e8f1ff;color:#2163b6;font-size:11px;font-weight:1000;}
+  .team-details-player-name{min-width:0;color:#203c58;font-size:12px;font-weight:900;overflow-wrap:anywhere;}
+  .team-details-shirt{padding:5px 8px;border-radius:8px;background:#fff4d8;border:1px solid #f4e1b0;color:#98640b;font-size:10px;font-weight:900;white-space:nowrap;}
+  .team-details-empty{padding:23px 12px;text-align:center;color:#8191a0;font-size:12px;font-weight:850;background:#fbfdff;}
+  @media(max-width:560px){
+    .team-details-dialog{width:calc(100vw - 12px);max-height:92vh;border-radius:21px;}
+    .team-details-shell{max-height:92vh;}
+    .team-details-hero{gap:11px;padding:18px 13px 16px;min-height:125px;}
+    .team-details-logo{width:76px;height:76px;flex-basis:76px;border-radius:20px;font-size:37px;}
+    .team-details-heading h2{font-size:19px;padding-left:24px;}
+    .team-details-subtitle{font-size:10px;}
+    .team-details-close{width:34px;height:34px;left:9px;top:9px;font-size:21px;}
+    .team-details-content{padding:12px 11px 15px;}
+    .team-details-metrics{gap:6px;}
+    .team-details-metric{padding:10px 4px;border-radius:13px;}
+    .team-details-metric b{font-size:19px;}
+    .team-details-metric small{font-size:9px;}
+    .team-details-leaders{gap:7px;}
+    .team-details-leader{padding:9px 7px;gap:7px;border-radius:12px;}
+    .team-details-leader-icon{width:34px;height:34px;flex-basis:34px;font-size:18px;border-radius:10px;}
+    .team-details-leader b{font-size:11px;}
+    .team-details-player-list{max-height:38vh;}
+  }
+  @media(max-width:360px){.team-details-leaders{grid-template-columns:1fr;}.team-details-logo{width:66px;height:66px;flex-basis:66px;}.team-details-heading h2{font-size:17px;}}
+</style>
+<script id="team-details-click-view-20261121-js">
+(function(){
+  'use strict';
+  const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const dbNow=()=>typeof db!=='undefined'&&db&&typeof db==='object'?db:{teams:[],players:[],tournaments:[]};
+  function readTeamRef(v){
+    if(v&&typeof v==='object')return {id:v.id??v.teamId??v.teamID??v.team_id??'',name:v.name??v.teamName??v.team_name??''};
+    return {id:v??'',name:''};
+  }
+  function belongsToTeam(player,team){
+    const raw=player?.teamId??player?.teamID??player?.team_id??player?.team??player?.teamName??player?.team_name??'';
+    const ref=readTeamRef(raw);
+    const id=String(ref.id??'').trim(), name=String(ref.name??player?.teamName??player?.team_name??'').trim();
+    return (id!==''&&(id===String(team.id)||id===String(team.name))) || (name!==''&&name===String(team.name));
+  }
+  function ensureDialog(){
+    let dialog=document.getElementById('teamDetailsDialog');
+    if(dialog)return dialog;
+    dialog=document.createElement('dialog');
+    dialog.id='teamDetailsDialog';
+    dialog.className='team-details-dialog';
+    dialog.setAttribute('aria-labelledby','teamDetailsTitle');
+    dialog.innerHTML='<div class="team-details-shell"><header class="team-details-hero"><div class="team-details-logo" id="teamDetailsLogo">⚽</div><div class="team-details-heading"><span class="team-details-kicker">🏅 بطاقة تعريف الفريق</span><h2 id="teamDetailsTitle">تفاصيل الفريق</h2><div class="team-details-subtitle" id="teamDetailsSubtitle"></div></div><button type="button" class="team-details-close" id="teamDetailsClose" aria-label="إغلاق التفاصيل">×</button></header><div class="team-details-content" id="teamDetailsContent"></div></div>';
+    document.body.appendChild(dialog);
+    const closeDialog=()=>{if(typeof dialog.close==='function'&&dialog.open)dialog.close();else{dialog.removeAttribute('open');document.body.classList.remove('team-details-open');}};
+    dialog.querySelector('#teamDetailsClose').addEventListener('click',closeDialog);
+    dialog.addEventListener('click',event=>{if(event.target===dialog)closeDialog();});
+    dialog.addEventListener('close',()=>{document.body.classList.remove('team-details-open');});
+    return dialog;
+  }
+  window.openTeamDetails=function(teamId){
+    const data=dbNow();
+    const team=(Array.isArray(data.teams)?data.teams:[]).find(item=>String(item?.id)===String(teamId));
+    if(!team)return;
+    const tournament=(Array.isArray(data.tournaments)?data.tournaments:[]).find(item=>String(item?.id)===String(team.tournamentId));
+    const group=String(team.groupName||'').trim()||(Number(team.groupNumber)>0?'المجموعة '+String.fromCharCode(64+Number(team.groupNumber)):'بدون مجموعة');
+    const players=(Array.isArray(data.players)?data.players:[]).filter(player=>belongsToTeam(player,team)).sort((a,b)=>String(a?.name||a?.playerName||'').localeCompare(String(b?.name||b?.playerName||''),'ar'));
+    const dialog=ensureDialog();
+    const logo=String(team.logo??team.teamLogo??team.logoUrl??team.image??'').trim();
+    const logoBox=dialog.querySelector('#teamDetailsLogo');
+    logoBox.innerHTML=logo?'<img src="'+safe(logo)+'" alt="شعار '+safe(team.name||'الفريق')+'">':'⚽';
+    dialog.querySelector('#teamDetailsTitle').textContent=team.name||'فريق بدون اسم';
+    dialog.querySelector('#teamDetailsSubtitle').textContent=[tournament?.name||'بطولة غير محددة',group].filter(Boolean).join(' • ');
+    const president=team.president??team.teamPresident??team.presidentName??team.manager??'غير مسجل';
+    const coach=team.coach??team.teamCoach??team.coachName??'غير مسجل';
+    const content=dialog.querySelector('#teamDetailsContent');
+    const rows=players.length?players.map((player,index)=>{
+      const name=player?.name??player?.playerName??player?.fullName??'لاعب بدون اسم';
+      const number=String(player?.number??player?.shirtNumber??player?.jerseyNumber??'').trim();
+      return '<li><span class="team-details-player-index">'+(index+1)+'</span><b class="team-details-player-name">'+safe(name)+'</b><span class="team-details-shirt">'+(number?'قميص '+safe(number):'بدون رقم')+'</span></li>';
+    }).join(''):'<li class="team-details-empty">لا يوجد لاعبون مسجلون لهذا الفريق حتى الآن.</li>';
+    content.innerHTML=
+      '<div class="team-details-metrics">'+
+        '<div class="team-details-metric"><span class="symbol">👥</span><b>'+players.length+'</b><small>عدد اللاعبين</small></div>'+
+        '<div class="team-details-metric"><span class="symbol">🏆</span><b style="font-size:14px">'+safe(tournament?.name||'—')+'</b><small>البطولة</small></div>'+
+        '<div class="team-details-metric"><span class="symbol">📋</span><b style="font-size:14px">'+safe(group)+'</b><small>المجموعة</small></div>'+
+      '</div>'+
+      '<h3 class="team-details-section-title">👔 إدارة الفريق</h3>'+
+      '<div class="team-details-leaders">'+
+        '<div class="team-details-leader"><span class="team-details-leader-icon">👤</span><div><small>رئيس الفريق</small><b>'+safe(president||'غير مسجل')+'</b></div></div>'+
+        '<div class="team-details-leader"><span class="team-details-leader-icon">🧢</span><div><small>المدرب</small><b>'+safe(coach||'غير مسجل')+'</b></div></div>'+
+      '</div>'+
+      '<h3 class="team-details-section-title">⚽ قائمة لاعبي الفريق</h3>'+
+      '<div class="team-details-players-wrap"><div class="team-details-players-head"><span>الأسماء مرتبة أبجديًا</span><span class="team-details-player-count">'+players.length+' لاعب</span></div><ol class="team-details-player-list">'+rows+'</ol></div>';
+    if(typeof dialog.showModal==='function')dialog.showModal();
+    else dialog.setAttribute('open','');
+    document.body.classList.add('team-details-open');
+  };
+  document.addEventListener('click',event=>{
+    const trigger=event.target.closest?.('.teamline-name-trigger[data-team-detail-id]');
+    if(trigger){event.preventDefault();window.openTeamDetails(trigger.getAttribute('data-team-detail-id'));}
+  });
+  document.addEventListener('keydown',event=>{
+    const trigger=event.target.closest?.('.teamline-name-trigger[data-team-detail-id]');
+    if(trigger&&(event.key==='Enter'||event.key===' ')){event.preventDefault();window.openTeamDetails(trigger.getAttribute('data-team-detail-id'));}
+  });
+})();
+</script>
+
 </body>
 </html>
