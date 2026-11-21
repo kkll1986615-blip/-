@@ -17694,5 +17694,304 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
+<script id="red-card-one-match-suspension-fix-20261121">
+(function(){
+  'use strict';
+  if(window.__redCardOneMatchSuspensionFix20261121)return;
+  window.__redCardOneMatchSuspensionFix20261121=true;
+
+  const A=value=>Array.isArray(value)?value:[];
+  const S=value=>String(value===undefined||value===null?'':value).trim();
+  const lower=value=>S(value).toLocaleLowerCase('ar');
+  const DB=()=>window.db&&typeof window.db==='object'?window.db:{};
+
+  function stampOf(row){
+    const raw=row?.updatedAt??row?.updated_at??row?.modifiedAt??row?.modified_at??row?.savedAt??row?.createdAt??row?.created_at??row?.timestamp;
+    if(raw===undefined||raw===null||raw==='')return 0;
+    if(typeof raw==='number'&&Number.isFinite(raw))return raw<1e12?raw*1000:raw;
+    if(typeof raw==='object'){
+      const seconds=Number(raw.seconds??raw._seconds);
+      if(Number.isFinite(seconds)&&seconds>0)return seconds*1000;
+    }
+    const value=S(raw);
+    if(/^\d+(?:\.\d+)?$/.test(value)){
+      const number=Number(value);return Number.isFinite(number)?(number<1e12?number*1000:number):0;
+    }
+    const parsed=Date.parse(value);return Number.isFinite(parsed)?parsed:0;
+  }
+
+  /*
+   * لا نعتمد على uniqueMatchSheets وحدها؛ فهي ليست مضمونة الوجود في كل نسخة.
+   * نجمع الكشوفات من دالة توحيد الكشوفات، ثم من مفاتيح v3/v2/v1 مباشرة،
+   * ونختار أحدث كشف لكل مباراة حتى لا تخفي نسخة قديمة بطاقة حمراء محفوظة.
+   */
+  function collectSavedSheets(){
+    const candidates=[];
+    const add=(rows,priority)=>A(rows).forEach((sheet,index)=>{
+      if(!sheet||typeof sheet!=='object')return;
+      const id=S(sheet.matchId??sheet.matchID??sheet.fixtureId);
+      if(id)candidates.push({sheet,priority,index,stamp:stampOf(sheet)});
+    });
+    try{
+      if(typeof window.getAllMatchSheetsForStatusSync==='function')add(window.getAllMatchSheetsForStatusSync(),60);
+      else if(typeof getAllMatchSheetsForStatusSync==='function')add(getAllMatchSheetsForStatusSync(),60);
+    }catch(error){console.warn('Match-sheet source unavailable for suspensions:',error);}
+    try{if(typeof window.uniqueMatchSheets==='function')add(window.uniqueMatchSheets(),50);}catch(error){}
+    const db=DB();
+    add(db.matchSheets,26);add(db.sheets,25);
+    [['manar_match_sheets_v3',40],['manar_match_sheets_v2',30],['manar_match_sheets_v1',20]].forEach(([key,priority])=>{
+      try{add(JSON.parse(localStorage.getItem(key)||'[]'),priority);}catch(error){console.warn('Could not read '+key+' for suspensions:',error);}
+    });
+    const latest=new Map();
+    candidates.forEach(item=>{
+      const id=S(item.sheet.matchId??item.sheet.matchID??item.sheet.fixtureId);
+      const previous=latest.get(id);
+      if(!previous||item.stamp>previous.stamp||(item.stamp===previous.stamp&&item.priority>previous.priority))latest.set(id,item);
+    });
+    return [...latest.values()].sort((a,b)=>a.index-b.index).map(item=>item.sheet);
+  }
+
+  function objectRef(value){
+    if(value&&typeof value==='object')return value.id??value.playerId??value.playerID??value.player_id??value.teamId??value.teamID??value.team_id??value.name??value.teamName??value.playerName??value.value??'';
+    return value;
+  }
+  function resolveTeamId(value,db){
+    const raw=S(objectRef(value));if(!raw)return '';
+    const team=A(db.teams).find(item=>S(item.id)===raw)||A(db.teams).find(item=>lower(item.name)===lower(raw));
+    return S(team?.id||raw);
+  }
+  function playerTeamId(player,db){
+    return resolveTeamId(player?.teamId??player?.teamID??player?.team_id??player?.team??player?.teamName??player?.team_name,db);
+  }
+  function resolveTournamentId(value,db){
+    const raw=S(objectRef(value));if(!raw)return '';
+    const tournament=A(db.tournaments).find(item=>S(item.id)===raw)||A(db.tournaments).find(item=>lower(item.name)===lower(raw)||lower(item.title)===lower(raw));
+    return S(tournament?.id||raw);
+  }
+  function tournamentOfSheet(sheet,match,db){
+    const raw=sheet?.tournamentId??sheet?.tournamentID??sheet?.tournament_id??sheet?.competitionId??sheet?.tournamentName??sheet?.tournament_name??
+      match?.tournamentId??match?.tournamentID??match?.tournament_id??match?.tournament??match?.competitionId??'';
+    return resolveTournamentId(raw,db);
+  }
+  function cardType(card){
+    const raw=lower(card?.type??card?.cardType??card?.card_type??card?.kind??objectRef(card?.card));
+    if(card?.red===true||card?.isRed===true||/\bred\b|حمراء|طرد/.test(raw))return 'red';
+    if(card?.yellow===true||card?.isYellow===true||/\byellow\b|صفراء|إنذار|انذار/.test(raw))return 'yellow';
+    return '';
+  }
+  function resolveCardPlayer(card,db){
+    const raw=card?.playerId??card?.playerID??card?.player_id??card?.player??'';
+    const rawId=S(objectRef(raw));
+    const rawName=S(card?.playerName??card?.player_name??card?.name??(raw&&typeof raw==='object'?(raw.name??raw.playerName):''));
+    const found=A(db.players).find(player=>S(player.id)===rawId)||
+      (rawName?A(db.players).find(player=>lower(player.name??player.fullName??player.playerName)===lower(rawName)):null);
+    return found||null;
+  }
+  function matchSideTeamId(match,side,db){
+    const fields=side==='home'?['homeTeamId','home','homeTeam','homeId','teamHomeId']:['awayTeamId','away','awayTeam','awayId','teamAwayId'];
+    for(const field of fields){
+      const value=match?.[field];if(value===undefined||value===null||S(objectRef(value))==='')continue;
+      return resolveTeamId(value,db);
+    }
+    return '';
+  }
+  function matchDateValue(match,index){
+    const date=S(match?.date??match?.matchDate??match?.match_date??match?.dateISO);
+    const time=S(match?.time??match?.matchTime??'23:59');
+    const parsed=date?Date.parse(date+'T'+time):NaN;
+    return Number.isFinite(parsed)?parsed:Number.MAX_SAFE_INTEGER-(A(DB().matches).length-index);
+  }
+  function isPlayed(match){
+    const status=lower(match?.status??match?.state);
+    if(['finished','played','ended','complete','completed','منتهية','انتهت','مكتملة','مكتمل','لعبت'].includes(status))return true;
+    if(['scheduled','upcoming','pending','مجدولة','قادمة','لم تبدأ','قيد الانتظار','مؤجلة'].includes(status))return false;
+    const date=S(match?.date??match?.matchDate??match?.match_date);
+    const time=S(match?.time??match?.matchTime??'23:59');
+    const parsed=date?Date.parse(date+'T'+time):NaN;
+    return Number.isFinite(parsed)&&parsed<Date.now();
+  }
+  function isUnplayed(match){return !isPlayed(match);}
+  function sameTournament(match,tournamentId,db){
+    const raw=match?.tournamentId??match?.tournamentID??match?.tournament_id??match?.tournament??match?.competitionId??'';
+    if(raw!==''&&raw!==null&&raw!==undefined)return resolveTournamentId(raw,db)===S(tournamentId);
+    const tour=A(db.tournaments).find(item=>S(item.id)===S(tournamentId));
+    const teamIds=[matchSideTeamId(match,'home',db),matchSideTeamId(match,'away',db)].filter(Boolean);
+    return !!tour&&teamIds.some(id=>{
+      const team=A(db.teams).find(item=>S(item.id)===id);
+      return resolveTournamentId(team?.tournamentId??team?.tournamentID??team?.tournament_id,db)===S(tournamentId);
+    });
+  }
+  function teamMatches(teamId,tournamentId,db){
+    const wanted=resolveTeamId(teamId,db);
+    if(!wanted)return [];
+    return A(db.matches).map((match,index)=>({match,index})).filter(item=>{
+      const match=item.match;
+      if(tournamentId&&!sameTournament(match,tournamentId,db))return false;
+      return matchSideTeamId(match,'home',db)===wanted||matchSideTeamId(match,'away',db)===wanted;
+    }).sort((a,b)=>matchDateValue(a.match,a.index)-matchDateValue(b.match,b.index)||a.index-b.index).map(item=>item.match);
+  }
+  function matchLabel(match,db){
+    try{if(typeof window.matchLabelForSusp==='function')return window.matchLabelForSusp(match);}catch(error){}
+    const teamName=id=>A(db.teams).find(team=>S(team.id)===S(id))?.name||S(id)||'—';
+    return teamName(matchSideTeamId(match,'home',db))+' × '+teamName(matchSideTeamId(match,'away',db))+' — '+S(match?.date||'بدون تاريخ');
+  }
+  function roundKey(match){
+    for(const key of ['stageName','stage','phaseName','phase','roundName','round','matchday','matchDay','week','leg']){
+      const value=S(match?.[key]);if(value)return lower(value);
+    }
+    return 'all';
+  }
+  function suspensionThreshold(tournament){
+    const raw=S(tournament?.type).toLowerCase();
+    return raw.includes('دوري')||raw.includes('league')?4:2;
+  }
+
+  window.automaticSuspensions=function(){
+    const db=DB(),sheets=collectSavedSheets(),groups=new Map(),out=[],redOut=[],redSeen=new Set();
+    sheets.forEach(sheet=>{
+      const matchId=S(sheet?.matchId??sheet?.matchID??sheet?.fixtureId);if(!matchId)return;
+      const match=A(db.matches).find(item=>S(item.id??item.matchId)===matchId);if(!match)return;
+      let tournamentId=tournamentOfSheet(sheet,match,db);
+      const cards=Array.isArray(sheet.cards)?sheet.cards:A(match.cards);
+      cards.forEach(card=>{
+        const type=cardType(card);if(type!=='red'&&type!=='yellow')return;
+        const player=resolveCardPlayer(card,db);if(!player)return;
+        const playerId=S(player.id);
+        const teamId=resolveTeamId(card?.teamId??card?.teamID??card?.team_id??card?.team??playerTeamId(player,db),db);
+        if(!tournamentId){
+          const team=A(db.teams).find(item=>S(item.id)===teamId);
+          tournamentId=resolveTournamentId(team?.tournamentId??team?.tournamentID??team?.tournament_id,db);
+        }
+        if(type==='red'){
+          const redKey=JSON.stringify([matchId,playerId,tournamentId,teamId]);
+          if(!redSeen.has(redKey)){
+            redSeen.add(redKey);
+            const teamSchedule=teamMatches(teamId||playerTeamId(player,db),tournamentId,db);
+            const triggerIndex=teamSchedule.findIndex(item=>S(item.id??item.matchId)===matchId);
+            const next=triggerIndex>=0?teamSchedule[triggerIndex+1]:null;
+            redOut.push({id:'AUTO_RED_'+matchId+'_'+playerId,playerId,tournamentId,type:'cards',reason:'بطاقة حمراء — إيقاف تلقائي مباراة واحدة',matches:1,triggerMatchId:matchId,triggerLabel:matchLabel(match,db),nextMatchId:S(next?.id??next?.matchId),nextMatchNo:triggerIndex>=0?triggerIndex+2:null,teamId,automatic:true,active:true,source:'match-sheet',cardType:'red'});
+          }
+          return;
+        }
+        const tournament=A(db.tournaments).find(item=>S(item.id)===tournamentId);
+        if(!tournament)return;
+        const key=JSON.stringify([playerId,tournamentId,teamId]);
+        if(!groups.has(key))groups.set(key,{player,playerId,tournament,tournamentId,teamId,events:[]});
+        groups.get(key).events.push({match,card,type,teamId});
+      });
+    });
+
+    groups.forEach(group=>{
+      const matches=teamMatches(group.teamId||playerTeamId(group.player,db),group.tournamentId,db);
+      const matchIndex=new Map(matches.map((match,index)=>[S(match.id??match.matchId),index]));
+      const byMatch=new Map();
+      group.events.forEach(event=>{
+        const id=S(event.match.id??event.match.matchId);if(!byMatch.has(id))byMatch.set(id,{match:event.match,cards:[]});
+        byMatch.get(id).cards.push(event);
+      });
+      const events=[...byMatch.values()].sort((a,b)=>{
+        const ai=matchIndex.has(S(a.match.id??a.match.matchId))?matchIndex.get(S(a.match.id??a.match.matchId)):Number.MAX_SAFE_INTEGER;
+        const bi=matchIndex.has(S(b.match.id??b.match.matchId))?matchIndex.get(S(b.match.id??b.match.matchId)):Number.MAX_SAFE_INTEGER;
+        return ai-bi||S(a.match.date).localeCompare(S(b.match.date))||S(a.match.id).localeCompare(S(b.match.id));
+      });
+      const threshold=suspensionThreshold(group.tournament);
+      const rules=group.tournament?.suspensionRules||{};
+      const mode=rules.mode==='consecutive'?'consecutive':'scattered';
+      const reset=rules.reset==='round'?'round':'continuous';
+      let yellowCount=0,lastRound='',pendingMatchId='',pendingMatchIndex=-1,resetYellowAfterService=false;
+
+      events.forEach(event=>{
+        const currentId=S(event.match.id??event.match.matchId);
+        const currentIndex=matchIndex.has(currentId)?matchIndex.get(currentId):-1;
+        if(pendingMatchId){
+          if(currentId===pendingMatchId)return;
+          if(currentIndex>=0&&pendingMatchIndex>=0&&currentIndex>pendingMatchIndex){
+            const serviceMatch=matches[pendingMatchIndex];
+            if(serviceMatch&&!isUnplayed(serviceMatch)){
+              if(resetYellowAfterService)yellowCount=0;
+              pendingMatchId='';pendingMatchIndex=-1;resetYellowAfterService=false;
+            }else{return;}
+          }else if(currentIndex>=pendingMatchIndex){return;}
+        }
+        const currentRound=roundKey(event.match);
+        if(reset==='round'&&lastRound&&currentRound!==lastRound)yellowCount=0;
+        lastRound=currentRound;
+        const yellowInMatch=event.cards.filter(item=>item.type==='yellow').length;
+        const hasRed=event.cards.some(item=>item.type==='red');
+        if(mode==='consecutive'&&yellowInMatch===0)yellowCount=0;
+        yellowCount+=yellowInMatch;
+        const yellowReached=yellowCount>=Math.max(1,Number(rules.threshold)||threshold);
+        if(!hasRed&&!yellowReached)return;
+
+        const next=currentIndex>=0?matches[currentIndex+1]:null;
+        const reason=hasRed?'بطاقة حمراء — إيقاف تلقائي مباراة واحدة':`تراكم ${Math.max(1,Number(rules.threshold)||threshold)} بطاقات صفراء من الكشوفات`;
+        out.push({
+          id:(hasRed?'AUTO_RED_':'AUTO_YEL_')+currentId+'_'+group.playerId,
+          playerId:group.playerId,tournamentId:group.tournamentId,type:'cards',reason,
+          matches:1,triggerMatchId:currentId,triggerLabel:matchLabel(event.match,db),
+          nextMatchId:S(next?.id??next?.matchId),nextMatchNo:currentIndex>=0?currentIndex+2:null,
+          automatic:true,active:true,source:'match-sheet',cardType:hasRed?'red':'yellow'
+        });
+        pendingMatchId=S(next?.id??next?.matchId);
+        pendingMatchIndex=next&&currentIndex>=0?currentIndex+1:-1;
+        resetYellowAfterService=yellowReached;
+        if(yellowReached)yellowCount=0;
+      });
+    });
+    return [...out,...redOut];
+  };
+
+  /* احتفظ بحساب العقوبات اليدوية الحالي كما هو، وأعد حساب مواعيد العقوبات التلقائية
+     من جدول الفريق نفسه لضمان تحديد المباراة التالية بعد البطاقة الحمراء بدقة. */
+  const previousState=window.suspensionCurrentState;
+  window.suspensionCurrentState=function(){
+    let previous=[];
+    try{if(typeof previousState==='function')previous=A(previousState());}catch(error){console.warn('Manual suspension state fallback:',error);}
+    const manual=previous.filter(item=>!item?.automatic);
+    const db=DB();
+    const automatic=window.automaticSuspensions().map(item=>{
+      const player=A(db.players).find(person=>S(person.id)===S(item.playerId));
+      if(!player)return null;
+      const teamId=resolveTeamId(item.teamId||playerTeamId(player,db),db);
+      const matches=teamMatches(teamId,item.tournamentId,db);
+      let startIndex=-1;
+      if(item.nextMatchId)startIndex=matches.findIndex(match=>S(match.id??match.matchId)===S(item.nextMatchId));
+      if(startIndex<0&&item.triggerMatchId){
+        const triggerIndex=matches.findIndex(match=>S(match.id??match.matchId)===S(item.triggerMatchId));
+        if(triggerIndex>=0)startIndex=triggerIndex+1;
+      }
+      if(startIndex<0)startIndex=matches.length;
+      const count=Math.max(1,Number(item.matches)||1);
+      const planned=matches.slice(startIndex,startIndex+count);
+      const nextMatches=planned.filter(isUnplayed);
+      const active=planned.length===0||planned.length<count||planned.some(isUnplayed);
+      return {...item,p:player,teamId,nextMatches,active,pending:planned.length===0};
+    }).filter(Boolean);
+    return [...automatic,...manual];
+  };
+
+  let refreshTimer=null;
+  function refresh(){
+    if(refreshTimer)clearTimeout(refreshTimer);
+    refreshTimer=setTimeout(()=>{
+      try{if(typeof window.renderSuspendedPlayers==='function')window.renderSuspendedPlayers();}
+      catch(error){console.warn('Red-card suspension list refresh failed:',error);}
+    },40);
+  }
+  function scheduleRefresh(){[80,350,900,1600].forEach(delay=>setTimeout(refresh,delay));}
+  document.addEventListener('click',event=>{
+    const target=event.target?.closest?.('#ksSave,#ksNew,#ksReportsList [data-ks-delete],#ksReportsList [data-ks-edit],#ksPending [data-ks-open]');
+    if(target)scheduleRefresh();
+  },true);
+  ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_sports_v2'].forEach(key=>{
+    window.addEventListener('storage',event=>{if(!event.key||event.key===key)scheduleRefresh();});
+  });
+  window.addEventListener('focus',scheduleRefresh);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scheduleRefresh,{once:true});
+  else scheduleRefresh();
+  setTimeout(scheduleRefresh,700);setTimeout(scheduleRefresh,1800);setTimeout(scheduleRefresh,3500);
+})();
+</script>
+
 </body>
 </html>
