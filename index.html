@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.22.3"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.22.4"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.22.3', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.22.4', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -11968,7 +11968,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.22.3';
+  const VERSION='2026.11.22.4';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -18205,7 +18205,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.22.3');
+  const APP_BUILD=String(meta?.content||'2026.11.22.4');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -19021,6 +19021,150 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       }
     };
     wrapped.__manarNavWrapped=true;wrapped.__manarNavOriginal=existingClose;
+    window.playersClosePanels=wrapped;
+  }
+})();
+</script>
+
+
+
+<style id="players-special-icons-navigation-style-20261122">
+/* إخفاء أيقونات (اللاعبون الموقوفون، الإنذارات، أسماء اللاعبين) فقط أثناء فتح واجهتها. */
+#players .players-special-trigger-hidden{display:none!important;}
+#players .players-special-icons-row-hidden{display:none!important;}
+#players .players-special-back{
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:11px!important;
+  width:100%!important;min-height:50px!important;margin:0 0 15px!important;padding:11px 16px!important;
+  border:2px solid #fff!important;border-radius:15px!important;
+  background:linear-gradient(115deg,#312e81 0%,#6d28d9 45%,#db2777 100%)!important;
+  color:#fff!important;font-family:inherit!important;font-size:15px!important;font-weight:950!important;
+  line-height:1.45!important;text-align:center!important;cursor:pointer!important;
+  box-shadow:0 7px 19px rgba(91,33,182,.28),inset 0 1px 0 rgba(255,255,255,.25)!important;
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease!important;
+}
+#players .players-special-back:hover{filter:brightness(1.08)!important;transform:translateY(-2px)!important;box-shadow:0 10px 23px rgba(91,33,182,.34)!important;}
+#players .players-special-back:active{transform:scale(.985)!important;}
+#players .players-special-back:focus-visible{outline:4px solid #fbbf24!important;outline-offset:3px!important;}
+#players .players-special-back-icon{display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:31px!important;height:31px!important;flex:0 0 31px!important;border-radius:10px!important;
+  background:rgba(255,255,255,.2)!important;border:1px solid rgba(255,255,255,.45)!important;
+  font-size:21px!important;line-height:1!important;}
+#players #suspendedPlayersPanel,#players #playerWarningsPanel,#players #playersNamesPanel{scroll-margin-top:88px!important;}
+@media(max-width:600px){#players .players-special-back{min-height:48px!important;font-size:14px!important;padding:10px 12px!important;margin-bottom:12px!important;}}
+@media(prefers-reduced-motion:reduce){#players .players-special-back{transition:none!important;}}
+</style>
+
+<script id="players-special-icons-navigation-js-20261122">
+(function(){
+  'use strict';
+  if(window.__manarPlayersSpecialIconsNavigation)return;
+  window.__manarPlayersSpecialIconsNavigation=true;
+  const $=id=>document.getElementById(id);
+  const targets=new Set(['suspendedPlayersPanel','playerWarningsPanel','playersNamesPanel']);
+  let activePanel='';
+
+  function findTarget(button){
+    if(!button)return '';
+    if(button.id==='suspendedPlayersToggle'||button.closest('#suspendedPlayersToggle'))return 'suspendedPlayersPanel';
+    if(button.id==='playerWarningsToggle'||button.closest('#playerWarningsToggle'))return 'playerWarningsPanel';
+    if(button.closest('#playersCommandBar .players-names-trigger')||button.closest('[onclick*="playersShowNames"]'))return 'playersNamesPanel';
+    return '';
+  }
+  function panelIsOpen(id){
+    const el=$(id);if(!el)return false;
+    if(id==='suspendedPlayersPanel'||id==='playerWarningsPanel')return getComputedStyle(el).display!=='none';
+    return el.classList.contains('show');
+  }
+  function triggerElements(){
+    const suspended=$('suspendedPlayersToggle');
+    const warnings=$('playerWarningsToggle');
+    const names=document.querySelector('#playersCommandBar .players-names-trigger');
+    return {suspended,warnings,names,row:suspended?.parentElement||warnings?.parentElement||null};
+  }
+  function hideTriggers(){
+    const x=triggerElements();
+    if(x.row)x.row.classList.add('players-special-icons-row-hidden');
+    [x.suspended,x.warnings,x.names].forEach(el=>el?.classList.add('players-special-trigger-hidden'));
+    x.suspended?.setAttribute('aria-expanded','false');
+    x.warnings?.setAttribute('aria-expanded','false');
+    x.names?.setAttribute('aria-expanded','false');
+  }
+  function showTriggers(){
+    const x=triggerElements();
+    if(x.row)x.row.classList.remove('players-special-icons-row-hidden');
+    [x.suspended,x.warnings,x.names].forEach(el=>el?.classList.remove('players-special-trigger-hidden'));
+  }
+  function getHost(id){
+    const panel=$(id);if(!panel)return null;
+    if(id==='playersNamesPanel')return panel;
+    return panel;
+  }
+  function addBackButton(id){
+    const host=getHost(id);if(!host)return null;
+    let button=host.querySelector(':scope > .players-special-back');
+    if(!button){
+      button=document.createElement('button');
+      button.type='button';button.className='players-special-back';
+      button.setAttribute('aria-label','الرجوع إلى أيقونات قسم اللاعبين');
+      button.innerHTML='<span class="players-special-back-icon" aria-hidden="true">↩</span><span>رجوع إلى أيقونات قسم اللاعبين</span>';
+      button.addEventListener('click',goBack);
+      host.insertBefore(button,host.firstChild);
+    }
+    return button;
+  }
+  function scrollTo(element){
+    if(!element)return;
+    try{element.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'});}
+    catch(error){try{element.scrollIntoView(true);}catch(_){}}
+  }
+  function openIfActive(id){
+    if(!targets.has(id)||!panelIsOpen(id))return;
+    activePanel=id;
+    // نخفي الأيقونات الثلاث فقط، ولا نمس بقية أدوات إدارة اللاعبين.
+    hideTriggers();
+    const host=getHost(id);
+    const back=addBackButton(id);
+    window.setTimeout(()=>{
+      const refreshed=getHost(id);
+      if(refreshed)addBackButton(id);
+      scrollTo(back||refreshed||host);
+    },55);
+  }
+  function goBack(){
+    const ids=['suspendedPlayersPanel','playerWarningsPanel','playersNamesPanel'];
+    ids.forEach(id=>{
+      const el=$(id);if(!el)return;
+      if(id==='suspendedPlayersPanel'||id==='playerWarningsPanel')el.style.display='none';
+      else el.classList.remove('show');
+    });
+    const x=triggerElements();
+    x.suspended?.setAttribute('aria-expanded','false');
+    x.warnings?.setAttribute('aria-expanded','false');
+    x.names?.setAttribute('aria-expanded','false');
+    showTriggers();
+    activePanel='';
+    scrollTo(x.row||x.names||$('players'));
+  }
+  window.playersSpecialIconsBack=goBack;
+
+  // التقاط اسم الأيقونة ثم التنفيذ بعد انتهاء الدالة الموجودة التي تفتح اللوحة.
+  document.addEventListener('click',function(event){
+    const button=event.target.closest?.('#players button, #players [role="button"]');
+    const id=findTarget(button);
+    if(!id)return;
+    window.setTimeout(()=>openIfActive(id),90);
+  },false);
+
+  // عند إغلاق أي من الواجهات الخاصة من كود آخر، أعد إظهار الأيقونات.
+  const originalClose=window.playersClosePanels;
+  if(typeof originalClose==='function'&&!originalClose.__manarSpecialIconsWrapped){
+    const wrapped=function(){
+      const result=originalClose.apply(this,arguments);
+      goBack();
+      return result;
+    };
+    wrapped.__manarSpecialIconsWrapped=true;
+    wrapped.__manarSpecialIconsOriginal=originalClose;
     window.playersClosePanels=wrapped;
   }
 })();
