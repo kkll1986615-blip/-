@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.22.2"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.22.3"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.22.2', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.22.3', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -11968,7 +11968,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.22.2';
+  const VERSION='2026.11.22.3';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -18205,7 +18205,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.22.2');
+  const APP_BUILD=String(meta?.content||'2026.11.22.3');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -18894,6 +18894,137 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
  #headToHeadSection .h2h-compare-metrics small{font-size:10px!important;color:#392246!important}
 }
 </style>
+
+
+<style id="players-direct-entry-navigation-style-20261122">
+/* تنقّل مباشر بين أيقونات إدارة اللاعبين ونموذج العملية المحدد فقط. */
+#players #playersCommandBar.players-navigation-hidden{display:none!important;}
+#players .players-flow-back{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;
+  min-height:44px!important;margin:0 0 14px!important;padding:10px 16px!important;
+  border:1px solid #b9c8f3!important;border-radius:13px!important;
+  background:linear-gradient(120deg,#eef2ff 0%,#fdf2f8 55%,#fff7ed 100%)!important;
+  color:#43358b!important;font-family:inherit!important;font-size:14px!important;font-weight:900!important;line-height:1.4!important;cursor:pointer!important;
+  box-shadow:0 5px 15px rgba(69,74,150,.10)!important;transition:transform .16s ease,box-shadow .16s ease!important;
+}
+#players .players-flow-back:hover{transform:translateY(-1px)!important;box-shadow:0 8px 18px rgba(69,74,150,.15)!important;}
+#players .players-flow-back:focus-visible{outline:3px solid #60a5fa!important;outline-offset:3px!important;}
+#players .players-flow-back .players-flow-back-arrow{font-size:20px!important;line-height:1!important;}
+#players .players-admin-panel,#players .players-public-panel,#players #suspendedPlayersPanel .viewer-hide[data-perm="players"]{scroll-margin-top:84px!important;}
+#players .players-admin-panel.show,#players .players-public-panel.show{animation:playersFlowEnter .22s ease both;}
+@keyframes playersFlowEnter{from{opacity:.72;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+  #players .players-flow-back{width:100%!important;min-height:46px!important;margin-bottom:12px!important;}
+}
+/* زر التراجع القديم كان داخل شريط الأيقونات؛ الرجوع الآن من داخل شاشة العملية. */
+#players #playersUndoIconBtn{display:none!important;}
+</style>
+
+
+<script id="players-direct-entry-navigation-js-20261122">
+(function(){
+  'use strict';
+  if(window.__manarPlayersDirectEntryNav)return;
+  window.__manarPlayersDirectEntryNav=true;
+  const $=id=>document.getElementById(id);
+  const operationIds=new Set(['playersAddPanel','playersEditPanel','playersDeletePanel','playersCopyPanel','playersMovePanel','playersWindowPanel','playersTransfersPanel','suspendedPlayersPanel']);
+  const bar=()=> $('playersCommandBar');
+  function targetFromButton(button){
+    if(!button)return null;
+    const action=button.getAttribute('onclick')||'';
+    if(action.includes('playersShowTransfers'))return 'playersTransfersPanel';
+    if(action.includes('playersOpenPenaltyForm'))return 'suspendedPlayersPanel';
+    const match=action.match(/playersShowAdmin\(['"](players(?:Add|Edit|Delete|Copy|Move|Window)Panel)['"]\)/);
+    return match&&operationIds.has(match[1])?match[1]:null;
+  }
+  function isPanelOpen(id){
+    const el=$(id);if(!el)return false;
+    if(id==='suspendedPlayersPanel')return el.style.display!=='none'&&getComputedStyle(el).display!=='none';
+    return el.classList.contains('show');
+  }
+  function viewHost(id){
+    const panel=$(id);if(!panel)return null;
+    if(id==='suspendedPlayersPanel')return panel.querySelector('.card[data-perm="players"]')||panel;
+    if(id==='playersTransfersPanel')return panel.querySelector('.card')||panel;
+    return panel;
+  }
+  function addBackButton(host){
+    if(!host)return;
+    let button=host.querySelector(':scope > .players-flow-back');
+    if(!button){
+      button=document.createElement('button');
+      button.type='button';button.className='players-flow-back';
+      button.setAttribute('aria-label','الرجوع إلى قائمة عمليات اللاعبين لاختيار أيقونة أخرى');
+      button.innerHTML='<span class="players-flow-back-arrow" aria-hidden="true">↩</span><span>رجوع إلى العمليات واختيار أيقونة أخرى</span>';
+      button.addEventListener('click',goBack);
+      const heading=host.querySelector(':scope > h3, :scope > .section-title');
+      if(heading)host.insertBefore(button,heading);else host.insertBefore(button,host.firstChild);
+    }
+  }
+  function scrollToElement(element){
+    if(!element)return;
+    try{element.scrollIntoView({behavior:'smooth',block:'start',inline:'nearest'});}
+    catch(e){try{element.scrollIntoView(true)}catch(_){}}
+  }
+  function openOperation(id){
+    if(!operationIds.has(id)||!isPanelOpen(id))return;
+    const toolbar=bar();
+    const host=viewHost(id);
+    if(!host)return;
+    // Keep the clicked operation visible on its own; all other panels are closed.
+    document.querySelectorAll('#players .players-admin-panel.show,#players .players-public-panel.show').forEach(el=>{
+      if(el.id!==id)el.classList.remove('show');
+    });
+    if(id!=='suspendedPlayersPanel'){
+      const el=$(id);if(el)el.classList.add('show');
+    }
+    addBackButton(host);
+    if(toolbar){toolbar.classList.add('players-navigation-hidden');toolbar.setAttribute('aria-hidden','true');}
+    window.setTimeout(()=>{
+      // A transfer list can rebuild its inner card after its icon handler runs.
+      const refreshedHost=viewHost(id)||host;
+      addBackButton(refreshedHost);
+      const destination=id==='suspendedPlayersPanel'?refreshedHost:$(id);
+      scrollToElement(destination);
+    },70);
+  }
+  function goBack(){
+    const oldClose=window.playersClosePanels;
+    if(typeof oldClose==='function'){
+      try{oldClose();}catch(e){}
+    }
+    const suspended=$('suspendedPlayersPanel');
+    if(suspended)suspended.style.display='none';
+    document.querySelectorAll('#players .players-admin-panel,#players .players-public-panel').forEach(el=>el.classList.remove('show'));
+    const toolbar=bar();
+    if(toolbar){toolbar.classList.remove('players-navigation-hidden');toolbar.removeAttribute('aria-hidden');scrollToElement(toolbar);}
+  }
+  window.playersBackToOperations=goBack;
+
+  // Run after the existing inline click handler has opened and populated its form.
+  document.addEventListener('click',function(event){
+    const button=event.target.closest?.('#playersCommandBar button');
+    if(!button)return;
+    const target=targetFromButton(button);
+    if(!target)return;
+    window.setTimeout(()=>openOperation(target),90);
+  },false);
+
+  // The existing Close buttons should return to the icon chooser as well.
+  const existingClose=window.playersClosePanels;
+  if(typeof existingClose==='function'&&!existingClose.__manarNavWrapped){
+    const wrapped=function(){
+      try{return existingClose.apply(this,arguments)}
+      finally{
+        const suspended=$('suspendedPlayersPanel');if(suspended)suspended.style.display='none';
+        const toolbar=bar();if(toolbar){toolbar.classList.remove('players-navigation-hidden');toolbar.removeAttribute('aria-hidden');}
+      }
+    };
+    wrapped.__manarNavWrapped=true;wrapped.__manarNavOriginal=existingClose;
+    window.playersClosePanels=wrapped;
+  }
+})();
+</script>
 
 </body>
 </html>
