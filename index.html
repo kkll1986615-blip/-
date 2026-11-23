@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.23.1"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.23.2"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.23.1', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.23.2', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -2365,6 +2365,10 @@ function tournamentCardHtml(t,ended=false){
 }
 function showPublicTournamentFromCurrent(id){
   try{
+    window.__manarCurrentTournamentDetailsId=String(id||'');
+    const endedSelect=document.getElementById('publicEndedTournamentSelect');
+    if(endedSelect)endedSelect.value='';
+    try{localStorage.removeItem('publicSelectedTournament')}catch(_e){}
     const sel=document.getElementById('publicTournamentSelect')||document.getElementById('publicSheetTour')||document.getElementById('sheetTour');
     if(sel){sel.value=String(id);sel.dispatchEvent(new Event('change',{bubbles:true}));}
     if(typeof renderPublicSelectedTournament==='function')renderPublicSelectedTournament(id);
@@ -2440,8 +2444,8 @@ function renderTours(){
   if(!ended.some(t=>String(t.id)===selected))selected='';
   window.publicSelectedTournament=selected;
   box.innerHTML=`<div class="public-tournaments-intro"><div class="public-tournaments-intro-icon">🏁</div><div><h3>البطولات المنتهية</h3><p>اختر اسم البطولة من القائمة لعرض بياناتها وملف الأرشفة PDF.</p></div><div class="public-tournaments-total">${ended.length}<small>بطولة منتهية</small></div></div><div class="public-year-selector ended-public-selector"><label for="publicEndedTournamentSelect">🏁 اختر البطولة المنتهية</label><select id="publicEndedTournamentSelect"><option value="">اختر البطولة المنتهية</option>${ended.map(t=>`<option value="${esc(t.id)}">${esc(t.name||'بطولة بدون اسم')}</option>`).join('')}</select></div><div id="publicTournamentResults">${selected?'':'<div class="public-select-year-message"><div>🏆</div><h3>اختر بطولة من القائمة</h3><p>ستظهر تفاصيل البطولة تلقائياً بعد اختيار اسمها.</p></div>'}</div>`;
-  const sel=document.getElementById('publicEndedTournamentSelect'); if(sel){sel.value=selected;sel.onchange=function(){const value=String(this.value||'');window.publicSelectedTournament=value;try{localStorage.setItem('publicSelectedTournament',value)}catch(e){}if(value)renderPublicSelectedTournament(value);else{const r=document.getElementById('publicTournamentResults');if(r)r.innerHTML='<div class="public-select-year-message"><div>🏆</div><h3>اختر بطولة من القائمة</h3><p>ستظهر تفاصيل البطولة تلقائياً بعد اختيار اسمها.</p></div>'}}}
-  if(selected)renderPublicSelectedTournament(selected); applyPermissions(); if(typeof ensurePublicDataVisibility==='function')ensurePublicDataVisibility();
+  const sel=document.getElementById('publicEndedTournamentSelect'); if(sel){sel.value=selected;sel.onchange=function(){const value=String(this.value||'');window.__manarCurrentTournamentDetailsId='';window.publicSelectedTournament=value;try{localStorage.setItem('publicSelectedTournament',value)}catch(e){}if(value)renderPublicSelectedTournament(value);else{const r=document.getElementById('publicTournamentResults');if(r)r.innerHTML='<div class="public-select-year-message"><div>🏆</div><h3>اختر بطولة من القائمة</h3><p>ستظهر تفاصيل البطولة تلقائياً بعد اختيار اسمها.</p></div>'}}}
+  if(selected)renderPublicSelectedTournament(selected); else if(window.__manarCurrentTournamentDetailsId&&all.some(t=>String(t.id)===String(window.__manarCurrentTournamentDetailsId)))renderPublicSelectedTournament(window.__manarCurrentTournamentDetailsId); applyPermissions(); if(typeof ensurePublicDataVisibility==='function')ensurePublicDataVisibility();
 }
 function tournamentPdfEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function loadArchivePdfLibraries(){
@@ -3829,6 +3833,7 @@ function renderPublicSelectedTournament(id){
   const teams=(db.teams||[]).filter(x=>String(x.tournamentId)===String(t.id));
   const tournamentMatches=(db.matches||[]).filter(x=>String(x.tournamentId)===String(t.id));
   const playerCount=(db.players||[]).filter(p=>teams.some(tm=>String(tm.id)===String(p.teamId))).length;
+  const tournamentSystem=String(t.type||'غير محدد')+(isGroupTournament(t)&&Number(t.groupCount)>0?` • ${Number(t.groupCount)} مجموعات`:'');
   const scoreOf=(m,side)=>Number(m?.[side==='home'?'hg':'ag']??m?.[side==='home'?'homeScore':'awayScore']??0)||0;
   const tournamentGoals=tournamentMatches.reduce((n,m)=>n+scoreOf(m,'home')+scoreOf(m,'away'),0);
   const totalYellow=tournamentMatches.reduce((n,m)=>n+(Array.isArray(m.cards)?m.cards:[]).filter(c=>String(c?.type||'').toLowerCase()==='yellow').length,0);
@@ -3846,13 +3851,13 @@ function renderPublicSelectedTournament(id){
   const finalAway=finalMatch?teamName(finalMatch.away):'';
   const finalScore=finalMatch?`${scoreOf(finalMatch,'home')} - ${scoreOf(finalMatch,'away')}`:'';
   const publicArchive=s==='ended'?`<div class="public-archive-file public-ended-pdf-box public-ended-pdf-below"><div class="public-archive-file-info"><span class="public-pdf-icon">📄</span><div><strong>ملف أرشيف البطولة PDF</strong><small>${archive?.pdfData?esc(archive.pdfFileName||'أرشيف البطولة.pdf'):'لم يتم إنشاء ملف PDF لهذه البطولة بعد'}</small>${archive?.pdfData?`<small class="public-download-count">⬇️ مرات التحميل: <b>${Number(archive.downloadCount||0)}</b></small>`:''}</div></div><div class="public-archive-actions">${archive?.pdfData?`<button type="button" class="btn blue" onclick="viewTournamentArchivePublic('${archive.id}')">👁️ عرض الملف</button><button type="button" class="btn secondary" onclick="downloadTournamentArchivePublic('${archive.id}')">⬇️ تحميل</button>`:`<span class="public-pdf-empty">📎 ملف PDF غير متوفر</span>`}</div></div>`:'';
-  box.innerHTML=`<article class="public-tournament-card public-finished-card ${s==='ended'?'is-finished':''}">
+  box.innerHTML=`<article class="public-tournament-card public-finished-card ${s==='ended'?'is-finished':''}" data-tournament-id="${esc(t.id)}">
     <div class="public-finished-topbar"></div>
     <div class="public-tournament-header public-finished-header">
-      <div class="public-finished-badge">🏁 بطولة مكتملة</div>
+      <div class="public-finished-badge">${s==='ended'?'🏁 بطولة مكتملة':s==='upcoming'?'🟡 بطولة قادمة':'📊 تفاصيل البطولة الجارية'}</div>
       <div class="public-tournament-brand">
         <div class="public-tournament-icon">🏆</div>
-        <div><div class="public-tournament-kicker">السجل النهائي للبطولة</div><h3>${esc(t.name||'بطولة بدون اسم')}</h3></div>
+        <div><div class="public-tournament-kicker">${s==='ended'?'السجل النهائي للبطولة':'نظام البطولة وتفاصيلها'}</div><h3>${esc(t.name||'بطولة بدون اسم')}</h3></div>
       </div>
       <span class="public-tour-status public-finished-status">${statusIcon} ${statusText}<em><b>من</b> ${esc(t.startDate||'غير محدد')} <b>إلى</b> ${esc(t.endDate||'غير محدد')}</em></span>
     </div>
@@ -3870,12 +3875,13 @@ function renderPublicSelectedTournament(id){
       <div><span>⚽</span><small>مجموع الأهداف</small><b>${tournamentGoals}</b></div>
       <div><span>🟨</span><small>بطاقات صفراء</small><b>${totalYellow}</b></div>
       <div><span>🟥</span><small>بطاقات حمراء</small><b>${totalRed}</b></div>
-      <div><span>👥</span><small>عدد اللاعبين</small><b>${playerCount}</b></div>
+      <div><span>👥</span><small>اللاعبون المسجلون</small><b>${playerCount}</b></div>
       <div><span>⚽</span><small>الفرق المشاركة</small><b>${teams.length}</b></div>
     </div>
     <div class="public-finished-info">
       <div><span>اسم البطولة</span><strong>${esc(t.name||'—')}</strong></div>
       <div><span>الحالة</span><strong>${statusIcon} ${statusText}</strong></div>
+      <div class="public-tournament-system-info"><span>⚙️ نظام البطولة</span><strong>${esc(tournamentSystem)}</strong></div>
     </div>
     ${renderPublicTeamsByGroup(t,teams)}
     ${hasPermission('tournaments')?`<div class="tournament-public-actions"><button class="btn tournament-edit-btn" type="button" onclick="editTournament('${t.id}')">✏️ تعديل</button>${hasPermission('delete')?`<button class="btn danger tournament-perm-delete" type="button" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}</div>`:''}
@@ -11969,7 +11975,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.23.1';
+  const VERSION='2026.11.23.2';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -18206,7 +18212,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.23.1');
+  const APP_BUILD=String(meta?.content||'2026.11.23.2');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -19358,5 +19364,56 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 })();
 </script>
 
+<style id="tournament-current-details-style">
+#publicTournamentResults .public-finished-info{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#publicTournamentResults .public-tournament-system-info{background:linear-gradient(135deg,#f2eaff,#eaf5ff)!important;border-color:#d5c8ff!important}
+#publicTournamentResults .public-tournament-system-info span{color:#6541a5!important;font-weight:900!important}
+#publicTournamentResults .public-tournament-system-info strong{color:#34205f!important;font-size:12px!important}
+@media(max-width:600px){#publicTournamentResults .public-finished-info{grid-template-columns:repeat(2,minmax(0,1fr))!important}#publicTournamentResults .public-tournament-system-info{grid-column:1/-1}}
+</style>
+<script id="tournament-current-details-live-refresh">
+(function(){
+  'use strict';
+  if(window.__manarTournamentDetailsLiveRefreshInstalled)return;
+  window.__manarTournamentDetailsLiveRefreshInstalled=true;
+  let lastSignature='';
+  function makeSignature(id){
+    const data=window.db&&typeof window.db==='object'?window.db:{};
+    const tournaments=Array.isArray(data.tournaments)?data.tournaments:[];
+    const teamsAll=Array.isArray(data.teams)?data.teams:[];
+    const playersAll=Array.isArray(data.players)?data.players:[];
+    const tournament=tournaments.find(x=>String(x&&x.id)===String(id));
+    if(!tournament)return '';
+    const teams=teamsAll.filter(x=>x&&String(x.tournamentId)===String(id));
+    const teamIds=new Set(teams.map(x=>String(x.id)));
+    const players=playersAll.filter(x=>x&&teamIds.has(String(x.teamId)));
+    return JSON.stringify({
+      system:[tournament.type||'',tournament.groupCount||0,tournament.name||'',tournament.age||''],
+      teams:teams.map(x=>[String(x.id),x.name||'',x.groupNumber||0,x.groupName||'']),
+      players:players.map(x=>[String(x.id||''),String(x.teamId||''),x.name||x.playerName||'',x.number||x.shirtNumber||''])
+    });
+  }
+  function refreshDetails(){
+    const id=String(window.__manarCurrentTournamentDetailsId||'');
+    if(!id){lastSignature='';return;}
+    const page=document.getElementById('tournaments');
+    const box=document.getElementById('publicTournamentResults');
+    if(document.hidden||!page||!page.classList.contains('active')||!box)return;
+    const endedSelect=document.getElementById('publicEndedTournamentSelect');
+    if(endedSelect&&endedSelect.value){window.__manarCurrentTournamentDetailsId='';lastSignature='';return;}
+    const signature=makeSignature(id);
+    if(!signature){window.__manarCurrentTournamentDetailsId='';lastSignature='';return;}
+    const card=box.querySelector('.public-tournament-card[data-tournament-id]');
+    const needsRebuild=!card||card.getAttribute('data-tournament-id')!==id;
+    if(needsRebuild||signature!==lastSignature){
+      lastSignature=signature;
+      if(typeof window.renderPublicSelectedTournament==='function')window.renderPublicSelectedTournament(id);
+    }
+  }
+  window.addEventListener('focus',()=>{try{refreshDetails();}catch(_e){}});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastSignature='';try{refreshDetails();}catch(_e){}}});
+  setInterval(()=>{try{refreshDetails();}catch(_e){}},1800);
+})();
+</script>
 </body>
 </html>
