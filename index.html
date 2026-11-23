@@ -884,6 +884,16 @@ body>header #platformDescriptionText{
 }
 </style>
 
+<style id="current-tournament-details-inline-v1">
+#currentTournamentDetails{margin-top:20px;scroll-margin-top:100px;}
+#currentTournamentDetails[hidden]{display:none!important;}
+#currentTournamentDetails .current-tournament-details-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:11px 14px;border:1px solid #d7e8f5;border-radius:14px;background:linear-gradient(120deg,#eef8ff,#f5f0ff);color:#17324d;}
+#currentTournamentDetails .current-tournament-details-toolbar strong{font-size:14px;font-weight:900;}
+#currentTournamentDetails .current-tournament-details-toolbar button{border:0;border-radius:10px;padding:8px 11px;background:linear-gradient(135deg,#dc3545,#b42335);color:#fff;font-size:11px;font-weight:900;box-shadow:0 3px 9px rgba(180,35,53,.18);}
+#currentTournamentDetails .public-finished-info{grid-template-columns:repeat(3,minmax(0,1fr));}
+#currentTournamentDetails .public-finished-info>div:nth-child(2){background:linear-gradient(135deg,#eef8ff,#f5f0ff);border-color:#d7ddfa;}
+@media(max-width:600px){#currentTournamentDetails .current-tournament-details-toolbar{padding:9px 10px;}#currentTournamentDetails .public-finished-info{grid-template-columns:1fr 1fr;}}
+</style>
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
 
@@ -922,6 +932,7 @@ body>header #platformDescriptionText{
   <div id="currentTournamentsPanel" class="tournament-tab-panel">
     <div class="section-title"><h2>🟢 البطولات الجارية</h2><span class="badge" id="currentTournamentCount">0 بطولة</span></div>
     <div id="currentTournamentList"></div>
+    <div id="currentTournamentDetails" class="current-tournament-details" hidden></div>
   </div>
   <div id="endedTournamentsPanel" class="tournament-tab-panel" style="display:none">
     <div class="section-title"><div><h2>🏁 البطولات المنتهية</h2><small>هنا تتم أرشفة البطولة كملف PDF. يمكن إلغاء الأرشفة وتعديل البيانات ثم إنشاء ملف جديد.</small></div><span class="badge" id="endedTournamentCount">0 بطولة</span></div>
@@ -2364,18 +2375,23 @@ function tournamentCardHtml(t,ended=false){
   </article>`;
 }
 function showPublicTournamentFromCurrent(id){
-  try{
-    window.__manarCurrentTournamentDetailsId=String(id||'');
-    const endedSelect=document.getElementById('publicEndedTournamentSelect');
-    if(endedSelect)endedSelect.value='';
-    try{localStorage.removeItem('publicSelectedTournament')}catch(_e){}
-    const sel=document.getElementById('publicTournamentSelect')||document.getElementById('publicSheetTour')||document.getElementById('sheetTour');
-    if(sel){sel.value=String(id);sel.dispatchEvent(new Event('change',{bubbles:true}));}
-    if(typeof renderPublicSelectedTournament==='function')renderPublicSelectedTournament(id);
-    const box=document.getElementById('publicTournamentResults');
-    if(box)box.scrollIntoView({behavior:'smooth',block:'start'});
-  }catch(e){}
+  const box=document.getElementById('currentTournamentDetails');
+  if(!box)return;
+  box.dataset.tournamentId=String(id);
+  box.hidden=false;
+  box.style.display='block';
+  if(typeof renderPublicSelectedTournament==='function')renderPublicSelectedTournament(id,box);
+  box.scrollIntoView({behavior:'smooth',block:'start'});
 }
+function closeCurrentTournamentDetails(){
+  const box=document.getElementById('currentTournamentDetails');
+  if(!box)return;
+  box.hidden=true;
+  box.style.display='none';
+  box.innerHTML='';
+  delete box.dataset.tournamentId;
+}
+window.closeCurrentTournamentDetails=closeCurrentTournamentDetails;
 
 function toggleTournamentCompletion(id){
   if(currentRole!=='admin'){alert('هذا الإجراء متاح لمدير المنصة فقط.');return;}
@@ -2408,6 +2424,15 @@ function renderCurrentTournaments(){
   const rows=currentTournamentRows(); if(count)count.textContent=`${rows.length} بطولة`;
   box.innerHTML=rows.length?rows.map(t=>tournamentCardHtml(t,false)).join(''):'<div class="empty">لا توجد بطولات جارية حاليًا.</div>';
   applyPermissions();
+  const detailsBox=document.getElementById('currentTournamentDetails');
+  const detailsId=String(detailsBox?.dataset?.tournamentId||'');
+  if(detailsBox&&detailsId&&!detailsBox.hidden){
+    if(rows.some(t=>String(t.id)===detailsId)&&typeof renderPublicSelectedTournament==='function'){
+      renderPublicSelectedTournament(detailsId,detailsBox);
+    }else{
+      closeCurrentTournamentDetails();
+    }
+  }
 }
 function renderEndedTournaments(){
   const box=document.getElementById('endedTournamentList'),count=document.getElementById('endedTournamentCount'); if(!box)return;
@@ -2444,8 +2469,8 @@ function renderTours(){
   if(!ended.some(t=>String(t.id)===selected))selected='';
   window.publicSelectedTournament=selected;
   box.innerHTML=`<div class="public-tournaments-intro"><div class="public-tournaments-intro-icon">🏁</div><div><h3>البطولات المنتهية</h3><p>اختر اسم البطولة من القائمة لعرض بياناتها وملف الأرشفة PDF.</p></div><div class="public-tournaments-total">${ended.length}<small>بطولة منتهية</small></div></div><div class="public-year-selector ended-public-selector"><label for="publicEndedTournamentSelect">🏁 اختر البطولة المنتهية</label><select id="publicEndedTournamentSelect"><option value="">اختر البطولة المنتهية</option>${ended.map(t=>`<option value="${esc(t.id)}">${esc(t.name||'بطولة بدون اسم')}</option>`).join('')}</select></div><div id="publicTournamentResults">${selected?'':'<div class="public-select-year-message"><div>🏆</div><h3>اختر بطولة من القائمة</h3><p>ستظهر تفاصيل البطولة تلقائياً بعد اختيار اسمها.</p></div>'}</div>`;
-  const sel=document.getElementById('publicEndedTournamentSelect'); if(sel){sel.value=selected;sel.onchange=function(){const value=String(this.value||'');window.__manarCurrentTournamentDetailsId='';window.publicSelectedTournament=value;try{localStorage.setItem('publicSelectedTournament',value)}catch(e){}if(value)renderPublicSelectedTournament(value);else{const r=document.getElementById('publicTournamentResults');if(r)r.innerHTML='<div class="public-select-year-message"><div>🏆</div><h3>اختر بطولة من القائمة</h3><p>ستظهر تفاصيل البطولة تلقائياً بعد اختيار اسمها.</p></div>'}}}
-  if(selected)renderPublicSelectedTournament(selected); else if(window.__manarCurrentTournamentDetailsId&&all.some(t=>String(t.id)===String(window.__manarCurrentTournamentDetailsId)))renderPublicSelectedTournament(window.__manarCurrentTournamentDetailsId); applyPermissions(); if(typeof ensurePublicDataVisibility==='function')ensurePublicDataVisibility();
+  const sel=document.getElementById('publicEndedTournamentSelect'); if(sel){sel.value=selected;sel.onchange=function(){const value=String(this.value||'');window.publicSelectedTournament=value;try{localStorage.setItem('publicSelectedTournament',value)}catch(e){}if(value)renderPublicSelectedTournament(value);else{const r=document.getElementById('publicTournamentResults');if(r)r.innerHTML='<div class="public-select-year-message"><div>🏆</div><h3>اختر بطولة من القائمة</h3><p>ستظهر تفاصيل البطولة تلقائياً بعد اختيار اسمها.</p></div>'}}}
+  if(selected)renderPublicSelectedTournament(selected); applyPermissions(); if(typeof ensurePublicDataVisibility==='function')ensurePublicDataVisibility();
 }
 function tournamentPdfEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function loadArchivePdfLibraries(){
@@ -3825,15 +3850,19 @@ function unarchiveTournament(tid){
   switchTournamentTab('ended');alert('تم إلغاء الأرشفة. يمكنك الآن تعديل البطولة ثم أرشفتها من جديد.');
 }
 
-function renderPublicSelectedTournament(id){
-  const box=document.getElementById('publicTournamentResults');
+function renderPublicSelectedTournament(id,targetBox){
+  const box=targetBox||document.getElementById('publicTournamentResults');
   if(!box)return;
+  const isCurrentDetails=box.id==='currentTournamentDetails';
   const t=(db.tournaments||[]).find(x=>String(x.id)===String(id));
   if(!t){box.innerHTML='<div class="public-select-year-message"><div>🏆</div><h3>اختر اسم البطولة</h3><p>بعد اختيار البطولة ستظهر الفرق المسجلة فيها تلقائياً.</p></div>';return;}
   const teams=(db.teams||[]).filter(x=>String(x.tournamentId)===String(t.id));
   const tournamentMatches=(db.matches||[]).filter(x=>String(x.tournamentId)===String(t.id));
-  const playerCount=(db.players||[]).filter(p=>teams.some(tm=>String(tm.id)===String(p.teamId))).length;
-  const tournamentSystem=String(t.type||'غير محدد')+(isGroupTournament(t)&&Number(t.groupCount)>0?` • ${Number(t.groupCount)} مجموعات`:'');
+  const tournamentTeamIds=new Set(teams.map(tm=>String(tm.id)));
+  const playerCount=(db.players||[]).filter(p=>p&&tournamentTeamIds.has(String(p.teamId))).length;
+  const baseSystem=String(t.type||t.tournamentSystem||t.format||'غير محدد');
+  const groupCount=Math.max(0,Number(t.groupCount)||0);
+  const tournamentSystem=isGroupTournament(t)&&groupCount>0?`${baseSystem} — ${groupCount} مجموعات`:baseSystem;
   const scoreOf=(m,side)=>Number(m?.[side==='home'?'hg':'ag']??m?.[side==='home'?'homeScore':'awayScore']??0)||0;
   const tournamentGoals=tournamentMatches.reduce((n,m)=>n+scoreOf(m,'home')+scoreOf(m,'away'),0);
   const totalYellow=tournamentMatches.reduce((n,m)=>n+(Array.isArray(m.cards)?m.cards:[]).filter(c=>String(c?.type||'').toLowerCase()==='yellow').length,0);
@@ -3851,13 +3880,14 @@ function renderPublicSelectedTournament(id){
   const finalAway=finalMatch?teamName(finalMatch.away):'';
   const finalScore=finalMatch?`${scoreOf(finalMatch,'home')} - ${scoreOf(finalMatch,'away')}`:'';
   const publicArchive=s==='ended'?`<div class="public-archive-file public-ended-pdf-box public-ended-pdf-below"><div class="public-archive-file-info"><span class="public-pdf-icon">📄</span><div><strong>ملف أرشيف البطولة PDF</strong><small>${archive?.pdfData?esc(archive.pdfFileName||'أرشيف البطولة.pdf'):'لم يتم إنشاء ملف PDF لهذه البطولة بعد'}</small>${archive?.pdfData?`<small class="public-download-count">⬇️ مرات التحميل: <b>${Number(archive.downloadCount||0)}</b></small>`:''}</div></div><div class="public-archive-actions">${archive?.pdfData?`<button type="button" class="btn blue" onclick="viewTournamentArchivePublic('${archive.id}')">👁️ عرض الملف</button><button type="button" class="btn secondary" onclick="downloadTournamentArchivePublic('${archive.id}')">⬇️ تحميل</button>`:`<span class="public-pdf-empty">📎 ملف PDF غير متوفر</span>`}</div></div>`:'';
-  box.innerHTML=`<article class="public-tournament-card public-finished-card ${s==='ended'?'is-finished':''}" data-tournament-id="${esc(t.id)}">
+  box.innerHTML=`<article class="public-tournament-card public-finished-card ${s==='ended'?'is-finished':''}">
+    ${isCurrentDetails?`<div class="current-tournament-details-toolbar"><strong>📋 تفاصيل البطولة</strong><button type="button" onclick="closeCurrentTournamentDetails()">إغلاق التفاصيل ✕</button></div>`:''}
     <div class="public-finished-topbar"></div>
     <div class="public-tournament-header public-finished-header">
-      <div class="public-finished-badge">${s==='ended'?'🏁 بطولة مكتملة':s==='upcoming'?'🟡 بطولة قادمة':'📊 تفاصيل البطولة الجارية'}</div>
+      <div class="public-finished-badge">${s==='ended'?'🏁 بطولة مكتملة':s==='active'?'🟢 بطولة جارية':'🟡 بطولة قادمة'}</div>
       <div class="public-tournament-brand">
         <div class="public-tournament-icon">🏆</div>
-        <div><div class="public-tournament-kicker">${s==='ended'?'السجل النهائي للبطولة':'نظام البطولة وتفاصيلها'}</div><h3>${esc(t.name||'بطولة بدون اسم')}</h3></div>
+        <div><div class="public-tournament-kicker">${s==='ended'?'السجل النهائي للبطولة':'تفاصيل البطولة'}</div><h3>${esc(t.name||'بطولة بدون اسم')}</h3></div>
       </div>
       <span class="public-tour-status public-finished-status">${statusIcon} ${statusText}<em><b>من</b> ${esc(t.startDate||'غير محدد')} <b>إلى</b> ${esc(t.endDate||'غير محدد')}</em></span>
     </div>
@@ -3875,13 +3905,13 @@ function renderPublicSelectedTournament(id){
       <div><span>⚽</span><small>مجموع الأهداف</small><b>${tournamentGoals}</b></div>
       <div><span>🟨</span><small>بطاقات صفراء</small><b>${totalYellow}</b></div>
       <div><span>🟥</span><small>بطاقات حمراء</small><b>${totalRed}</b></div>
-      <div><span>👥</span><small>اللاعبون المسجلون</small><b>${playerCount}</b></div>
+      <div><span>👥</span><small>إجمالي اللاعبين المسجلين</small><b>${playerCount}</b></div>
       <div><span>⚽</span><small>الفرق المشاركة</small><b>${teams.length}</b></div>
     </div>
     <div class="public-finished-info">
       <div><span>اسم البطولة</span><strong>${esc(t.name||'—')}</strong></div>
+      <div><span>نظام البطولة</span><strong>${esc(tournamentSystem)}</strong></div>
       <div><span>الحالة</span><strong>${statusIcon} ${statusText}</strong></div>
-      <div class="public-tournament-system-info"><span>⚙️ نظام البطولة</span><strong>${esc(tournamentSystem)}</strong></div>
     </div>
     ${renderPublicTeamsByGroup(t,teams)}
     ${hasPermission('tournaments')?`<div class="tournament-public-actions"><button class="btn tournament-edit-btn" type="button" onclick="editTournament('${t.id}')">✏️ تعديل</button>${hasPermission('delete')?`<button class="btn danger tournament-perm-delete" type="button" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}</div>`:''}
@@ -19364,56 +19394,5 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 })();
 </script>
 
-<style id="tournament-current-details-style">
-#publicTournamentResults .public-finished-info{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-#publicTournamentResults .public-tournament-system-info{background:linear-gradient(135deg,#f2eaff,#eaf5ff)!important;border-color:#d5c8ff!important}
-#publicTournamentResults .public-tournament-system-info span{color:#6541a5!important;font-weight:900!important}
-#publicTournamentResults .public-tournament-system-info strong{color:#34205f!important;font-size:12px!important}
-@media(max-width:600px){#publicTournamentResults .public-finished-info{grid-template-columns:repeat(2,minmax(0,1fr))!important}#publicTournamentResults .public-tournament-system-info{grid-column:1/-1}}
-</style>
-<script id="tournament-current-details-live-refresh">
-(function(){
-  'use strict';
-  if(window.__manarTournamentDetailsLiveRefreshInstalled)return;
-  window.__manarTournamentDetailsLiveRefreshInstalled=true;
-  let lastSignature='';
-  function makeSignature(id){
-    const data=window.db&&typeof window.db==='object'?window.db:{};
-    const tournaments=Array.isArray(data.tournaments)?data.tournaments:[];
-    const teamsAll=Array.isArray(data.teams)?data.teams:[];
-    const playersAll=Array.isArray(data.players)?data.players:[];
-    const tournament=tournaments.find(x=>String(x&&x.id)===String(id));
-    if(!tournament)return '';
-    const teams=teamsAll.filter(x=>x&&String(x.tournamentId)===String(id));
-    const teamIds=new Set(teams.map(x=>String(x.id)));
-    const players=playersAll.filter(x=>x&&teamIds.has(String(x.teamId)));
-    return JSON.stringify({
-      system:[tournament.type||'',tournament.groupCount||0,tournament.name||'',tournament.age||''],
-      teams:teams.map(x=>[String(x.id),x.name||'',x.groupNumber||0,x.groupName||'']),
-      players:players.map(x=>[String(x.id||''),String(x.teamId||''),x.name||x.playerName||'',x.number||x.shirtNumber||''])
-    });
-  }
-  function refreshDetails(){
-    const id=String(window.__manarCurrentTournamentDetailsId||'');
-    if(!id){lastSignature='';return;}
-    const page=document.getElementById('tournaments');
-    const box=document.getElementById('publicTournamentResults');
-    if(document.hidden||!page||!page.classList.contains('active')||!box)return;
-    const endedSelect=document.getElementById('publicEndedTournamentSelect');
-    if(endedSelect&&endedSelect.value){window.__manarCurrentTournamentDetailsId='';lastSignature='';return;}
-    const signature=makeSignature(id);
-    if(!signature){window.__manarCurrentTournamentDetailsId='';lastSignature='';return;}
-    const card=box.querySelector('.public-tournament-card[data-tournament-id]');
-    const needsRebuild=!card||card.getAttribute('data-tournament-id')!==id;
-    if(needsRebuild||signature!==lastSignature){
-      lastSignature=signature;
-      if(typeof window.renderPublicSelectedTournament==='function')window.renderPublicSelectedTournament(id);
-    }
-  }
-  window.addEventListener('focus',()=>{try{refreshDetails();}catch(_e){}});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastSignature='';try{refreshDetails();}catch(_e){}}});
-  setInterval(()=>{try{refreshDetails();}catch(_e){}},1800);
-})();
-</script>
 </body>
 </html>
