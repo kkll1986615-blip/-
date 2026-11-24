@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.23.3"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.24.1"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.23.3', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.24.1', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -884,39 +884,31 @@ body>header #platformDescriptionText{
 }
 </style>
 
-<style id="current-tournament-details-inline-v1">
-#currentTournamentDetails{margin-top:20px;scroll-margin-top:100px;}
-#currentTournamentDetails[hidden]{display:none!important;}
-#currentTournamentDetails .current-tournament-details-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:11px 14px;border:1px solid #d7e8f5;border-radius:14px;background:linear-gradient(120deg,#eef8ff,#f5f0ff);color:#17324d;}
-#currentTournamentDetails .current-tournament-details-toolbar strong{font-size:14px;font-weight:900;}
-#currentTournamentDetails .current-tournament-details-toolbar button{border:0;border-radius:10px;padding:8px 11px;background:linear-gradient(135deg,#dc3545,#b42335);color:#fff;font-size:11px;font-weight:900;box-shadow:0 3px 9px rgba(180,35,53,.18);}
-#currentTournamentDetails .public-finished-info{grid-template-columns:repeat(3,minmax(0,1fr));}
-#currentTournamentDetails .public-finished-info>div:nth-child(2){background:linear-gradient(135deg,#eef8ff,#f5f0ff);border-color:#d7ddfa;}
-@media(max-width:600px){#currentTournamentDetails .current-tournament-details-toolbar{padding:9px 10px;}#currentTournamentDetails .public-finished-info{grid-template-columns:1fr 1fr;}}
-#currentTournamentDetails .current-tournament-statistics{margin:18px 0 6px;padding:14px;border:1px solid #c9def5;border-radius:18px;background:linear-gradient(145deg,#f7fcff,#fbf8ff);box-shadow:0 8px 22px rgba(35,91,130,.08);}
-#currentTournamentDetails .current-tournament-statistics-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;padding:2px 2px 11px;border-bottom:1px solid #d9e8f3;}
-#currentTournamentDetails .current-tournament-statistics-heading strong,#currentTournamentDetails .current-tournament-statistics-heading small{display:block;}
-#currentTournamentDetails .current-tournament-statistics-heading strong{font-size:17px;color:#174c78;font-weight:1000;}
-#currentTournamentDetails .current-tournament-statistics-heading small{margin-top:4px;font-size:11px;color:#667d91;}
-#currentTournamentDetails .current-tournament-statistics-heading>span{flex:0 0 auto;padding:6px 10px;border-radius:999px;background:#e4f8ef;color:#087f5b;border:1px solid #bce6d1;font-size:11px;font-weight:900;}
-#currentTournamentDetails .current-tournament-stats-body{width:100%;max-width:100%;box-sizing:border-box;}
-#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 13px;}
-#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid .stat{min-width:0;min-height:94px;padding:12px 8px;border:1px solid #cbe0f3;border-radius:15px;background:linear-gradient(145deg,#fff,#f2f8ff);box-shadow:0 5px 14px rgba(35,101,170,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid .stat .stat-emoji{display:block;font-size:22px;line-height:1;margin-bottom:6px;}
-#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid .stat b{display:block;font-size:25px;color:#2255c9;line-height:1.2;}
-#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid .stat>span:last-child{font-size:11px;font-weight:900;color:#49647c;margin-top:5px;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card{width:100%;max-width:100%;margin:12px 0;padding:0;border:1px solid #c9def5;border-radius:16px;background:linear-gradient(145deg,#fff,#f7fbff 55%,#fffaff);box-shadow:0 7px 18px rgba(32,90,150,.08);overflow:hidden;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card .section-title{margin:0;padding:11px 13px;border-bottom:1px solid #d7e6f5;background:linear-gradient(90deg,#effaff,#f5f0ff);}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card .section-title h3{margin:0;font-size:14px;font-weight:1000;color:#123b68;line-height:1.5;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card .table-wrap{width:100%;max-width:100%;overflow-x:auto!important;overflow-y:hidden;padding:7px;box-sizing:border-box;-webkit-overflow-scrolling:touch;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card table{width:100%;min-width:620px;max-width:none;border-collapse:separate;border-spacing:0;table-layout:auto;margin:0;border:1px solid #c5d9eb;border-radius:12px;overflow:hidden;background:#fff;font-size:12px;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card th{padding:8px 5px!important;color:#fff!important;font-weight:1000;background:linear-gradient(145deg,#146fd1,#6546e8)!important;white-space:normal;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card td{padding:8px 5px!important;color:#17324d;font-weight:800;border-bottom:1px solid #e1ebf3;white-space:normal;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card tbody tr:nth-child(even) td{background:#f4faff;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card tbody td:first-child{font-weight:1000;color:#4b36b8;}
-#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card .stats-empty-cell{text-align:center!important;color:#718096!important;white-space:normal!important;}
-#currentTournamentDetails .current-tournament-stats-body .ko-results-panel{margin:12px 0;}
-@media(max-width:700px){#currentTournamentDetails .current-tournament-statistics{padding:10px;margin-top:14px;}#currentTournamentDetails .current-tournament-statistics-heading strong{font-size:15px;}#currentTournamentDetails .current-tournament-statistics-heading small{font-size:10px;}#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid .stat{min-height:84px;padding:9px 5px;}#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid .stat b{font-size:22px;}#currentTournamentDetails .current-tournament-stats-body .stats-summary-grid .stat>span:last-child{font-size:10px;}#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card .table-wrap{padding:5px;}#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card table{min-width:580px;font-size:11px;}#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card th,#currentTournamentDetails .current-tournament-stats-body .stats-ranking-card td{padding:7px 3px!important;}}
+<style id="current-tournament-details-only">
+.current-tournament-details-host{width:100%;margin-top:18px;scroll-margin-top:18px}
+.current-tour-details-panel{overflow:hidden;border:1px solid #d8e7e0;border-radius:20px;background:#fff;box-shadow:0 12px 30px rgba(13,65,47,.09);}
+.current-tour-details-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;color:#fff;background:linear-gradient(120deg,#063f2d 0%,#087f5b 58%,#12a878 100%);}
+.current-tour-details-head small{display:block;margin-bottom:4px;color:#d8f8e9;font-size:11px;font-weight:800}
+.current-tour-details-head h3{margin:0;color:#fff;font-size:19px;font-weight:900;overflow-wrap:anywhere}
+.current-tour-details-close{flex:0 0 36px;width:36px;height:36px;border:1px solid #ffffff55;border-radius:11px;background:#ffffff18;color:#fff;font-size:25px;line-height:1;cursor:pointer}
+.current-tour-details-basics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px 14px 7px}
+.current-tour-basic{display:flex;align-items:center;gap:11px;min-width:0;padding:13px;border:1px solid #e1e9ef;border-radius:15px;background:linear-gradient(145deg,#f8fbff,#fff)}
+.current-tour-basic.system{border-right:5px solid #1971c2;background:linear-gradient(135deg,#eef6ff,#fff)}
+.current-tour-basic.players{border-right:5px solid #0ca678;background:linear-gradient(135deg,#eafbf3,#fff)}
+.current-tour-basic>span{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;border-radius:12px;background:#fff;box-shadow:0 3px 10px #17324d12;font-size:21px}
+.current-tour-basic small,.current-tour-basic strong{display:block;overflow-wrap:anywhere}
+.current-tour-basic small{margin-bottom:4px;color:#6b7c88;font-size:10px;font-weight:800}
+.current-tour-basic strong{color:#19384b;font-size:15px;font-weight:900}
+.current-tour-official-stats-title{display:flex;align-items:center;gap:8px;margin:8px 14px 10px;padding:11px 12px;border-bottom:1px solid #e8efec;color:#075f45;font-size:14px}
+.current-tour-official-stats-title span{font-size:19px}
+.current-tour-official-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:0 14px 15px}
+.current-tour-metric{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:95px;padding:10px 6px;border:1px solid #e2e9ee;border-top:4px solid #0ca678;border-radius:14px;background:linear-gradient(145deg,#fff,#f7fafc);text-align:center}
+.current-tour-metric>span{font-size:21px;line-height:1.15}
+.current-tour-metric small{margin:5px 0 4px;color:#697b88;font-size:10px;font-weight:800;line-height:1.35}
+.current-tour-metric strong{color:#173b31;font-size:22px;font-weight:950;font-variant-numeric:tabular-nums}
+.current-tour-metric.referees{border-top-color:#7048e8}.current-tour-metric.sheets{border-top-color:#1971c2}.current-tour-metric.goals{border-top-color:#0ca678}.current-tour-metric.penalties{border-top-color:#f59f00}.current-tour-metric.red{border-top-color:#e03131}.current-tour-metric.yellow{border-top-color:#f0b429}
+@media(max-width:620px){.current-tour-details-head{padding:14px}.current-tour-details-head h3{font-size:17px}.current-tour-details-basics{gap:8px;padding:11px 10px 5px}.current-tour-basic{gap:8px;padding:10px 8px}.current-tour-basic>span{width:32px;height:32px;flex-basis:32px;font-size:18px}.current-tour-basic small{font-size:9px}.current-tour-basic strong{font-size:12px}.current-tour-official-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 10px 12px}.current-tour-metric{min-height:85px}.current-tour-metric strong{font-size:20px}}
+@media(max-width:360px){.current-tour-details-basics{grid-template-columns:1fr}.current-tour-basic{min-height:64px}}
 </style>
 </head><body>
 <div id="pdfGenerationProgress" aria-live="polite"><div class="pdf-progress-box"><div class="pdf-progress-icon">PDF</div><div class="pdf-progress-title">جاري تجهيز ملف PDF</div><div class="pdf-progress-text" id="pdfProgressText">يتم تجهيز الأرشيف، يرجى الانتظار...</div><div class="pdf-progress-track"><div class="pdf-progress-fill" id="pdfProgressFill"></div></div><div class="pdf-progress-percent" id="pdfProgressPercent">0%</div><div class="pdf-progress-note">لا تغلق الصفحة حتى يكتمل التحميل</div></div></div>
@@ -956,7 +948,6 @@ body>header #platformDescriptionText{
   <div id="currentTournamentsPanel" class="tournament-tab-panel">
     <div class="section-title"><h2>🟢 البطولات الجارية</h2><span class="badge" id="currentTournamentCount">0 بطولة</span></div>
     <div id="currentTournamentList"></div>
-    <div id="currentTournamentDetails" class="current-tournament-details" hidden></div>
   </div>
   <div id="endedTournamentsPanel" class="tournament-tab-panel" style="display:none">
     <div class="section-title"><div><h2>🏁 البطولات المنتهية</h2><small>هنا تتم أرشفة البطولة كملف PDF. يمكن إلغاء الأرشفة وتعديل البيانات ثم إنشاء ملف جديد.</small></div><span class="badge" id="endedTournamentCount">0 بطولة</span></div>
@@ -2347,7 +2338,7 @@ function tournamentCardHtml(t,ended=false){
         <div class="current-card-progress-head"><b>نسبة الإنجاز</b><strong>${progress}%</strong></div>
         <div class="current-card-progress"><i style="width:${progress}%"></i></div>
         <div class="current-card-end-date"><span>◷</span><b>تاريخ النهاية المتوقع</b><strong>${esc(end)}</strong></div>
-        <button type="button" class="current-card-details-btn" onclick="showPublicTournamentFromCurrent('${t.id}')"><span>◉</span><b>عرض تفاصيل البطولة</b><i>‹</i></button>
+        <button type="button" class="current-card-details-btn" onclick="showCurrentTournamentDetails('${t.id}')"><span>◉</span><b>عرض تفاصيل البطولة</b><i>‹</i></button>
       </div>
       ${currentActions?`<div class="current-card-admin-footer">${currentActions}</div>`:''}
     </article>`;
@@ -2398,24 +2389,174 @@ function tournamentCardHtml(t,ended=false){
     ${actions?`<div class="ended-card-admin-footer"><div class="tournament-footer-label">إدارة البطولة</div>${actions}</div>`:''}
   </article>`;
 }
-function showPublicTournamentFromCurrent(id){
-  const box=document.getElementById('currentTournamentDetails');
-  if(!box)return;
-  box.dataset.tournamentId=String(id);
-  box.hidden=false;
-  box.style.display='block';
-  if(typeof renderPublicSelectedTournament==='function')renderPublicSelectedTournament(id,box);
-  box.scrollIntoView({behavior:'smooth',block:'start'});
+function getCurrentTournamentOfficialStats(tournamentId){
+  const data=window.db||(typeof db!=='undefined'?db:{});
+  const list=v=>Array.isArray(v)?v:[];
+  const str=v=>String(v??'').trim();
+  const tournament=list(data.tournaments).find(t=>str(t?.id)===str(tournamentId));
+  if(!tournament)return null;
+  const tournamentIdText=str(tournament.id),tournamentName=str(tournament.name||tournament.title);
+  const refValues=value=>{
+    if(value&&typeof value==='object')return [value.id,value.name,value.title,value.refereeId,value.refereeName].map(str).filter(Boolean);
+    return [str(value)].filter(Boolean);
+  };
+  const belongsToTournament=record=>{
+    if(!record)return false;
+    try{
+      if(typeof window.matchBelongsToTournament==='function'&&window.matchBelongsToTournament(record,tournamentIdText))return true;
+    }catch(e){}
+    const fields=[record.tournamentId,record.tournament,record.tournamentName,record.tournament_name,
+      record.competitionId,record.competitionName];
+    return fields.some(value=>refValues(value).some(v=>v===tournamentIdText||v===tournamentName));
+  };
+  const matches=list(data.matches).map((m,i)=>({m,i,id:str(m?.id||i)}));
+  const tournamentMatches=matches.filter(x=>belongsToTournament(x.m));
+  const allSheets=[];
+  try{
+    if(typeof window.uniqueMatchSheets==='function')list(window.uniqueMatchSheets()).forEach(sh=>allSheets.push(sh));
+  }catch(e){}
+  if(!allSheets.length){
+    const seenFallback=new Set();
+    ['manar_match_sheets_v3','manar_match_sheets_v2','manar_match_sheets_v1'].forEach(key=>{
+      try{list(JSON.parse(localStorage.getItem(key)||'[]')).forEach(sh=>{
+        const id=str(sh?.matchId);if(!id||seenFallback.has(id))return;seenFallback.add(id);allSheets.push(sh);
+      });}catch(e){}
+    });
+  }
+  const sheetTournamentValues=sh=>[sh?.tournamentId,sh?.tournament,sh?.tournamentName,sh?.tournament_name,
+    sh?.competitionId,sh?.competitionName].flatMap(refValues);
+  const relatedSheets=[],seenReportMatches=new Set();
+  allSheets.forEach(sh=>{
+    const matchId=str(sh?.matchId);if(!sh||!matchId)return;
+    const matchRecord=matches.find(x=>x.id===matchId);if(!matchRecord)return;
+    const linkedBySheet=sheetTournamentValues(sh).some(v=>v===tournamentIdText||v===tournamentName);
+    const linkedByMatch=belongsToTournament(matchRecord.m);
+    if((linkedBySheet||linkedByMatch)&&!seenReportMatches.has(matchId)){
+      relatedSheets.push({m:matchRecord.m,sh});seenReportMatches.add(matchId);
+    }
+  });
+  // Match the official statistics section: legacy sheets without tournament
+  // metadata are included through their existing tournament match record.
+  tournamentMatches.forEach(({m,id})=>{
+    if(seenReportMatches.has(id))return;
+    const sh=allSheets.find(x=>str(x?.matchId)===id);
+    if(sh){relatedSheets.push({m,sh});seenReportMatches.add(id);}
+  });
+
+  const teamIds=new Set();
+  list(data.teams).forEach(team=>{
+    const values=[team?.tournamentId,team?.tournament,team?.tournamentName,team?.tournamentTitle].flatMap(refValues);
+    if(values.some(v=>v===tournamentIdText||v===tournamentName))teamIds.add(str(team?.id||team?.name));
+  });
+  relatedSheets.forEach(({m,sh})=>{
+    [m?.home,m?.homeTeamId,m?.teamAId,m?.away,m?.awayTeamId,m?.teamBId,
+      sh?.homeTeamId,sh?.homeTeam,sh?.awayTeamId,sh?.awayTeam]
+      .flatMap(refValues).forEach(v=>{if(v)teamIds.add(v);});
+  });
+  const teamRecords=list(data.teams).filter(team=>teamIds.has(str(team?.id))||teamIds.has(str(team?.name)));
+  const registeredTeamIds=new Set(teamRecords.map(team=>str(team?.id)).filter(Boolean));
+  teamRecords.forEach(team=>{if(team?.name)registeredTeamIds.add(str(team.name));});
+  const playerCount=list(data.players).filter(player=>registeredTeamIds.has(str(player?.teamId))||registeredTeamIds.has(str(player?.team))).length;
+
+  const refereeRecords=list(data.referees);
+  try{refereeRecords.push(...list(JSON.parse(localStorage.getItem('manar_referees_v1')||'[]')));}catch(e){}
+  const refereeName=raw=>{
+    if(raw===undefined||raw===null||raw==='')return '';
+    if(typeof raw==='object'){
+      const explicit=str(raw.name||raw.refereeName);if(explicit)return explicit;
+      raw=raw.id??raw.refereeId??'';
+    }
+    const value=str(raw);if(!value)return '';
+    const found=refereeRecords.find(r=>str(r?.id)===value||str(r?.name)===value);
+    if(found?.name)return str(found.name);
+    try{if(typeof window.manarRefereeDisplayName==='function'){
+      const resolved=str(window.manarRefereeDisplayName(raw));if(resolved&&resolved!==value)return resolved;
+    }}catch(e){}
+    return value;
+  };
+  const normalizeReferee=name=>str(name).normalize('NFKC')
+    .replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/\s+/g,' ').trim().toLocaleLowerCase('ar');
+  const uniqueReferees=new Set();
+  let goals=0,penalties=0,yellow=0,red=0;
+  relatedSheets.forEach(({m,sh})=>{
+    const homeScore=Math.max(0,Number(sh?.homeScore??sh?.hg??m?.hg??m?.homeGoals??m?.homeScore??0)||0);
+    const awayScore=Math.max(0,Number(sh?.awayScore??sh?.ag??m?.ag??m?.awayGoals??m?.awayScore??0)||0);
+    goals+=homeScore+awayScore;
+    penalties+=Math.max(0,Number(sh?.penalties??sh?.penaltyCount??sh?.penaltyKicks??sh?.penaltyShots??0)||0);
+
+    const matchReferees=new Set();
+    const addReferee=raw=>{
+      const name=refereeName(raw),key=normalizeReferee(name);
+      if(key)matchReferees.add(key);
+    };
+    [1,2,3,4].forEach(n=>addReferee(sh?.['referee'+n]??sh?.['ref'+n]??sh?.refereeIds?.[n-1]));
+    list(sh?.referees).forEach(addReferee);
+    ['referee1GuestName','referee2GuestName','referee3GuestName','referee4GuestName',
+      'ref1GuestName','ref2GuestName','ref3GuestName','ref4GuestName'].forEach(key=>addReferee(sh?.[key]));
+    matchReferees.forEach(key=>uniqueReferees.add(key));
+
+    const cards=list(sh?.cards).length?list(sh.cards):list(m?.cards);
+    cards.forEach(card=>{
+      const type=str(card?.type||card?.cardType||card?.kind).toLowerCase();
+      const isYellow=card?.yellow===true||card?.isYellow===true||type==='yellow'||/صفراء|انذار|إنذار/.test(type);
+      const isRed=card?.red===true||card?.isRed===true||type==='red'||/حمراء|طرد/.test(type);
+      if(isYellow)yellow++;
+      if(isRed)red++;
+    });
+  });
+  return {
+    system:str(tournament.type||tournament.system||tournament.tournamentType||'غير محدد')||'غير محدد',
+    players:playerCount,
+    matches:tournamentMatches.length,
+    referees:uniqueReferees.size,
+    sheets:relatedSheets.length,
+    goals,penalties,yellow,red
+  };
+}
+
+function renderCurrentTournamentDetails(id){
+  const host=document.getElementById('currentTournamentDetails');
+  if(!host)return;
+  const currentDb=window.db||(typeof db!=='undefined'?db:{});
+  const tournament=(Array.isArray(currentDb.tournaments)?currentDb.tournaments:[]).find(t=>String(t?.id)===String(id));
+  const stats=getCurrentTournamentOfficialStats(id);
+  if(!tournament||!stats){host.innerHTML='';return;}
+  const metrics=[
+    ['🏟️','عدد المباريات',stats.matches,'matches'],
+    ['🧑‍⚖️','عدد الحكام',stats.referees,'referees'],
+    ['📋','الكشوفات',stats.sheets,'sheets'],
+    ['⚽','عدد الأهداف',stats.goals,'goals'],
+    ['🎯','ركلات الجزاء',stats.penalties,'penalties'],
+    ['🟥','البطاقات الحمراء',stats.red,'red'],
+    ['🟨','البطاقات الصفراء',stats.yellow,'yellow']
+  ];
+  host.innerHTML=`<section class="current-tour-details-panel">
+    <div class="current-tour-details-head"><div><small>🏆 تفاصيل البطولة</small><h3>${esc(tournament.name||'بطولة')}</h3></div><button type="button" class="current-tour-details-close" onclick="closeCurrentTournamentDetails()" aria-label="إخفاء التفاصيل">×</button></div>
+    <div class="current-tour-details-basics">
+      <div class="current-tour-basic system"><span>⚙️</span><div><small>نظام البطولة</small><strong>${esc(stats.system)}</strong></div></div>
+      <div class="current-tour-basic players"><span>👥</span><div><small>مجموع اللاعبين الكلي المسجلين</small><strong>${stats.players.toLocaleString('ar-IQ')} لاعب</strong></div></div>
+    </div>
+    <div class="current-tour-official-stats-title"><span>📊</span><b>الإحصائيات السبعة الرسمية</b></div>
+    <div class="current-tour-official-stats">${metrics.map(([icon,label,value,key])=>`<div class="current-tour-metric ${key}"><span>${icon}</span><small>${label}</small><strong>${Number(value||0).toLocaleString('ar-IQ')}</strong></div>`).join('')}</div>
+  </section>`;
+}
+function showCurrentTournamentDetails(id){
+  const rows=typeof currentTournamentRows==='function'?currentTournamentRows():[];
+  if(!rows.some(t=>String(t.id)===String(id)))return;
+  window.currentTournamentDetailsId=String(id);
+  const host=document.getElementById('currentTournamentDetails');
+  if(!host){renderCurrentTournaments();}
+  renderCurrentTournamentDetails(id);
+  const target=document.getElementById('currentTournamentDetails');
+  if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function closeCurrentTournamentDetails(){
-  const box=document.getElementById('currentTournamentDetails');
-  if(!box)return;
-  box.hidden=true;
-  box.style.display='none';
-  box.innerHTML='';
-  delete box.dataset.tournamentId;
+  window.currentTournamentDetailsId='';
+  const host=document.getElementById('currentTournamentDetails');
+  if(host)host.innerHTML='';
 }
-window.closeCurrentTournamentDetails=closeCurrentTournamentDetails;
+// التوافق مع أي استدعاء قديم لزر تفاصيل البطولة الجارية.
+function showPublicTournamentFromCurrent(id){showCurrentTournamentDetails(id);}
 
 function toggleTournamentCompletion(id){
   if(currentRole!=='admin'){alert('هذا الإجراء متاح لمدير المنصة فقط.');return;}
@@ -2446,17 +2587,12 @@ window.toggleTournamentCompletion=toggleTournamentCompletion;
 function renderCurrentTournaments(){
   const box=document.getElementById('currentTournamentList'),count=document.getElementById('currentTournamentCount'); if(!box)return;
   const rows=currentTournamentRows(); if(count)count.textContent=`${rows.length} بطولة`;
-  box.innerHTML=rows.length?rows.map(t=>tournamentCardHtml(t,false)).join(''):'<div class="empty">لا توجد بطولات جارية حاليًا.</div>';
+  const selectedId=String(window.currentTournamentDetailsId||'');
+  if(selectedId&&!rows.some(t=>String(t.id)===selectedId))window.currentTournamentDetailsId='';
+  box.innerHTML=(rows.length?rows.map(t=>tournamentCardHtml(t,false)).join(''):'<div class="empty">لا توجد بطولات جارية حاليًا.</div>')+
+    '<div id="currentTournamentDetails" class="current-tournament-details-host" aria-live="polite"></div>';
+  if(window.currentTournamentDetailsId)renderCurrentTournamentDetails(window.currentTournamentDetailsId);
   applyPermissions();
-  const detailsBox=document.getElementById('currentTournamentDetails');
-  const detailsId=String(detailsBox?.dataset?.tournamentId||'');
-  if(detailsBox&&detailsId&&!detailsBox.hidden){
-    if(rows.some(t=>String(t.id)===detailsId)&&typeof renderPublicSelectedTournament==='function'){
-      renderPublicSelectedTournament(detailsId,detailsBox);
-    }else{
-      closeCurrentTournamentDetails();
-    }
-  }
 }
 function renderEndedTournaments(){
   const box=document.getElementById('endedTournamentList'),count=document.getElementById('endedTournamentCount'); if(!box)return;
@@ -3874,19 +4010,14 @@ function unarchiveTournament(tid){
   switchTournamentTab('ended');alert('تم إلغاء الأرشفة. يمكنك الآن تعديل البطولة ثم أرشفتها من جديد.');
 }
 
-function renderPublicSelectedTournament(id,targetBox){
-  const box=targetBox||document.getElementById('publicTournamentResults');
+function renderPublicSelectedTournament(id){
+  const box=document.getElementById('publicTournamentResults');
   if(!box)return;
-  const isCurrentDetails=box.id==='currentTournamentDetails';
   const t=(db.tournaments||[]).find(x=>String(x.id)===String(id));
   if(!t){box.innerHTML='<div class="public-select-year-message"><div>🏆</div><h3>اختر اسم البطولة</h3><p>بعد اختيار البطولة ستظهر الفرق المسجلة فيها تلقائياً.</p></div>';return;}
   const teams=(db.teams||[]).filter(x=>String(x.tournamentId)===String(t.id));
   const tournamentMatches=(db.matches||[]).filter(x=>String(x.tournamentId)===String(t.id));
-  const tournamentTeamIds=new Set(teams.map(tm=>String(tm.id)));
-  const playerCount=(db.players||[]).filter(p=>p&&tournamentTeamIds.has(String(p.teamId))).length;
-  const baseSystem=String(t.type||t.tournamentSystem||t.format||'غير محدد');
-  const groupCount=Math.max(0,Number(t.groupCount)||0);
-  const tournamentSystem=isGroupTournament(t)&&groupCount>0?`${baseSystem} — ${groupCount} مجموعات`:baseSystem;
+  const playerCount=(db.players||[]).filter(p=>teams.some(tm=>String(tm.id)===String(p.teamId))).length;
   const scoreOf=(m,side)=>Number(m?.[side==='home'?'hg':'ag']??m?.[side==='home'?'homeScore':'awayScore']??0)||0;
   const tournamentGoals=tournamentMatches.reduce((n,m)=>n+scoreOf(m,'home')+scoreOf(m,'away'),0);
   const totalYellow=tournamentMatches.reduce((n,m)=>n+(Array.isArray(m.cards)?m.cards:[]).filter(c=>String(c?.type||'').toLowerCase()==='yellow').length,0);
@@ -3905,13 +4036,12 @@ function renderPublicSelectedTournament(id,targetBox){
   const finalScore=finalMatch?`${scoreOf(finalMatch,'home')} - ${scoreOf(finalMatch,'away')}`:'';
   const publicArchive=s==='ended'?`<div class="public-archive-file public-ended-pdf-box public-ended-pdf-below"><div class="public-archive-file-info"><span class="public-pdf-icon">📄</span><div><strong>ملف أرشيف البطولة PDF</strong><small>${archive?.pdfData?esc(archive.pdfFileName||'أرشيف البطولة.pdf'):'لم يتم إنشاء ملف PDF لهذه البطولة بعد'}</small>${archive?.pdfData?`<small class="public-download-count">⬇️ مرات التحميل: <b>${Number(archive.downloadCount||0)}</b></small>`:''}</div></div><div class="public-archive-actions">${archive?.pdfData?`<button type="button" class="btn blue" onclick="viewTournamentArchivePublic('${archive.id}')">👁️ عرض الملف</button><button type="button" class="btn secondary" onclick="downloadTournamentArchivePublic('${archive.id}')">⬇️ تحميل</button>`:`<span class="public-pdf-empty">📎 ملف PDF غير متوفر</span>`}</div></div>`:'';
   box.innerHTML=`<article class="public-tournament-card public-finished-card ${s==='ended'?'is-finished':''}">
-    ${isCurrentDetails?`<div class="current-tournament-details-toolbar"><strong>📋 تفاصيل البطولة</strong><button type="button" onclick="closeCurrentTournamentDetails()">إغلاق التفاصيل ✕</button></div>`:''}
     <div class="public-finished-topbar"></div>
     <div class="public-tournament-header public-finished-header">
-      <div class="public-finished-badge">${s==='ended'?'🏁 بطولة مكتملة':s==='active'?'🟢 بطولة جارية':'🟡 بطولة قادمة'}</div>
+      <div class="public-finished-badge">🏁 بطولة مكتملة</div>
       <div class="public-tournament-brand">
         <div class="public-tournament-icon">🏆</div>
-        <div><div class="public-tournament-kicker">${s==='ended'?'السجل النهائي للبطولة':'تفاصيل البطولة'}</div><h3>${esc(t.name||'بطولة بدون اسم')}</h3></div>
+        <div><div class="public-tournament-kicker">السجل النهائي للبطولة</div><h3>${esc(t.name||'بطولة بدون اسم')}</h3></div>
       </div>
       <span class="public-tour-status public-finished-status">${statusIcon} ${statusText}<em><b>من</b> ${esc(t.startDate||'غير محدد')} <b>إلى</b> ${esc(t.endDate||'غير محدد')}</em></span>
     </div>
@@ -3925,27 +4055,20 @@ function renderPublicSelectedTournament(id,targetBox){
       ${finalMatch?`<div class="public-final-match"><span>🏟️ آخر مباراة مسجلة</span><strong>${esc(finalHome)} <b>${esc(finalScore)}</b> ${esc(finalAway)}</strong></div>`:''}
     </div>`:''}
     <div class="public-ended-metrics public-finished-metrics">
-      ${isCurrentDetails?`<div><span>👥</span><small>إجمالي اللاعبين المسجلين</small><b>${playerCount}</b></div><div><span>⚽</span><small>الفرق المشاركة</small><b>${teams.length}</b></div>`:`<div><span>🏟️</span><small>المباريات</small><b>${t.matchCount??tournamentMatches.length}</b></div><div><span>⚽</span><small>مجموع الأهداف</small><b>${tournamentGoals}</b></div><div><span>🟨</span><small>بطاقات صفراء</small><b>${totalYellow}</b></div><div><span>🟥</span><small>بطاقات حمراء</small><b>${totalRed}</b></div><div><span>👥</span><small>إجمالي اللاعبين المسجلين</small><b>${playerCount}</b></div><div><span>⚽</span><small>الفرق المشاركة</small><b>${teams.length}</b></div>`}
+      <div><span>🏟️</span><small>المباريات</small><b>${t.matchCount??tournamentMatches.length}</b></div>
+      <div><span>⚽</span><small>مجموع الأهداف</small><b>${tournamentGoals}</b></div>
+      <div><span>🟨</span><small>بطاقات صفراء</small><b>${totalYellow}</b></div>
+      <div><span>🟥</span><small>بطاقات حمراء</small><b>${totalRed}</b></div>
+      <div><span>👥</span><small>عدد اللاعبين</small><b>${playerCount}</b></div>
+      <div><span>⚽</span><small>الفرق المشاركة</small><b>${teams.length}</b></div>
     </div>
     <div class="public-finished-info">
       <div><span>اسم البطولة</span><strong>${esc(t.name||'—')}</strong></div>
-      <div><span>نظام البطولة</span><strong>${esc(tournamentSystem)}</strong></div>
       <div><span>الحالة</span><strong>${statusIcon} ${statusText}</strong></div>
     </div>
-    ${isCurrentDetails?`<section class="current-tournament-statistics"><div class="current-tournament-statistics-heading"><div><strong>📊 إحصائيات البطولة</strong><small>مطابقة لقسم الإحصائيات — تتحدث تلقائيًا مع البيانات المحفوظة</small></div><span>🔄 مباشر</span></div><div class="current-tournament-stats-body" data-tournament-id="${esc(t.id)}"></div></section>`:''}
     ${renderPublicTeamsByGroup(t,teams)}
     ${hasPermission('tournaments')?`<div class="tournament-public-actions"><button class="btn tournament-edit-btn" type="button" onclick="editTournament('${t.id}')">✏️ تعديل</button>${hasPermission('delete')?`<button class="btn danger tournament-perm-delete" type="button" onclick="del('tournaments','${t.id}')">🗑️ حذف</button>`:''}</div>`:''}
   </article>${publicArchive}`;
-  if(isCurrentDetails){
-    const statsHost=box.querySelector('.current-tournament-stats-body');
-    if(statsHost&&typeof window.renderStatsForTournament==='function'){
-      try{window.renderStatsForTournament(t.id,statsHost);}
-      catch(statsError){
-        console.error('Current tournament statistics render failed:',statsError);
-        statsHost.innerHTML='<div class="empty">تعذر تحميل إحصائيات البطولة حاليًا. أعد فتح التفاصيل للمحاولة مجددًا.</div>';
-      }
-    }
-  }
   applyPermissions();
 }
 function renderAllPublicTournamentYears(){
@@ -6724,16 +6847,12 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     
     alert(t.stage==='knockout'?'تم تحويل البطولة إلى مرحلة خروج المغلوب مع الحفاظ على ترتيب المجموعات.':'تمت إعادة البطولة إلى مرحلة المجموعات.');
   };
-  function renderStats(forcedTournamentId,targetBox){
-    const sel=$('statsTour'),box=targetBox||$('statsBody');
-    if(!box||(!sel&&!forcedTournamentId))return;
-    const tours=A(dbx().tournaments).filter(t=>!!t&&!tournamentIsArchived(t));
-    if(sel&&!forcedTournamentId){
-      const old=S(sel.value);
-      sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>`<option value="${esc(t.id)}">${esc(t.name||'بطولة')}</option>`).join('');
-      if(old&&tours.some(t=>S(t.id)===old))sel.value=old;
-    }
-    const tid=S(forcedTournamentId||sel?.value||'');
+  function renderStats(){
+    const sel=$('statsTour'),box=$('statsBody'); if(!sel||!box)return;
+    const old=S(sel.value), tours=A(dbx().tournaments).filter(t=>!!t&&!tournamentIsArchived(t));
+    sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>`<option value="${esc(t.id)}">${esc(t.name||'بطولة')}</option>`).join('');
+    if(old&&tours.some(t=>S(t.id)===old))sel.value=old;
+    const tid=S(sel.value);
     if(!tid){box.innerHTML='<div class="empty">🏆 اختر اسم البطولة لعرض إحصائياتها.</div>';return;}
 
     /*
@@ -7146,8 +7265,6 @@ window.addEventListener('load',function(){document.documentElement.classList.add
   }
   window.renderStats=renderStats;
   window.refreshStatsFromSheets=renderStats;
-  // يتيح عرض إحصائيات بطولة محددة داخل تفاصيلها دون تغيير اختيار قسم الإحصائيات.
-  window.renderStatsForTournament=(tournamentId,targetBox)=>renderStats(tournamentId,targetBox);
   document.addEventListener('DOMContentLoaded',()=>setTimeout(renderStats,80));
 })();
 </script><script id="stats-sheets-live-sync">
@@ -7182,25 +7299,9 @@ window.addEventListener('load',function(){document.documentElement.classList.add
     setTimeout(updateStatsMeta,0);
   };
   window.addEventListener('storage',function(e){
-    const watchedKeys=['manar_sports_v2','manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'];
-    if(!watchedKeys.includes(e.key))return;
-    // تحديث مرجع قاعدة البيانات من التخزين أولاً عند ورود بيانات من تبويب آخر.
-    if(e.key==='manar_sports_v2'&&typeof window.__manarReloadMainDatabaseFromStorage==='function'){
-      try{window.__manarReloadMainDatabaseFromStorage();}catch(_e){}
+    if(e.key==='manar_match_sheets_v2'){
+      setTimeout(function(){ if(typeof window.renderStats==='function')window.renderStats(); },30);
     }
-    setTimeout(function(){
-      if(typeof window.renderStats==='function')window.renderStats();
-      const tournamentsPage=document.getElementById('tournaments');
-      if(e.key==='manar_sports_v2'&&tournamentsPage?.classList.contains('active')&&typeof window.renderTours==='function'){
-        window.renderTours();
-        return;
-      }
-      const details=document.getElementById('currentTournamentDetails');
-      const tournamentId=String(details?.dataset?.tournamentId||'');
-      if(details&&tournamentId&&!details.hidden&&typeof window.renderPublicSelectedTournament==='function'){
-        window.renderPublicSelectedTournament(tournamentId,details);
-      }
-    },35);
   });
   document.addEventListener('DOMContentLoaded',function(){setTimeout(updateStatsMeta,50)});
 })();
@@ -12057,7 +12158,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.23.3';
+  const VERSION='2026.11.24.1';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -18294,7 +18395,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.23.3');
+  const APP_BUILD=String(meta?.content||'2026.11.24.1');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
