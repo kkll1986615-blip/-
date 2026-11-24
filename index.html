@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.24.7"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.24.8"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.24.7', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.24.8', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -946,21 +946,9 @@ body>header #platformDescriptionText{
     <div class="section-title"><div><h2>🏆 اختر البطولة</h2><small>تُحسب فرص الفرق من نتائج البطولة ومبارياتها المتبقية المسجلة.</small></div><span class="qf-live-pill"><i></i> تحديث حسب البيانات</span></div>
     <div class="qf-controls-grid">
       <div class="qf-field qf-tournament-field"><label for="qfTournament">اسم البطولة</label><select id="qfTournament"><option value="">— اختر البطولة —</option></select></div>
+      <div class="qf-field"><label for="qfSpots" id="qfSpotsLabel">عدد مقاعد التأهل</label><select id="qfSpots"><option value="1">مقعد واحد</option><option value="2">مقعدان</option><option value="3">3 مقاعد</option><option value="4" selected>4 مقاعد</option><option value="5">5 مقاعد</option><option value="6">6 مقاعد</option><option value="8">8 مقاعد</option></select></div>
+      <div class="qf-field"><label for="qfRuns">عدد المحاكاة</label><select id="qfRuns"><option value="1000">1,000 تجربة</option><option value="2500" selected>2,500 تجربة</option><option value="5000">5,000 تجربة</option></select></div>
       <div class="qf-actions"><button class="btn qf-run-btn" id="qfRun" type="button">⚡ احسب فرص التأهل</button></div>
-    </div>
-    <div class="qf-admin-panel" id="qfManagerSettings" hidden>
-      <div class="qf-admin-panel-title"><span>🔐 إعدادات الحاسبة</span><small>إدارة المباريات المتبقية ومقاعد التأهل والمحاكاة — للمدير فقط</small></div>
-      <div class="qf-admin-controls-grid">
-        <div class="qf-field"><label for="qfRemainingMode">طريقة إدخال المباريات المتبقية</label><select id="qfRemainingMode"><option value="automatic">تلقائي من جدول المباريات</option><option value="manual">إدخال يدوي للمباريات</option></select></div>
-        <div class="qf-field"><label for="qfSpots" id="qfSpotsLabel">عدد مقاعد التأهل</label><select id="qfSpots"></select></div>
-        <div class="qf-field"><label for="qfRuns">عدد المحاكاة</label><select id="qfRuns"><option value="500">500 تجربة</option><option value="1000">1,000 تجربة</option><option value="2500" selected>2,500 تجربة</option><option value="5000">5,000 تجربة</option><option value="10000">10,000 تجربة</option></select></div>
-      </div>
-      <div class="qf-manual-editor" id="qfManualEditor" hidden>
-        <div class="qf-manual-head"><div><b>📝 المباريات المتبقية يدويًا</b><small>اختر الفريقين لكل مواجهة وحدد المرحلة، ثم احفظها لتدخل في المحاكاة فقط.</small></div><button class="btn blue" id="qfAddManualMatch" type="button">＋ إضافة مباراة</button></div>
-        <div id="qfManualRows" class="qf-manual-rows"></div>
-        <div class="qf-manual-footer"><small id="qfManualDraftStatus">المباريات المعروضة محفوظة.</small><button class="btn qf-manual-save" id="qfSaveManualMatches" type="button">💾 حفظ المباريات اليدوية</button></div>
-      </div>
-      <div class="qf-admin-footnote">الإعدادات تُحفظ ضمن بيانات البطولة. المباريات اليدوية لا تُضاف إلى جدول المباريات الرسمي ولا تغيّر النتائج المسجلة.</div>
     </div>
     <div class="qf-method-note">تعتمد النسب على نتائج البطولة المسجلة، وقوة الهجوم والدفاع، ومحاكاة نتائج المباريات المتبقية. النسب تقديرية وليست ضمانًا للنتائج الفعلية. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11949986/" target="_blank" rel="noopener noreferrer">منهجية علمية مرجعية</a>.</div>
   </div>
@@ -12000,7 +11988,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.24.7';
+  const VERSION='2026.11.24.8';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -12063,9 +12051,15 @@ window.__getPredictionForMatch=function(m){
   }
   async function updateApp(){
     const u=$('sectionUpdateBtn');
-    if(u){u.disabled=true;u.textContent='⏳ جارٍ تحديث المنصة...';}
+    if(u){u.disabled=true;u.textContent='⏳ يتم تجهيز التحديث...';}
+    // حد أقصى قصير لفحص العامل؛ لا نسمح لبطيء الشبكة بتعليق زر التحديث.
     try{
-      if(swRegistration) await swRegistration.update();
+      if(swRegistration&&typeof swRegistration.update==='function'){
+        await Promise.race([
+          swRegistration.update(),
+          new Promise(resolve=>setTimeout(resolve,1800))
+        ]);
+      }
     }catch(e){}
     const url=new URL(location.href);
     url.searchParams.set('platformUpdate',VERSION);
@@ -12627,7 +12621,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   if(!/^https?:$/.test(location.protocol)||window.__sportsAutoDeployUpdateStarted)return;
   window.__sportsAutoDeployUpdateStarted=true;
   var meta=document.querySelector('meta[name="manar-app-build"]');
-  var APP_BUILD=String(meta&&meta.content||'2026.11.24.7').trim();
+  var APP_BUILD=String(meta&&meta.content||'2026.11.24.8').trim();
   var pendingBuild='',checking=false,reloading=false,lastActivity=Date.now(),registration=null,applyTimer=null;
   function noteActivity(){lastActivity=Date.now();}
   ['pointerdown','touchstart','keydown','input','change'].forEach(function(type){document.addEventListener(type,noteActivity,true);});
@@ -12640,7 +12634,11 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(document.visibilityState==='hidden')return false;
     var active=document.activeElement;
     if(active&&(/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)||active.isContentEditable))return false;
-    if(document.querySelector('dialog[open],[role="dialog"]:not([hidden]),.modal.show,.modal[style*="display: block"],.popup[style*="display: block"]'))return false;
+    // نافذة إشعارات التحديث ليست نموذج إدخال؛ لا تجعل ظهورها يمنع التحديث إلى ما لا نهاية.
+    var dialogs=document.querySelectorAll('dialog[open],[role="dialog"]:not([hidden]),.modal.show,.modal[style*="display: block"],.popup[style*="display: block"]');
+    for(var i=0;i<dialogs.length;i++){
+      if(!dialogs[i].closest('#manarUpdateWidget'))return false;
+    }
     // لا نقطع نموذج إنشاء كشف أو تسجيل مباراة وهو مفتوح.
     if(visible(document.getElementById('ksEditor'))||visible(document.getElementById('matchEntryForm')))return false;
     return true;
@@ -12656,7 +12654,8 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     }catch(e){console.debug('Manar worker activation message skipped:',e);}
   }
   function reloadWithBuild(){
-    if(reloading||!pendingBuild||!safeToReload()||Date.now()-lastActivity<10000)return;
+    // أعد تحميل الصفحة بعد فترة خمول قصيرة؛ نافذة إشعار التحديث مستثناة أعلاه.
+    if(reloading||!pendingBuild||!safeToReload()||Date.now()-lastActivity<3000)return;
     reloading=true;
     requestWorkerActivation();
     var target=pendingBuild||APP_BUILD;
@@ -12669,12 +12668,13 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   function scheduleUpdate(build,source){
     build=String(build||APP_BUILD).trim();
     if(!build)return;
-    if(build!==APP_BUILD||source==='service-worker')pendingBuild=build;
+    if(build!==APP_BUILD||source==='service-worker'||source==='manual')pendingBuild=build;
     if(!pendingBuild)return;
     document.documentElement.setAttribute('data-manar-update-pending','true');
     requestWorkerActivation();
-    if(!applyTimer)applyTimer=setInterval(reloadWithBuild,1500);
-    setTimeout(reloadWithBuild,11000);
+    if(!applyTimer)applyTimer=setInterval(reloadWithBuild,1000);
+    // لا ننتظر 11 ثانية؛ يبدأ التطبيق خلال ثوانٍ بعد توقف الإدخال الجاري.
+    setTimeout(reloadWithBuild,3500);
   }
   window.__manarAutoApplyUpdate=scheduleUpdate;
 
@@ -14169,8 +14169,13 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       const endDate=endDateISO?penaltyDateLabel(endDateISO):'';
       const next=stateItem?.nextMatches?.[0];
       const status=stateItem?.active?'موقوف حاليًا':(durationUnit==='months'?'انتهت المدة':'اكتملت المباريات');
+      const plan=durationUnit==='matches'?manualPlan(record,player):null;
+      const remainingMatches=plan?Math.max(0,Number(plan.remaining??plan.nextMatches?.length??amount)||0):0;
+      const timerMarkup=durationUnit==='months'&&endDateISO
+        ? `<div class="manual-penalty-countdown" data-penalty-deadline="${escHtml(endDateISO)}"><small>⏳ الوقت المتبقي</small><b class="manual-penalty-countdown-value">يتم الحساب…</b></div>`
+        : `<div class="manual-penalty-countdown"><small>⏳ المباريات المتبقية</small><b>${remainingMatches} من ${amount} مباراة</b></div>`;
       const action=canManage?`<div class="manual-penalty-actions viewer-hide"><button type="button" class="btn blue" data-manual-susp-edit="${escHtml(record.id)}">✏️ تعديل العقوبة</button><button type="button" class="btn danger" data-manual-susp-delete="${escHtml(record.id)}">🗑️ حذف</button></div>`:'';
-      return `<article class="manual-penalty-card"><div class="manual-penalty-top"><span class="manual-penalty-icon">⛔</span><span class="manual-penalty-status ${stateItem?.active?'is-active':'is-done'}">${status}</span><span class="manual-penalty-index">عقوبة رقم ${index+1}</span></div><div class="manual-penalty-player">${escHtml(playerName)}</div><div class="manual-penalty-meta"><span>⚽ ${escHtml(team?.name||'—')}</span><span>🏆 ${escHtml(tournamentName(record.tournamentId))}</span></div><div class="manual-penalty-details"><div><small>📌 نوع العقوبة</small><b>${type}</b></div><div><small>🔢 مدة العقوبة</small><b>${amount} ${unit}</b></div><div class="manual-penalty-date"><small>📅 تاريخ العقوبة</small><b>${escHtml(startDate)}</b></div>${endDate?`<div class="manual-penalty-enddate"><small>🏁 تاريخ انتهاء المدة</small><b>${escHtml(endDate)}</b></div>`:''}</div><div class="manual-penalty-note"><small>📝 سبب / ملاحظات</small><span>${escHtml(record.note||'—')}</span></div>${durationUnit!=='months'?`<div class="manual-penalty-next">⚽ تبدأ من: ${escHtml(next?matchLabel(next):(record.pendingNextMatch?'أول مباراة قادمة':record.startMatchId?'المباراة المحددة':'أول مباراة قادمة'))}</div>`:''}${action}</article>`;
+      return `<article class="manual-penalty-card"><div class="manual-penalty-top"><span class="manual-penalty-icon">⛔</span><span class="manual-penalty-status ${stateItem?.active?'is-active':'is-done'}">${status}</span><span class="manual-penalty-index">عقوبة رقم ${index+1}</span></div><div class="manual-penalty-player">${escHtml(playerName)}</div><div class="manual-penalty-meta"><span>⚽ ${escHtml(team?.name||'—')}</span><span>🏆 ${escHtml(tournamentName(record.tournamentId))}</span></div><div class="manual-penalty-details"><div><small>📌 نوع العقوبة</small><b>${type}</b></div><div><small>🔢 مدة العقوبة</small><b>${amount} ${unit}</b></div><div class="manual-penalty-date"><small>📅 تاريخ العقوبة</small><b>${escHtml(startDate)}</b></div>${endDate?`<div class="manual-penalty-enddate"><small>🏁 تاريخ انتهاء المدة</small><b>${escHtml(endDate)}</b></div>`:''}</div><div class="manual-penalty-note"><small>📝 سبب / ملاحظات</small><span>${escHtml(record.note||'—')}</span></div>${timerMarkup}${durationUnit!=='months'?`<div class="manual-penalty-next">⚽ تبدأ من: ${escHtml(next?matchLabel(next):(record.pendingNextMatch?'أول مباراة قادمة':record.startMatchId?'المباراة المحددة':'أول مباراة قادمة'))}${plan?.transferred?' — مستمرة مع اللاعب بعد انتقاله':''}</div>`:''}${action}</article>`;
     }).join('');
     const section=document.createElement('div');
     section.className='suspension-section manual-penalties-wrap';
@@ -18317,7 +18322,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.24.7');
+  const APP_BUILD=String(meta?.content||'2026.11.24.8');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -18417,9 +18422,31 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   }
   async function applyUpdate(){
     const btn=updateBtn;
-    if(btn){btn.disabled=true;btn.textContent='⏳ جارٍ تطبيق التحديث تلقائيًا...';}
-    try{if(swRegistration&&typeof swRegistration.update==='function')await swRegistration.update();}catch(_){}
-    if(typeof window.__manarAutoApplyUpdate==='function')window.__manarAutoApplyUpdate(latestBuild||APP_BUILD,'page');
+    if(btn){btn.disabled=true;btn.textContent='⏳ يتم تجهيز التحديث...';}
+    setMessage('⏳ يتم تجهيز ملفات التحديث الآن. ستُعاد فتح المنصة تلقائيًا خلال ثوانٍ.');
+    const build=latestBuild||APP_BUILD;
+    let scheduled=false;
+    try{
+      if(typeof window.__manarAutoApplyUpdate==='function'){
+        window.__manarAutoApplyUpdate(build,'manual');
+        scheduled=true;
+      }
+    }catch(error){console.warn('Manar manual update scheduling failed:',error);}
+    // افحص العامل في الخلفية لكن لا تجعل بطء الشبكة يوقف الانتقال إلى النسخة الجديدة.
+    try{
+      if(swRegistration&&typeof swRegistration.update==='function'){
+        await Promise.race([
+          swRegistration.update(),
+          new Promise(resolve=>setTimeout(resolve,1800))
+        ]);
+      }
+    }catch(_){}
+    if(!scheduled){
+      const url=new URL(location.href);
+      url.searchParams.set('platformUpdate',build);
+      url.searchParams.set('v',String(Date.now()));
+      setTimeout(()=>location.replace(url.href),500);
+    }
   }
   async function enableNotifications(){
     if(!('Notification' in window))return;
@@ -19726,48 +19753,6 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   const MATCH_SHEET_KEYS=['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'];
   function arr(v){return Array.isArray(v)?v:[];}
   function database(){return window.db&&typeof window.db==='object'?window.db:{};}
-  function isAdmin(){return !!document.body&&document.body.classList.contains('admin');}
-  function isEndedOrArchived(t){
-    if(!t)return true;
-    try{if(typeof window.tournamentIsArchived==='function'&&window.tournamentIsArchived(t))return true;}catch(e){}
-    try{if(typeof window.tournamentIsEnded==='function'&&window.tournamentIsEnded(t))return true;}catch(e){}
-    return false;
-  }
-  function settingsFor(tour){
-    const saved=tour&&tour.qualificationSettings&&typeof tour.qualificationSettings==='object'?tour.qualificationSettings:{};
-    const runsAllowed=[500,1000,2500,5000,10000];
-    const runs=Number(saved.runs);
-    return {
-      remainingMode:saved.remainingMode==='manual'?'manual':'automatic',
-      spots:Math.max(1,parseInt(saved.spots,10)||4),
-      runs:runsAllowed.includes(runs)?runs:2500,
-      manualMatches:Array.isArray(saved.manualMatches)?saved.manualMatches.map(m=>({home:String(m?.home??''),away:String(m?.away??''),round:String(m?.round||'league')})):[]
-    };
-  }
-  function saveTournamentSettings(tid,patch){
-    if(!isAdmin()){alert('تعديل إعدادات حاسبة التأهل متاح لمدير النظام فقط.');return false;}
-    const tour=arr(database().tournaments).find(t=>String(t?.id)===String(tid));
-    if(!tour){alert('تعذر العثور على البطولة المختارة.');return false;}
-    const current=settingsFor(tour);
-    tour.qualificationSettings={...current,...patch};
-    if(typeof window.save==='function'){
-      const ok=window.save();
-      return ok!==false;
-    }
-    alert('تعذر حفظ الإعدادات: وظيفة حفظ المنصة غير متاحة.');
-    return false;
-  }
-  function defaultManualRound(tour){
-    return String(tour?.type||'')==='خروج مغلوب'||String(tour?.stage||'')==='knockout'?'ربع النهائي':'league';
-  }
-  function manualFixturesFor(tid,teams,settings){
-    const ids=new Set(teams.map(t=>String(t.id)));
-    return settings.manualMatches.filter(m=>ids.has(String(m.home))&&ids.has(String(m.away))&&String(m.home)!==String(m.away)).map((m,i)=>{
-      const knockout=m.round!=='league';
-      return {id:'qf-manual-'+String(tid)+'-'+(i+1),tournamentId:String(tid),home:String(m.home),away:String(m.away),status:'scheduled',matchStage:knockout?'knockout':'league',knockoutRound:knockout?m.round:'' ,__qfManual:true};
-    });
-  }
-
   function allSheets(){
     const map=new Map();
     try{MATCH_SHEET_KEYS.forEach(key=>{const raw=localStorage.getItem(key);if(!raw)return;const val=JSON.parse(raw);const rows=Array.isArray(val)?val:(val&&typeof val==='object'?Object.values(val):[]);rows.forEach(sh=>{if(sh&&sh.matchId)map.set(String(sh.matchId),sh);});});}catch(e){console.warn('Qualification sheet lookup skipped:',e);}
@@ -19849,13 +19834,9 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     const sheetMap=allSheets();
     const finished=matches.filter(m=>finishedMatch(m,sheetMap)&&!cancelledMatch(m));
     const statsMatches=finished.filter(m=>!knockoutMatch(m));
-    const automaticRegularUpcoming=matches.filter(m=>!finishedMatch(m,sheetMap)&&!cancelledMatch(m)&&!knockoutMatch(m)&&teamMap.has(String(m.home??m.homeTeamId??''))&&teamMap.has(String(m.away??m.awayTeamId??'')));
-    const automaticKnockoutUpcoming=matches.filter(m=>!finishedMatch(m,sheetMap)&&!cancelledMatch(m)&&knockoutMatch(m)&&teamMap.has(String(m.home??m.homeTeamId??''))&&teamMap.has(String(m.away??m.awayTeamId??'')));
-    const settings=settingsFor(tour);
-    const manualUpcoming=settings.remainingMode==='manual'?manualFixturesFor(tid,teams,settings):[];
-    const regularUpcoming=settings.remainingMode==='manual'?manualUpcoming.filter(m=>!knockoutMatch(m)):automaticRegularUpcoming;
-    const knockoutUpcoming=settings.remainingMode==='manual'?manualUpcoming.filter(m=>knockoutMatch(m)):automaticKnockoutUpcoming;
-    return {tour,teams,teamMap,matches,sheetMap,finished,statsMatches,regularUpcoming,knockoutUpcoming,automaticRegularUpcoming,automaticKnockoutUpcoming,remainingMode:settings.remainingMode,manualUpcoming};
+    const regularUpcoming=matches.filter(m=>!finishedMatch(m,sheetMap)&&!cancelledMatch(m)&&!knockoutMatch(m)&&teamMap.has(String(m.home??m.homeTeamId??''))&&teamMap.has(String(m.away??m.awayTeamId??'')));
+    const knockoutUpcoming=matches.filter(m=>!finishedMatch(m,sheetMap)&&!cancelledMatch(m)&&knockoutMatch(m)&&teamMap.has(String(m.home??m.homeTeamId??''))&&teamMap.has(String(m.away??m.awayTeamId??'')));
+    return {tour,teams,teamMap,matches,sheetMap,finished,statsMatches,regularUpcoming,knockoutUpcoming};
   }
   function currentStats(data,includeKnockout){
     const stats=freshStats(data.teams);
@@ -19933,102 +19914,16 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       const avgPos=v&&v.seen?v.position/v.seen:null,avgPts=v&&v.seen?v.points/v.seen:null;
       const [status,statusClass]=probabilityStatus(p);
       const fill=p===null?0:Math.max(0,Math.min(100,p));
-      const seatClass=index<spots?'qf-qualified-seat-row':'';
-      return `<tr class="${seatClass}"><td><span class="qf-rank-number">${index+1}</span></td><td class="qf-team-name">${escQ(team.name)}</td><td>${team.played}</td><td>${team.wins}</td><td>${team.draws}</td><td>${team.losses}</td><td>${team.gf}-${team.ga}</td><td><b>${team.pts}</b></td><td class="qf-prob-cell"><div class="qf-prob-head"><span>${percentage(p)}</span><span>${status}</span></div><div class="qf-prob-track"><div class="qf-prob-fill ${p!==null&&p<35?'qf-low':''}" style="width:${fill}%"></div></div></td><td>${avgPts===null?'—':avgPts.toFixed(1)}</td><td>${avgPos===null?'—':avgPos.toFixed(1)}</td></tr>`;
+      return `<tr><td><span class="qf-rank-number">${index+1}</span></td><td class="qf-team-name">${escQ(team.name)}</td><td>${team.played}</td><td>${team.wins}</td><td>${team.draws}</td><td>${team.losses}</td><td>${team.gf}-${team.ga}</td><td><b>${team.pts}</b></td><td class="qf-prob-cell"><div class="qf-prob-head"><span>${percentage(p)}</span><span>${status}</span></div><div class="qf-prob-track"><div class="qf-prob-fill ${p!==null&&p<35?'qf-low':''}" style="width:${fill}%"></div></div></td><td>${avgPts===null?'—':avgPts.toFixed(1)}</td><td>${avgPos===null?'—':avgPos.toFixed(1)}</td></tr>`;
     }).join('');
     return `<div class="qf-ranking-table-wrap"><table class="qf-ranking-table qf-league-ranking-table"><thead><tr><th>ت</th><th>الفريق</th><th><span>لعب</span></th><th><span>فاز</span></th><th><span>تعادل</span></th><th><span>خسر</span></th><th><span>الأهداف</span></th><th><span>النقاط</span></th><th>احتمالية التأهل</th><th><span>النقاط المتوقعة</span></th><th><span>المركز المتوقع</span></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
   function fillTournamentSelect(){
     const sel=$('qfTournament');if(!sel)return;
-    const old=sel.value, tours=arr(database().tournaments).filter(t=>t&&!isEndedOrArchived(t));
-    sel.innerHTML='<option value="">— اختر البطولة الجارية —</option>'+tours.map(t=>`<option value="${escQ(t.id)}">${escQ(t.name||'بطولة')}</option>`).join('');
+    const old=sel.value, tours=arr(database().tournaments).filter(Boolean);
+    sel.innerHTML='<option value="">— اختر البطولة —</option>'+tours.map(t=>`<option value="${escQ(t.id)}">${escQ(t.name||'بطولة')}</option>`).join('');
     if(tours.some(t=>String(t.id)===String(old)))sel.value=old;
     else if(activeTournamentId&&tours.some(t=>String(t.id)===String(activeTournamentId)))sel.value=activeTournamentId;
-    else sel.value='';
-  }
-  let manualDraftTournamentId='',manualDraftRows=[];
-  function maxQualificationSeats(data,groupMode){
-    if(!data.teams.length)return 1;
-    if(!groupMode)return data.teams.length;
-    const counts=new Map();data.teams.forEach(t=>{const k=groupKey(t);counts.set(k,(counts.get(k)||0)+1);});
-    return Math.max(1,...counts.values());
-  }
-  function applyManagerSettings(data,groupMode){
-    const panel=$('qfManagerSettings'),modeSel=$('qfRemainingMode'),spotsSel=$('qfSpots'),runsSel=$('qfRuns');
-    const manager=isAdmin();
-    if(panel)panel.hidden=!manager;
-    if(!modeSel||!spotsSel||!runsSel)return settingsFor(data.tour);
-    const settings=settingsFor(data.tour);
-    modeSel.value=settings.remainingMode;
-    const label=$('qfSpotsLabel');if(label)label.textContent=groupMode?'عدد المتأهلين من كل مجموعة':'عدد مقاعد التأهل';
-    const max=maxQualificationSeats(data,groupMode);
-    const hasSavedSpots=!!(data.tour?.qualificationSettings&&data.tour.qualificationSettings.spots!==undefined&&data.tour.qualificationSettings.spots!==null);
-    const defaultSpots=groupMode?2:4;
-    const desired=Math.min(max,Math.max(1,hasSavedSpots?settings.spots:defaultSpots));
-    spotsSel.innerHTML=Array.from({length:max},(_,i)=>`<option value="${i+1}">${i+1===1?'مقعد واحد':i+1===2?'مقعدان':(i+1)+' مقاعد'}</option>`).join('');
-    spotsSel.value=String(desired);
-    runsSel.value=String(settings.runs);
-    if(manager&&manualDraftTournamentId!==String(data.tour.id)){
-      manualDraftTournamentId=String(data.tour.id);
-      manualDraftRows=settings.manualMatches.map(m=>({...m}));
-    }
-    const editor=$('qfManualEditor');
-    if(editor)editor.hidden=!(manager&&settings.remainingMode==='manual');
-    if(manager&&settings.remainingMode==='manual')renderManualRows(data);
-    return {...settings,spots:desired};
-  }
-  function manualStageOptions(tour,selected){
-    const knockoutOnly=String(tour?.type||'')==='خروج مغلوب'||String(tour?.stage||'')==='knockout';
-    const opts=[];
-    if(!knockoutOnly)opts.push(['league','دوري / مجموعات']);
-    opts.push(['ربع النهائي','ربع النهائي'],['نصف النهائي','نصف النهائي'],['النهائي','النهائي']);
-    return opts.map(([v,l])=>`<option value="${escQ(v)}" ${String(selected)===v?'selected':''}>${l}</option>`).join('');
-  }
-  function renderManualRows(data){
-    const host=$('qfManualRows');if(!host)return;
-    const options=data.teams.map(t=>`<option value="${escQ(t.id)}">${escQ(t.name)}</option>`).join('');
-    if(!manualDraftRows.length){host.innerHTML='<div class="qf-manual-empty">لم تُضف مباريات يدويًا بعد. اضغط «إضافة مباراة» للبدء.</div>';return;}
-    host.innerHTML=manualDraftRows.map((m,i)=>`<div class="qf-manual-match-row" data-qf-manual-row="${i}"><span class="qf-manual-index">${i+1}</span><div class="qf-field"><label>الفريق الأول</label><select data-qf-home="${i}"><option value="">— اختر الفريق —</option>${options}</select></div><span class="qf-manual-vs">×</span><div class="qf-field"><label>الفريق الثاني</label><select data-qf-away="${i}"><option value="">— اختر الفريق —</option>${options}</select></div><div class="qf-field qf-manual-round"><label>المرحلة</label><select data-qf-round="${i}">${manualStageOptions(data.tour,m.round||defaultManualRound(data.tour))}</select></div><button type="button" class="qf-manual-delete" data-qf-delete-manual="${i}" aria-label="حذف المباراة">حذف</button></div>`).join('');
-    manualDraftRows.forEach((m,i)=>{
-      const h=host.querySelector(`[data-qf-home="${i}"]`),a=host.querySelector(`[data-qf-away="${i}"]`);
-      if(h)h.value=String(m.home||'');if(a)a.value=String(m.away||'');
-    });
-  }
-  function collectManualRows(){
-    const host=$('qfManualRows');if(!host)return manualDraftRows.map(m=>({...m}));
-    return [...host.querySelectorAll('.qf-manual-match-row')].map(row=>({
-      home:String(row.querySelector('[data-qf-home]')?.value||''),
-      away:String(row.querySelector('[data-qf-away]')?.value||''),
-      round:String(row.querySelector('[data-qf-round]')?.value||'league')
-    }));
-  }
-  function setManualDraftStatus(message,isDirty){
-    const el=$('qfManualDraftStatus');if(!el)return;
-    el.textContent=message;el.classList.toggle('is-dirty',!!isDirty);
-  }
-  function addManualRow(data){
-    if(!isAdmin())return;
-    manualDraftRows=collectManualRows();
-    const first=data.teams[0]?.id??'',second=data.teams.find(t=>String(t.id)!==String(first))?.id??'';
-    manualDraftRows.push({home:String(first),away:String(second),round:defaultManualRound(data.tour)});
-    renderManualRows(data);setManualDraftStatus('توجد تغييرات غير محفوظة.',true);
-  }
-  function saveManualDraft(){
-    if(!isAdmin()){alert('إدخال المباريات المتبقية متاح لمدير النظام فقط.');return;}
-    const tid=$('qfTournament')?.value||'';if(!tid)return;
-    const rows=collectManualRows();
-    const db=database(),tour=arr(db.tournaments).find(t=>String(t?.id)===String(tid));
-    const teams=arr(db.teams).filter(t=>String(t?.tournamentId)===String(tid));
-    const validIds=new Set(teams.map(t=>String(t.id)));
-    const invalid=rows.find(m=>!validIds.has(m.home)||!validIds.has(m.away)||m.home===m.away);
-    if(invalid){alert('أكمل اختيار فريقين مختلفين في كل مباراة قبل الحفظ.');return;}
-    const kinds=new Set(rows.map(m=>m.round==='league'?'league':'knockout'));
-    if(kinds.size>1){alert('حتى تكون المحاكاة دقيقة، أدخل مباريات مرحلة واحدة فقط في كل مرة (دوري/مجموعات أو مرحلة إقصائية).');return;}
-    const cleaned=rows.map(m=>({home:m.home,away:m.away,round:m.round}));
-    if(!saveTournamentSettings(tid,{manualMatches:cleaned}))return;
-    manualDraftTournamentId=tid;manualDraftRows=cleaned.map(m=>({...m}));
-    scenarioOverrides=Object.create(null);setManualDraftStatus('تم حفظ المباريات اليدوية بنجاح.',false);
-    renderCalculator();
   }
   function fillScenarioMatches(matches,teamMap){
     const sel=$('qfScenarioMatch');if(!sel)return;
@@ -20058,8 +19953,6 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     $('qfRemainingCount').textContent=String(remaining.length);
     $('qfSpotsCount').textContent=String(spots);
     $('qfSpotsCaption').textContent=isGroupTour(data.tour)?'متأهلون من كل مجموعة':'مقاعد التأهل';
-    const spotsCard=document.querySelector('#qualificationSection .qf-kpi-spots');
-    if(spotsCard){spotsCard.dataset.spots=String(Math.max(1,Math.min(8,Number(spots)||1)));spotsCard.classList.remove(...[1,2,3,4,5,6,7,8].map(n=>'qf-spots-tone-'+n));spotsCard.classList.add('qf-spots-tone-'+Math.max(1,Math.min(8,Number(spots)||1)));}
   }
   function renderKnockout(data,baseStats,runs){
     const result=runKnockoutSimulation(data,baseStats,runs),rows=[];
@@ -20073,23 +19966,24 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     $('qfRankingSubtitle').textContent='احتمالية عبور المباراة الإقصائية الحالية، وليست توقعًا للفوز بالبطولة كاملة.';
     $('qfRanking').innerHTML=table;
     $('qfSimulationBadge').textContent=runs.toLocaleString('en-US')+' محاكاة للمباراة';
-    $('qfExtraNote').innerHTML=`<b>ملاحظة نظام خروج المغلوب:</b> تم تحليل أقرب مرحلة (${escQ(result.roundName||'المرحلة الحالية')}) بالاعتماد على ${data.remainingMode==='manual'?'المباريات التي أدخلها المدير يدويًا':'المباريات المسجلة في جدول البطولة'}. عند تعادل نتيجة المحاكاة، افترضت الحاسبة فرصتين متساويتين للحسم بركلات الترجيح؛ لأن نتيجة ركلات الترجيح أو قواعد الوقت الإضافي ليست مدخلة في بيانات المباراة.`;
+    $('qfExtraNote').innerHTML=`<b>ملاحظة نظام خروج المغلوب:</b> تم تحليل أقرب مرحلة مسجلة فقط (${escQ(result.roundName||'المرحلة الحالية')}). عند تعادل نتيجة المحاكاة، افترضت الحاسبة فرصتين متساويتين للحسم بركلات الترجيح؛ لأن نتيجة ركلات الترجيح أو قواعد الوقت الإضافي ليست مدخلة في بيانات المباراة.`;
     return result.matches;
   }
   function renderCalculator(){
     const prompt=$('qfPrompt'),results=$('qfResults');if(!prompt||!results)return;
     fillTournamentSelect();
     const tid=$('qfTournament')?.value||'';
-    if(!tid){prompt.hidden=false;results.hidden=true;const activeTours=arr(database().tournaments).filter(t=>t&&!isEndedOrArchived(t));prompt.innerHTML=activeTours.length?'<div class="empty">اختر اسم البطولة الجارية لعرض فرص التأهل لكل فريق.</div>':'<div class="empty">🏁 لا توجد بطولات جارية حاليًا. تم إخفاء البطولات المنتهية من هذه الحاسبة.</div>';return;}
+    if(!tid){prompt.hidden=false;results.hidden=true;prompt.innerHTML='<div class="empty">اختر اسم البطولة لعرض فرص التأهل لكل فريق.</div>';return;}
     if(tid!==activeTournamentId){activeTournamentId=tid;scenarioOverrides=Object.create(null);}
     const data=tournamentData(tid),tour=data.tour;
     prompt.hidden=true;results.hidden=false;
     if(!tour||!data.teams.length){$('qfRanking').innerHTML='<div class="empty">لا توجد فرق مسجلة في البطولة المختارة.</div>'; $('qfExtraNote').textContent='سجّل الفرق أولاً من قسم الفرق، ثم ارجع إلى الحاسبة.';setKpis(data,[],0);return;}
     const groupMode=isGroupTour(tour),hasKnockoutOnly=String(tour.type||'')==='خروج مغلوب';
-    const settings=applyManagerSettings(data,groupMode);
     const isKnockoutMode=hasKnockoutOnly||(groupMode&&(String(tour.stage||'')==='knockout'||(data.knockoutUpcoming.length>0&&data.regularUpcoming.length===0)));
-    const spots=Math.max(1,Math.min(maxQualificationSeats(data,groupMode),parseInt(settings.spots|| (groupMode?2:4),10)||1));
-    const simRuns=Math.max(500,Math.min(10000,parseInt(settings.runs||2500,10)||2500));
+    const spotsSel=$('qfSpots');
+    if(spotsSel){const label=$('qfSpotsLabel');if(label)label.textContent=groupMode?'عدد المتأهلين من كل مجموعة':'عدد مقاعد التأهل';if(!spotsSel.dataset.mode||spotsSel.dataset.mode!==(groupMode?'group':'league')){spotsSel.value=groupMode?'2':'4';spotsSel.dataset.mode=groupMode?'group':'league';}}
+    const spots=Math.max(1,parseInt(spotsSel?.value|| (groupMode?2:4),10)||1);
+    const simRuns=Math.max(500,Math.min(10000,parseInt($('qfRuns')?.value||2500,10)||2500));
     const baseStats=currentStats(data,isKnockoutMode),allUpcoming=isKnockoutMode?data.knockoutUpcoming:data.regularUpcoming;
     const scenarioFixtures=isKnockoutMode?(()=>{const weights=data.knockoutUpcoming.map(stageWeight).filter(x=>x>0);const w=weights.length?Math.min(...weights):0;return w?data.knockoutUpcoming.filter(m=>stageWeight(m)===w):data.knockoutUpcoming;})():data.regularUpcoming;
     fillScenarioMatches(scenarioFixtures,data.teamMap);renderScenarioChips(scenarioFixtures,data.teamMap);
@@ -20102,7 +19996,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       return;
     }
     const averages=modelAverages(data.statsMatches,data.sheetMap);
-    const result=runLeagueSimulation(data,allUpcoming,spots,simRuns,baseStats,averages);
+    const result=runLeagueSimulation(data,data.regularUpcoming,spots,simRuns,baseStats,averages);
     $('qfRankingSubtitle').textContent=groupMode?'احتمال إنهاء كل فريق ضمن المقاعد المؤهلة في مجموعته':'الترتيب الحالي واحتمال إنهاء البطولة ضمن المراكز المؤهلة';
     $('qfSimulationBadge').textContent=simRuns.toLocaleString('en-US')+' محاكاة';
     let html='';
@@ -20114,10 +20008,10 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       html=rankTable([...baseStats.values()],result.metrics,spots,true);
     }
     $('qfRanking').innerHTML=html||'<div class="empty">لا توجد بيانات كافية لعرض الترتيب.</div>';
-    const noSchedule=allUpcoming.length===0;
-    let note=data.remainingMode==='manual'?'تعتمد المحاكاة على المواجهات اليدوية التي حفظها المدير. أضف جميع المباريات المتبقية وحدد الفرق والمرحلة حتى تكون التوقعات أقرب للواقع.':'تعتمد النتائج على المباريات المجدولة المسجلة في المنصة فقط. أضف أي مباراة متبقية غير مدخلة حتى تدخل في المحاكاة.';
-    if(!data.statsMatches.length&&!allUpcoming.length)note=data.remainingMode==='manual'?'لم يحفظ المدير أي مباريات متبقية يدويًا لهذه البطولة حتى الآن؛ أضف المواجهات أولًا لتشغيل المحاكاة.':'لا توجد نتائج منتهية أو مباريات قادمة مسجلة لهذه البطولة؛ لا يمكن إنتاج احتمالات موثوقة حتى تُدخل نتائج وجدول المباريات.';
-    else if(noSchedule)note='لا توجد مباريات متبقية ضمن طريقة الإدخال المختارة. النسب تعكس ترتيب الفرق الحالي فقط، وفق النقاط ثم فارق الأهداف ثم الأهداف المسجلة، ويُستخدم اسم الفريق عند استمرار التعادل الكامل.';
+    const noSchedule=data.regularUpcoming.length===0;
+    let note='تعتمد النتائج على المباريات المجدولة المسجلة في المنصة فقط. أضف أي مباراة متبقية غير مدخلة حتى تدخل في المحاكاة.';
+    if(!data.statsMatches.length&&!data.regularUpcoming.length)note='لا توجد نتائج منتهية أو مباريات قادمة مسجلة لهذه البطولة؛ لا يمكن إنتاج احتمالات موثوقة حتى تُدخل نتائج وجدول المباريات.';
+    else if(noSchedule)note='لا توجد مباريات مجدولة متبقية. النسب تعكس ترتيب الفرق الحالي فقط، وفق النقاط ثم فارق الأهداف ثم الأهداف المسجلة، ويُستخدم اسم الفريق عند استمرار التعادل الكامل.';
     else if(groupMode&&data.teams.some(t=>groupKey(t)==='0'))note='تنبيه: بعض الفرق لا تحمل رقم مجموعة. راجع تعيين المجموعات في قسم الفرق حتى تُحسب احتمالات كل مجموعة بصورة منفصلة.';
     $('qfExtraNote').textContent=note;
   }
@@ -20131,40 +20025,12 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   function bind(){
     fillTournamentSelect();
     $('qfTournament')?.addEventListener('change',()=>{activeTournamentId=$('qfTournament').value;scenarioOverrides=Object.create(null);renderCalculator();});
-    $('qfRemainingMode')?.addEventListener('change',()=>{
-      if(!isAdmin())return alert('تعديل طريقة إدخال المباريات متاح لمدير النظام فقط.');
-      const tid=$('qfTournament')?.value||'';if(!tid)return;
-      const ok=saveTournamentSettings(tid,{remainingMode:$('qfRemainingMode').value==='manual'?'manual':'automatic'});
-      if(ok){manualDraftTournamentId='';scenarioOverrides=Object.create(null);renderCalculator();}
-    });
-    $('qfSpots')?.addEventListener('change',()=>{
-      if(!isAdmin())return alert('تعديل مقاعد التأهل متاح لمدير النظام فقط.');
-      const tid=$('qfTournament')?.value||'';if(!tid)return;
-      if(saveTournamentSettings(tid,{spots:Math.max(1,parseInt($('qfSpots').value,10)||1)}))renderCalculator();
-    });
-    $('qfRuns')?.addEventListener('change',()=>{
-      if(!isAdmin())return alert('تعديل عدد المحاكاة متاح لمدير النظام فقط.');
-      const tid=$('qfTournament')?.value||'';if(!tid)return;
-      if(saveTournamentSettings(tid,{runs:Math.max(500,Math.min(10000,parseInt($('qfRuns').value,10)||2500))}))renderCalculator();
-    });
-    $('qfAddManualMatch')?.addEventListener('click',()=>{const tid=$('qfTournament')?.value||'';if(tid)addManualRow(tournamentData(tid));});
-    $('qfSaveManualMatches')?.addEventListener('click',saveManualDraft);
-    $('qfManualRows')?.addEventListener('change',e=>{
-      if(!isAdmin())return;
-      if(e.target.matches('[data-qf-home],[data-qf-away],[data-qf-round]')){manualDraftRows=collectManualRows();setManualDraftStatus('توجد تغييرات غير محفوظة.',true);}
-    });
-    $('qfManualRows')?.addEventListener('click',e=>{
-      const b=e.target.closest('[data-qf-delete-manual]');if(!b||!isAdmin())return;
-      manualDraftRows=collectManualRows();const i=Number(b.dataset.qfDeleteManual);if(Number.isInteger(i))manualDraftRows.splice(i,1);
-      const tid=$('qfTournament')?.value||'';if(tid)renderManualRows(tournamentData(tid));
-      setManualDraftStatus('توجد تغييرات غير محفوظة.',true);
-    });
+    $('qfSpots')?.addEventListener('change',renderCalculator);
+    $('qfRuns')?.addEventListener('change',renderCalculator);
     $('qfRun')?.addEventListener('click',renderCalculator);
     $('qfApplyScenario')?.addEventListener('click',applyScenario);
     $('qfResetScenario')?.addEventListener('click',resetScenario);
     document.addEventListener('click',e=>{const b=e.target.closest('[data-qf-remove]');if(!b)return;delete scenarioOverrides[String(b.dataset.qfRemove)];renderCalculator();});
-    const roleObserver=new MutationObserver(()=>{if($('qualificationSection')?.classList.contains('active'))renderCalculator();else if($('qfManagerSettings'))$('qfManagerSettings').hidden=!isAdmin();});
-    roleObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
     window.refreshQualificationCalculator=renderCalculator;
     const original=window.renderAll;
     if(typeof original==='function'&&!original.__qualificationWrapped){
@@ -20328,56 +20194,336 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 }
 </style>
 
+<script id="manar-auto-expire-penalties-20261124">
+(function(){
+  'use strict';
+  if(window.__manarAutoExpirePenaltiesV1)return;
+  window.__manarAutoExpirePenaltiesV1=true;
 
-<style id="qualification-manager-settings-and-bright-seats-20261124">
-#qualificationSection .qf-controls-grid{grid-template-columns:minmax(220px,1fr) auto!important;align-items:end!important}
-#qualificationSection .qf-tournament-field{min-width:0!important}
-#qualificationSection .qf-admin-panel{margin-top:14px;padding:15px;border:1px solid #b8d8ec;border-radius:16px;background:linear-gradient(135deg,#f0faff 0%,#f7f1ff 55%,#fff9eb 100%);box-shadow:0 7px 20px rgba(32,93,140,.09)}
-#qualificationSection .qf-admin-panel[hidden],#qualificationSection .qf-manual-editor[hidden]{display:none!important}
-#qualificationSection .qf-admin-panel-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;color:#24557c;font-weight:900}
-#qualificationSection .qf-admin-panel-title span{font-size:15px}
-#qualificationSection .qf-admin-panel-title small{font-size:11px;color:#6d65a1;font-weight:800}
-#qualificationSection .qf-admin-controls-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;align-items:end}
-#qualificationSection .qf-admin-controls-grid .qf-field{min-width:0}
-#qualificationSection .qf-admin-controls-grid select{background:#fff!important;border:1px solid #b9d4e6!important}
-#qualificationSection .qf-manual-editor{margin-top:14px;padding:13px;border:1px solid #d9c9f5;border-radius:13px;background:linear-gradient(145deg,#fff,#f7f2ff)}
-#qualificationSection .qf-manual-head,#qualificationSection .qf-manual-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
-#qualificationSection .qf-manual-head b{display:block;color:#663da2;font-size:13px}
-#qualificationSection .qf-manual-head small{display:block;color:#6d6b7e;font-size:11px;margin-top:4px;line-height:1.7}
-#qualificationSection .qf-manual-head .btn{white-space:nowrap;min-height:38px;padding:8px 12px!important}
-#qualificationSection .qf-manual-rows{display:grid;gap:8px;margin-top:12px}
-#qualificationSection .qf-manual-match-row{display:grid;grid-template-columns:29px minmax(110px,1fr) 18px minmax(110px,1fr) minmax(115px,.8fr) 48px;gap:7px;align-items:end;padding:9px;border:1px solid #e4dcf3;border-radius:12px;background:#fff}
-#qualificationSection .qf-manual-index{height:38px;display:grid;place-items:center;border-radius:9px;background:#eee5ff;color:#6c45a5;font-weight:900}
-#qualificationSection .qf-manual-match-row label{font-size:10px!important;margin-bottom:4px!important}
-#qualificationSection .qf-manual-match-row select{min-height:39px!important;padding:7px 8px!important;font-size:12px!important}
-#qualificationSection .qf-manual-vs{align-self:center;text-align:center;color:#8854bf;font-weight:900;font-size:17px;padding-top:17px}
-#qualificationSection .qf-manual-delete{height:39px;border:0;border-radius:9px;background:#ffe4e6;color:#b42335;font-weight:900}
-#qualificationSection .qf-manual-empty{padding:14px;border:1px dashed #d7c5ef;border-radius:10px;text-align:center;color:#75658a;font-size:12px;background:#fff}
-#qualificationSection .qf-manual-footer{margin-top:12px;padding-top:10px;border-top:1px solid #ece5f6}
-#qualificationSection .qf-manual-footer small{font-size:11px;color:#16805e;font-weight:800}
-#qualificationSection .qf-manual-footer small.is-dirty{color:#b56a13}
-#qualificationSection .qf-manual-save{background:linear-gradient(135deg,#0c8e66,#16b886)!important;white-space:nowrap}
-#qualificationSection .qf-admin-footnote{margin-top:11px;padding:8px 10px;border-radius:9px;background:#fff7e8;color:#84601c;border:1px solid #f1dba9;font-size:10px;line-height:1.7}
-#qualificationSection .qf-kpi-spots{transition:background .2s,border-color .2s}
-#qualificationSection .qf-kpi-spots .qf-spots-indicator{display:none}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-1{background:linear-gradient(140deg,#fff3c4,#fffdf5)!important;border-color:#eebd3b!important;border-top:5px solid #e6a400!important}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-2{background:linear-gradient(140deg,#d9fae9,#f7fffb)!important;border-color:#38b982!important;border-top:5px solid #0f9f6e!important}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-3{background:linear-gradient(140deg,#dcefff,#f8fcff)!important;border-color:#68a9e8!important;border-top:5px solid #2683d4!important}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-4{background:linear-gradient(140deg,#eee3ff,#fbf8ff)!important;border-color:#ab82ec!important;border-top:5px solid #8152d3!important}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-5{background:linear-gradient(140deg,#ffe8d8,#fffaf6)!important;border-color:#f3a56b!important;border-top:5px solid #e87926!important}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-6{background:linear-gradient(140deg,#ffe0ea,#fff8fb)!important;border-color:#e98aaa!important;border-top:5px solid #d94b7b!important}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-7{background:linear-gradient(140deg,#d8f7fb,#f7feff)!important;border-color:#67c6d7!important;border-top:5px solid #1c9db4!important}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-8{background:linear-gradient(140deg,#e5f5d4,#fbfff7)!important;border-color:#a3ce66!important;border-top:5px solid #69a82b!important}
-#qualificationSection .qf-kpi-spots.qf-spots-tone-1>b{color:#a56a00!important}#qualificationSection .qf-kpi-spots.qf-spots-tone-2>b{color:#087f5b!important}#qualificationSection .qf-kpi-spots.qf-spots-tone-3>b{color:#1769aa!important}#qualificationSection .qf-kpi-spots.qf-spots-tone-4>b{color:#7048e8!important}#qualificationSection .qf-kpi-spots.qf-spots-tone-5>b{color:#d65d0c!important}#qualificationSection .qf-kpi-spots.qf-spots-tone-6>b{color:#c52f65!important}#qualificationSection .qf-kpi-spots.qf-spots-tone-7>b{color:#087f95!important}#qualificationSection .qf-kpi-spots.qf-spots-tone-8>b{color:#4d861b!important}
-#qualificationSection .qf-qualified-seat-row td{background:#e8fff3!important;border-bottom-color:#bfead4!important;font-weight:800}
-#qualificationSection .qf-qualified-seat-row td:first-child{border-right:4px solid #10a66f!important}
-#qualificationSection .qf-qualified-seat-row .qf-rank-number{background:linear-gradient(135deg,#0da876,#21c58d)!important;color:#fff!important;box-shadow:0 3px 8px #0da87635}
-#qualificationSection .qf-qualified-seat-row .qf-prob-track{background:#cdeedd!important}
-#qualificationSection .qf-group-title .badge{background:#e7fff2!important;border-color:#8cdbb5!important;color:#08784f!important}
-#qualificationSection .qf-method-note a{color:#1769aa;font-weight:900;text-decoration:underline}
-@media(max-width:850px){#qualificationSection .qf-admin-controls-grid{grid-template-columns:1fr 1fr}#qualificationSection .qf-manual-match-row{grid-template-columns:25px minmax(0,1fr) minmax(0,1fr) 42px}#qualificationSection .qf-manual-vs{display:none}#qualificationSection .qf-manual-round{grid-column:2/4}}
-@media(max-width:600px){#qualificationSection .qf-controls-grid{grid-template-columns:1fr!important}#qualificationSection .qf-actions{grid-column:auto!important}#qualificationSection .qf-run-btn{width:100%}#qualificationSection .qf-admin-controls-grid{grid-template-columns:1fr 1fr;gap:8px}#qualificationSection .qf-admin-controls-grid .qf-field:first-child{grid-column:1/-1}#qualificationSection .qf-admin-panel{padding:11px}#qualificationSection .qf-admin-panel-title{align-items:flex-start;flex-direction:column;gap:4px}#qualificationSection .qf-manual-head{align-items:flex-start;flex-direction:column}#qualificationSection .qf-manual-head .btn{width:100%}#qualificationSection .qf-manual-match-row{grid-template-columns:26px minmax(0,1fr) 42px;gap:6px}#qualificationSection .qf-manual-match-row .qf-field:nth-of-type(1),#qualificationSection .qf-manual-match-row .qf-field:nth-of-type(2){grid-column:2/4}#qualificationSection .qf-manual-round{grid-column:2/3!important}#qualificationSection .qf-manual-delete{grid-column:3/4;align-self:end}#qualificationSection .qf-manual-footer{align-items:stretch;flex-direction:column}#qualificationSection .qf-manual-save{width:100%}}
+  const list=value=>Array.isArray(value)?value:[];
+  const str=value=>String(value===undefined||value===null?'':value).trim();
+  const same=(a,b)=>str(a)===str(b);
+  const root=()=>window.db&&typeof window.db==='object'?window.db:null;
+  const dbArray=(key)=>list(root()?.[key]);
+  const getId=value=>{
+    if(value&&typeof value==='object')return str(value.id??value.teamId??value.teamID??value.team_id??value.value??value.name);
+    return str(value);
+  };
+  const localDateString=date=>date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  function dateOnly(value){
+    if(value===undefined||value===null||value==='')return '';
+    if(typeof value==='number'&&Number.isFinite(value)){
+      const d=new Date(value<1e12?value*1000:value);
+      return Number.isNaN(d.getTime())?'':localDateString(d);
+    }
+    const raw=str(value);
+    const exact=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(exact)return raw;
+    const parsed=new Date(raw);
+    return Number.isNaN(parsed.getTime())?'':localDateString(parsed);
+  }
+  function addMonthsClamped(iso,months){
+    const normalized=dateOnly(iso);
+    if(!normalized)return '';
+    const parts=normalized.split('-').map(Number);
+    const year=parts[0],month=parts[1],day=parts[2];
+    if(!year||!month||!day)return '';
+    const first=new Date(year,month-1+months,1,12,0,0,0);
+    const lastDay=new Date(first.getFullYear(),first.getMonth()+1,0,12,0,0,0).getDate();
+    return localDateString(new Date(first.getFullYear(),first.getMonth(),Math.min(day,lastDay),12,0,0,0));
+  }
+  function isMonthlyPenaltyExpired(record){
+    if(str(record?.durationUnit)!=='months')return false;
+    const amount=Math.max(1,parseInt(record?.matches,10)||1);
+    const start=dateOnly(record?.penaltyStartDate||record?.createdAt||record?.updatedAt);
+    const end=dateOnly(record?.endDate)||addMonthsClamped(start,amount);
+    return !!end&&localDateString(new Date())>=end;
+  }
+  function matchId(match){return str(match?.id??match?.matchId??match?.fixtureId);}
+  function matchDateTime(match){
+    const date=str(match?.date??match?.matchDate??match?.match_date??match?.dateISO);
+    if(!date)return NaN;
+    const time=str(match?.time??match?.matchTime??match?.match_time??'23:59');
+    const value=Date.parse(date+'T'+(time||'23:59'));
+    return Number.isFinite(value)?value:NaN;
+  }
+  function matchIsCompleted(match){
+    if(!match)return false;
+    const status=str(match.status??match.state).toLocaleLowerCase('ar');
+    if(['finished','played','ended','complete','completed','منتهية','انتهت','مكتملة','مكتمل','لعبت'].includes(status))return true;
+    if(['scheduled','upcoming','pending','postponed','delayed','مجدولة','قادمة','لم تبدأ','قيد الانتظار','مؤجلة','مؤجل'].includes(status))return false;
+    const stamp=matchDateTime(match);
+    return Number.isFinite(stamp)&&stamp<Date.now();
+  }
+  function matchTeamId(match,side){
+    const keys=side==='home'
+      ? ['homeTeamId','home','homeTeam','homeId','teamAId','teamHomeId']
+      : ['awayTeamId','away','awayTeam','awayId','teamBId','teamAwayId'];
+    for(const key of keys){
+      const value=match?.[key];
+      if(value===undefined||value===null||getId(value)==='')continue;
+      const raw=getId(value);
+      const team=dbArray('teams').find(item=>same(item.id,raw)||str(item.name).toLocaleLowerCase('ar')===raw.toLocaleLowerCase('ar'));
+      return str(team?.id||raw);
+    }
+    return '';
+  }
+  function resolveTeamId(record,player){
+    const raw=getId(record?.teamId??record?.teamID??record?.team_id??player?.teamId??player?.teamID??player?.team_id??player?.team);
+    if(!raw)return '';
+    const team=dbArray('teams').find(item=>same(item.id,raw)||str(item.name).toLocaleLowerCase('ar')===raw.toLocaleLowerCase('ar'));
+    return str(team?.id||raw);
+  }
+  function scheduleFor(record,player,teamOverride){
+    const teamId=str(teamOverride)||resolveTeamId(record,player);
+    if(!teamId)return [];
+    const tournamentId=str(record?.tournamentId??record?.tournamentID??record?.tournament_id);
+    try{
+      if(typeof window.orderedAllMatchesForTeam==='function'){
+        const result=window.orderedAllMatchesForTeam(teamId,tournamentId);
+        if(Array.isArray(result))return result;
+      }
+    }catch(error){console.warn('تعذر قراءة جدول مباريات العقوبة:',error);}
+    return dbArray('matches').filter(match=>{
+      const belongs=matchTeamId(match,'home')===teamId||matchTeamId(match,'away')===teamId;
+      if(!belongs)return false;
+      const rawTournament=match?.tournamentId??match?.tournamentID??match?.tournament_id??match?.competitionId;
+      if(rawTournament!==undefined&&rawTournament!==null&&str(rawTournament))return same(rawTournament,tournamentId);
+      const team=dbArray('teams').find(item=>same(item.id,teamId));
+      return !team?.tournamentId||same(team.tournamentId,tournamentId);
+    }).sort((a,b)=>{
+      const aa=matchDateTime(a),bb=matchDateTime(b);
+      return (Number.isFinite(aa)?aa:Number.MAX_SAFE_INTEGER)-(Number.isFinite(bb)?bb:Number.MAX_SAFE_INTEGER)||matchId(a).localeCompare(matchId(b));
+    });
+  }
+  function timestampValue(value){
+    if(value===undefined||value===null||value==='')return 0;
+    if(typeof value==='number'&&Number.isFinite(value))return value<1e12?value*1000:value;
+    const parsed=Date.parse(str(value));
+    return Number.isFinite(parsed)?parsed:0;
+  }
+  function manualPlan(record,player){
+    const count=Math.max(1,parseInt(record?.matches,10)||1);
+    const currentTeamId=resolveTeamId({},player)||str(player?.teamId??player?.team??'');
+    const recordedTeamId=str(record?.teamId??record?.teamID??record?.team_id);
+    const transferred=!!(currentTeamId&&recordedTeamId&&currentTeamId!==recordedTeamId);
+    const explicitStart=str(record?.startMatchId);
+    const explicitNext=str(record?.nextMatchId);
+    const trigger=str(record?.triggerMatchId);
+    let schedule=scheduleFor(record,player,currentTeamId||recordedTeamId);
+    let targets=[];
+    let startIndex=-1;
+    let remaining=count;
+
+    if(transferred){
+      // Keep the original team schedule as evidence of matches already served.
+      const oldSchedule=scheduleFor(record,player,recordedTeamId);
+      let oldStart=explicitStart?oldSchedule.findIndex(match=>same(matchId(match),explicitStart)):-1;
+      if(oldStart<0&&explicitNext)oldStart=oldSchedule.findIndex(match=>same(matchId(match),explicitNext));
+      if(oldStart<0&&trigger){const i=oldSchedule.findIndex(match=>same(matchId(match),trigger));if(i>=0)oldStart=i+1;}
+      if(oldStart<0){
+        const anchor=timestampValue(record?.startAfterAt)||timestampValue(record?.createdAt)||timestampValue(record?.penaltyStartDate);
+        oldStart=oldSchedule.findIndex(match=>{const stamp=matchDateTime(match);return Number.isFinite(stamp)&&(!anchor||stamp>=anchor);});
+      }
+      const firstNew=schedule.find(match=>{const stamp=matchDateTime(match);const anchor=timestampValue(record?.startAfterAt)||timestampValue(record?.createdAt)||timestampValue(record?.penaltyStartDate);return !Number.isFinite(stamp)||!anchor||stamp>=anchor;});
+      const transferBoundary=firstNew?matchDateTime(firstNew):NaN;
+      const oldServed=oldStart>=0?oldSchedule.slice(oldStart).filter(match=>{
+        if(!matchIsCompleted(match))return false;
+        const stamp=matchDateTime(match);
+        return !Number.isFinite(transferBoundary)||!Number.isFinite(stamp)||stamp<transferBoundary;
+      }).length:0;
+      remaining=Math.max(0,count-Math.min(count,oldServed));
+      if(remaining===0)return {targets:[],count,remaining:0,known:true,completed:true,nextMatches:[],transferred:true,served:count};
+      startIndex=firstNew?schedule.indexOf(firstNew):-1;
+      if(startIndex<0&&record?.pendingNextMatch===true){
+        const after=timestampValue(record?.startAfterAt)||timestampValue(record?.createdAt)||timestampValue(record?.updatedAt);
+        startIndex=schedule.findIndex(match=>{const stamp=matchDateTime(match);return !Number.isFinite(stamp)||!after||stamp>=after;});
+      }
+      if(startIndex>=0)targets=schedule.slice(startIndex,startIndex+remaining);
+      else return {targets:[],count,remaining,known:false,completed:false,nextMatches:[],transferred:true,served:oldServed};
+    }else{
+      if(explicitStart){
+        startIndex=schedule.findIndex(match=>same(matchId(match),explicitStart));
+        if(startIndex<0&&explicitNext)startIndex=schedule.findIndex(match=>same(matchId(match),explicitNext));
+        if(startIndex<0&&trigger){const triggerIndex=schedule.findIndex(match=>same(matchId(match),trigger));if(triggerIndex>=0)startIndex=triggerIndex+1;}
+        if(startIndex<0)return {targets:[],count,remaining:count,known:false,completed:false,nextMatches:[]};
+        targets=schedule.slice(startIndex,startIndex+count);
+      }else if(explicitNext){
+        startIndex=schedule.findIndex(match=>same(matchId(match),explicitNext));
+        if(startIndex<0)return {targets:[],count,remaining:count,known:false,completed:false,nextMatches:[]};
+        targets=schedule.slice(startIndex,startIndex+count);
+      }else if(trigger){
+        const triggerIndex=schedule.findIndex(match=>same(matchId(match),trigger));
+        if(triggerIndex<0)return {targets:[],count,remaining:count,known:false,completed:false,nextMatches:[]};
+        targets=schedule.slice(triggerIndex+1,triggerIndex+1+count);
+      }else if(record?.pendingNextMatch===true){
+        const after=timestampValue(record?.startAfterAt)||timestampValue(record?.createdAt)||timestampValue(record?.updatedAt);
+        const future=schedule.filter(match=>{const stamp=matchDateTime(match);return !after||!Number.isFinite(stamp)||stamp>=after;});
+        targets=future.slice(0,count);
+      }else targets=schedule.slice(0,count);
+    }
+    const completed=targets.length>=remaining&&targets.slice(0,remaining).every(matchIsCompleted);
+    return {targets,count,remaining,known:true,completed,nextMatches:targets.filter(match=>!matchIsCompleted(match)),transferred,served:count-remaining};
+  }
+  function isManualPenaltyCompleted(record,dbRoot){
+    if(!record||typeof record!=='object')return false;
+    if(isMonthlyPenaltyExpired(record))return true;
+    const player=list(dbRoot?.players).find(item=>same(item.id,record.playerId));
+    const plan=manualPlan(record,player);
+    return plan.known===true&&plan.completed===true;
+  }
+
+  const baseState=window.suspensionCurrentState;
+  const baseSave=window.save;
+  let busy=false;
+  let cleanupTimer=null;
+  function baseStateRows(){
+    try{return typeof baseState==='function'?list(baseState.call(window)):[];}
+    catch(error){console.warn('تعذر قراءة حالة العقوبات الأساسية:',error);return [];}
+  }
+  function pruneCompletedManualPenalties(){
+    if(busy)return 0;
+    const database=root();
+    if(!database||!Array.isArray(database.suspensions)||!database.suspensions.length)return 0;
+    const original=database.suspensions;
+    const kept=original.filter(record=>!isManualPenaltyCompleted(record,database));
+    const removed=original.length-kept.length;
+    if(!removed)return 0;
+    busy=true;
+    database.suspensions=kept;
+    window.db=database;
+    let saved=false;
+    try{
+      if(typeof baseSave==='function')saved=baseSave.call(window)!==false;
+      else{
+        localStorage.setItem('manar_sports_v2',JSON.stringify(database));
+        saved=true;
+      }
+    }catch(error){
+      console.warn('تعذر حفظ إزالة العقوبات المكتملة:',error);
+      saved=false;
+    }finally{
+      if(!saved)database.suspensions=original;
+      busy=false;
+    }
+    return saved?removed:0;
+  }
+  function currentPenaltyState(){
+    const database=root();
+    if(!database)return baseStateRows();
+    const rows=baseStateRows();
+    const manualRecords=list(database.suspensions).filter(record=>record&&record.automatic!==true);
+    const manualById=new Map(manualRecords.map(record=>[str(record.id),record]));
+    const seenManual=new Set();
+    const result=[];
+    rows.forEach(item=>{
+      if(!item)return;
+      if(item.automatic){
+        // العقوبة التلقائية تختفي فور تنفيذ المباراة التي أوقفت اللاعب عنها.
+        if(item.active!==false)result.push(item);
+        return;
+      }
+      const id=str(item.id);
+      const record=manualById.get(id);
+      if(!record)return;
+      if(isManualPenaltyCompleted(record,database))return;
+      seenManual.add(id);
+      const player=list(database.players).find(person=>same(person.id,record.playerId))||item.p||null;
+      const plan=manualPlan(record,player);
+      result.push({...item,p:player||item.p,active:true,nextMatches:plan.nextMatches||item.nextMatches||[]});
+    });
+    manualRecords.forEach(record=>{
+      const id=str(record.id);
+      if(seenManual.has(id)||isManualPenaltyCompleted(record,database))return;
+      const player=list(database.players).find(person=>same(person.id,record.playerId))||null;
+      const plan=manualPlan(record,player);
+      result.push({...record,automatic:false,p:player,active:true,nextMatches:plan.nextMatches||[]});
+    });
+    return result;
+  }
+  window.suspensionCurrentState=currentPenaltyState;
+
+  function queueCleanup(delay){
+    if(busy)return;
+    if(cleanupTimer)clearTimeout(cleanupTimer);
+    cleanupTimer=setTimeout(()=>{
+      cleanupTimer=null;
+      const removed=pruneCompletedManualPenalties();
+      if(removed&&typeof window.renderSuspendedPlayers==='function'&&!busy){
+        try{window.renderSuspendedPlayers();}catch(error){console.warn('تعذر تحديث قائمة العقوبات بعد الإزالة:',error);}
+      }
+    },Math.max(0,Number(delay)||0));
+  }
+  if(typeof baseSave==='function'&&!baseSave.__manarPenaltyExpiryHook){
+    const wrappedSave=function(){
+      const result=baseSave.apply(this,arguments);
+      if(!busy)queueCleanup(0);
+      return result;
+    };
+    wrappedSave.__manarPenaltyExpiryHook=true;
+    window.save=wrappedSave;
+  }
+  const baseRender=window.renderSuspendedPlayers;
+  if(typeof baseRender==='function'&&!baseRender.__manarPenaltyExpiryHook){
+    const wrappedRender=function(){
+      if(!busy)pruneCompletedManualPenalties();
+      return baseRender.apply(this,arguments);
+    };
+    wrappedRender.__manarPenaltyExpiryHook=true;
+    window.renderSuspendedPlayers=wrappedRender;
+  }
+
+  // تحديث الإزالة بعد حفظ مباراة أو كشف، وبعد عودة المستخدم إلى المنصة.
+  document.addEventListener('click',event=>{
+    const target=event.target?.closest?.('#ksSave,#ksNew,#ksReportsList [data-ks-delete],#ksReportsList [data-ks-edit]');
+    if(target){queueCleanup(120);queueCleanup(700);}
+  },true);
+  ['manar_sports_v2','manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(key=>{
+    window.addEventListener('storage',event=>{if(!event.key||event.key===key)queueCleanup(80);});
+  });
+  window.addEventListener('focus',()=>queueCleanup(0));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueCleanup(0);});
+  window.__manarExpireCompletedPenalties=()=>pruneCompletedManualPenalties();
+  queueCleanup(100);
+})();
+</script>
+
+<style id="manar-manual-penalty-countdown-style">
+#manualSuspensionRecords .manual-penalty-countdown{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;padding:10px 12px;border:1px solid #a7d8c5;border-radius:11px;background:linear-gradient(120deg,#e8fff4,#e9f5ff);color:#075f45}
+#manualSuspensionRecords .manual-penalty-countdown small{font-size:11px;font-weight:800}
+#manualSuspensionRecords .manual-penalty-countdown b{font-size:13px;font-weight:950;font-variant-numeric:tabular-nums;text-align:left}
+@media(max-width:520px){#manualSuspensionRecords .manual-penalty-countdown{align-items:flex-start;flex-direction:column;gap:4px}}
 </style>
-
+<script id="manar-manual-penalty-live-countdown">
+(function(){
+  'use strict';
+  if(window.__manarManualPenaltyCountdownV1)return;
+  window.__manarManualPenaltyCountdownV1=true;
+  function update(){
+    const root=document.getElementById('manualSuspensionRecords');if(!root)return;
+    const now=Date.now();
+    root.querySelectorAll('[data-penalty-deadline]').forEach(node=>{
+      const raw=node.getAttribute('data-penalty-deadline')||'';
+      const parts=raw.split('-').map(Number);
+      if(parts.length!==3||parts.some(n=>!Number.isFinite(n))){return;}
+      // End of the final local calendar day, consistent with the stored penalty date.
+      const deadline=new Date(parts[0],parts[1]-1,parts[2],0,0,0,0).getTime();
+      const left=Math.max(0,deadline-now);
+      const seconds=Math.floor(left/1000);
+      const days=Math.floor(seconds/86400);
+      const hours=Math.floor((seconds%86400)/3600);
+      const minutes=Math.floor((seconds%3600)/60);
+      const secs=seconds%60;
+      const value=node.querySelector('.manual-penalty-countdown-value');
+      if(value)value.textContent=left<=0?'انتهت المدة':`${days} يوم · ${hours} ساعة · ${minutes} دقيقة · ${secs} ثانية`;
+      if(left<=0&&!node.dataset.expiryRequested){node.dataset.expiryRequested='1';try{window.__manarExpireCompletedPenalties?.();}catch(error){console.warn('تعذر إنهاء العقوبة الزمنية:',error);}}
+    });
+  }
+  update();
+  window.setInterval(update,1000);
+  window.addEventListener('focus',update);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)update();});
+})();
+</script>
 </body>
 </html>
