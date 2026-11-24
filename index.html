@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.24.4"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.24.6"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.24.4', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.24.6', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -11988,7 +11988,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.24.4';
+  const VERSION='2026.11.24.6';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -12615,7 +12615,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   if(!/^https?:$/.test(location.protocol)||window.__sportsAutoDeployUpdateStarted)return;
   window.__sportsAutoDeployUpdateStarted=true;
   var meta=document.querySelector('meta[name="manar-app-build"]');
-  var APP_BUILD=String(meta&&meta.content||'2026.11.24.4').trim();
+  var APP_BUILD=String(meta&&meta.content||'2026.11.24.6').trim();
   var pendingBuild='',checking=false,reloading=false,lastActivity=Date.now(),registration=null,applyTimer=null;
   function noteActivity(){lastActivity=Date.now();}
   ['pointerdown','touchstart','keydown','input','change'].forEach(function(type){document.addEventListener(type,noteActivity,true);});
@@ -18305,7 +18305,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.24.4');
+  const APP_BUILD=String(meta?.content||'2026.11.24.6');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -19877,7 +19877,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       const fill=p===null?0:Math.max(0,Math.min(100,p));
       return `<tr><td><span class="qf-rank-number">${index+1}</span></td><td class="qf-team-name">${escQ(team.name)}</td><td>${team.played}</td><td>${team.wins}</td><td>${team.draws}</td><td>${team.losses}</td><td>${team.gf}-${team.ga}</td><td><b>${team.pts}</b></td><td class="qf-prob-cell"><div class="qf-prob-head"><span>${percentage(p)}</span><span>${status}</span></div><div class="qf-prob-track"><div class="qf-prob-fill ${p!==null&&p<35?'qf-low':''}" style="width:${fill}%"></div></div></td><td>${avgPts===null?'—':avgPts.toFixed(1)}</td><td>${avgPos===null?'—':avgPos.toFixed(1)}</td></tr>`;
     }).join('');
-    return `<div class="qf-ranking-table-wrap"><table class="qf-ranking-table"><thead><tr><th>الترتيب</th><th>الفريق</th><th>لعب</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>الأهداف</th><th>النقاط</th><th>احتمالية التأهل</th><th>النقاط المتوقعة</th><th>المركز المتوقع</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    return `<div class="qf-ranking-table-wrap"><table class="qf-ranking-table qf-league-ranking-table"><thead><tr><th>ت</th><th>الفريق</th><th><span>لعب</span></th><th><span>فاز</span></th><th><span>تعادل</span></th><th><span>خسر</span></th><th><span>الأهداف</span></th><th><span>النقاط</span></th><th>احتمالية التأهل</th><th><span>النقاط المتوقعة</span></th><th><span>المركز المتوقع</span></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
   function fillTournamentSelect(){
     const sel=$('qfTournament');if(!sel)return;
@@ -19923,7 +19923,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       rows.push(`<div class="qf-knockout-match"><div class="qf-knockout-stage">${escQ(m.knockoutRound||m.roundName||m.stageName||'مباراة إقصائية')}</div><div class="qf-knockout-teams"><span>${escQ(h?.name||'—')}</span><b>VS</b><span>${escQ(a?.name||'—')}</span></div><div class="qf-knockout-probs"><span>${percentage(hp)} فرصة عبور</span><span>${percentage(ap)} فرصة عبور</span></div></div>`);
     });
     const ordered=[...result.probabilities.entries()].map(([id,v])=>({team:data.teamMap.get(id),...v})).filter(x=>x.team).sort((a,b)=>b.prob-a.prob);
-    const table=ordered.length?`<div class="qf-ranking-table-wrap"><table class="qf-ranking-table"><thead><tr><th>الترتيب</th><th>الفريق</th><th>المنافس</th><th>احتمالية التأهل للمرحلة التالية</th><th>الحالة</th></tr></thead><tbody>${ordered.map((x,i)=>{const [st,cl]=probabilityStatus(x.prob);return `<tr><td><span class="qf-rank-number">${i+1}</span></td><td class="qf-team-name">${escQ(x.team.name)}</td><td>${escQ(data.teamMap.get(String(x.opponent))?.name||'—')}</td><td class="qf-prob-cell"><div class="qf-prob-head"><span>${percentage(x.prob)}</span><span>${st}</span></div><div class="qf-prob-track"><div class="qf-prob-fill ${x.prob<35?'qf-low':''}" style="width:${Math.max(0,Math.min(100,x.prob))}%"></div></div></td><td><span class="qf-team-status ${cl}">${st}</span></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">لا توجد مباريات إقصائية مجدولة في المرحلة الحالية.</div>';
+    const table=ordered.length?`<div class="qf-ranking-table-wrap"><table class="qf-ranking-table qf-knockout-ranking-table"><thead><tr><th>ت</th><th>الفريق</th><th>المنافس</th><th>احتمالية التأهل للمرحلة التالية</th><th>الحالة</th></tr></thead><tbody>${ordered.map((x,i)=>{const [st,cl]=probabilityStatus(x.prob);return `<tr><td><span class="qf-rank-number">${i+1}</span></td><td class="qf-team-name">${escQ(x.team.name)}</td><td>${escQ(data.teamMap.get(String(x.opponent))?.name||'—')}</td><td class="qf-prob-cell"><div class="qf-prob-head"><span>${percentage(x.prob)}</span><span>${st}</span></div><div class="qf-prob-track"><div class="qf-prob-fill ${x.prob<35?'qf-low':''}" style="width:${Math.max(0,Math.min(100,x.prob))}%"></div></div></td><td><span class="qf-team-status ${cl}">${st}</span></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">لا توجد مباريات إقصائية مجدولة في المرحلة الحالية.</div>';
     $('qfRankingSubtitle').textContent='احتمالية عبور المباراة الإقصائية الحالية، وليست توقعًا للفوز بالبطولة كاملة.';
     $('qfRanking').innerHTML=table;
     $('qfSimulationBadge').textContent=runs.toLocaleString('en-US')+' محاكاة للمباراة';
@@ -20004,5 +20004,156 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   else setTimeout(bind,80);
 })();
 </script>
+
+<style id="qualification-table-match-stats-layout-20261124">
+/* جدول فرص التأهل: نفس مبدأ جداول الترتيب في الإحصائيات (عرض الحاوية وتثبيت الأعمدة). */
+#qualificationSection #qfRanking,
+#qualificationSection .qf-ranking-card,
+#qualificationSection .qf-group-block,
+#qualificationSection .qf-ranking-table-wrap{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;}
+#qualificationSection .qf-ranking-card{overflow:hidden!important;}
+#qualificationSection .qf-ranking-table-wrap{
+  display:block!important;overflow-x:hidden!important;overflow-y:visible!important;
+  padding:0!important;margin:0!important;border:1px solid #dce8e2!important;
+  border-radius:13px!important;background:#fff!important;
+}
+#qualificationSection table.qf-ranking-table{
+  display:table!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  table-layout:fixed!important;direction:rtl!important;border-collapse:separate!important;
+  border-spacing:0!important;margin:0!important;white-space:normal!important;
+  box-sizing:border-box!important;font-variant-numeric:tabular-nums!important;
+}
+#qualificationSection .qf-ranking-table th,
+#qualificationSection .qf-ranking-table td{
+  box-sizing:border-box!important;min-width:0!important;max-width:none!important;
+  padding:9px 3px!important;text-align:center!important;vertical-align:middle!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;
+  line-height:1.35!important;
+}
+#qualificationSection .qf-ranking-table thead th{
+  background:linear-gradient(135deg,#0f766e,#2563eb)!important;color:#fff!important;
+  border:0!important;border-bottom:2px solid #f5c451!important;font-size:11px!important;
+  font-weight:950!important;
+}
+#qualificationSection .qf-ranking-table tbody td{
+  background:#fff!important;border-bottom:1px solid #e8eef5!important;
+  font-size:11px!important;overflow:hidden!important;
+}
+#qualificationSection .qf-ranking-table tbody tr:nth-child(even) td{background:#f4f8fc!important;}
+#qualificationSection .qf-ranking-table tbody tr:hover td{background:#eaf5ff!important;}
+#qualificationSection .qf-ranking-table tbody tr:last-child td{border-bottom:0!important;}
+#qualificationSection .qf-league-ranking-table th:nth-child(1),
+#qualificationSection .qf-league-ranking-table td:nth-child(1){width:5%!important;}
+#qualificationSection .qf-league-ranking-table th:nth-child(2),
+#qualificationSection .qf-league-ranking-table td:nth-child(2){width:21%!important;text-align:right!important;}
+#qualificationSection .qf-league-ranking-table th:nth-child(3),#qualificationSection .qf-league-ranking-table td:nth-child(3),
+#qualificationSection .qf-league-ranking-table th:nth-child(4),#qualificationSection .qf-league-ranking-table td:nth-child(4),
+#qualificationSection .qf-league-ranking-table th:nth-child(5),#qualificationSection .qf-league-ranking-table td:nth-child(5),
+#qualificationSection .qf-league-ranking-table th:nth-child(6),#qualificationSection .qf-league-ranking-table td:nth-child(6),
+#qualificationSection .qf-league-ranking-table th:nth-child(8),#qualificationSection .qf-league-ranking-table td:nth-child(8){width:5.5%!important;}
+#qualificationSection .qf-league-ranking-table th:nth-child(7),#qualificationSection .qf-league-ranking-table td:nth-child(7){width:7.5%!important;}
+#qualificationSection .qf-league-ranking-table th:nth-child(9),#qualificationSection .qf-league-ranking-table td:nth-child(9){width:21%!important;}
+#qualificationSection .qf-league-ranking-table th:nth-child(10),#qualificationSection .qf-league-ranking-table td:nth-child(10){width:8.5%!important;}
+#qualificationSection .qf-league-ranking-table th:nth-child(11),#qualificationSection .qf-league-ranking-table td:nth-child(11){width:9.5%!important;}
+#qualificationSection .qf-league-ranking-table .qf-team-name{
+  min-width:0!important;width:21%!important;text-align:right!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;line-height:1.4!important;
+  padding-right:6px!important;padding-left:4px!important;font-size:11px!important;
+}
+#qualificationSection .qf-league-ranking-table tbody td:nth-child(3),
+#qualificationSection .qf-league-ranking-table tbody td:nth-child(4),
+#qualificationSection .qf-league-ranking-table tbody td:nth-child(5),
+#qualificationSection .qf-league-ranking-table tbody td:nth-child(6),
+#qualificationSection .qf-league-ranking-table tbody td:nth-child(7),
+#qualificationSection .qf-league-ranking-table tbody td:nth-child(8),
+#qualificationSection .qf-league-ranking-table tbody td:nth-child(10),
+#qualificationSection .qf-league-ranking-table tbody td:nth-child(11){white-space:nowrap!important;overflow-wrap:normal!important;font-size:10px!important;}
+#qualificationSection .qf-ranking-table .qf-rank-number{
+  width:24px!important;height:24px!important;min-width:0!important;border-radius:8px!important;
+  font-size:10px!important;line-height:1!important;
+}
+#qualificationSection .qf-ranking-table .qf-prob-cell{min-width:0!important;width:21%!important;padding-left:4px!important;padding-right:4px!important;}
+#qualificationSection .qf-ranking-table .qf-prob-head{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  align-items:center!important;gap:2px!important;min-width:0!important;text-align:center!important;
+  white-space:normal!important;font-size:10px!important;line-height:1.25!important;
+}
+#qualificationSection .qf-ranking-table .qf-prob-track{width:100%!important;height:7px!important;margin-top:5px!important;}
+#qualificationSection .qf-knockout-ranking-table th:nth-child(1),
+#qualificationSection .qf-knockout-ranking-table td:nth-child(1){width:7%!important;}
+#qualificationSection .qf-knockout-ranking-table th:nth-child(2),
+#qualificationSection .qf-knockout-ranking-table td:nth-child(2),
+#qualificationSection .qf-knockout-ranking-table th:nth-child(3),
+#qualificationSection .qf-knockout-ranking-table td:nth-child(3){width:23%!important;}
+#qualificationSection .qf-knockout-ranking-table th:nth-child(4),
+#qualificationSection .qf-knockout-ranking-table td:nth-child(4){width:34%!important;}
+#qualificationSection .qf-knockout-ranking-table th:nth-child(5),
+#qualificationSection .qf-knockout-ranking-table td:nth-child(5){width:13%!important;}
+#qualificationSection .qf-knockout-ranking-table .qf-team-name{
+  min-width:0!important;width:auto!important;text-align:center!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;font-size:11px!important;
+}
+#qualificationSection .qf-knockout-ranking-table .qf-prob-cell{width:34%!important;}
+#qualificationSection .qf-knockout-ranking-table .qf-team-status{white-space:normal!important;display:inline-block!important;max-width:100%!important;font-size:9px!important;padding:4px 5px!important;}
+@media(max-width:900px){
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(3),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(4),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(5),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(6),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(7),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(8),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(10),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(11){
+    height:88px!important;min-height:88px!important;padding:0 2px!important;
+    position:relative!important;vertical-align:middle!important;overflow:visible!important;
+  }
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(3)>span,
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(4)>span,
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(5)>span,
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(6)>span,
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(7)>span,
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(8)>span,
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(10)>span,
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(11)>span{
+    position:absolute!important;left:50%!important;top:50%!important;display:block!important;
+    width:max-content!important;max-width:none!important;margin:0!important;padding:0!important;
+    white-space:nowrap!important;writing-mode:vertical-rl!important;text-orientation:mixed!important;
+    direction:rtl!important;transform:translate(-50%,-50%) rotate(180deg)!important;
+    transform-origin:center center!important;line-height:1!important;font-size:10px!important;
+  }
+}
+@media(max-width:600px){
+  #qualificationSection .qf-ranking-table th{font-size:9px!important;padding:7px 1px!important;}
+  #qualificationSection .qf-ranking-table td{font-size:9px!important;padding:6px 1px!important;}
+  #qualificationSection .qf-league-ranking-table .qf-team-name{font-size:9px!important;padding-right:3px!important;padding-left:2px!important;}
+  #qualificationSection .qf-league-ranking-table tbody td:nth-child(3),
+  #qualificationSection .qf-league-ranking-table tbody td:nth-child(4),
+  #qualificationSection .qf-league-ranking-table tbody td:nth-child(5),
+  #qualificationSection .qf-league-ranking-table tbody td:nth-child(6),
+  #qualificationSection .qf-league-ranking-table tbody td:nth-child(7),
+  #qualificationSection .qf-league-ranking-table tbody td:nth-child(8),
+  #qualificationSection .qf-league-ranking-table tbody td:nth-child(10),
+  #qualificationSection .qf-league-ranking-table tbody td:nth-child(11){font-size:8.5px!important;padding-left:1px!important;padding-right:1px!important;}
+  #qualificationSection .qf-ranking-table .qf-rank-number{width:21px!important;height:21px!important;font-size:9px!important;}
+  #qualificationSection .qf-ranking-table .qf-prob-head{font-size:8.5px!important;gap:1px!important;}
+  #qualificationSection .qf-ranking-table .qf-prob-track{height:5px!important;margin-top:4px!important;}
+  #qualificationSection .qf-knockout-ranking-table .qf-team-name{font-size:9px!important;}
+  #qualificationSection .qf-knockout-ranking-table .qf-team-status{font-size:8px!important;padding:3px 2px!important;}
+}
+@media(max-width:380px){
+  #qualificationSection .qf-ranking-table th{font-size:8px!important;}
+  #qualificationSection .qf-ranking-table td{font-size:8px!important;}
+  #qualificationSection .qf-league-ranking-table .qf-team-name{font-size:8px!important;}
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(3),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(4),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(5),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(6),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(7),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(8),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(10),
+  #qualificationSection .qf-league-ranking-table thead th:nth-child(11){height:80px!important;min-height:80px!important;}
+}
+</style>
+
 </body>
 </html>
