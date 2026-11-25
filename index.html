@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.25.3"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.25.2"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.25.3', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.25.2', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -12025,7 +12025,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.25.3';
+  const VERSION='2026.11.25.2';
   let deferredPrompt=null, swRegistration=null, updateInProgress=false, updateResetTimer=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -12678,7 +12678,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   if(!/^https?:$/.test(location.protocol)||window.__sportsAutoDeployUpdateStarted)return;
   window.__sportsAutoDeployUpdateStarted=true;
   var meta=document.querySelector('meta[name="manar-app-build"]');
-  var APP_BUILD=String(meta&&meta.content||'2026.11.25.3').trim();
+  var APP_BUILD=String(meta&&meta.content||'2026.11.25.2').trim();
   var pendingBuild='',checking=false,reloading=false,lastActivity=Date.now(),registration=null,applyTimer=null,reloadWatchdog=null;
 
   // نظّف علامة رابط التحديث بعد تحميل الإصدار المطلوب بنجاح.
@@ -12695,12 +12695,17 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
 
   function noteActivity(){lastActivity=Date.now();}
   ['pointerdown','touchstart','keydown','input','change'].forEach(function(type){document.addEventListener(type,noteActivity,true);});
+  function visible(el){
+    if(!el)return false;
+    try{var cs=getComputedStyle(el);return cs.display!=='none'&&cs.visibility!=='hidden'&&el.getAttribute('aria-hidden')!=='true';}
+    catch(e){return false;}
+  }
   function safeToReload(){
     if(document.visibilityState==='hidden')return false;
     var active=document.activeElement;
     if(active&&(/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)||active.isContentEditable))return false;
-    // لا نعيد التحميل أثناء الكتابة داخل حقل؛ بعد ترك الحقل ومرور 3 ثوانٍ
-    // ينفذ التحديث تلقائيًا حتى لو بقيت نافذة التحرير مفتوحة دون استخدام.
+    // لا نقطع تحرير كشف مباراة أو نموذج تسجيل مباراة أثناء العمل عليهما.
+    if(visible(document.getElementById('ksEditor'))||visible(document.getElementById('matchEntryForm')))return false;
     return true;
   }
   function requestWorkerActivation(){
@@ -12750,22 +12755,22 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     u.hash='';
     ['platformUpdate','v','__sports_app_version','__sports_update_check','__manar_update_probe'].forEach(function(k){u.searchParams.delete(k);});
     u.searchParams.set('__manar_update_probe',String(Date.now()));
-    var response=await fetch(u.href,{method:'GET',cache:'no-store',credentials:'same-origin',headers:{'Cache-Control':'no-cache','Pragma':'no-cache','Range':'bytes=0-4095'}});
+    var response=await fetch(u.href,{method:'GET',cache:'no-store',credentials:'same-origin',headers:{'Cache-Control':'no-cache','Pragma':'no-cache','Range':'bytes=0-32767'}});
     if(!response.ok)throw new Error('HTTP '+response.status);
     var prefix='';
     if(response.body&&typeof response.body.getReader==='function'){
       var reader=response.body.getReader(),decoder=new TextDecoder(),total=0;
       try{
-        while(total<4096){
+        while(total<32768){
           var part=await reader.read();if(part.done)break;
-          var bytes=part.value,take=bytes.subarray(0,Math.max(0,4096-total));
+          var bytes=part.value,take=bytes.subarray(0,Math.max(0,32768-total));
           prefix+=decoder.decode(take,{stream:true});total+=take.length;
-          if(total>=4096){try{await reader.cancel();}catch(_){}break;}
+          if(total>=32768){try{await reader.cancel();}catch(_){}break;}
         }
         prefix+=decoder.decode();
       }catch(error){try{await reader.cancel();}catch(_){}throw error;}
     }else{
-      prefix=(await response.text()).slice(0,4096);
+      prefix=(await response.text()).slice(0,32768);
     }
     var match=prefix.match(/<meta\s+name=["']manar-app-build["']\s+content=["']([^"']+)["']/i);
     if(!match)throw new Error('تعذر قراءة رقم إصدار المنصة المنشور');
@@ -12791,7 +12796,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       worker.__manarAutoUpdateWatched=true;
       worker.addEventListener('statechange',function(){
         if(worker.state==='installed'&&navigator.serviceWorker.controller){
-          if(typeof window.__manarAutoUpdateAnnounce==='function')window.__manarAutoUpdateAnnounce(APP_BUILD,'service-worker');
+          if(typeof window.__manarAutoUpdateAnnounce==='function')window.__manarAutoUpdateAnnounce(APP_BUILD);
           else scheduleUpdate(APP_BUILD,'service-worker');
         }
       });
@@ -12799,7 +12804,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     reg.addEventListener('updatefound',function(){watchWorker(reg.installing);});
     if(reg.installing)watchWorker(reg.installing);
     if(reg.waiting&&navigator.serviceWorker.controller){
-      if(typeof window.__manarAutoUpdateAnnounce==='function')window.__manarAutoUpdateAnnounce(APP_BUILD,'service-worker');
+      if(typeof window.__manarAutoUpdateAnnounce==='function')window.__manarAutoUpdateAnnounce(APP_BUILD);
       else scheduleUpdate(APP_BUILD,'service-worker');
     }
   }
@@ -12813,12 +12818,12 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     navigator.serviceWorker.ready.then(function(reg){watchRegistration(reg);}).catch(function(){});
   }
   checkPublishedVersion();
-  setInterval(checkPublishedVersion,5000);
+  setInterval(checkPublishedVersion,60000);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){checkPublishedVersion();reloadWithBuild();}});
   window.addEventListener('online',checkPublishedVersion);
   window.addEventListener('focus',reloadWithBuild);
   document.addEventListener('focusout',function(){if(pendingBuild)setTimeout(reloadWithBuild,1200);},true);
-  setInterval(function(){if(registration&&navigator.onLine)registration.update().catch(function(){});},30*1000);
+  setInterval(function(){if(registration&&navigator.onLine)registration.update().catch(function(){});},5*60*1000);
 })();
 </script>
 
@@ -18398,7 +18403,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.25.3');
+  const APP_BUILD=String(meta?.content||'2026.11.25.2');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='', applyInProgress=false, applyWatchdog=null;
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -18475,7 +18480,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     }).catch(()=>{});
   }
 
-  window.__manarAutoUpdateAnnounce=function(build,source){announceUpdate(build,source||'page');};
+  window.__manarAutoUpdateAnnounce=function(build){announceUpdate(build,'page');};
 
   /* قراءة بادئة HTML فقط حتى لا ننزّل كامل ملف المنصة الكبير عند كل فحص. */
   async function fetchPublishedBuild(){
@@ -18483,22 +18488,22 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     url.hash='';
     ['platformUpdate','v','__manar_update_probe'].forEach(k=>url.searchParams.delete(k));
     url.searchParams.set('__manar_update_probe',String(Date.now()));
-    const response=await fetch(url.href,{method:'GET',cache:'no-store',credentials:'same-origin',headers:{'Cache-Control':'no-cache','Pragma':'no-cache','Range':'bytes=0-4095'}});
+    const response=await fetch(url.href,{method:'GET',cache:'no-store',credentials:'same-origin',headers:{'Cache-Control':'no-cache','Pragma':'no-cache','Range':'bytes=0-16383'}});
     if(!response.ok)throw new Error('HTTP '+response.status);
     let prefix='';
     if(response.body&&typeof response.body.getReader==='function'){
       const reader=response.body.getReader(),decoder=new TextDecoder();let total=0;
       try{
-        while(total<4096){
+        while(total<16384){
           const part=await reader.read();if(part.done)break;
-          const bytes=part.value;const take=bytes.subarray(0,Math.max(0,4096-total));
+          const bytes=part.value;const take=bytes.subarray(0,Math.max(0,16384-total));
           prefix+=decoder.decode(take,{stream:true});total+=take.length;
-          if(total>=4096){try{await reader.cancel();}catch(_){}break;}
+          if(total>=16384){try{await reader.cancel();}catch(_){}break;}
         }
         prefix+=decoder.decode();
       }catch(error){try{await reader.cancel();}catch(_){}throw error;}
     }else{
-      prefix=(await response.text()).slice(0,4096);
+      prefix=(await response.text()).slice(0,16384);
     }
     const match=prefix.match(/<meta\s+name=["']manar-app-build["']\s+content=["']([^"']+)["']/i);
     if(!match)throw new Error('تعذر العثور على رقم إصدار الصفحة المنشورة');
@@ -18600,7 +18605,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     navigator.serviceWorker.ready.then(watchRegistration).catch(()=>{});
   }
   setTimeout(checkForUpdate,2500);
-  setInterval(checkForUpdate,30000);
+  setInterval(checkForUpdate,5*60*1000);
 })();
 </script>
 
