@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.24.8"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.25.2"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.24.8', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.25.2', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -8790,14 +8790,26 @@ const firebaseInitReady=new Promise(resolve=>{resolveFirebaseInit=resolve});
 let resolveAuthStateReady;
 const authStateReady=new Promise(resolve=>{resolveAuthStateReady=resolve});
 const initialValues={},dirty=new Set(),initialSeen=new Set();
+
 /* توحيد مفاتيح التعديلات المعلقة مع حارس التعارض حتى لا تمسح قراءة سحابية تعديلًا محليًا غير مرفوع. */
 function externalDirtySet(){
   if(!(window.__manarFirebaseDirtyKeys instanceof Set)) window.__manarFirebaseDirtyKeys=new Set();
   return window.__manarFirebaseDirtyKeys;
 }
-function markDirty(key){dirty.add(String(key));externalDirtySet().add(String(key));}
-function clearDirty(key){dirty.delete(String(key));externalDirtySet().delete(String(key));}
-function clearAllDirty(){dirty.clear();externalDirtySet().clear();}
+const PENDING_SYNC_STORAGE_KEY='manar_firebase_pending_sync_v1';
+function persistDirtyQueue(){
+  try{localStorage.setItem(PENDING_SYNC_STORAGE_KEY,JSON.stringify([...dirty]));}catch(e){console.warn('تعذر حفظ قائمة المزامنة المعلقة محليًا:',e)}
+}
+function restoreDirtyQueue(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(PENDING_SYNC_STORAGE_KEY)||'[]');
+    if(Array.isArray(saved))saved.forEach(k=>{if(SYNC_KEYS.includes(String(k))){dirty.add(String(k));externalDirtySet().add(String(k));}});
+  }catch(e){console.warn('تعذر استعادة قائمة المزامنة المعلقة:',e)}
+}
+function markDirty(key){dirty.add(String(key));externalDirtySet().add(String(key));persistDirtyQueue();}
+function clearDirty(key){dirty.delete(String(key));externalDirtySet().delete(String(key));persistDirtyQueue();}
+function clearAllDirty(){dirty.clear();externalDirtySet().clear();persistDirtyQueue();}
+restoreDirtyQueue();
 let renderTimer=null;
 let manualEmailLoginActive=false;
 function scheduleRender(){clearTimeout(renderTimer);renderTimer=setTimeout(()=>{renderTimer=null;render()},60)}
@@ -9174,13 +9186,17 @@ $('fsCloudRestore')?.addEventListener('click',async()=>{
 function patchStorage(){
   if(window.__manarFirebasePatched)return;
   window.__manarFirebasePatched=true;
-  const original=Storage.prototype.setItem;
-  let pushTimer=null,pushInFlight=false;
-  const queueCloudPush=()=>{
-    if(!canWrite()||window.__manarFirebaseResetLock)return;
+  const originalSet=Storage.prototype.setItem;
+  const originalRemove=Storage.prototype.removeItem;
+  let pushTimer=null,pushInFlight=false,retryDelay=5000;
+  const queueCloudPush=(delay=220)=>{
+    if(!canWrite()||window.__manarFirebaseResetLock||!dirty.size)return;
     clearTimeout(pushTimer);
     pushTimer=setTimeout(async()=>{
-      if(pushInFlight||!canWrite()||window.__manarFirebaseResetLock)return;
+      if(pushInFlight||!canWrite()||window.__manarFirebaseResetLock){
+        if(dirty.size&&canWrite()&&!window.__manarFirebaseResetLock)queueCloudPush(1200);
+        return;
+      }
       const pending=[...dirty];
       if(!pending.length)return;
       pushInFlight=true;
@@ -9189,19 +9205,24 @@ function patchStorage(){
       try{
         await pushKeys(pending);
         uploadSucceeded=true;
-        status('تم تحديث السحابة ومزامنة البيانات',true);
+        retryDelay=5000;
+        status('تم تحديث السحابة ومزامنة البيانات تلقائيًا',true);
       }catch(e){
-        status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false);
+        status('حُفظ محليًا — ستُعاد محاولة المزامنة تلقائيًا: '+(e?.message||e),false);
+        retryDelay=Math.min(60000,Math.max(5000,retryDelay*2));
       }finally{
         applyingRemote=false;
         pushInFlight=false;
-        /* أي تغيير حدث أثناء الرفع يبقى معلّمًا Dirty؛ أرسله تلقائيًا دون انتظار تعديل جديد. */
-        if(uploadSucceeded&&dirty.size&&!window.__manarFirebaseResetLock)queueCloudPush();
+        /* لا نفقد أي تعديل: أعد المحاولة حتى ينجح الرفع أو يعود الاتصال. */
+        if(dirty.size&&!window.__manarFirebaseResetLock){
+          const changedDuringUpload=uploadSucceeded;
+          queueCloudPush(changedDuringUpload?250:retryDelay);
+        }
       }
-    },10);
+    },Math.max(0,delay));
   };
   Storage.prototype.setItem=function(key,value){
-    const k=String(key),result=original.call(this,key,value);
+    const k=String(key),result=originalSet.call(this,key,value);
     if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote&&!window.__manarFirebaseResetLock&&!(window.__manarExplicitKashofatSave&&['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].includes(k))){
       markDirty(k);
       try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}
@@ -9209,6 +9230,21 @@ function patchStorage(){
     }
     return result;
   };
+  /* مزامنة الحذف أيضًا: removeItem يرفع null إلى Firebase بدل ترك نسخة قديمة على الأجهزة الأخرى. */
+  Storage.prototype.removeItem=function(key){
+    const k=String(key),result=originalRemove.call(this,key);
+    if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote&&!window.__manarFirebaseResetLock){
+      markDirty(k);
+      try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}
+      queueCloudPush();
+    }
+    return result;
+  };
+  window.addEventListener('online',()=>{if(dirty.size)queueCloudPush(300)});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&dirty.size&&navigator.onLine)queueCloudPush(300)});
+  /* فحص خفيف دوري لطابور التعديلات المعلقة، دون قراءة قاعدة البيانات كاملة. */
+  setInterval(()=>{if(dirty.size&&navigator.onLine&&canWrite()&&!pushInFlight)queueCloudPush(500)},15000);
+  window.__manarFirebaseQueuePending=()=>queueCloudPush(250);
 }
 window.__manarFirebaseSaveKey=async function(key){
   if(window.__manarFirebaseResetLock)return false;
@@ -9228,7 +9264,7 @@ window.__manarFirebaseSaveKey=async function(key){
     }
     status('تم حفظ التعديل والتحقق منه في السحابة',true);return true;
   }
-  catch(e){status('تعذر تأكيد حفظ التعديل في السحابة: '+(e?.message||e),false);return false}
+  catch(e){status('تعذر تأكيد حفظ التعديل في السحابة؛ ستُعاد المحاولة تلقائيًا: '+(e?.message||e),false);try{window.__manarFirebaseQueuePending?.()}catch(_){}return false}
   finally{applyingRemote=false}
 };
 function hasLocalData(){try{const m=localValue('manar_sports_v2');return !!(m&&typeof m==='object'&&((m.tournaments||[]).length||(m.teams||[]).length||(m.players||[]).length||(m.matches||[]).length||(m.archives||[]).length||(m.officialPlayers||[]).length||(m.suspensions||[]).length||!!m.platformLogo))}catch(e){return false}}
@@ -9387,6 +9423,7 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
       await initialSync();
       window.__manarAccountSyncReady=true;
       if(!window.__manarLocalAccountUpgradePending)window.__manarAccountSyncError='';
+      if(dirty.size&&canWrite())window.__manarFirebaseQueuePending?.();
     }else if(initialDone&&!applyingRemote&&!window.__manarFirebaseResetLock){
       /* إذا بقي تعديل محلي معلّق لهذا المفتاح، لا تستبدله بتحديث وارد من السحابة. */
       if(dirty.has(k)){
@@ -11988,8 +12025,8 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.24.8';
-  let deferredPrompt=null, swRegistration=null;
+  const VERSION='2026.11.25.2';
+  let deferredPrompt=null, swRegistration=null, updateInProgress=false, updateResetTimer=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
     window.navigator.standalone===true ||
@@ -12005,14 +12042,22 @@ window.__getPredictionForMatch=function(m){
     const e=$('installHelpText');
     if(e) e.innerHTML=t;
   }
+  function resetUpdateButton(){
+    const u=$('sectionUpdateBtn');
+    updateInProgress=false;
+    if(updateResetTimer){clearTimeout(updateResetTimer);updateResetTimer=null;}
+    if(u){u.disabled=false;u.textContent='🔄 تحديث المنصة';}
+  }
   function sync(){
     const b=$('sectionInstallBtn'), u=$('sectionUpdateBtn'), badge=$('appVersionBadge');
     if(badge) badge.textContent='الإصدار '+VERSION;
     if(standalone()){
       if(b){b.hidden=true;b.style.display='none';}
-      if(u){u.hidden=false;u.style.display='';}
-      status('✅ المنصة الرياضية مثبتة على الهاتف.','ok');
-      help('تم تثبيت <b>المنصة الرياضية</b>. ستظهر على الشاشة الرئيسية بأيقونتها الرياضية.');
+      if(u){u.hidden=false;u.style.display='';if(!updateInProgress){u.disabled=false;u.textContent='🔄 تحديث المنصة';}}
+      if(!updateInProgress){
+        status('✅ المنصة الرياضية مثبتة ومحدّثة تلقائيًا.','ok');
+        help('تم تثبيت <b>المنصة الرياضية</b>. عند توفر إصدار جديد سيتم تنزيله وتطبيقه تلقائيًا.');
+      }
       return;
     }
     if(u){u.hidden=true;u.style.display='none';}
@@ -12051,20 +12096,32 @@ window.__getPredictionForMatch=function(m){
   }
   async function updateApp(){
     const u=$('sectionUpdateBtn');
-    if(u){u.disabled=true;u.textContent='⏳ يتم تجهيز التحديث...';}
-    // حد أقصى قصير لفحص العامل؛ لا نسمح لبطيء الشبكة بتعليق زر التحديث.
+    if(updateInProgress)return;
+    updateInProgress=true;
+    if(u){u.disabled=true;u.textContent='⏳ يتم تطبيق التحديث تلقائيًا...';}
+    status('⏳ يجري التحقق من آخر إصدار وتطبيقه تلقائيًا...','ok');
+    help('سيتم تحديث المنصة وإعادة فتحها تلقائيًا. لا حاجة إلى حذف التطبيق أو إعادة تثبيته.');
+
+    // لا نترك الزر أو عبارة التجهيز معلّقين إذا تعذر الانتقال بسبب انقطاع الاتصال.
+    updateResetTimer=setTimeout(()=>{
+      resetUpdateButton();
+      status('⚠️ تعذر إكمال التحديث الآن؛ سيُعاد الفحص تلقائيًا عند عودة الاتصال.','warn');
+      help('اترك المنصة مفتوحة مع اتصال الإنترنت، وسيُعاد فحص التحديث تلقائيًا.');
+    },15000);
+
     try{
-      if(swRegistration&&typeof swRegistration.update==='function'){
-        await Promise.race([
-          swRegistration.update(),
-          new Promise(resolve=>setTimeout(resolve,1800))
-        ]);
+      if('serviceWorker' in navigator){
+        swRegistration=swRegistration||await navigator.serviceWorker.getRegistration('./');
+        if(swRegistration&&typeof swRegistration.update==='function'){
+          await Promise.race([swRegistration.update(),new Promise(resolve=>setTimeout(resolve,1800))]);
+        }
       }
-    }catch(e){}
+    }catch(e){console.debug('Manar PWA update check:',e?.message||e);}
+
     const url=new URL(location.href);
     url.searchParams.set('platformUpdate',VERSION);
-    url.searchParams.set('v',Date.now());
-    location.replace(url.href);
+    url.searchParams.set('v',String(Date.now()));
+    try{location.replace(url.href);}catch(e){resetUpdateButton();status('⚠️ تعذر إعادة فتح المنصة. حاول مجددًا عند توفر الاتصال.','warn');}
   }
   function bind(){
     const b=$('sectionInstallBtn'), u=$('sectionUpdateBtn');
@@ -12084,13 +12141,13 @@ window.__getPredictionForMatch=function(m){
     window.__sportsInstallPrompt=null;
     sync();
   });
-
+  window.addEventListener('pagehide',()=>{if(updateResetTimer)clearTimeout(updateResetTimer);});
   window.addEventListener('load',async()=>{
     if('serviceWorker' in navigator){
       try{
         swRegistration=await navigator.serviceWorker.register('./sw.js?build='+encodeURIComponent(VERSION),{scope:'./',updateViaCache:'none'});
         await navigator.serviceWorker.ready;
-      }catch(e){}
+      }catch(e){console.debug('Manar service worker registration:',e?.message||e);}
     }
     bind();
     setTimeout(sync,500);
@@ -12621,8 +12678,21 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   if(!/^https?:$/.test(location.protocol)||window.__sportsAutoDeployUpdateStarted)return;
   window.__sportsAutoDeployUpdateStarted=true;
   var meta=document.querySelector('meta[name="manar-app-build"]');
-  var APP_BUILD=String(meta&&meta.content||'2026.11.24.8').trim();
-  var pendingBuild='',checking=false,reloading=false,lastActivity=Date.now(),registration=null,applyTimer=null;
+  var APP_BUILD=String(meta&&meta.content||'2026.11.25.2').trim();
+  var pendingBuild='',checking=false,reloading=false,lastActivity=Date.now(),registration=null,applyTimer=null,reloadWatchdog=null;
+
+  // نظّف علامة رابط التحديث بعد تحميل الإصدار المطلوب بنجاح.
+  (function clearCompletedUpdateMarker(){
+    try{
+      var u=new URL(location.href),target=u.searchParams.get('platformUpdate');
+      if(target&&target===APP_BUILD){
+        ['platformUpdate','v','__manar_update_probe'].forEach(function(k){u.searchParams.delete(k);});
+        history.replaceState(history.state,'',u.pathname+u.search+u.hash);
+        document.documentElement.removeAttribute('data-manar-update-pending');
+      }
+    }catch(e){}
+  })();
+
   function noteActivity(){lastActivity=Date.now();}
   ['pointerdown','touchstart','keydown','input','change'].forEach(function(type){document.addEventListener(type,noteActivity,true);});
   function visible(el){
@@ -12634,12 +12704,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(document.visibilityState==='hidden')return false;
     var active=document.activeElement;
     if(active&&(/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)||active.isContentEditable))return false;
-    // نافذة إشعارات التحديث ليست نموذج إدخال؛ لا تجعل ظهورها يمنع التحديث إلى ما لا نهاية.
-    var dialogs=document.querySelectorAll('dialog[open],[role="dialog"]:not([hidden]),.modal.show,.modal[style*="display: block"],.popup[style*="display: block"]');
-    for(var i=0;i<dialogs.length;i++){
-      if(!dialogs[i].closest('#manarUpdateWidget'))return false;
-    }
-    // لا نقطع نموذج إنشاء كشف أو تسجيل مباراة وهو مفتوح.
+    // لا نقطع تحرير كشف مباراة أو نموذج تسجيل مباراة أثناء العمل عليهما.
     if(visible(document.getElementById('ksEditor'))||visible(document.getElementById('matchEntryForm')))return false;
     return true;
   }
@@ -12647,14 +12712,12 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     try{
       var waiting=registration&&registration.waiting;
       if(waiting){
-        // يدعم نسخ Service Worker التي تستخدم صيغة الرسالة النصية أو الكائنية.
         waiting.postMessage('SKIP_WAITING');
         waiting.postMessage({type:'SKIP_WAITING'});
       }
     }catch(e){console.debug('Manar worker activation message skipped:',e);}
   }
   function reloadWithBuild(){
-    // أعد تحميل الصفحة بعد فترة خمول قصيرة؛ نافذة إشعار التحديث مستثناة أعلاه.
     if(reloading||!pendingBuild||!safeToReload()||Date.now()-lastActivity<3000)return;
     reloading=true;
     requestWorkerActivation();
@@ -12662,8 +12725,18 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     var u=new URL(location.href);
     u.searchParams.set('platformUpdate',target);
     u.searchParams.set('v',String(Date.now()));
-    // نستخدم رابطًا جديدًا لكسر تخزين صفحة HTML دون حذف مخازن Cache الأخرى.
-    location.replace(u.href);
+    try{
+      location.replace(u.href);
+      // أعد المحاولة إن لم يبدأ الانتقال؛ لا تترك حالة التحميل عالقة.
+      if(reloadWatchdog)clearTimeout(reloadWatchdog);
+      reloadWatchdog=setTimeout(function(){
+        if(document.visibilityState==='visible'&&pendingBuild){
+          reloading=false;
+          lastActivity=0;
+          reloadWithBuild();
+        }
+      },15000);
+    }catch(e){reloading=false;console.warn('Manar update navigation failed:',e);}
   }
   function scheduleUpdate(build,source){
     build=String(build||APP_BUILD).trim();
@@ -12673,7 +12746,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     document.documentElement.setAttribute('data-manar-update-pending','true');
     requestWorkerActivation();
     if(!applyTimer)applyTimer=setInterval(reloadWithBuild,1000);
-    // لا ننتظر 11 ثانية؛ يبدأ التطبيق خلال ثوانٍ بعد توقف الإدخال الجاري.
     setTimeout(reloadWithBuild,3500);
   }
   window.__manarAutoApplyUpdate=scheduleUpdate;
@@ -12711,7 +12783,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       var published=await fetchPublishedBuild();
       if(published&&published!==APP_BUILD){
         if(typeof window.__manarAutoUpdateAnnounce==='function')window.__manarAutoUpdateAnnounce(published);
-        scheduleUpdate(published,'page');
+        else scheduleUpdate(published,'page');
       }
     }catch(error){console.debug('Manar update check skipped:',error&&error.message||error);}
     finally{checking=false;}
@@ -12725,7 +12797,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
       worker.addEventListener('statechange',function(){
         if(worker.state==='installed'&&navigator.serviceWorker.controller){
           if(typeof window.__manarAutoUpdateAnnounce==='function')window.__manarAutoUpdateAnnounce(APP_BUILD);
-          scheduleUpdate(APP_BUILD,'service-worker');
+          else scheduleUpdate(APP_BUILD,'service-worker');
         }
       });
     }
@@ -12733,11 +12805,11 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     if(reg.installing)watchWorker(reg.installing);
     if(reg.waiting&&navigator.serviceWorker.controller){
       if(typeof window.__manarAutoUpdateAnnounce==='function')window.__manarAutoUpdateAnnounce(APP_BUILD);
-      scheduleUpdate(APP_BUILD,'service-worker');
+      else scheduleUpdate(APP_BUILD,'service-worker');
     }
   }
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.addEventListener('controllerchange',function(){if(pendingBuild)reloadWithBuild();});
+    navigator.serviceWorker.addEventListener('controllerchange',function(){if(pendingBuild){reloading=false;reloadWithBuild();}});
     navigator.serviceWorker.getRegistration('./').then(function(reg){
       if(!reg)return;
       watchRegistration(reg);
@@ -12751,7 +12823,6 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   window.addEventListener('online',checkPublishedVersion);
   window.addEventListener('focus',reloadWithBuild);
   document.addEventListener('focusout',function(){if(pendingBuild)setTimeout(reloadWithBuild,1200);},true);
-  // تحديث فحص Service Worker دوريًا للتأكد من التقاط الملفات المنشورة حديثًا.
   setInterval(function(){if(registration&&navigator.onLine)registration.update().catch(function(){});},5*60*1000);
 })();
 </script>
@@ -18322,22 +18393,28 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.24.8');
+  const APP_BUILD=String(meta?.content||'2026.11.25.2');
   const $=id=>document.getElementById(id);
-  let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
+  let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='', applyInProgress=false, applyWatchdog=null;
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
   const updateBtn=$('manarUpdateNow'), permissionBtn=$('manarEnableNotifications'), hint=$('manarNotificationHint');
   if(!bell||!panel||!message)return;
 
+  const defaultMessage='لا توجد تحديثات جديدة حاليًا. سنفحص توفر الإصدارات الجديدة تلقائيًا.';
   function panelOpen(open){panel.hidden=!open;bell.setAttribute('aria-expanded',open?'true':'false');}
   function setMessage(text){message.textContent=text;}
+  function resetApplyState(){
+    applyInProgress=false;
+    if(applyWatchdog){clearTimeout(applyWatchdog);applyWatchdog=null;}
+    if(updateBtn){updateBtn.disabled=false;updateBtn.textContent='تحديث المنصة الآن';}
+  }
   function updatePermissionUI(){
     if(!permissionBtn)return;
     if(!window.isSecureContext){permissionBtn.hidden=true;hint.textContent='إشعارات الجهاز تحتاج إلى فتح المنصة عبر رابط HTTPS.';return;}
     if(!('Notification' in window)){permissionBtn.hidden=true;hint.textContent='هذا المتصفح لا يدعم إشعارات الجهاز؛ ستظهر التنبيهات داخل المنصة.';return;}
     if(Notification.permission==='granted'){
       permissionBtn.hidden=true;
-      hint.textContent='✅ إشعارات الجهاز مفعّلة. سيتم تطبيق تحديثات المنصة تلقائيًا.';
+      hint.textContent='✅ إشعارات الجهاز مفعّلة. وسيتم تطبيق تحديثات المنصة تلقائيًا.';
     }else if(Notification.permission==='denied'){
       permissionBtn.hidden=true;
       hint.textContent='تم منع الإشعارات من إعدادات المتصفح. اسمح بها من إعدادات الموقع لتفعيلها.';
@@ -18350,7 +18427,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     if(!('Notification' in window)||Notification.permission!=='granted')return;
     if(lastNativeNotice===build)return;
     lastNativeNotice=build;
-    const options={body:'يتوفر إصدار جديد ('+build+') وسيتم تطبيقه تلقائيًا عند جاهزية المنصة.',icon:'./icons/icon-192-v20261101.png?v=20261101',badge:'./icons/favicon-48-v20261101.png?v=20261101',tag:'manar-platform-update',renotify:false,requireInteraction:true};
+    const options={body:'يتوفر إصدار جديد ('+build+') وسيتم تطبيقه تلقائيًا.',icon:'./icons/icon-192-v20261101.png?v=20261101',badge:'./icons/favicon-48-v20261101.png?v=20261101',tag:'manar-platform-update',renotify:false};
     try{
       const reg=swRegistration||(('serviceWorker' in navigator)?await navigator.serviceWorker.ready:null);
       if(reg&&typeof reg.showNotification==='function')await reg.showNotification('تحديث جديد للمنصة الرياضية',options);
@@ -18364,8 +18441,8 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     updateAvailable=true;latestBuild=build;
     bell.classList.add('has-update');
     bell.setAttribute('aria-label','يوجد تحديث جديد للمنصة');
-    if(updateBtn)updateBtn.hidden=false;
-    setMessage(source==='service-worker'?'🆕 تم تجهيز ملفات تحديث جديدة، وسيتم تطبيقها تلقائيًا بعد انتهاء أي إدخال جارٍ.':'🆕 يتوفر تحديث جديد للمنصة الرياضية'+(build?' — الإصدار '+build:'')+'. سيتم تطبيقه تلقائيًا عند جاهزية المنصة.');
+    if(updateBtn){updateBtn.hidden=false;if(!applyInProgress){updateBtn.disabled=false;updateBtn.textContent='تحديث المنصة الآن';}}
+    setMessage('🆕 يتوفر تحديث جديد للمنصة الرياضية'+(build?' — الإصدار '+build:'')+'. سيتم تنزيله وتطبيقه تلقائيًا عند جاهزية المنصة.');
     const installStatus=$('installUpdateStatus');
     if(installStatus){installStatus.textContent='🆕 يتوفر تحديث جديد؛ سيتم تطبيقه تلقائيًا بعد انتهاء أي إدخال جارٍ.';installStatus.dataset.state='ok';}
     try{if(typeof window.__manarAutoApplyUpdate==='function')window.__manarAutoApplyUpdate(build,source);}catch(autoUpdateError){console.warn('Automatic Manar update scheduling skipped:',autoUpdateError);}
@@ -18381,14 +18458,25 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     if(source==='service-worker')hint.textContent='تم اكتشاف نسخة جديدة وسيتم تطبيقها تلقائيًا.';
   }
 
+  // عند فتح الإصدار الجديد تكون نافذة الإشعار مغلقة وتعود أزرار التحديث لوضعها الطبيعي.
+  panelOpen(false);
+  setMessage(defaultMessage);
+  if(updateBtn){updateBtn.hidden=true;updateBtn.disabled=false;updateBtn.textContent='تحديث المنصة الآن';}
+  bell.classList.remove('has-update');
+  bell.setAttribute('aria-label','فتح إشعارات المنصة');
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistration('./').then(reg=>{
+      if(reg&&typeof reg.getNotifications==='function')return reg.getNotifications({tag:'manar-platform-update'}).then(list=>list.forEach(n=>n.close()));
+    }).catch(()=>{});
+  }
+
   window.__manarAutoUpdateAnnounce=function(build){announceUpdate(build,'page');};
 
-  /* قراءة بادئة HTML فقط: لا ننزّل كامل ملف المنصة الكبير عند كل فحص. */
+  /* قراءة بادئة HTML فقط حتى لا ننزّل كامل ملف المنصة الكبير عند كل فحص. */
   async function fetchPublishedBuild(){
     const url=new URL(location.href);
     url.hash='';
-    url.searchParams.delete('platformUpdate');
-    url.searchParams.delete('v');
+    ['platformUpdate','v','__manar_update_probe'].forEach(k=>url.searchParams.delete(k));
     url.searchParams.set('__manar_update_probe',String(Date.now()));
     const response=await fetch(url.href,{method:'GET',cache:'no-store',credentials:'same-origin',headers:{'Cache-Control':'no-cache','Pragma':'no-cache','Range':'bytes=0-16383'}});
     if(!response.ok)throw new Error('HTTP '+response.status);
@@ -18417,13 +18505,22 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     try{
       const published=await fetchPublishedBuild();
       if(published&&published!==APP_BUILD)announceUpdate(published,'page');
+      else if(published===APP_BUILD&&!applyInProgress){
+        updateAvailable=false;latestBuild='';
+        bell.classList.remove('has-update');
+        bell.setAttribute('aria-label','فتح إشعارات المنصة');
+        if(updateBtn){updateBtn.hidden=true;updateBtn.disabled=false;updateBtn.textContent='تحديث المنصة الآن';}
+        if(!panel.hidden)setMessage(defaultMessage);
+      }
     }catch(error){console.debug('Manar update check skipped:',error?.message||error);}
     finally{checking=false;}
   }
   async function applyUpdate(){
+    if(applyInProgress)return;
+    applyInProgress=true;
     const btn=updateBtn;
-    if(btn){btn.disabled=true;btn.textContent='⏳ يتم تجهيز التحديث...';}
-    setMessage('⏳ يتم تجهيز ملفات التحديث الآن. ستُعاد فتح المنصة تلقائيًا خلال ثوانٍ.');
+    if(btn){btn.disabled=true;btn.textContent='⏳ يتم تطبيق التحديث...';}
+    setMessage('⏳ يجري تنزيل التحديث وتطبيقه تلقائيًا. ستختفي هذه الرسالة بعد اكتماله.');
     const build=latestBuild||APP_BUILD;
     let scheduled=false;
     try{
@@ -18432,21 +18529,30 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
         scheduled=true;
       }
     }catch(error){console.warn('Manar manual update scheduling failed:',error);}
-    // افحص العامل في الخلفية لكن لا تجعل بطء الشبكة يوقف الانتقال إلى النسخة الجديدة.
     try{
       if(swRegistration&&typeof swRegistration.update==='function'){
-        await Promise.race([
-          swRegistration.update(),
-          new Promise(resolve=>setTimeout(resolve,1800))
-        ]);
+        await Promise.race([swRegistration.update(),new Promise(resolve=>setTimeout(resolve,1800))]);
       }
     }catch(_){}
     if(!scheduled){
       const url=new URL(location.href);
       url.searchParams.set('platformUpdate',build);
       url.searchParams.set('v',String(Date.now()));
-      setTimeout(()=>location.replace(url.href),500);
+      setTimeout(()=>location.replace(url.href),250);
     }
+    // عند تعذر التنقل، أعد الزر والرسالة إلى حالة طبيعية واترك الفحص التلقائي يعمل.
+    if(applyWatchdog)clearTimeout(applyWatchdog);
+    applyWatchdog=setTimeout(()=>{
+      resetApplyState();
+      if(updateAvailable){
+        setMessage('التحديث ما زال قيد المتابعة وسيُطبّق تلقائيًا عند جاهزية المنصة.');
+        if(updateBtn){updateBtn.hidden=false;updateBtn.textContent='إعادة المحاولة';}
+      }else{
+        setMessage(defaultMessage);
+        if(updateBtn)updateBtn.hidden=true;
+      }
+      checkForUpdate();
+    },15000);
   }
   async function enableNotifications(){
     if(!('Notification' in window))return;
@@ -18454,7 +18560,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
       const result=await Notification.requestPermission();
       updatePermissionUI();
       if(result==='granted'){
-        setMessage(updateAvailable?'الإشعارات مفعّلة، وهناك تحديث جديد جاهز للتثبيت.':'✅ تم تفعيل إشعارات تحديثات المنصة بنجاح.');
+        setMessage(updateAvailable?'الإشعارات مفعّلة، وسيتم تطبيق التحديث الجديد تلقائيًا.':'✅ تم تفعيل إشعارات تحديثات المنصة بنجاح.');
         if(updateAvailable)nativeNotice(latestBuild);
       }else if(result==='denied')setMessage('لم يتم السماح بالإشعارات. يمكنك تغيير ذلك من إعدادات الموقع في المتصفح.');
       else setMessage('لم يتم اختيار السماح بالإشعارات. يمكنك تفعيلها لاحقًا من هذه النافذة.');
@@ -18482,6 +18588,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   document.addEventListener('click',event=>{if(!panel.hidden&&!event.target.closest('#manarUpdateWidget'))panelOpen(false);});
   window.addEventListener('online',checkForUpdate);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkForUpdate();});
+  window.addEventListener('pagehide',()=>{if(applyWatchdog)clearTimeout(applyWatchdog);});
   updatePermissionUI();
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistration('./').then(reg=>{if(reg)watchRegistration(reg);}).catch(()=>{});
