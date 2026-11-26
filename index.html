@@ -19826,8 +19826,11 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
     all.filter(x=>ids.has(S(x?.id))).forEach(record=>{
       const tm=teams.find(t=>S(t.id)===S(record.teamId)); if(!tm)return;
       const tid=S(tm.tournamentId); if(!tid||played.has(tid))return;
-      const stats=statsFor(record,tm.id,tid,sourceSheets);
-      if(stats.appearances>0)played.add(tid);
+      // التسجيل باسم اللاعب ضمن قائمة فريق في البطولة يُعد مشاركة،
+      // ولا يُشترط أن يكون قد ظهر اسمه في كشف مباراة محفوظ.
+      const hasPlayerName=!!norm(record?.name);
+      const tournamentExists=tournaments.some(t=>S(t?.id)===tid);
+      if(hasPlayerName&&tournamentExists)played.add(tid);
     });
     return played.size;
   }
@@ -19935,6 +19938,110 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 #players .ppc-team-brand-copy small{display:block!important;margin-top:2px!important;color:#e7edff!important;font-size:8px!important;font-weight:800!important}
 #players .ppc-number-wrap{flex:0 0 auto!important}
 @media(max-width:480px){#players .ppc-topline{gap:6px!important}#players .ppc-team-brand{gap:5px!important;padding:4px 5px!important;border-radius:11px!important}#players .ppc-team-logo-wrap{width:32px!important;height:32px!important;flex-basis:32px!important}#players .ppc-team-brand-copy b{font-size:10px!important}#players .ppc-team-brand-copy small{font-size:7px!important}#players .ppc-index{font-size:8px!important;padding:4px 6px!important}#players .ppc-number{min-width:36px!important;height:36px!important;font-size:16px!important}}
+</style>
+
+<style id="players-search-vivid-theme-20261126">
+/* ألوان زاهية لواجهة البحث عن اللاعبين فقط: أزرق سماوي، أزرق ملكي، مرجاني وذهبي. */
+#players #playersNamesPanel.show>.card{
+  border:1px solid #8bd5f5!important;
+  border-radius:20px!important;
+  background:linear-gradient(135deg,#e0f2fe 0%,#ffffff 46%,#fff1e8 100%)!important;
+  box-shadow:0 12px 28px rgba(37,99,235,.13)!important;
+}
+#players #playersNamesPanel .section-title{
+  border-bottom:1px solid #c4e8fb!important;
+  padding-bottom:12px!important;
+}
+#players #playersNamesPanel .section-title h3{
+  color:#075985!important;
+  font-weight:950!important;
+}
+#players #playersNamesPanel .section-title .badge{
+  color:#124b83!important;
+  border:1px solid #9bd9f7!important;
+  background:linear-gradient(110deg,#d9f4ff,#fff0df)!important;
+}
+#players #playersNamesPanel .players-form-grid{
+  gap:12px!important;
+  margin:12px 0!important;
+}
+#players #playersNamesPanel .players-form-grid>div{
+  min-width:0!important;
+  padding:12px!important;
+  border:1px solid #b8e3f8!important;
+  border-radius:15px!important;
+  background:linear-gradient(145deg,#ffffff 0%,#f0faff 70%,#fff7ed 100%)!important;
+  box-shadow:0 5px 14px rgba(14,116,171,.08)!important;
+}
+#players #playersNamesPanel label{
+  color:#075985!important;
+  font-weight:950!important;
+  margin-bottom:8px!important;
+}
+#players #playersNamesPanel select{
+  width:100%!important;
+  min-height:48px!important;
+  border:2px solid #7dd3fc!important;
+  border-radius:13px!important;
+  background:#ffffff!important;
+  color:#17324d!important;
+  font-weight:850!important;
+  box-shadow:0 3px 9px rgba(14,116,171,.08)!important;
+}
+#players #playersNamesPanel select:focus{
+  outline:none!important;
+  border-color:#f97316!important;
+  box-shadow:0 0 0 4px rgba(249,115,22,.16)!important;
+}
+#players #playersNamesPanel .players-public-wrap{
+  padding:9px!important;
+  border:1px solid #a5ddf7!important;
+  border-radius:15px!important;
+  background:linear-gradient(135deg,#e6f7ff 0%,#ffffff 52%,#fff2e7 100%)!important;
+}
+#players #playersNamesPanel .players-public-table{
+  border:1px solid #a8dff7!important;
+  border-spacing:0 5px!important;
+  border-radius:12px!important;
+  overflow:hidden!important;
+}
+#players #playersNamesPanel .players-public-table th{
+  background:linear-gradient(105deg,#0284c7 0%,#2563eb 58%,#f97316 100%)!important;
+  color:#ffffff!important;
+  border:0!important;
+}
+#players #playersNamesPanel .players-public-table td{
+  background:#ffffff!important;
+  color:#17324d!important;
+  border-bottom:1px solid #d5edf9!important;
+}
+#players #playersNamesPanel .players-public-table tbody tr:nth-child(even) td{
+  background:#edf8ff!important;
+}
+#players #playersNamesPanel .players-public-table tbody tr:hover td{
+  background:#fff1e6!important;
+}
+#players #playersNamesPanel .players-team-goals-summary{
+  border:1px solid #f7c98d!important;
+  border-radius:14px!important;
+  background:linear-gradient(110deg,#dbeafe 0%,#cffafe 48%,#ffedd5 100%)!important;
+  color:#16436b!important;
+  box-shadow:0 5px 13px rgba(37,99,235,.08)!important;
+}
+#players #playersNamesPanel .players-team-goals-summary strong{
+  color:#c2410c!important;
+}
+#players #playersNamesPanel .empty{
+  border:1px dashed #8fd2f2!important;
+  border-radius:13px!important;
+  background:linear-gradient(120deg,#e8f7ff,#ffffff,#fff2e8)!important;
+  color:#35627d!important;
+}
+@media(max-width:480px){
+  #players #playersNamesPanel.show>.card{padding:12px!important}
+  #players #playersNamesPanel .players-form-grid>div{padding:10px!important}
+  #players #playersNamesPanel .players-public-wrap{padding:6px!important}
+}
 </style>
 
 </body>
