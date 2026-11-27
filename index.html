@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.27.4"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.24.1"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <link href="./icons/favicon-48-v20261101.png?v=20261101" rel="icon" sizes="48x48" type="image/png"/>
 <link href="./icons/apple-touch-icon-v20261101.png?v=20261101" rel="apple-touch-icon"/>
 
-<meta content="firebase-sync-v8-single-queue-realtime-dirty-keys" name="manar-sync-version"/>
+<meta content="firebase-sync-v7-upload-failure-preserve-local" name="manar-sync-version"/>
 
 <!-- Comprehensive integrity repair: fixed nested style blocks and duplicate style IDs. -->
 
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.27.4', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.24.1', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -2708,8 +2708,6 @@ function renderEndedTournaments(){
   if(window.__tournamentDateAutoRefresh)return;
   window.__tournamentDateAutoRefresh=true;
   setInterval(function(){
-    // لا نعيد إنشاء قوائم البطولات في الخلفية؛ فتح القسم يستدعي renderAll ويحدّثه فوراً.
-    if(document.hidden || !document.getElementById('tournaments')?.classList.contains('active'))return;
     try{
       if(typeof renderTours==='function')renderTours();
     }catch(e){}
@@ -5959,11 +5957,6 @@ window.sendContactMessage=function(){
     }
 
     const players=(typeof db!=='undefined' && Array.isArray(db.players)) ? db.players : [];
-    const playerByNameNumber=new Map();
-    players.forEach(function(player){
-      const key=String(player.name||'').trim()+'\u0000'+String(player.number??'').trim();
-      if(!playerByNameNumber.has(key))playerByNameNumber.set(key,player);
-    });
 
     [...body.rows].forEach((row,index)=>{
       let td=row.querySelector('.players-admin-actions');
@@ -5980,7 +5973,10 @@ window.sendContactMessage=function(){
       const name=(nameCell?.textContent||'').trim();
       const number=(shirtCell?.textContent||'').trim();
 
-      const p=playerByNameNumber.get(name+'\u0000'+number) || players[index];
+      const p=players.find(x=>
+        String(x.name||'').trim()===name &&
+        String(x.number??'').trim()===number
+      ) || players[index];
 
       td.innerHTML='';
 
@@ -6035,16 +6031,8 @@ window.sendContactMessage=function(){
 
     const box=document.getElementById('publicSelectedTeamPlayers');
     if(box){
-      new MutationObserver(function(records){
-        // تجاهل التغييرات التي تنشئها أزرار الإدارة نفسها؛ وإلا ستراقب
-        // المراقبة حذف الأزرار وإضافتها ثم تستدعي addActions بلا توقف.
-        const hasExternalChange=records.some(function(record){
-          const target=record.target && record.target.nodeType===1
-            ? record.target
-            : record.target && record.target.parentElement;
-          return !(target && target.closest && target.closest('.players-admin-actions'));
-        });
-        if(hasExternalChange) setTimeout(addActions,0);
+      new MutationObserver(function(){
+        setTimeout(addActions,0);
       }).observe(box,{childList:true,subtree:true});
     }
   });
@@ -8220,10 +8208,7 @@ function playerPosition(player){return isGoalkeeperByNumber(player)?'حارس':'
     setTimeout(syncTeamTournamentList,4000);
   });
   // تحديث القائمة بسرعة بعد تحميل قاعدة البيانات، وليس كل 10 ثوانٍ فقط.
-  setInterval(function(){
-    if(document.hidden || !document.getElementById('teams')?.classList.contains('active'))return;
-    syncTeamTournamentList();
-  },30000);
+  setInterval(syncTeamTournamentList,30000);
 })();
 </script><script id="final-direct-icons-only">
 (function(){
@@ -8418,7 +8403,7 @@ function refs(){let r=[];try{r=JSON.parse(localStorage.getItem('manar_referees_v
 function fillRefs(saved){for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)continue;const old=S(saved?.['referee'+i]??saved?.referees?.[i-1]);el.innerHTML='<option value="">'+(i===4?'اختر الحكم الرابع (اختياري)':'اختر الحكم '+i)+'</option>'+refs().map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>').join('');if([...el.options].some(o=>o.value===old))el.value=old;} updateRefereeOptions()}
 function updateRefereeOptions(){const chosen=new Set();for(let i=1;i<=4;i++){const v=S($('ksRef'+i)?.value);if(v)chosen.add(v)}for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)continue;const own=S(el.value);[...el.options].forEach(o=>{if(!o.value)return;o.disabled=chosen.has(o.value)&&o.value!==own})}}
 function validateReferees(){const vals=[1,2,3,4].map(i=>S($('ksRef'+i)?.value)).filter(Boolean);return new Set(vals).size===vals.length}
-function fillTours(){const s=$('ksTournament');if(!s)return;const old=s.value,list=tours();if(!list.length&&old&&[...s.options].some(o=>o.value===old))return;const html='<option value="">اختر البطولة</option>'+list.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name||t.title||'بطولة')+'</option>').join('');if(s.innerHTML!==html)s.innerHTML=html;if(old&&[...s.options].some(o=>o.value===old)&&s.value!==old)s.value=old}
+function fillTours(){const s=$('ksTournament');if(!s)return;const old=s.value;s.innerHTML='<option value="">اختر البطولة</option>'+tours().map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name||t.title||'بطولة')+'</option>').join('');if([...s.options].some(o=>o.value===old))s.value=old}
 function fillMatches(){const s=$('ksMatch'),tid=S($('ksTournament')?.value);if(!s)return;s.innerHTML='<option value="">اختر مباراة منتهية</option>';s.disabled=!tid;if(!tid)return;const savedIds=new Set(rows().map(x=>S(x.matchId)));matches().forEach((m,i)=>{if(!finished(m)||tourId(m)!==tid||savedIds.has(mid(m,i)))return;const o=document.createElement('option');o.value=mid(m,i);o.textContent=tName(teamId(m,'home'))+' '+Number(m.hg??m.homeGoals??m.homeScore??0)+' - '+Number(m.ag??m.awayGoals??m.awayScore??0)+' '+tName(teamId(m,'away'))+' — '+S(m.date||'');s.appendChild(o)})}
 function renderPending(){const b=$('ksPending'),tid=S($('ksTournament')?.value);if(!b)return;if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض المباريات المنتهية التي تحتاج إلى كشف.</div>';return}const saved=new Set(rows().map(s=>S(s.matchId)));const list=matches().map((m,i)=>({m,i})).filter(x=>finished(x.m)&&tourId(x.m)===tid&&!saved.has(mid(x.m,x.i)));if(!list.length){b.innerHTML='<div class="ks-empty">✅ لا توجد مباريات منتهية بانتظار إنشاء كشف.</div>';return}b.innerHTML=list.map(x=>'<div class="ks-match-card"><div class="ks-match-title">'+esc(tName(teamId(x.m,'home')))+' <b>'+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' — '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+'</b> '+esc(tName(teamId(x.m,'away')))+'</div><div class="ks-meta"><span>📅 '+esc(x.m.date||'—')+'</span><span>⏰ '+esc(x.m.time||'—')+'</span><span>🏟️ '+esc(x.m.stadium||'—')+'</span></div>'+(canManage()?'<button class="btn blue" type="button" data-ks-open="'+esc(mid(x.m,x.i))+'">➕ إنشاء الكشف</button>':'')+'</div>').join('')}
 let active='',cards=[],editing=false;
@@ -8914,7 +8899,6 @@ function initManarVisitorCounter(){
       presenceArmed=false;
       return;
     }
-    if(canWrite()&&dirty.size)queueCloudPush(0);
     if(presenceArmed)return;
     presenceArmed=true;
     try{
@@ -8951,34 +8935,16 @@ const firebaseInitReady=new Promise(resolve=>{resolveFirebaseInit=resolve});
 let resolveAuthStateReady;
 const authStateReady=new Promise(resolve=>{resolveAuthStateReady=resolve});
 const initialValues={},dirty=new Set(),initialSeen=new Set();
-const PENDING_SYNC_KEY='manar_firebase_pending_keys_v1';
 /* توحيد مفاتيح التعديلات المعلقة مع حارس التعارض حتى لا تمسح قراءة سحابية تعديلًا محليًا غير مرفوع. */
 function externalDirtySet(){
   if(!(window.__manarFirebaseDirtyKeys instanceof Set)) window.__manarFirebaseDirtyKeys=new Set();
   return window.__manarFirebaseDirtyKeys;
 }
-function persistPendingKeys(){
-  try{
-    if(dirty.size)localStorage.setItem(PENDING_SYNC_KEY,JSON.stringify([...dirty]));
-    else localStorage.removeItem(PENDING_SYNC_KEY);
-  }catch(e){console.warn('Pending Firebase queue could not be persisted:',e)}
-}
-function markDirty(key){dirty.add(String(key));externalDirtySet().add(String(key));persistPendingKeys();}
-function clearDirty(key){dirty.delete(String(key));externalDirtySet().delete(String(key));persistPendingKeys();}
-function clearAllDirty(){dirty.clear();externalDirtySet().clear();persistPendingKeys();}
-function restorePendingKeys(){
-  try{
-    const saved=JSON.parse(localStorage.getItem(PENDING_SYNC_KEY)||'[]');
-    if(Array.isArray(saved))saved.filter(k=>SYNC_KEYS.includes(k)).forEach(k=>{dirty.add(k);externalDirtySet().add(k)});
-    persistPendingKeys();
-  }catch(e){console.warn('Pending Firebase queue restore failed:',e)}
-}
+function markDirty(key){dirty.add(String(key));externalDirtySet().add(String(key));}
+function clearDirty(key){dirty.delete(String(key));externalDirtySet().delete(String(key));}
+function clearAllDirty(){dirty.clear();externalDirtySet().clear();}
 let renderTimer=null;
 let manualEmailLoginActive=false;
-let cloudPushTimer=null,cloudPushInFlight=false,cloudPushAgain=false;
-const cloudSyncWaiters=[];
-let resolveInitialSyncReady;
-const initialSyncReady=new Promise(resolve=>{resolveInitialSyncReady=resolve});
 function scheduleRender(){clearTimeout(renderTimer);renderTimer=setTimeout(()=>{renderTimer=null;render()},60)}
 const $=id=>document.getElementById(id);
 function status(msg,ok=true){const e=$('firebaseSyncStatus');if(e)e.textContent='الحالة: '+msg;const b=$('firebaseSyncFab');if(b){b.classList.toggle('offline',!ok);b.classList.toggle('error',!ok);b.textContent=ok?'☁️ متصل':'☁️ غير متصل'}}
@@ -9035,6 +9001,7 @@ async function pushAll(){
       status('تم تنزيل تصفير Firebase الأحدث؛ لم تُرفع البيانات المحلية القديمة',true);
       return false;
     }
+    applyingRemote=true;
     status('جارٍ حفظ التعديلات الموجودة محليًا في السحابة...',true);
     const present=SYNC_KEYS.filter(k=>k!=='manar_poll_votes_v1'&&localStorage.getItem(k)!==null);
     await pushKeys(present);
@@ -9042,32 +9009,32 @@ async function pushAll(){
     status('اكتمل رفع '+present.length+' قسمًا إلى السحابة عبر طلب جماعي واحد؛ لم تُحذف المفاتيح المحلية الغائبة',true);
     return true;
   }catch(e){window.__manarFirebaseLastSyncError=e;status('فشل المزامنة: '+firebaseErrorMessage(e),false);return false}
-  finally{if(dirty.size&&canWrite())queueCloudPush(25)}
+  finally{applyingRemote=false}
 }
 /* يبدأ التحقق والمزامنة تلقائيًا بعد نجاح تسجيل الدخول المحلي للمدير أو أي حساب مخوّل. لا يرفع البيانات إلا بعد مصادقة Firebase ذات صلاحية كتابة. */
 window.__manarFirebaseSyncAfterPlatformLogin=async function(role){
   try{
+    /* انتظر اكتمال أول فحص لحالة Firebase بدل عرض حالة تهيئة معلّقة إذا سبق دخول المدير تهيئة السحابة. */
     if(!auth || !authStateReadyDone){
       status('جارٍ التحقق من حالة Firebase...',true);
+      /* لا نعلّق الواجهة إلى ما لا نهاية إذا تأخر رد Firebase Auth */
       await Promise.race([authStateReady,new Promise(resolve=>setTimeout(resolve,4000))]);
     }
     if(!canWrite()){
       status(window.__manarLocalAccountUpgradePending
-        ? 'تم تسجيل الدخول بكلمة المرور المخصصة المحفوظة على هذا الجهاز؛ سجّل الدخول إلى حساب Firebase لمزامنتها.'
-        : 'تم تسجيل الدخول للمنصة؛ سجّل الدخول إلى حساب Firebase لمزامنة البيانات مع الأجهزة الأخرى.',false);
+        ? 'تم تسجيل الدخول بكلمة المرور المخصصة المحفوظة على هذا الجهاز؛ سجّل الدخول إلى حساب Firebase من زر ☁️ المزامنة لمزامنتها وإبطال كلمة المرور الافتراضية على بقية الأجهزة.'
+        : 'تم تسجيل الدخول للمنصة؛ سجّل الدخول إلى حساب Firebase من زر ☁️ المزامنة لربط البيانات السحابية.',false);
       return false;
     }
-    await Promise.race([initialSyncReady,new Promise(resolve=>setTimeout(()=>resolve(false),15000))]);
-    const pending=[...dirty];
-    if(pending.length){
-      const synced=await waitForCloudKeys(pending);
-      if(!synced){status('لم تكتمل مزامنة التعديلات؛ احتُفظ بها محليًا وستُعاد المحاولة عند عودة الاتصال.',false);return false;}
-    }
-    status('المزامنة التلقائية نشطة — يتم رفع التغييرات فقط واستقبال تحديثات الأجهزة لحظيًا.',true);
+    status('تم التعرّف على حساب Firebase — جارٍ مزامنة بيانات المنصة...',true);
+    const pushed=await pushAll();
+    if(!pushed){status('لم تكتمل المزامنة بعد تسجيل الدخول؛ احتُفظ بالبيانات المحلية. افتح نافذة المزامنة لمعرفة السبب.',false);return false;}
+    const pulled=await pullAll();
+    if(!pulled){status('تمت محاولة الرفع لكن تعذّر تنزيل البيانات للتحقق؛ احتُفظ بالبيانات المحلية.',false);return false;}
+    status('اكتملت المزامنة التلقائية بعد تسجيل الدخول',true);
     return true;
   }catch(e){status('تعذر إكمال المزامنة التلقائية: '+firebaseErrorMessage(e),false);return false}
 };
-
 window.__manarFirebaseDeleteTournament=async function(tid){
   if(!canWrite()) throw new Error('سجّل الدخول إلى Firebase أولًا'); applyingRemote=true;
   try{
@@ -9083,8 +9050,8 @@ window.__manarFirebaseDeleteTournament=async function(tid){
     localStorage.setItem('manar_sports_v2',JSON.stringify(clean));
     for(const k of ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3']){let a=localValue(k);if(!Array.isArray(a))a=[];localStorage.setItem(k,JSON.stringify(a.filter(x=>String(x?.tournamentId||'')!==String(tid))))}
     let ar=localValue('manar_tournament_archive_v1');if(!Array.isArray(ar))ar=[];localStorage.setItem('manar_tournament_archive_v1',JSON.stringify(ar.filter(x=>String(x?.tournament?.id||x?.original?.id||'')!==String(tid))));
-    /* حذف البطولة وكل ما يرتبط بها في طلب جماعي واحد بدل خمس عمليات كتابة متتابعة. */
-    await pushKeys(['manar_sports_v2','manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_tournament_archive_v1']);
+    await set(ref(db,CLOUD_PATH+'/manar_sports_v2'),clean);
+    for(const k of ['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3','manar_tournament_archive_v1'])await set(ref(db,CLOUD_PATH+'/'+k),localValue(k));
   }finally{applyingRemote=false}
 };
 window.__manarFirebaseCanWrite=()=>canWrite();
@@ -9202,29 +9169,24 @@ function firebaseErrorMessage(e){const code=e?.code||'';const map={
 async function finishFirebaseEmailLogin(email){
   localStorage.setItem('manar_firebase_email',email);
   if($('fsAuthPassword'))$('fsAuthPassword').value='';
-  status('تم تسجيل الدخول إلى Firebase — جارٍ استكمال المزامنة...',true);
-  const ready=await Promise.race([initialSyncReady,new Promise(resolve=>setTimeout(()=>resolve(false),15000))]);
-  if(!ready){
-    status('تم تسجيل الدخول؛ ما زال تحميل الحالة الأولية جارياً. ستستمر المزامنة تلقائيًا عند اكتمال الاتصال.',false);
+  status('تم تسجيل الدخول إلى Firebase — جارٍ مزامنة البيانات...',true);
+  const pushed=await pushAll();
+  if(!pushed){
+    /* لا نصف المشكلة بأنها فشل تسجيل دخول: المصادقة نجحت، والفشل في عملية المزامنة نفسها. */
+    const detail=window.__manarFirebaseLastSyncError||'لم تُقبل عملية الرفع؛ تحقق من صلاحيات القراءة والكتابة في Realtime Database.';
+    status('تم تسجيل الدخول بنجاح، لكن فشلت مزامنة البيانات: '+firebaseErrorMessage(detail),false);
+    alert('تم تسجيل الدخول إلى Firebase بنجاح، لكن مزامنة البيانات فشلت.\n\nالتفاصيل: '+firebaseErrorMessage(detail)+'\n\nاحتفظنا بالبيانات المحلية ولم نستبدلها ببيانات السحابة.');
     return false;
   }
-  if(!localManagerRole()){
-    status('تم تسجيل الدخول إلى Firebase للقراءة؛ يلزم حساب إدارة المنصة لرفع التعديلات.',false);
+  const pulled=await pullAll();
+  if(!pulled){
+    status('تم رفع البيانات، لكن تعذرت قراءتها للتحقق. افحص صلاحيات القراءة في Firebase.',false);
+    alert('تم رفع البيانات إلى Firebase، لكن تعذرت قراءتها للتحقق. افحص صلاحيات القراءة في Realtime Database.');
     return false;
   }
-  const pending=[...dirty];
-  if(pending.length){
-    const pushed=await waitForCloudKeys(pending);
-    if(!pushed){
-      const detail=window.__manarFirebaseLastSyncError||'لم تُقبل عملية الرفع؛ احتُفظ بالبيانات المحلية.';
-      status('تم تسجيل الدخول لكن بقيت تعديلات غير مرفوعة: '+firebaseErrorMessage(detail),false);
-      return false;
-    }
-  }
-  status('اكتملت المزامنة؛ التغييرات الجديدة تُرفع تلقائيًا وتصل للأجهزة المتصلة عبر التحديث اللحظي.',true);
+  status('اكتملت المزامنة: تم رفع بيانات الجهاز ثم التحقق منها من السحابة.',true);
   return true;
 }
-
 window.__manarFirebaseLoginHandlerAttached=true;
 $('fsLogin')?.addEventListener('click',async()=>{
  if(manualEmailLoginActive)return;
@@ -9354,110 +9316,53 @@ $('fsCloudRestore')?.addEventListener('click',async()=>{
   finally{applyingRemote=false}
 });
 
-function settleCloudWaiters(success,attemptedKeys){
-  const attempted=new Set(attemptedKeys||[]);
-  for(let i=cloudSyncWaiters.length-1;i>=0;i--){
-    const waiter=cloudSyncWaiters[i];
-    const touches=[...waiter.keys].some(k=>attempted.has(k));
-    const complete=[...waiter.keys].every(k=>!dirty.has(k));
-    if((success&&complete)||(!success&&touches)){
-      cloudSyncWaiters.splice(i,1);
-      try{waiter.resolve(success&&complete)}catch(e){}
-    }
-  }
-}
-function queueCloudPush(delay=35){
-  /* لا نرفع أي نسخة محلية قبل اكتمال فحص مفاتيح السحابة وعلامات التصفير الأولية. */
-  if(!initialDone||initialReady<SYNC_KEYS.length||!canWrite()||window.__manarFirebaseResetLock)return;
-  clearTimeout(cloudPushTimer);
-  cloudPushTimer=setTimeout(()=>{cloudPushTimer=null;flushCloudPush()},Math.max(0,Number(delay)||0));
-}
-async function flushCloudPush(){
-  if(window.__manarFirebaseResetLock||!canWrite())return false;
-  if(cloudPushInFlight){cloudPushAgain=true;return false;}
-  const pending=[...dirty].filter(k=>SYNC_KEYS.includes(k));
-  if(!pending.length){settleCloudWaiters(true,[]);return true;}
-  cloudPushInFlight=true;
-  let succeeded=false,uploadOk=false;
-  try{
-    /* طلب update واحد يجمع كل التغييرات المتقاربة؛ لا نرسل set مكررًا لكل حفظ. */
-    await pushKeys(pending);
-    uploadOk=true;
-    succeeded=pending.every(k=>!dirty.has(k));
-    if(succeeded)status('تمت مزامنة '+pending.length+' قسمًا إلى السحابة',true);
-    settleCloudWaiters(true,pending);
-    return succeeded;
-  }catch(e){
-    window.__manarFirebaseLastSyncError=e;
-    status('حُفظ محليًا — تعذر رفع البيانات إلى السحابة: '+firebaseErrorMessage(e),false);
-    settleCloudWaiters(false,pending);
-    return false;
-  }finally{
-    cloudPushInFlight=false;
-    const needsAnotherPass=cloudPushAgain||(uploadOk&&dirty.size>0);
-    cloudPushAgain=false;
-    /* لا نعيد المحاولة بلا توقف عند رفض الصلاحيات؛ نعيدها عند تغيّر جديد أو عودة الاتصال. */
-    if(needsAnotherPass&&uploadOk&&!window.__manarFirebaseResetLock)queueCloudPush(25);
-  }
-}
-function waitForCloudKeys(keys){
-  const wanted=[...new Set((keys||[]).filter(k=>SYNC_KEYS.includes(k)))];
-  if(!wanted.length)return Promise.resolve(true);
-  if(!canWrite())return Promise.resolve(false);
-  if(wanted.every(k=>!dirty.has(k)))return Promise.resolve(true);
-  return new Promise(resolve=>{
-    cloudSyncWaiters.push({keys:new Set(wanted),resolve});
-    queueCloudPush(0);
-  });
-}
 function patchStorage(){
   if(window.__manarFirebasePatched)return;
   window.__manarFirebasePatched=true;
-  restorePendingKeys();
   const original=Storage.prototype.setItem;
-  const originalRemove=Storage.prototype.removeItem;
-  const originalClear=Storage.prototype.clear;
-  const trackLocalChange=(storage,key)=>{
-    const k=String(key);
-    if(storage!==localStorage||!SYNC_KEYS.includes(k)||applyingRemote||window.__manarFirebaseResetLock)return;
-    if(window.__manarExplicitKashofatSave&&['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].includes(k))return;
-    markDirty(k);
-    try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}
-    queueCloudPush(35);
+  let pushTimer=null,pushInFlight=false;
+  const queueCloudPush=()=>{
+    if(!canWrite()||window.__manarFirebaseResetLock)return;
+    clearTimeout(pushTimer);
+    pushTimer=setTimeout(async()=>{
+      if(pushInFlight||!canWrite()||window.__manarFirebaseResetLock)return;
+      const pending=[...dirty];
+      if(!pending.length)return;
+      pushInFlight=true;
+      applyingRemote=true;
+      let uploadSucceeded=false;
+      try{
+        await pushKeys(pending);
+        uploadSucceeded=true;
+        status('تم تحديث السحابة ومزامنة البيانات',true);
+      }catch(e){
+        status('حُفظ محليًا — تعذر رفع التعديل للسحابة: '+(e?.message||e),false);
+      }finally{
+        applyingRemote=false;
+        pushInFlight=false;
+        /* أي تغيير حدث أثناء الرفع يبقى معلّمًا Dirty؛ أرسله تلقائيًا دون انتظار تعديل جديد. */
+        if(uploadSucceeded&&dirty.size&&!window.__manarFirebaseResetLock)queueCloudPush();
+      }
+    },10);
   };
   Storage.prototype.setItem=function(key,value){
-    const result=original.call(this,key,value);
-    trackLocalChange(this,key);
-    return result;
-  };
-  Storage.prototype.removeItem=function(key){
-    const result=originalRemove.call(this,key);
-    trackLocalChange(this,key);
-    return result;
-  };
-  Storage.prototype.clear=function(){
-    const result=originalClear.call(this);
-    if(this===localStorage&&!applyingRemote&&!window.__manarFirebaseResetLock){
-      SYNC_KEYS.forEach(key=>markDirty(key));
+    const k=String(key),result=original.call(this,key,value);
+    if(this===localStorage&&SYNC_KEYS.includes(k)&&!applyingRemote&&!window.__manarFirebaseResetLock&&!(window.__manarExplicitKashofatSave&&['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].includes(k))){
+      markDirty(k);
       try{sessionStorage.setItem('manar_local_save_time',String(Date.now()))}catch(e){}
-      queueCloudPush(35);
+      queueCloudPush();
     }
     return result;
   };
-  window.addEventListener('online',()=>{if(canWrite()&&dirty.size)queueCloudPush(0)});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&canWrite()&&dirty.size)queueCloudPush(0)});
 }
 window.__manarFirebaseSaveKey=async function(key){
-  if(window.__manarFirebaseResetLock||!SYNC_KEYS.includes(key))return false;
+  if(window.__manarFirebaseResetLock)return false;
+  if(!SYNC_KEYS.includes(key))return false;
   markDirty(key);
   if(!canWrite())return false;
-  if(!initialDone){
-    const ready=await Promise.race([initialSyncReady,new Promise(resolve=>setTimeout(()=>resolve(false),15000))]);
-    if(!ready||!initialDone)return false;
-  }
   try{
-    const synced=await waitForCloudKeys([key]);
-    if(!synced)return false;
+    applyingRemote=true;
+    await pushKey(key);
     if(key==='manar_users_v3'){
       const expected=localValue(key);
       const verify=await get(ref(db,CLOUD_PATH+'/'+key));
@@ -9466,28 +9371,12 @@ window.__manarFirebaseSaveKey=async function(key){
         throw new Error('لم تتطابق بيانات المدير المحفوظة في Firebase مع البيانات الجديدة.');
       }
     }
-    status('تم حفظ التعديل ومزامنته مع السحابة',true);return true;
-  }catch(e){
-    status('تعذر تأكيد حفظ التعديل في السحابة: '+firebaseErrorMessage(e),false);return false;
+    status('تم حفظ التعديل والتحقق منه في السحابة',true);return true;
   }
+  catch(e){status('تعذر تأكيد حفظ التعديل في السحابة: '+(e?.message||e),false);return false}
+  finally{applyingRemote=false}
 };
-window.__manarFirebaseFlushPending=async function(){
-  if(!canWrite())return false;
-  const keys=[...dirty];
-  return keys.length?waitForCloudKeys(keys):true;
-};
-
 function hasLocalData(){try{const m=localValue('manar_sports_v2');return !!(m&&typeof m==='object'&&((m.tournaments||[]).length||(m.teams||[]).length||(m.players||[]).length||(m.matches||[]).length||(m.archives||[]).length||(m.officialPlayers||[]).length||(m.suspensions||[]).length||!!m.platformLogo))}catch(e){return false}}
-function hasLocalSyncData(){
-  return SYNC_KEYS.some(key=>{
-    if(key==='manar_users_v3'||key==='manar_poll_votes_v1')return false;
-    if(localStorage.getItem(key)===null)return false;
-    const value=localValue(key);
-    if(Array.isArray(value))return value.length>0;
-    if(value&&typeof value==='object')return Object.keys(value).length>0;
-    return value!==null&&value!==undefined;
-  });
-}
 function cloudResetMarkerIsNewer(cloudMain,localMain){
   const cm=cloudMain&&typeof cloudMain==='object'?cloudMain.__manarResetMeta:null;
   const lm=localMain&&typeof localMain==='object'?localMain.__manarResetMeta:null;
@@ -9512,78 +9401,86 @@ function cloudResetAppliesToStorageKey(cloudMain,localMain,key){
   return (Number(ck[key])||0)>(Number(lk[key])||0);
 }
 function emptyValueForResetKey(key){return key==='manar_player_management_windows_v1'||key==='manar_contact_settings_v1'||key==='manar_poll_votes_v1'?{}:[];}
-function applyInitialCloudSnapshots(){
-  const cloudMain=initialValues['manar_sports_v2'];
-  const localMainBefore=localValue('manar_sports_v2');
-  let applied=0,cleared=0;
-  applyingRemote=true;
-  try{
-    for(const key of SYNC_KEYS){
-      const value=initialValues[key];
-      if(value!==null&&value!==undefined){localStorage.setItem(key,JSON.stringify(value));applied++;}
-      else if(key!=='manar_sports_v2'&&cloudResetAppliesToStorageKey(cloudMain,localMainBefore,key)){
-        localStorage.setItem(key,JSON.stringify(emptyValueForResetKey(key)));cleared++;
-      }
-    }
-    clearAllDirty();
-  }finally{applyingRemote=false;}
-  try{if(typeof window.__manarReloadMainDatabaseFromStorage==='function')window.__manarReloadMainDatabaseFromStorage()}catch(e){console.warn('Initial Firebase database reload failed:',e)}
-  render();
-  return {applied,cleared};
-}
 async function initialSync(){
   if(initialDone)return;
   initialDone=true;
+  /* نقل الشعار القديم المحفوظ محليًا إلى بيانات المنصة قبل رفعها، مع تفضيل الشعار المنشور في السحابة إن وُجد. */
   if(localManagerRole()&&typeof window.__manarPreparePlatformLogoForSync==='function'){
     try{window.__manarPreparePlatformLogoForSync(initialValues['manar_sports_v2'])}catch(logoMigrationError){console.warn('Platform logo migration skipped:',logoMigrationError)}
   }
   const hasCloud=SYNC_KEYS.some(k=>initialValues[k]!==null);
-  const localHasData=hasLocalData()||hasLocalSyncData()||window.__manarLocalAccountUpgradePending===true;
+  const localHasData=hasLocalData()||window.__manarLocalAccountUpgradePending===true;
   const signedIn=canWrite();
+
+  /* إذا كانت السحابة تحمل تصفيرًا أحدث، فاسحب حالتها أولًا ولا ترفع ذاكرة الجهاز القديمة فوقها. */
   if(cloudResetMarkerIsNewer(initialValues['manar_sports_v2'],localValue('manar_sports_v2'))){
-    const result=applyInitialCloudSnapshots();
-    status('تم اعتماد أحدث حالة من Firebase ('+result.applied+' قسمًا) ومنع استعادة البيانات المحلية القديمة',true);
+    await pullAll();
+    status('تم اعتماد حالة التصفير الأحدث من Firebase ومنع استرجاع البيانات المحلية القديمة',true);
     return;
   }
+
+  /*
+    إصلاح جذري للحفظ:
+    لا يجوز أن تقوم Firebase الفارغة بمسح البيانات المحلية التي أدخلها المدير.
+    إذا كانت هناك بيانات محلية، فهي المصدر الأول. تُرفع للسحابة عند تسجيل
+    الدخول، أما إذا لم يوجد تسجيل دخول فتبقى محفوظة محليًا ولا تُحذف.
+  */
   if(localHasData){
+    /*
+      الزائر لا يملك حق رفع البيانات المشتركة: إذا كانت هناك بيانات سحابية،
+      تُحمّل فوق النسخة المحلية القديمة حتى تظهر بيانات المدير على أجهزة الزوار.
+      الرفع من هذا المسار محصور بدور الإدارة المحلي مع حساب Firebase موثّق.
+    */
     if(!localManagerRole()){
       if(hasCloud){
-        const result=applyInitialCloudSnapshots();
-        status('تم تحميل بيانات المنصة من Firebase للزائر ('+result.applied+' قسمًا)',true);
+        await pullAll();
+        status('تم تحميل بيانات المنصة المشتركة من Firebase للزائر',true);
       }else{
         render();
-        status('لا توجد بيانات منشورة في Firebase حتى الآن؛ احتُفظ ببيانات هذا الجهاز',false);
+        status('لا توجد بيانات منشورة في Firebase حتى الآن؛ لم تُرفع البيانات المحلية لجهاز الزائر',false);
       }
       return;
     }
-    for(const key of SYNC_KEYS){
-      if(key==='manar_poll_votes_v1')continue;
-      if(localStorage.getItem(key)!==null)markDirty(key);
+    for(const k of SYNC_KEYS){
+      /* أصوات الزوار تُكتب ذريًا عبر مسار التصويت ولا تُستبدل بنسخة محلية قديمة عند دخول المدير. */
+      if(k==='manar_poll_votes_v1')continue;
+      if(localStorage.getItem(k)!==null)markDirty(k);
     }
-    if(signedIn&&dirty.size&&!manualEmailLoginActive){
+    if(signedIn && dirty.size && !manualEmailLoginActive){
+      const pending=[...dirty];
+      applyingRemote=true;
       try{
-        await pushKeys([...dirty]);
-        status('تم حفظ بيانات المدير ومزامنتها مع السحابة دون إعادة تنزيل الأقسام',true);
+        await pushKeys(pending);
       }catch(syncError){
         window.__manarFirebaseLastSyncError=syncError;
-        status('تعذّر رفع البيانات إلى Firebase: '+firebaseErrorMessage(syncError)+' — احتُفظ بالبيانات المحلية.',false);
+        status('تعذّر رفع البيانات المحلية إلى Firebase: '+firebaseErrorMessage(syncError)+' — احتُفظ بالبيانات على هذا الجهاز.',false);
+        render();
+        return;
+      }finally{
+        applyingRemote=false;
       }
-      render();
+      const pulled=await pullAll();
+      if(!pulled){status('تم رفع البيانات، لكن تعذّر تنزيلها للتحقق. احتُفظ بالبيانات المحلية.',false);return;}
+      status('تم حفظ بيانات المدير ومزامنتها مع السحابة',true);
     }else{
       render();
-      status(signedIn?'تم الاحتفاظ ببيانات المدير؛ لا توجد تغييرات معلقة':'تم الحفظ محليًا — ستتم المزامنة تلقائيًا بعد الاتصال بحساب Firebase',true);
+      status(signedIn?'تم الإبقاء على بيانات المدير قبل المزامنة':'تم الحفظ محليًا — سجّل دخول Firebase لمزامنتها مع الأجهزة الأخرى',true);
     }
     return;
   }
+
+  /*
+    لا توجد بيانات محلية: هنا فقط نسمح للسحابة بأن تكون المصدر.
+    البيانات السحابية الموجودة تُسحب، وإن كانت فارغة نبدأ بقاعدة محلية فارغة.
+  */
   if(hasCloud){
-    const result=applyInitialCloudSnapshots();
-    status('تمت مزامنة البيانات الأولية من Firebase ('+result.applied+' قسمًا)',true);
+    await pullAll();
+    status('تمت مزامنة بيانات السحابة',true);
   }else{
     render();
     status('لا توجد بيانات سحابية بعد — قاعدة البيانات جاهزة للحفظ',true);
   }
 }
-
 async function ensureAnonymousPollUser(){
   if(!auth)throw new Error('خدمة تسجيل الدخول في Firebase غير مهيأة.');
   if(auth.currentUser)return auth.currentUser;
@@ -9610,20 +9507,7 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
    console.warn('Anonymous visitor authentication unavailable; trying counter with configured database rules:',visitorAuthError);
    initManarVisitorCounter();
  });
-  onAuthStateChanged(auth,async user=>{
-    if(!authStateReadyDone){authStateReadyDone=true;resolveAuthStateReady(user)}
-    if(user){
-      initManarVisitorCounter();
-      status(user.isAnonymous?'Firebase جاهز للقراءة — سجّل دخول حساب المزامنة للكتابة':'تم التعرّف على حساب Firebase — '+(user.email||''),!user.isAnonymous);
-      if(initialDone&&localManagerRole()&&canWrite()&&!manualEmailLoginActive&&dirty.size){
-        const ok=await waitForCloudKeys([...dirty]);
-        if(!ok)status('تعذر رفع بعض التعديلات؛ بقيت محفوظة محليًا وستُعاد المحاولة عند عودة الاتصال.',false);
-      }
-      /* مستمعات onValue المفتوحة لكل مفتاح تتولى استقبال بيانات السحابة؛ لا حاجة إلى pullAll عند كل تسجيل دخول. */
-    }else{
-      status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true);
-    }
-  });
+  onAuthStateChanged(auth,async user=>{if(!authStateReadyDone){authStateReadyDone=true;resolveAuthStateReady(user)}if(user){initManarVisitorCounter();status(user.isAnonymous?'Firebase جاهز للقراءة — سجّل دخول حساب المزامنة للكتابة':'تم التعرّف على حساب Firebase — '+(user.email||''),!user.isAnonymous);if(initialDone&&localManagerRole()&&canWrite()&&!manualEmailLoginActive){try{const pushed=await pushAll();if(pushed){await pullAll()}else{status('حساب Firebase متصل لكن رفع بيانات المدير فشل؛ لم يتم تنزيل السحابة فوق البيانات المحلية.',false)}}catch(autoLoginSyncErr){status('تعذر إكمال المزامنة التلقائية: '+firebaseErrorMessage(autoLoginSyncErr),false)}}if(initialDone&&dirty.size&&canWrite()){try{const pending=[...dirty];applyingRemote=true;await pushKeys(pending);applyingRemote=false;await pullAll()}catch(e){applyingRemote=false;status('فشل مزامنة التعديلات: '+firebaseErrorMessage(e),false)}}else if(initialDone&&!localManagerRole()){try{await pullAll()}catch(e){}}}else status(localManagerRole()?'متصل للقراءة — سجّل دخول Firebase لحفظ تعديلات المدير':'متصل للقراءة — تتم مزامنة البيانات من Firebase تلقائيًا',true)});
  for(const k of SYNC_KEYS){
   onValue(ref(db,CLOUD_PATH+'/'+k),async snap=>{
     initialValues[k]=snap.exists()?snap.val():null;
@@ -9645,20 +9529,11 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
         window.__manarReloadPlatformUsers(cloudAccounts);
         window.__manarLocalAccountUpgradePending=false;
       }
-      try{await initialSync();}
-      finally{resolveInitialSyncReady(true);}
-      if(dirty.size&&canWrite()&&localManagerRole())queueCloudPush(0);
+      await initialSync();
       window.__manarAccountSyncReady=true;
       if(!window.__manarLocalAccountUpgradePending)window.__manarAccountSyncError='';
     }else if(initialDone&&!applyingRemote&&!window.__manarFirebaseResetLock){
-      /* تجنّب إعادة رسم المنصة عندما يكون الحدث مجرد صدى لبيانات هذا الجهاز. */
-      const remoteRaw=snap.exists()?JSON.stringify(snap.val()):null;
-      const localRaw=localStorage.getItem(k);
-      if((snap.exists()&&localRaw===remoteRaw)||(!snap.exists()&&localRaw===null)){
-        if(dirty.has(k))clearDirty(k);
-        return;
-      }
-      /* إذا بقي تعديل محلي غير مرفوع، لا تستبدله بتحديث سحابي. */
+      /* إذا بقي تعديل محلي معلّق لهذا المفتاح، لا تستبدله بتحديث وارد من السحابة. */
       if(dirty.has(k)){
         status('يوجد تعديل محلي غير متزامن للقسم ('+k+'). تم الاحتفاظ به بدل استبداله بتحديث سحابي.',false);
         return;
@@ -9681,7 +9556,7 @@ async function start(){if(started)return;started=true;try{app=getApps().length?g
     }
   },err=>status('خطأ قراءة Firebase: '+(err?.message||err),false))
 }
- }catch(e){resolveFirebaseInit(false);resolveInitialSyncReady(false);window.__manarAccountSyncReady=false;window.__manarAccountSyncError='تعذر تشغيل Firebase: '+(e?.message||e);status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
+ }catch(e){resolveFirebaseInit(false);window.__manarAccountSyncReady=false;window.__manarAccountSyncError='تعذر تشغيل Firebase: '+(e?.message||e);status('تعذر تشغيل Firebase: '+(e?.message||e),false)}}
 start();
 </script>
 <!-- FINAL CLEANUP / INTEGRITY GUARD 2026-09-21 -->
@@ -10539,45 +10414,20 @@ function renderSheetsDirect(){
   const box=document.getElementById('ksReportsList');
   const sel=document.getElementById('ksTournament');
   if(!box||!sel)return;
-  // لا تستبدل DOM عند تكرار نفس الرسم؛ إعادة البناء المتكرر كانت تُغلق الكشف المفتوح
-  // وتغيّر ارتفاع الصفحة وتُسبب قفز موضع التمرير على الهواتف.
-  const setStableMarkup=markup=>{
-    // Use a source-markup signature, not innerHTML: a separate score-order helper
-    // normalizes score markup after rendering, which should not trigger another repaint.
-    let hash=2166136261;
-    for(let i=0;i<markup.length;i++){hash^=markup.charCodeAt(i);hash=Math.imul(hash,16777619);}
-    const signature=S(sel.value)+'|'+markup.length+'|'+(hash>>>0).toString(36);
-    const expectedCards=(markup.match(/<details class=\"ks-sheet-accordion\"/g)||[]).length;
-    const actualCards=box.querySelectorAll('details.ks-sheet-accordion').length;
-    if(box.dataset.ksStableMarkupSignature===signature&&actualCards===expectedCards)return false;
-    const opened=[...box.querySelectorAll('details.ks-sheet-accordion[open]')]
-      .map(node=>S(node.dataset.matchId)).filter(Boolean);
-    box.innerHTML=markup;
-    box.dataset.ksStableMarkupSignature=signature;
-    if(opened.length){
-      const wanted=new Set(opened);
-      box.querySelectorAll('details.ks-sheet-accordion[data-match-id]').forEach(node=>{
-        if(wanted.has(S(node.dataset.matchId)))node.open=true;
-      });
-    }
-    return true;
-  };
   const tid=S(sel.value);
-  if(!tid){setStableMarkup('<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>');return;}
+  if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';return;}
   const selectedTournament=A(DB().tournaments).find(t=>S(t.id)===tid);
   const archived=!!(selectedTournament&&(selectedTournament.archived===true||S(selectedTournament.status)==='archived'||A(DB().archives).some(a=>S(a?.tournament?.id??a?.original?.id??a?.tournamentId)===tid)));
-  if(archived){sel.value='';setStableMarkup('<div class="ks-empty">🔒 هذه البطولة منتهية ومؤرشفة؛ تم إخفاء كشوفاتها من العرض اليومي مع الاحتفاظ بملف الأرشيف.</div>');return;}
+  if(archived){sel.value='';box.innerHTML='<div class="ks-empty">🔒 هذه البطولة منتهية ومؤرشفة؛ تم إخفاء كشوفاتها من العرض اليومي مع الاحتفاظ بملف الأرشيف.</div>';return;}
   // حدّث حالة المباريات من الكشوفات المحفوظة دون تغيير البيانات أو حفظ إضافي.
   try{if(typeof syncMatchStatusesFromSheets==='function')syncMatchStatusesFromSheets(false);}catch(e){}
-  const matchById=new Map(A(DB().matches).map(m=>[S(m.id??m.matchId??m.matchID),m]));
+  const matchById=new Map(A(DB().matches).map(m=>[S(m.id),m]));
   const isFinishedMatch=m=>{
     const status=S(m?.status).toLowerCase();
     return ['finished','complete','completed','played','ended','منتهية','انتهت','مكتملة','مكتمل'].includes(status);
   };
   // اعرض فقط المباريات المنتهية التي لها كشف محفوظ، وبترتيب تاريخ المباراة الأحدث أولاً.
-  // قراءة ودمج مصادر الكشوفات مرة واحدة فقط لكل عملية رسم.
-  const allSheets=allSheetsForDisplay();
-  const list=allSheets
+  const list=allSheetsForDisplay()
     .filter(sh=>{
       if(!window.__manarKashofatBelongsStrict(sh,tid))return false;
       const mid=S(sh.matchId??sh.matchID??sh.fixtureId);
@@ -10590,30 +10440,14 @@ function renderSheetsDirect(){
       return (Number.isFinite(db)?db:0)-(Number.isFinite(da)?da:0);
     });
   if(!list.length){
-    setStableMarkup('<div class="ks-finished-empty"><span>📋</span><b>لا توجد مباريات منتهية بكشوفات مدخلة في هذه البطولة</b><small>اختر بطولة أخرى أو تحقق من إدخال كشوفات المباريات المنتهية.</small></div>');
+    box.innerHTML='<div class="ks-finished-empty"><span>📋</span><b>لا توجد مباريات منتهية بكشوفات مدخلة في هذه البطولة</b><small>اختر بطولة أخرى أو تحقق من إدخال كشوفات المباريات المنتهية.</small></div>';
     return;
   }
-  // رقم مستقل لكل بطولة: يبدأ من 001 ويُعاد ترتيبه عند إضافة كشف جديد.
-  // نعتمد تاريخ إنشاء الكشف، ثم الرقم القديم ومعرّف المباراة لكسر التعادل بثبات.
-  const tournamentSheets=allSheets.filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
-  const numberOrder=tournamentSheets.slice().sort((x,y)=>{
-    const tx=Date.parse(S(x.createdAt||x.created_at||x.savedAt||x.date||''));
-    const ty=Date.parse(S(y.createdAt||y.created_at||y.savedAt||y.date||''));
-    const ax=Number.isFinite(tx)?tx:0, ay=Number.isFinite(ty)?ty:0;
-    if(ax!==ay)return ax-ay;
-    const nx=Number(x.sheetNumber)||0,ny=Number(y.sheetNumber)||0;
-    if(nx!==ny)return nx-ny;
-    return S(x.matchId??x.matchID??x.fixtureId).localeCompare(S(y.matchId??y.matchID??y.fixtureId));
-  });
-  const sheetNumberByMatch=new Map();
-  numberOrder.forEach((sh,index)=>sheetNumberByMatch.set(S(sh.matchId??sh.matchID??sh.fixtureId),String(index+1).padStart(3,'0')));
   const tournamentLabel=S(selectedTournament?.name||'البطولة');
-  const tournamentSummary='<div class="ks-finished-summary"><div><span>🏆</span><div><b>'+esc(tournamentLabel)+'</b><small>تسلسل أرقام هذه البطولة يبدأ من 001 — اختر عنوان المباراة لعرض كشفها</small></div></div><strong>'+list.length+' <small>كشف</small></strong></div>';
+  box.innerHTML='<div class="ks-finished-summary"><div><span>🏆</span><div><b>'+esc(tournamentLabel)+'</b><small>المباريات المنتهية التي تم إدخال كشوفاتها</small></div></div><strong>'+list.length+' <small>كشف</small></strong></div>';
   const can=(()=>{try{return (typeof window.hasPermission==='function'&&window.hasPermission('matchSheets'))||document.body.classList.contains('admin')||document.body.classList.contains('editor')}catch(e){return document.body.classList.contains('admin')||document.body.classList.contains('editor')}})();
-  const cardsHtml=list.map(sh=>{
-    const sheetMatchId=S(sh.matchId??sh.matchID??sh.fixtureId);
-    const displaySheetNumber=sheetNumberByMatch.get(sheetMatchId)||'001';
-    const m=matchById.get(sheetMatchId)||{};
+  box.innerHTML=list.map(sh=>{
+    const m=A(DB().matches).find(x=>S(x.id)===S(sh.matchId))||{};
     // خذ اسم الفريق وهدفه من ترتيب الكشف نفسه؛ لا تربط نقاط الكشف بفريق من ترتيب مختلف في سجل المباراة.
     const homeRef=sheetSideRef(sh,m,'home');
     const awayRef=sheetSideRef(sh,m,'away');
@@ -10666,56 +10500,20 @@ function renderSheetsDirect(){
       ?'<div class="pub-line ks-administrative-decision-line"><b>⚖️ نوع القرار الإداري:</b> '+esc(decisionTypeLabel)+'</div>'
         +(decisionTeamName?'<div class="pub-line ks-administrative-decision-line"><b>الفريق المعني بالقرار:</b> '+esc(decisionTeamName)+'</div>':'')
       :'';
-    const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId??sh.matchID??sh.fixtureId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId??sh.matchID??sh.fixtureId)+'">🗑️ حذف الكشف</button></div>':'';
-
-    // تفاصيل إضافية محفوظة داخل الكشف الرسمي: الحكام، الحراس، ركلات الجزاء والترجيح.
-    const refereeCatalog=(()=>{
-      const catalog=A(DB().referees).slice();
-      try{const stored=JSON.parse(localStorage.getItem('manar_referees_v1')||'[]');if(Array.isArray(stored))catalog.push(...stored);}catch(e){}
-      return catalog;
-    })();
-    const refereeValues=A(sh.referees).length?A(sh.referees):[sh.referee1,sh.referee2,sh.referee3,sh.referee4].filter(Boolean);
-    const refereeNames=refereeValues.filter(Boolean).map(value=>{
-      const key=value&&typeof value==='object'?S(value.id??value.refereeId??value.refereeID??value.value??''):S(value);
-      const embedded=value&&typeof value==='object'?S(value.name??value.refereeName??value.fullName??''):'';
-      const record=refereeCatalog.find(item=>S(item.id)===key||S(item.name)===key);
-      return S(record?.name||embedded||key);
-    }).filter(Boolean);
-    const refereesLine='<div class="pub-line ks-sheet-referees-line"><b>⚖️ الحكام:</b><div class="ks-referees-ordered">'+(refereeNames.length?refereeNames.map((name,index)=>'<span class="ks-referee-item"><b class="ks-referee-number">'+(index+1)+'</b>'+esc(name)+'</span>').join(''):'<span>لا توجد بيانات حكام</span>')+'</div></div>';
-    const keeperName=value=>player(value)?.name||objName(value)||S(value)||'—';
-    const keepersLine='<div class="pub-line"><b>🧤 حراس المرمى المشاركون:</b> '+esc(keeperName(sh.homeGoalkeeperId??sh.goalkeeperHomeId))+' ('+esc(h)+') — '+esc(keeperName(sh.awayGoalkeeperId??sh.goalkeeperAwayId))+' ('+esc(a)+')</div>';
-    const shootoutHome=sh.shootoutHome??m.shootoutHome,shootoutAway=sh.shootoutAway??m.shootoutAway;
-    const hasShootout=shootoutHome!==null&&shootoutHome!==undefined&&S(shootoutHome)!==''&&shootoutAway!==null&&shootoutAway!==undefined&&S(shootoutAway)!=='';
-    const shootoutWinner=sh.shootoutWinnerTeamId||m.shootoutWinnerTeamId||(Number(shootoutHome)>Number(shootoutAway)?homeRef:awayRef);
-    const shootoutLine='<div class="pub-line"><b>🥅 ركلات الترجيح:</b> '+(hasShootout?esc(shootoutHome)+' - '+esc(shootoutAway)+' — الفائز: '+esc(tname(shootoutWinner)):'لا توجد ركلات ترجيح مسجلة')+'</div>';
-    const penalties=Number(sh.penalties??m.penalties??0)||0;
-    const penaltiesLine='<div class="pub-line"><b>🎯 ركلات الجزاء المحتسبة:</b> '+(penalties>0?String(penalties):'لا توجد')+'</div>';
-    const venue=S(m.stadium||m.venue||sh.stadium||sh.venue||'—');
-    const matchMeta='<div class="pub-line ks-sheet-match-meta">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+' &nbsp; 🏟️ <b>الملعب:</b> '+esc(venue)+'</div>';
-
-    let sheetDetails='';
+    const actions=can?'<div class="ks-saved-actions"><button class="btn blue" type="button" data-ks-edit="'+esc(sh.matchId)+'">✏️ تعديل الكشف</button><button class="btn danger" type="button" data-ks-delete="'+esc(sh.matchId)+'">🗑️ حذف الكشف</button></div>':'';
     if(hasAdministrativeDecision){
       const decisionDetails=typeof window.manarBuildAdministrativeSheetDetails==='function' ? window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,h,a) : '<div class="ks-public-summary">'+decisionSummary+'</div>';
-      sheetDetails='<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+displaySheetNumber+' · ⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
-    }else{
-      sheetDetails='<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+displaySheetNumber+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+matchMeta+'<div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div>'+keepersLine+shootoutLine+penaltiesLine+bestPlayerLine+refereesLine+supervisorLine+'</div>'+actions+'</div>';
+      return '<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
     }
-
-    const matchTitle=h+' × '+a;
-    const matchDate=S(m.date||sh.date||'');
-    const matchTime=S(m.time||sh.time||'');
-    const summaryMeta=(matchDate?'📅 '+esc(matchDate):'')+(matchTime?'　⏰ '+esc(matchTime):'');
-    return '<details class="ks-sheet-accordion" data-match-id="'+esc(sheetMatchId)+'" aria-label="كشف رقم '+displaySheetNumber+' مباراة '+esc(matchTitle)+'"><summary class="ks-sheet-accordion-summary"><span class="ks-sheet-summary-tag">📋 كشف '+displaySheetNumber+'</span><strong class="ks-sheet-summary-match">'+esc(matchTitle)+'</strong><span class="ks-sheet-summary-meta">'+summaryMeta+'</span><span class="ks-sheet-summary-action">عرض الكشف <b aria-hidden="true">⌄</b></span></summary><div class="ks-sheet-expanded">'+sheetDetails+'</div></details>';
+    return '<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+'<div class="pub-line">📅 <b>التاريخ:</b> '+esc(m.date||sh.date||'—')+' &nbsp; ⏰ <b>الوقت:</b> '+esc(m.time||sh.time||'—')+'</div><div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div>'+bestPlayerLine+supervisorLine+'</div>'+actions+'</div>';
   }).join('');
-  setStableMarkup(tournamentSummary+cardsHtml);
 }
 window.renderPlayerStatsDirect=renderPlayerStatsDirect;window.renderPublicSheetsFixed=renderSheetsDirect;
-document.addEventListener('DOMContentLoaded',()=>{
-  setTimeout(()=>{try{renderPlayerStatsDirect()}catch(e){};try{window.renderPublicSheetsFixed&&window.renderPublicSheetsFixed()}catch(e){}},180);
-},{once:true});
+function refresh(){setTimeout(()=>{try{renderPlayerStatsDirect()}catch(e){};try{renderSheetsDirect()}catch(e){}},80)}
+document.addEventListener('DOMContentLoaded',()=>{refresh();setTimeout(refresh,700);setTimeout(refresh,1800)});
 const oldRS=window.renderStats;window.renderStats=function(){if(typeof oldRS==='function')try{oldRS()}catch(e){}setTimeout(renderPlayerStatsDirect,120)};
-['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>window.addEventListener('storage',e=>{if(e.key===k)setTimeout(()=>{try{window.renderPublicSheetsFixed&&window.renderPublicSheetsFixed()}catch(err){}},80)}));
-/* تمرير تحديثات الكشوفات إلى مسار إعادة الرسم الموحد في نهاية الملف. */
+['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>window.addEventListener('storage',e=>{if(e.key===k)refresh()}));
+/* تم إيقاف إعادة الرسم الدوري للكشوفات. */
 })();
 </script>
 
@@ -10885,28 +10683,7 @@ function improveResultCards(){
  });
 }
 function hook(){
-  let observerFrame=0;
-  const relevantNode=node=>!!(node&&node.nodeType===1&&(
-    node.matches?.('.rs-match-card') ||
-    node.closest?.('.rs-match-card') ||
-    node.querySelector?.('.rs-match-card')
-  ));
-  const observer=new MutationObserver(records=>{
-    let relevant=false;
-    for(const record of records){
-      const target=record.target?.nodeType===1?record.target:record.target?.parentElement;
-      if(relevantNode(target)){relevant=true;break;}
-      for(const node of record.addedNodes||[]){if(relevantNode(node)){relevant=true;break;}}
-      if(relevant)break;
-    }
-    if(!relevant||observerFrame)return;
-    observerFrame=requestAnimationFrame(()=>{
-      observerFrame=0;
-      // هذه المراقبة مخصصة لبطاقات المباريات فقط. بناء واجهة الإنذارات
-      // يتم عند فتح محرر الكشف صراحةً، وليس عند كل تغيير داخل المحرر.
-      improveResultCards();
-    });
-  });
+ const observer=new MutationObserver(()=>{improveResultCards();const ed=$("rsEditor");if(ed&&ed.style.display!=='none')installCardsUI();});
  observer.observe(document.body,{childList:true,subtree:true});
  document.addEventListener('click',e=>{if(e.target.closest('[data-rs-open]'))setTimeout(loadExistingCards,120)});
  const oldStart=window.startMatchSheetFor;
@@ -10996,13 +10773,7 @@ function capture(id){
 function hook(){
  const old=window.startMatchSheetFor;if(typeof old==='function'&&!old.__teamCardFix){window.startMatchSheetFor=function(id){capture(id);const r=old.apply(this,arguments);setTimeout(install,120);setTimeout(install,500);return r};window.startMatchSheetFor.__teamCardFix=true}
  document.addEventListener('click',e=>{if(e.target.closest('[data-rs-open]'))setTimeout(install,150)});
- setInterval(()=>{
-   if(document.hidden)return;
-   const ed=$('rsEditor');
-   // لا نعيد بناء واجهة الإنذارات كل خمس ثوانٍ؛ نعيد تثبيتها فقط
-   // إن حذفها محرك الكشف أثناء فتح المحرر.
-   if(ed&&ed.style.display!=='none'&&!$('rsCardsTeamPlayerUI'))install();
- },5000);
+ setInterval(()=>{if(document.hidden)return;const ed=$('rsEditor');if(ed&&ed.style.display!=='none')install()},5000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook);else hook();
 })();
@@ -12510,12 +12281,7 @@ function install(){
  }catch(e){console.warn('prediction data-driven patch',e)}};
  document.addEventListener('change',e=>{if(e.target?.id==='predictionTournamentV2')setTimeout(run,20)},true);
  window.addEventListener('storage',e=>{if(/^manar_(sports|match_sheets|prediction)/.test(S(e.key)))setTimeout(run,30)});
- setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);
- // لا نفحص بصمة جميع المباريات والكشوفات ما دام قسم التوقعات مخفيًا.
- setInterval(()=>{
-   if(document.hidden||!sec.classList.contains('active'))return;
-   run();
- },3000);
+ setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);setInterval(run,3000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 window.__getPredictionForMatch=function(m){
@@ -12599,7 +12365,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.27.4';
+  const VERSION='2026.11.24.1';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -13386,26 +13152,8 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     installStyle(); fixHeaders(document);
     var root=document.getElementById('statsBody')||document.body;
     if(root && window.MutationObserver){
-      var tableSelector='.stats-ranking-card table, .stats-group-ranking-card table, .standings-table:not(.mini-ranking), .standings-mobile-table';
-      var queuedTables=new Set(), queuedRoots=new Set(), frame=0;
-      function queueCandidate(node){
-        if(!node||node.nodeType!==1)return;
-        var table=node.matches?.('table')&&node.matches(tableSelector)?node:node.closest?.(tableSelector);
-        if(table){queuedTables.add(table);return;}
-        if(node.matches?.(tableSelector)||node.querySelector?.(tableSelector))queuedRoots.add(node);
-      }
       var observer=new MutationObserver(function(records){
-        records.forEach(function(record){
-          queueCandidate(record.target?.nodeType===1?record.target:record.target?.parentElement);
-          (record.addedNodes||[]).forEach(queueCandidate);
-        });
-        if(frame||(!queuedTables.size&&!queuedRoots.size))return;
-        frame=requestAnimationFrame(function(){
-          frame=0;
-          queuedTables.forEach(function(table){if(table.isConnected)fixHeaders(table)});
-          queuedRoots.forEach(function(node){if(node.isConnected)fixHeaders(node)});
-          queuedTables.clear();queuedRoots.clear();
-        });
+        records.forEach(function(record){record.addedNodes.forEach(function(node){if(node.nodeType===1)fixHeaders(node);});});
       });
       observer.observe(root,{childList:true,subtree:true});
       if(root!==document.body) observer.observe(document.body,{childList:true,subtree:true});
@@ -13530,9 +13278,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   var lastSignature = '';
   function statsIsVisible(){
     var page=document.getElementById('stats');
-    // أقسام المنصة تُظهر القسم المختار عبر active؛ تجنب offsetParent
-    // لأنه يفرض استعلام تخطيط متكرر أثناء التمرير.
-    return !!(page && page.classList.contains('active') && !document.hidden);
+    return !!(page && (page.classList.contains('active') || page.offsetParent!==null));
   }
   function currentSignature(){
     try{
@@ -13552,7 +13298,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   }
   document.addEventListener('DOMContentLoaded',function(){
     setTimeout(function(){refreshIfChanged(true);},250);
-    setInterval(function(){refreshIfChanged(false);},3000);
+    setInterval(function(){refreshIfChanged(false);},1200);
   },{once:true});
   window.addEventListener('storage',function(e){
     if(!e.key || /manar_|firebase|match|tournament|player|team/i.test(e.key)){lastSignature='';setTimeout(function(){refreshIfChanged(true);},80);}
@@ -15015,20 +14761,16 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     });
   }
   let queued=false;
-  const queuedScopes=new Set();
   function decorate(root){
-    const scope=root&&(root.nodeType===1||root.nodeType===9)?root:document;
-    queuedScopes.add(scope);
     if(queued)return;
     queued=true;
     const run=()=>{
       queued=false;
-      const scopes=[...queuedScopes];queuedScopes.clear();
       try{
         refreshState();
-        const full=scopes.some(scope=>scope.nodeType===9);
-        const reduced=full?[document]:scopes.filter(scope=>!scopes.some(other=>other!==scope&&other.nodeType===1&&other.contains?.(scope)));
-        reduced.forEach(scope=>{decorateSelects(scope);decorateNameNodes(scope);});
+        const scope=root&&root.nodeType===1?root:document;
+        decorateSelects(scope);
+        decorateNameNodes(scope);
       }catch(e){console.warn('Suspended player name highlight skipped:',e);}
     };
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(run);else setTimeout(run,0);
@@ -15042,18 +14784,8 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   window.addEventListener('storage',e=>{if(!e.key||/manar|susp|player|team/i.test(e.key))decorate(document);});
 
   const observer=new MutationObserver(mutations=>{
-    const scopes=new Set();
-    mutations.forEach(mutation=>{
-      const target=mutation.target?.nodeType===1?mutation.target:mutation.target?.parentElement;
-      const targetScope=target?.closest?.('.card,.page,form');
-      if(targetScope)scopes.add(targetScope);
-      (mutation.addedNodes||[]).forEach(node=>{
-        if(!node||node.nodeType!==1)return;
-        const scope=node.matches?.('.card,.page,form')?node:node.closest?.('.card,.page,form');
-        if(scope)scopes.add(scope);
-      });
-    });
-    scopes.forEach(scope=>decorate(scope));
+    const target=mutations.find(m=>m.target?.nodeType===1)?.target;
+    decorate(target?.closest?.('.card,.page,form')||document);
   });
   const start=()=>{
     if(document.body)observer.observe(document.body,{childList:true,subtree:true});
@@ -16613,22 +16345,52 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     root.querySelectorAll(ROOT+' .ks-saved-match b').forEach(el=>targets.push(el));
     targets.forEach(el=>{
       if(el.dataset.ksScoreTeamOrderFixed==='1')return;
-      const nums=(el.textContent||'').trim().match(/[0-9٠-٩۰-۹]+/g);
+      const raw=(el.textContent||'').trim();
+      const nums=raw.match(/[0-9٠-٩۰-۹]+/g);
       if(!nums||nums.length<2)return;
-      const first=nums[0],second=nums[1];
-      el.innerHTML='<span class="ks-score-away" dir="ltr">'+second+'</span>'+
+      // النص الأصلي يُحفظ بترتيب المباراة: هدفا الفريق الأول ثم الفريق الثاني.
+      // وبما أن العرض LTR يبدأ من اليسار، نضع نتيجة الفريق الثاني يسارًا
+      // ونتيجة الفريق الأول يمينًا دون تبديل القيم نفسها.
+      const homeScore=nums[0],awayScore=nums[1];
+      el.innerHTML='<span class="ks-score-away" dir="ltr">'+awayScore+'</span>'+
         '<span class="ks-score-separator" aria-hidden="true">–</span>'+
-        '<span class="ks-score-home" dir="ltr">'+first+'</span>';
+        '<span class="ks-score-home" dir="ltr">'+homeScore+'</span>';
       el.setAttribute('dir','ltr');
       el.classList.add('ks-score-team-order-fixed');
       el.dataset.ksScoreTeamOrderFixed='1';
-      el.setAttribute('aria-label',first+' للفريق الأول، '+second+' للفريق الثاني');
+      el.setAttribute('aria-label',homeScore+' للفريق الأول على اليمين، '+awayScore+' للفريق الثاني على اليسار');
     });
   }
-  window.__manarFixKashofatScoreOrder=fixScoreOrder;
-  function initial(){const box=document.querySelector(ROOT);if(box)fixScoreOrder(box)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initial,{once:true});
-  else initial();
+  function refresh(){
+    const box=document.querySelector(ROOT);
+    if(box)fixScoreOrder(box);
+  }
+  const original=window.renderPublicSheetsFixed;
+  if(typeof original==='function'&&!original.__ksScoreTeamOrderWrapped){
+    const wrapped=function(){
+      const result=original.apply(this,arguments);
+      setTimeout(refresh,0);
+      return result;
+    };
+    wrapped.__ksScoreTeamOrderWrapped=true;
+    window.renderPublicSheetsFixed=wrapped;
+  }
+  function observe(){
+    const box=document.querySelector(ROOT);
+    if(!box||box.__ksScoreTeamOrderObserver)return;
+    const observer=new MutationObserver(()=>fixScoreOrder(box));
+    observer.observe(box,{childList:true,subtree:true});
+    box.__ksScoreTeamOrderObserver=observer;
+    fixScoreOrder(box);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{refresh();observe();},{once:true});
+  }else{refresh();observe();}
+  document.addEventListener('change',event=>{
+    if(event.target&&event.target.id==='ksTournament')setTimeout(()=>{refresh();observe();},30);
+  },true);
+  const bodyObserver=new MutationObserver(()=>observe());
+  if(document.documentElement)bodyObserver.observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
 
@@ -18840,7 +18602,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.27.4');
+  const APP_BUILD=String(meta?.content||'2026.11.24.1');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -21866,279 +21628,6 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   window.addEventListener('storage',()=>{if(document.activeElement?.id==='pmAddName'||document.activeElement?.id==='playerName')install();});
 })();
 </script>
-
-
-<style id="match-sheets-per-match-disclosure-20261127">
-/* بطاقات مستقلة لكل مباراة؛ تفاصيل الكشف لا تظهر إلا عند اختيار عنوانه */
-#matchSheetsSection #ksReportsList > .ks-sheet-accordion{
-  display:block!important;min-width:0;margin:0!important;overflow:hidden;
-  border:1px solid #cbdff5;border-right:6px solid #1688d2;border-radius:18px;
-  background:linear-gradient(135deg,#f5fbff 0%,#fff 58%,#fff8f2 100%);
-  box-shadow:0 7px 19px rgba(35,91,145,.09);
-}
-#matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary{
-  list-style:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
-  grid-template-areas:"tag match action" "meta match action";
-  align-items:center;gap:5px 12px;padding:14px 15px;cursor:pointer;direction:rtl;
-  background:linear-gradient(105deg,#e8f5ff 0%,#f0f8ff 55%,#fff1e7 100%);
-  color:#1d4772;outline:none;user-select:none;
-}
-#matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary::-webkit-details-marker{display:none}
-#matchSheetsSection .ks-sheet-summary-tag{
-  grid-area:tag;display:inline-flex;align-items:center;justify-content:center;gap:5px;
-  padding:6px 11px;border-radius:10px;background:linear-gradient(120deg,#176fbd,#1898d1);
-  color:#fff;font-size:12px;font-weight:1000;white-space:nowrap;
-  box-shadow:0 3px 9px rgba(23,111,189,.17)
-}
-#matchSheetsSection .ks-sheet-summary-match{
-  grid-area:match;min-width:0;color:#244d7c;font-size:15px;font-weight:1000;
-  line-height:1.8;overflow-wrap:anywhere
-}
-#matchSheetsSection .ks-sheet-summary-meta{grid-area:meta;color:#6a7f96;font-size:10px;font-weight:800;line-height:1.5}
-#matchSheetsSection .ks-sheet-summary-action{
-  grid-area:action;display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  padding:9px 11px;border:1px solid #c7dcf1;border-radius:11px;
-  background:#fff;color:#1767a7;font-size:11px;font-weight:950;white-space:nowrap
-}
-#matchSheetsSection .ks-sheet-summary-action b{display:inline-grid;place-items:center;width:21px;height:21px;
-  border-radius:7px;background:#eaf5ff;font-size:16px;transition:transform .18s ease}
-#matchSheetsSection .ks-sheet-accordion[open] > .ks-sheet-accordion-summary{
-  border-bottom:1px solid #dce9f5;background:linear-gradient(105deg,#e4f3ff,#f3faff 58%,#fff4eb)
-}
-#matchSheetsSection .ks-sheet-accordion[open] .ks-sheet-summary-action b{transform:rotate(180deg)}
-#matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary:focus-visible{
-  outline:3px solid #f0a33b;outline-offset:-3px
-}
-#matchSheetsSection .ks-sheet-expanded{padding:10px;background:linear-gradient(145deg,#fff,#f8fbff)}
-#matchSheetsSection .ks-sheet-expanded > .ks-saved{margin:0!important;border:0!important;border-radius:12px!important;
-  box-shadow:none!important;background:transparent!important;padding:0!important;overflow:visible!important}
-#matchSheetsSection .ks-sheet-expanded > .ks-saved > .ks-saved-head{border-radius:12px!important;margin:0 0 10px!important}
-#matchSheetsSection .ks-sheet-expanded .ks-public-summary{margin-top:0!important}
-#matchSheetsSection .ks-sheet-expanded .ks-sheet-match-meta{line-height:1.9}
-#matchSheetsSection .ks-sheet-expanded .ks-sheet-referees-line .ks-referees-ordered{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:7px}
-#matchSheetsSection .ks-sheet-expanded .ks-sheet-referees-line .ks-referee-item{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;
-  border:1px solid #c9def7;border-radius:9px;background:#f1f7ff;color:#155ca8;font-size:12px;font-weight:850}
-#matchSheetsSection .ks-sheet-expanded .ks-sheet-referees-line .ks-referee-number{display:inline-grid;place-items:center;min-width:21px;height:21px;border-radius:6px;background:#155ca8;color:#fff}
-#matchSheetsSection #ksReportsList > .ks-finished-summary{margin-bottom:2px}
-@media(max-width:600px){
- #matchSheetsSection #ksReportsList > .ks-sheet-accordion{border-right-width:5px;border-radius:14px}
- #matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"tag match" "meta action";gap:7px 9px;padding:11px 10px}
- #matchSheetsSection .ks-sheet-summary-match{font-size:13px;line-height:1.65}
- #matchSheetsSection .ks-sheet-summary-meta{font-size:9px}
- #matchSheetsSection .ks-sheet-summary-action{justify-self:start;padding:7px 9px;font-size:10px}
- #matchSheetsSection .ks-sheet-expanded{padding:7px}
- #matchSheetsSection .ks-sheet-expanded .ks-sheet-referees-line .ks-referee-item{padding:5px 7px;font-size:11px}
-}
-@media(prefers-reduced-motion:reduce){#matchSheetsSection .ks-sheet-summary-action b{transition:none}}
-</style>
-
-
-<style id="match-sheets-mobile-stability-20261127">
-/* إصلاح ثبات قسم الكشوفات فقط: منع تغيّر العرض/التمرير بسبب إعادة الرسم وتضخم المحتوى. */
-#matchSheetsSection,
-#matchSheetsSection .ks-root,
-#matchSheetsSection .ks-public,
-#matchSheetsSection #ksReportsList{
-  width:100%!important;max-width:100%!important;min-width:0!important;
-  box-sizing:border-box!important;
-}
-#matchSheetsSection .ks-root,
-#matchSheetsSection .ks-public{
-  overflow:visible!important;
-}
-#matchSheetsSection #ksReportsList{
-  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
-  align-items:start!important;gap:12px!important;
-  overflow:visible!important;overflow-wrap:anywhere!important;
-}
-#matchSheetsSection #ksReportsList > *{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
-#matchSheetsSection #ksReportsList > .ks-sheet-accordion{
-  display:block!important;width:100%!important;min-width:0!important;height:auto!important;
-  max-height:none!important;position:relative!important;transform:none!important;
-  transition:none!important;overflow:hidden!important;overflow-wrap:anywhere!important;
-  scroll-margin-top:12px!important;overflow-anchor:auto!important;
-}
-#matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary{
-  width:100%!important;min-width:0!important;box-sizing:border-box!important;
-  position:relative!important;align-items:center!important;
-  overflow-wrap:anywhere!important;touch-action:manipulation!important;
-}
-#matchSheetsSection .ks-sheet-summary-match,
-#matchSheetsSection .ks-sheet-summary-meta,
-#matchSheetsSection .ks-sheet-summary-action{
-  min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important;
-}
-#matchSheetsSection .ks-sheet-expanded{
-  display:block!important;width:100%!important;min-width:0!important;
-  height:auto!important;max-height:none!important;box-sizing:border-box!important;
-  overflow:visible!important;overflow-wrap:anywhere!important;
-}
-#matchSheetsSection .ks-sheet-expanded .ks-saved,
-#matchSheetsSection .ks-sheet-expanded .ks-public-summary,
-#matchSheetsSection .ks-sheet-expanded .ks-admin-decision-details,
-#matchSheetsSection .ks-sheet-expanded .pub-line{
-  min-width:0!important;max-width:100%!important;box-sizing:border-box!important;
-  overflow-wrap:anywhere!important;word-break:normal!important;
-}
-#matchSheetsSection .ks-sheet-expanded img,
-#matchSheetsSection .ks-sheet-expanded video,
-#matchSheetsSection .ks-sheet-expanded table{
-  max-width:100%!important;height:auto;box-sizing:border-box!important;
-}
-#matchSheetsSection .ks-sheet-expanded .ks-public-summary{
-  grid-template-columns:minmax(0,1fr)!important;
-}
-#matchSheetsSection .ks-sheet-expanded .ks-goals-by-team,
-#matchSheetsSection .ks-sheet-expanded .ks-cards-by-team,
-#matchSheetsSection .ks-sheet-expanded .ks-supervisor-bottom{
-  grid-column:1/-1!important;width:100%!important;min-width:0!important;
-}
-#matchSheetsSection #ksTournament{width:100%!important;max-width:100%!important;min-width:0!important}
-@media(max-width:600px){
-  #matchSheetsSection .ks-toolbar{grid-template-columns:minmax(0,1fr)!important;width:100%!important;min-width:0!important}
-  #matchSheetsSection .ks-sheet-accordion{border-radius:13px!important}
-  #matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary{padding:11px 10px!important}
-  #matchSheetsSection .ks-sheet-expanded{padding:8px!important}
-  #matchSheetsSection .ks-sheet-expanded .ks-saved-head{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:7px!important}
-  #matchSheetsSection .ks-sheet-expanded .ks-saved-match{min-width:0!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
-  #matchSheetsSection .ks-sheet-expanded .ks-saved-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
-  #matchSheetsSection .ks-sheet-expanded .ks-saved-actions .btn{width:100%!important;min-width:0!important;white-space:normal!important}
-}
-@media(max-width:360px){
-  #matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"tag" "match" "meta" "action"!important}
-  #matchSheetsSection .ks-sheet-summary-tag,#matchSheetsSection .ks-sheet-summary-action{justify-self:start!important}
-  #matchSheetsSection .ks-sheet-expanded .ks-saved-actions{grid-template-columns:minmax(0,1fr)!important}
-}
-@media(prefers-reduced-motion:reduce){#matchSheetsSection *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-</style>
-
-
-
-<script id="kashofat-render-queue-final-20261127">
-(function(){
-  'use strict';
-  const section=document.getElementById('matchSheetsSection');
-  const list=document.getElementById('ksReportsList');
-  const picker=document.getElementById('ksTournament');
-  if(!section||!list||!picker||typeof window.renderPublicSheetsFixed!=='function')return;
-
-  const core=window.renderPublicSheetsFixed;
-  if(core.__ksRenderQueueWrapped)return;
-  let frame=0,queueTimer=0,idleTimer=0,pending=false,pendingForce=false,lastInteraction=0;
-  const now=()=>Date.now();
-  // حالة الصفحة النشطة تكفي؛ getClientRects كان يفرض قراءة تخطيط في مسار التمرير.
-  const visible=()=>!document.hidden&&section.classList.contains('active');
-  const hasOpenSheet=()=>!!list.querySelector('details.ks-sheet-accordion[open]');
-  const isBusy=()=>{
-    const active=document.activeElement;
-    const focused=!!(active&&section.contains(active)&&active!==document.body&&
-      active.matches('select,input,textarea,button'));
-    return hasOpenSheet()||focused||now()-lastInteraction<850;
-  };
-  function armIdle(){
-    clearTimeout(idleTimer);
-    idleTimer=setTimeout(()=>{
-      idleTimer=0;
-      if(pending){
-        if(pendingForce||!visible()||!isBusy())run();
-        else armIdle();
-      }
-    },950);
-  }
-  function run(){
-    const force=pendingForce;
-    // تحديث قسم مخفي غير مطلوب؛ يبقى الطلب معلقاً ويُنفذ عند فتح القسم.
-    if(!visible()){
-      pending=true;
-      pendingForce=pendingForce||force;
-      clearTimeout(idleTimer);idleTimer=0;
-      return;
-    }
-    if(!force&&isBusy()){
-      pending=true;armIdle();return;
-    }
-    pending=false;pendingForce=false;clearTimeout(idleTimer);idleTimer=0;
-    try{core.apply(window,[])}catch(error){console.warn('Match-sheet stable render failed:',error)}
-    requestAnimationFrame(()=>{
-      try{if(typeof window.__manarFixKashofatScoreOrder==='function')window.__manarFixKashofatScoreOrder(list)}catch(error){}
-    });
-  }
-  function schedule(force){
-    if(force)pendingForce=true;
-    pending=true;
-    if(frame||queueTimer)return;
-    // Debounce several old event handlers/Firebase callbacks into one repaint.
-    queueTimer=setTimeout(()=>{
-      queueTimer=0;
-      frame=requestAnimationFrame(()=>{frame=0;run()});
-    },70);
-  }
-  const wrapped=function(){schedule(false)};
-  wrapped.__ksRenderQueueWrapped=true;
-  wrapped.__ksRenderQueueCore=core;
-  window.renderPublicSheetsFixed=wrapped;
-
-  // A newly chosen tournament is an explicit request to replace the current list.
-  picker.addEventListener('change',()=>{
-    lastInteraction=0;
-    clearTimeout(idleTimer);
-    schedule(true);
-  },true);
-
-  // While a report is open or the user is scrolling it, keep the current DOM intact.
-  section.addEventListener('pointerdown',event=>{
-    if(event.target&&event.target.closest&&event.target.closest('summary.ks-sheet-accordion-summary')){
-      lastInteraction=now();
-      if(pending&&!idleTimer)armIdle();
-    }
-  },{passive:true});
-  section.addEventListener('touchstart',()=>{
-    lastInteraction=now();
-    if(pending&&!idleTimer)armIdle();
-  },{passive:true});
-  let scrollFrame=0;
-  window.addEventListener('scroll',()=>{
-    // لا نعمل شيئاً أثناء التمرير ما لم يكن هناك تحديث معلّق لقسم الكشوفات.
-    if(!pending||scrollFrame)return;
-    scrollFrame=requestAnimationFrame(()=>{
-      scrollFrame=0;
-      if(visible()){
-        lastInteraction=now();
-        // مؤقت خمول واحد فقط بدلاً من إعادة ضبطه عشرات المرات في الثانية.
-        if(!idleTimer)armIdle();
-      }
-    });
-  },{passive:true});
-  section.addEventListener('toggle',event=>{
-    if(event.target&&event.target.matches&&event.target.matches('details.ks-sheet-accordion')){
-      if(event.target.open){lastInteraction=now();}
-      else if(pending)armIdle();
-    }
-  },true);
-
-  // Mutating actions may legitimately refresh the visible sheet after the action completes.
-  section.addEventListener('click',event=>{
-    const action=event.target&&event.target.closest&&event.target.closest('#ksSave,#ksNew,[data-ks-edit],[data-ks-delete]');
-    if(action)setTimeout(()=>schedule(true),350);
-  },true);
-
-  // Once the section is opened after being hidden, apply any updates that arrived meanwhile.
-  document.querySelectorAll('#nav button[data-page="matchSheetsSection"]').forEach(button=>{
-    button.addEventListener('click',()=>setTimeout(()=>{if(pending)schedule(false)},120));
-  });
-  document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden&&pending&&visible())schedule(false);
-  });
-})();
-</script>
-<style id="kashofat-render-queue-layout-20261127">
-#matchSheetsSection #ksReportsList{overflow-anchor:auto!important;scroll-behavior:auto!important;}
-#matchSheetsSection #ksReportsList > .ks-sheet-accordion,
-#matchSheetsSection #ksReportsList > .ks-finished-summary{contain:layout style!important;}
-#matchSheetsSection .ks-sheet-expanded{overflow-anchor:auto!important;}
-#matchSheetsSection .ks-sheet-accordion > summary{scroll-margin-block:12px!important;}
-@media(prefers-reduced-motion:reduce){#matchSheetsSection #ksReportsList *{animation:none!important;transition:none!important;}}
-</style>
 
 </body>
 </html>
