@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.27.2"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
+<html dir="rtl" lang="ar"><head><link rel="dns-prefetch" href="//www.gstatic.com"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="dns-prefetch" href="//almanar-sports-default-rtdb.firebaseio.com"><link rel="preconnect" href="https://almanar-sports-default-rtdb.firebaseio.com" crossorigin><meta charset="utf-8"/><meta name="manar-app-build" content="2026.11.27.4"/><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport"/><title>المنصة الرياضية</title><script id="section-ordering-enhancer">
 (function(){
   const maps={
     referees:{container:'refereesTableBody',nameIndex:1,ageIndex:2},
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function(){
   // Register the service worker as early as possible.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('./sw.js?build=2026.11.27.2', {scope:'./',updateViaCache:'none'}).catch(function(){});
+      navigator.serviceWorker.register('./sw.js?build=2026.11.27.4', {scope:'./',updateViaCache:'none'}).catch(function(){});
     }, {once:true});
   }
 })();
@@ -8403,7 +8403,7 @@ function refs(){let r=[];try{r=JSON.parse(localStorage.getItem('manar_referees_v
 function fillRefs(saved){for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)continue;const old=S(saved?.['referee'+i]??saved?.referees?.[i-1]);el.innerHTML='<option value="">'+(i===4?'اختر الحكم الرابع (اختياري)':'اختر الحكم '+i)+'</option>'+refs().map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>').join('');if([...el.options].some(o=>o.value===old))el.value=old;} updateRefereeOptions()}
 function updateRefereeOptions(){const chosen=new Set();for(let i=1;i<=4;i++){const v=S($('ksRef'+i)?.value);if(v)chosen.add(v)}for(let i=1;i<=4;i++){const el=$('ksRef'+i);if(!el)continue;const own=S(el.value);[...el.options].forEach(o=>{if(!o.value)return;o.disabled=chosen.has(o.value)&&o.value!==own})}}
 function validateReferees(){const vals=[1,2,3,4].map(i=>S($('ksRef'+i)?.value)).filter(Boolean);return new Set(vals).size===vals.length}
-function fillTours(){const s=$('ksTournament');if(!s)return;const old=s.value;s.innerHTML='<option value="">اختر البطولة</option>'+tours().map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name||t.title||'بطولة')+'</option>').join('');if([...s.options].some(o=>o.value===old))s.value=old}
+function fillTours(){const s=$('ksTournament');if(!s)return;const old=s.value,list=tours();if(!list.length&&old&&[...s.options].some(o=>o.value===old))return;const html='<option value="">اختر البطولة</option>'+list.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name||t.title||'بطولة')+'</option>').join('');if(s.innerHTML!==html)s.innerHTML=html;if(old&&[...s.options].some(o=>o.value===old)&&s.value!==old)s.value=old}
 function fillMatches(){const s=$('ksMatch'),tid=S($('ksTournament')?.value);if(!s)return;s.innerHTML='<option value="">اختر مباراة منتهية</option>';s.disabled=!tid;if(!tid)return;const savedIds=new Set(rows().map(x=>S(x.matchId)));matches().forEach((m,i)=>{if(!finished(m)||tourId(m)!==tid||savedIds.has(mid(m,i)))return;const o=document.createElement('option');o.value=mid(m,i);o.textContent=tName(teamId(m,'home'))+' '+Number(m.hg??m.homeGoals??m.homeScore??0)+' - '+Number(m.ag??m.awayGoals??m.awayScore??0)+' '+tName(teamId(m,'away'))+' — '+S(m.date||'');s.appendChild(o)})}
 function renderPending(){const b=$('ksPending'),tid=S($('ksTournament')?.value);if(!b)return;if(!tid){b.innerHTML='<div class="ks-empty">🏆 اختر البطولة لعرض المباريات المنتهية التي تحتاج إلى كشف.</div>';return}const saved=new Set(rows().map(s=>S(s.matchId)));const list=matches().map((m,i)=>({m,i})).filter(x=>finished(x.m)&&tourId(x.m)===tid&&!saved.has(mid(x.m,x.i)));if(!list.length){b.innerHTML='<div class="ks-empty">✅ لا توجد مباريات منتهية بانتظار إنشاء كشف.</div>';return}b.innerHTML=list.map(x=>'<div class="ks-match-card"><div class="ks-match-title">'+esc(tName(teamId(x.m,'home')))+' <b>'+Number(x.m.hg??x.m.homeGoals??x.m.homeScore??0)+' — '+Number(x.m.ag??x.m.awayGoals??x.m.awayScore??0)+'</b> '+esc(tName(teamId(x.m,'away')))+'</div><div class="ks-meta"><span>📅 '+esc(x.m.date||'—')+'</span><span>⏰ '+esc(x.m.time||'—')+'</span><span>🏟️ '+esc(x.m.stadium||'—')+'</span></div>'+(canManage()?'<button class="btn blue" type="button" data-ks-open="'+esc(mid(x.m,x.i))+'">➕ إنشاء الكشف</button>':'')+'</div>').join('')}
 let active='',cards=[],editing=false;
@@ -10524,11 +10524,34 @@ function renderSheetsDirect(){
   const box=document.getElementById('ksReportsList');
   const sel=document.getElementById('ksTournament');
   if(!box||!sel)return;
+  // لا تستبدل DOM عند تكرار نفس الرسم؛ إعادة البناء المتكرر كانت تُغلق الكشف المفتوح
+  // وتغيّر ارتفاع الصفحة وتُسبب قفز موضع التمرير على الهواتف.
+  const setStableMarkup=markup=>{
+    // Use a source-markup signature, not innerHTML: a separate score-order helper
+    // normalizes score markup after rendering, which should not trigger another repaint.
+    let hash=2166136261;
+    for(let i=0;i<markup.length;i++){hash^=markup.charCodeAt(i);hash=Math.imul(hash,16777619);}
+    const signature=S(sel.value)+'|'+markup.length+'|'+(hash>>>0).toString(36);
+    const expectedCards=(markup.match(/<details class=\"ks-sheet-accordion\"/g)||[]).length;
+    const actualCards=box.querySelectorAll('details.ks-sheet-accordion').length;
+    if(box.dataset.ksStableMarkupSignature===signature&&actualCards===expectedCards)return false;
+    const opened=[...box.querySelectorAll('details.ks-sheet-accordion[open]')]
+      .map(node=>S(node.dataset.matchId)).filter(Boolean);
+    box.innerHTML=markup;
+    box.dataset.ksStableMarkupSignature=signature;
+    if(opened.length){
+      const wanted=new Set(opened);
+      box.querySelectorAll('details.ks-sheet-accordion[data-match-id]').forEach(node=>{
+        if(wanted.has(S(node.dataset.matchId)))node.open=true;
+      });
+    }
+    return true;
+  };
   const tid=S(sel.value);
-  if(!tid){box.innerHTML='<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>';return;}
+  if(!tid){setStableMarkup('<div class="ks-empty">🏆 اختر اسم البطولة أولاً لعرض الكشوفات المدخلة.</div>');return;}
   const selectedTournament=A(DB().tournaments).find(t=>S(t.id)===tid);
   const archived=!!(selectedTournament&&(selectedTournament.archived===true||S(selectedTournament.status)==='archived'||A(DB().archives).some(a=>S(a?.tournament?.id??a?.original?.id??a?.tournamentId)===tid)));
-  if(archived){sel.value='';box.innerHTML='<div class="ks-empty">🔒 هذه البطولة منتهية ومؤرشفة؛ تم إخفاء كشوفاتها من العرض اليومي مع الاحتفاظ بملف الأرشيف.</div>';return;}
+  if(archived){sel.value='';setStableMarkup('<div class="ks-empty">🔒 هذه البطولة منتهية ومؤرشفة؛ تم إخفاء كشوفاتها من العرض اليومي مع الاحتفاظ بملف الأرشيف.</div>');return;}
   // حدّث حالة المباريات من الكشوفات المحفوظة دون تغيير البيانات أو حفظ إضافي.
   try{if(typeof syncMatchStatusesFromSheets==='function')syncMatchStatusesFromSheets(false);}catch(e){}
   const matchById=new Map(A(DB().matches).map(m=>[S(m.id??m.matchId??m.matchID),m]));
@@ -10550,14 +10573,29 @@ function renderSheetsDirect(){
       return (Number.isFinite(db)?db:0)-(Number.isFinite(da)?da:0);
     });
   if(!list.length){
-    box.innerHTML='<div class="ks-finished-empty"><span>📋</span><b>لا توجد مباريات منتهية بكشوفات مدخلة في هذه البطولة</b><small>اختر بطولة أخرى أو تحقق من إدخال كشوفات المباريات المنتهية.</small></div>';
+    setStableMarkup('<div class="ks-finished-empty"><span>📋</span><b>لا توجد مباريات منتهية بكشوفات مدخلة في هذه البطولة</b><small>اختر بطولة أخرى أو تحقق من إدخال كشوفات المباريات المنتهية.</small></div>');
     return;
   }
+  // رقم مستقل لكل بطولة: يبدأ من 001 ويُعاد ترتيبه عند إضافة كشف جديد.
+  // نعتمد تاريخ إنشاء الكشف، ثم الرقم القديم ومعرّف المباراة لكسر التعادل بثبات.
+  const tournamentSheets=allSheetsForDisplay().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
+  const numberOrder=tournamentSheets.slice().sort((x,y)=>{
+    const tx=Date.parse(S(x.createdAt||x.created_at||x.savedAt||x.date||''));
+    const ty=Date.parse(S(y.createdAt||y.created_at||y.savedAt||y.date||''));
+    const ax=Number.isFinite(tx)?tx:0, ay=Number.isFinite(ty)?ty:0;
+    if(ax!==ay)return ax-ay;
+    const nx=Number(x.sheetNumber)||0,ny=Number(y.sheetNumber)||0;
+    if(nx!==ny)return nx-ny;
+    return S(x.matchId??x.matchID??x.fixtureId).localeCompare(S(y.matchId??y.matchID??y.fixtureId));
+  });
+  const sheetNumberByMatch=new Map();
+  numberOrder.forEach((sh,index)=>sheetNumberByMatch.set(S(sh.matchId??sh.matchID??sh.fixtureId),String(index+1).padStart(3,'0')));
   const tournamentLabel=S(selectedTournament?.name||'البطولة');
-  const tournamentSummary='<div class="ks-finished-summary"><div><span>🏆</span><div><b>'+esc(tournamentLabel)+'</b><small>الكشوفات المحفوظة — اختر عنوان المباراة لعرض كشفها</small></div></div><strong>'+list.length+' <small>كشف</small></strong></div>';
+  const tournamentSummary='<div class="ks-finished-summary"><div><span>🏆</span><div><b>'+esc(tournamentLabel)+'</b><small>تسلسل أرقام هذه البطولة يبدأ من 001 — اختر عنوان المباراة لعرض كشفها</small></div></div><strong>'+list.length+' <small>كشف</small></strong></div>';
   const can=(()=>{try{return (typeof window.hasPermission==='function'&&window.hasPermission('matchSheets'))||document.body.classList.contains('admin')||document.body.classList.contains('editor')}catch(e){return document.body.classList.contains('admin')||document.body.classList.contains('editor')}})();
   const cardsHtml=list.map(sh=>{
     const sheetMatchId=S(sh.matchId??sh.matchID??sh.fixtureId);
+    const displaySheetNumber=sheetNumberByMatch.get(sheetMatchId)||'001';
     const m=A(DB().matches).find(x=>S(x.id??x.matchId??x.matchID)===sheetMatchId)||{};
     // خذ اسم الفريق وهدفه من ترتيب الكشف نفسه؛ لا تربط نقاط الكشف بفريق من ترتيب مختلف في سجل المباراة.
     const homeRef=sheetSideRef(sh,m,'home');
@@ -10641,25 +10679,26 @@ function renderSheetsDirect(){
     let sheetDetails='';
     if(hasAdministrativeDecision){
       const decisionDetails=typeof window.manarBuildAdministrativeSheetDetails==='function' ? window.manarBuildAdministrativeSheetDetails(sh,m,homeRef,awayRef,h,a) : '<div class="ks-public-summary">'+decisionSummary+'</div>';
-      sheetDetails='<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
+      sheetDetails='<div class="ks-saved ks-admin-decision-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+displaySheetNumber+' · ⚖️ قرار إداري</span></div>'+decisionDetails+actions+'</div>';
     }else{
-      sheetDetails='<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+esc(sh.sheetNumber||'—')+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+matchMeta+'<div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div>'+keepersLine+shootoutLine+penaltiesLine+bestPlayerLine+refereesLine+supervisorLine+'</div>'+actions+'</div>';
+      sheetDetails='<div class="ks-saved"><div class="ks-saved-head"><div class="ks-saved-match">'+esc(h)+' <b>'+displayAwayScore+' - '+displayHomeScore+'</b> '+esc(a)+'</div><span class="badge">📋 كشف رقم '+displaySheetNumber+'</span></div><div class="ks-public-summary sheet-public-summary">'+decisionSummary+matchMeta+'<div class="pub-line ks-goals-by-team">⚽ <b>مسجلو الأهداف حسب الفريق:</b> '+goals+'</div><div class="pub-line ks-cards-by-team">🟨🟥 <b>البطاقات حسب الفريق:</b> '+ct+'</div>'+keepersLine+shootoutLine+penaltiesLine+bestPlayerLine+refereesLine+supervisorLine+'</div>'+actions+'</div>';
     }
 
     const matchTitle=h+' × '+a;
     const matchDate=S(m.date||sh.date||'');
     const matchTime=S(m.time||sh.time||'');
     const summaryMeta=(matchDate?'📅 '+esc(matchDate):'')+(matchTime?'　⏰ '+esc(matchTime):'');
-    return '<details class="ks-sheet-accordion" aria-label="كشف مباراة '+esc(matchTitle)+'"><summary class="ks-sheet-accordion-summary"><span class="ks-sheet-summary-tag">📋 كشف</span><strong class="ks-sheet-summary-match">'+esc(matchTitle)+'</strong><span class="ks-sheet-summary-meta">'+summaryMeta+'</span><span class="ks-sheet-summary-action">عرض الكشف <b aria-hidden="true">⌄</b></span></summary><div class="ks-sheet-expanded">'+sheetDetails+'</div></details>';
+    return '<details class="ks-sheet-accordion" data-match-id="'+esc(sheetMatchId)+'" aria-label="كشف رقم '+displaySheetNumber+' مباراة '+esc(matchTitle)+'"><summary class="ks-sheet-accordion-summary"><span class="ks-sheet-summary-tag">📋 كشف '+displaySheetNumber+'</span><strong class="ks-sheet-summary-match">'+esc(matchTitle)+'</strong><span class="ks-sheet-summary-meta">'+summaryMeta+'</span><span class="ks-sheet-summary-action">عرض الكشف <b aria-hidden="true">⌄</b></span></summary><div class="ks-sheet-expanded">'+sheetDetails+'</div></details>';
   }).join('');
-  box.innerHTML=tournamentSummary+cardsHtml;
+  setStableMarkup(tournamentSummary+cardsHtml);
 }
 window.renderPlayerStatsDirect=renderPlayerStatsDirect;window.renderPublicSheetsFixed=renderSheetsDirect;
-function refresh(){setTimeout(()=>{try{renderPlayerStatsDirect()}catch(e){};try{renderSheetsDirect()}catch(e){}},80)}
-document.addEventListener('DOMContentLoaded',()=>{refresh();setTimeout(refresh,700);setTimeout(refresh,1800)});
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>{try{renderPlayerStatsDirect()}catch(e){};try{window.renderPublicSheetsFixed&&window.renderPublicSheetsFixed()}catch(e){}},180);
+},{once:true});
 const oldRS=window.renderStats;window.renderStats=function(){if(typeof oldRS==='function')try{oldRS()}catch(e){}setTimeout(renderPlayerStatsDirect,120)};
-['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>window.addEventListener('storage',e=>{if(e.key===k)refresh()}));
-/* تم إيقاف إعادة الرسم الدوري للكشوفات. */
+['manar_match_sheets_v1','manar_match_sheets_v2','manar_match_sheets_v3'].forEach(k=>window.addEventListener('storage',e=>{if(e.key===k)setTimeout(()=>{try{window.renderPublicSheetsFixed&&window.renderPublicSheetsFixed()}catch(err){}},80)}));
+/* تمرير تحديثات الكشوفات إلى مسار إعادة الرسم الموحد في نهاية الملف. */
 })();
 </script>
 
@@ -12511,7 +12550,7 @@ window.__getPredictionForMatch=function(m){
 <script id="sports-pwa-controller">
 (function(){
   'use strict';
-  const VERSION='2026.11.27.2';
+  const VERSION='2026.11.27.4';
   let deferredPrompt=null, swRegistration=null;
   const $=id=>document.getElementById(id);
   const standalone=()=>window.matchMedia('(display-mode: standalone)').matches ||
@@ -16491,52 +16530,22 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     root.querySelectorAll(ROOT+' .ks-saved-match b').forEach(el=>targets.push(el));
     targets.forEach(el=>{
       if(el.dataset.ksScoreTeamOrderFixed==='1')return;
-      const raw=(el.textContent||'').trim();
-      const nums=raw.match(/[0-9٠-٩۰-۹]+/g);
+      const nums=(el.textContent||'').trim().match(/[0-9٠-٩۰-۹]+/g);
       if(!nums||nums.length<2)return;
-      // النص الأصلي يُحفظ بترتيب المباراة: هدفا الفريق الأول ثم الفريق الثاني.
-      // وبما أن العرض LTR يبدأ من اليسار، نضع نتيجة الفريق الثاني يسارًا
-      // ونتيجة الفريق الأول يمينًا دون تبديل القيم نفسها.
-      const homeScore=nums[0],awayScore=nums[1];
-      el.innerHTML='<span class="ks-score-away" dir="ltr">'+awayScore+'</span>'+
+      const first=nums[0],second=nums[1];
+      el.innerHTML='<span class="ks-score-away" dir="ltr">'+second+'</span>'+
         '<span class="ks-score-separator" aria-hidden="true">–</span>'+
-        '<span class="ks-score-home" dir="ltr">'+homeScore+'</span>';
+        '<span class="ks-score-home" dir="ltr">'+first+'</span>';
       el.setAttribute('dir','ltr');
       el.classList.add('ks-score-team-order-fixed');
       el.dataset.ksScoreTeamOrderFixed='1';
-      el.setAttribute('aria-label',homeScore+' للفريق الأول على اليمين، '+awayScore+' للفريق الثاني على اليسار');
+      el.setAttribute('aria-label',first+' للفريق الأول، '+second+' للفريق الثاني');
     });
   }
-  function refresh(){
-    const box=document.querySelector(ROOT);
-    if(box)fixScoreOrder(box);
-  }
-  const original=window.renderPublicSheetsFixed;
-  if(typeof original==='function'&&!original.__ksScoreTeamOrderWrapped){
-    const wrapped=function(){
-      const result=original.apply(this,arguments);
-      setTimeout(refresh,0);
-      return result;
-    };
-    wrapped.__ksScoreTeamOrderWrapped=true;
-    window.renderPublicSheetsFixed=wrapped;
-  }
-  function observe(){
-    const box=document.querySelector(ROOT);
-    if(!box||box.__ksScoreTeamOrderObserver)return;
-    const observer=new MutationObserver(()=>fixScoreOrder(box));
-    observer.observe(box,{childList:true,subtree:true});
-    box.__ksScoreTeamOrderObserver=observer;
-    fixScoreOrder(box);
-  }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',()=>{refresh();observe();},{once:true});
-  }else{refresh();observe();}
-  document.addEventListener('change',event=>{
-    if(event.target&&event.target.id==='ksTournament')setTimeout(()=>{refresh();observe();},30);
-  },true);
-  const bodyObserver=new MutationObserver(()=>observe());
-  if(document.documentElement)bodyObserver.observe(document.documentElement,{childList:true,subtree:true});
+  window.__manarFixKashofatScoreOrder=fixScoreOrder;
+  function initial(){const box=document.querySelector(ROOT);if(box)fixScoreOrder(box)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initial,{once:true});
+  else initial();
 })();
 </script>
 
@@ -18748,7 +18757,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 (function(){
   'use strict';
   const meta=document.querySelector('meta[name="manar-app-build"]');
-  const APP_BUILD=String(meta?.content||'2026.11.27.2');
+  const APP_BUILD=String(meta?.content||'2026.11.27.4');
   const $=id=>document.getElementById(id);
   let swRegistration=null, updateAvailable=false, latestBuild='', checking=false, lastNativeNotice='';
   const bell=$('manarUpdateBell'), panel=$('manarUpdatePanel'), message=$('manarUpdateMessage');
@@ -21838,6 +21847,191 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
  #matchSheetsSection .ks-sheet-expanded .ks-sheet-referees-line .ks-referee-item{padding:5px 7px;font-size:11px}
 }
 @media(prefers-reduced-motion:reduce){#matchSheetsSection .ks-sheet-summary-action b{transition:none}}
+</style>
+
+
+<style id="match-sheets-mobile-stability-20261127">
+/* إصلاح ثبات قسم الكشوفات فقط: منع تغيّر العرض/التمرير بسبب إعادة الرسم وتضخم المحتوى. */
+#matchSheetsSection,
+#matchSheetsSection .ks-root,
+#matchSheetsSection .ks-public,
+#matchSheetsSection #ksReportsList{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  box-sizing:border-box!important;
+}
+#matchSheetsSection .ks-root,
+#matchSheetsSection .ks-public{
+  overflow:visible!important;
+}
+#matchSheetsSection #ksReportsList{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  align-items:start!important;gap:12px!important;
+  overflow:visible!important;overflow-wrap:anywhere!important;
+}
+#matchSheetsSection #ksReportsList > *{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+#matchSheetsSection #ksReportsList > .ks-sheet-accordion{
+  display:block!important;width:100%!important;min-width:0!important;height:auto!important;
+  max-height:none!important;position:relative!important;transform:none!important;
+  transition:none!important;overflow:hidden!important;overflow-wrap:anywhere!important;
+  scroll-margin-top:12px!important;overflow-anchor:auto!important;
+}
+#matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary{
+  width:100%!important;min-width:0!important;box-sizing:border-box!important;
+  position:relative!important;align-items:center!important;
+  overflow-wrap:anywhere!important;touch-action:manipulation!important;
+}
+#matchSheetsSection .ks-sheet-summary-match,
+#matchSheetsSection .ks-sheet-summary-meta,
+#matchSheetsSection .ks-sheet-summary-action{
+  min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important;
+}
+#matchSheetsSection .ks-sheet-expanded{
+  display:block!important;width:100%!important;min-width:0!important;
+  height:auto!important;max-height:none!important;box-sizing:border-box!important;
+  overflow:visible!important;overflow-wrap:anywhere!important;
+}
+#matchSheetsSection .ks-sheet-expanded .ks-saved,
+#matchSheetsSection .ks-sheet-expanded .ks-public-summary,
+#matchSheetsSection .ks-sheet-expanded .ks-admin-decision-details,
+#matchSheetsSection .ks-sheet-expanded .pub-line{
+  min-width:0!important;max-width:100%!important;box-sizing:border-box!important;
+  overflow-wrap:anywhere!important;word-break:normal!important;
+}
+#matchSheetsSection .ks-sheet-expanded img,
+#matchSheetsSection .ks-sheet-expanded video,
+#matchSheetsSection .ks-sheet-expanded table{
+  max-width:100%!important;height:auto;box-sizing:border-box!important;
+}
+#matchSheetsSection .ks-sheet-expanded .ks-public-summary{
+  grid-template-columns:minmax(0,1fr)!important;
+}
+#matchSheetsSection .ks-sheet-expanded .ks-goals-by-team,
+#matchSheetsSection .ks-sheet-expanded .ks-cards-by-team,
+#matchSheetsSection .ks-sheet-expanded .ks-supervisor-bottom{
+  grid-column:1/-1!important;width:100%!important;min-width:0!important;
+}
+#matchSheetsSection #ksTournament{width:100%!important;max-width:100%!important;min-width:0!important}
+@media(max-width:600px){
+  #matchSheetsSection .ks-toolbar{grid-template-columns:minmax(0,1fr)!important;width:100%!important;min-width:0!important}
+  #matchSheetsSection .ks-sheet-accordion{border-radius:13px!important}
+  #matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary{padding:11px 10px!important}
+  #matchSheetsSection .ks-sheet-expanded{padding:8px!important}
+  #matchSheetsSection .ks-sheet-expanded .ks-saved-head{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:7px!important}
+  #matchSheetsSection .ks-sheet-expanded .ks-saved-match{min-width:0!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  #matchSheetsSection .ks-sheet-expanded .ks-saved-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  #matchSheetsSection .ks-sheet-expanded .ks-saved-actions .btn{width:100%!important;min-width:0!important;white-space:normal!important}
+}
+@media(max-width:360px){
+  #matchSheetsSection .ks-sheet-accordion > .ks-sheet-accordion-summary{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"tag" "match" "meta" "action"!important}
+  #matchSheetsSection .ks-sheet-summary-tag,#matchSheetsSection .ks-sheet-summary-action{justify-self:start!important}
+  #matchSheetsSection .ks-sheet-expanded .ks-saved-actions{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(prefers-reduced-motion:reduce){#matchSheetsSection *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+
+
+
+<script id="kashofat-render-queue-final-20261127">
+(function(){
+  'use strict';
+  const section=document.getElementById('matchSheetsSection');
+  const list=document.getElementById('ksReportsList');
+  const picker=document.getElementById('ksTournament');
+  if(!section||!list||!picker||typeof window.renderPublicSheetsFixed!=='function')return;
+
+  const core=window.renderPublicSheetsFixed;
+  if(core.__ksRenderQueueWrapped)return;
+  let frame=0,queueTimer=0,idleTimer=0,pending=false,pendingForce=false,lastInteraction=0;
+  const now=()=>Date.now();
+  const visible=()=>section.getClientRects().length>0;
+  const hasOpenSheet=()=>!!list.querySelector('details.ks-sheet-accordion[open]');
+  const isBusy=()=>{
+    const active=document.activeElement;
+    const focused=!!(active&&section.contains(active)&&active!==document.body&&
+      active.matches('select,input,textarea,button'));
+    return hasOpenSheet()||focused||now()-lastInteraction<850;
+  };
+  function armIdle(){
+    clearTimeout(idleTimer);
+    idleTimer=setTimeout(()=>{
+      if(pending){
+        if(pendingForce||!visible()||!isBusy())run();
+        else armIdle();
+      }
+    },950);
+  }
+  function run(){
+    const force=pendingForce;
+    if(!force&&visible()&&isBusy()){
+      pending=true;armIdle();return;
+    }
+    pending=false;pendingForce=false;clearTimeout(idleTimer);
+    try{core.apply(window,[])}catch(error){console.warn('Match-sheet stable render failed:',error)}
+    requestAnimationFrame(()=>{
+      try{if(typeof window.__manarFixKashofatScoreOrder==='function')window.__manarFixKashofatScoreOrder(list)}catch(error){}
+    });
+  }
+  function schedule(force){
+    if(force)pendingForce=true;
+    pending=true;
+    if(frame||queueTimer)return;
+    // Debounce several old event handlers/Firebase callbacks into one repaint.
+    queueTimer=setTimeout(()=>{
+      queueTimer=0;
+      frame=requestAnimationFrame(()=>{frame=0;run()});
+    },70);
+  }
+  const wrapped=function(){schedule(false)};
+  wrapped.__ksRenderQueueWrapped=true;
+  wrapped.__ksRenderQueueCore=core;
+  window.renderPublicSheetsFixed=wrapped;
+
+  // A newly chosen tournament is an explicit request to replace the current list.
+  picker.addEventListener('change',()=>{
+    lastInteraction=0;
+    clearTimeout(idleTimer);
+    schedule(true);
+  },true);
+
+  // While a report is open or the user is scrolling it, keep the current DOM intact.
+  section.addEventListener('pointerdown',event=>{
+    if(event.target&&event.target.closest&&event.target.closest('summary.ks-sheet-accordion-summary')){
+      lastInteraction=now();
+    }
+  },{passive:true});
+  section.addEventListener('touchstart',()=>{lastInteraction=now()},{passive:true});
+  window.addEventListener('scroll',()=>{
+    if(visible()){
+      lastInteraction=now();
+      if(pending)armIdle();
+    }
+  },{passive:true});
+  section.addEventListener('toggle',event=>{
+    if(event.target&&event.target.matches&&event.target.matches('details.ks-sheet-accordion')){
+      if(event.target.open){lastInteraction=now();}
+      else if(pending)armIdle();
+    }
+  },true);
+
+  // Mutating actions may legitimately refresh the visible sheet after the action completes.
+  section.addEventListener('click',event=>{
+    const action=event.target&&event.target.closest&&event.target.closest('#ksSave,#ksNew,[data-ks-edit],[data-ks-delete]');
+    if(action)setTimeout(()=>schedule(true),350);
+  },true);
+
+  // Once the section is opened after being hidden, apply any updates that arrived meanwhile.
+  document.querySelectorAll('#nav button[data-page="matchSheetsSection"]').forEach(button=>{
+    button.addEventListener('click',()=>setTimeout(()=>{if(pending)schedule(false)},120));
+  });
+})();
+</script>
+<style id="kashofat-render-queue-layout-20261127">
+#matchSheetsSection #ksReportsList{overflow-anchor:auto!important;scroll-behavior:auto!important;}
+#matchSheetsSection #ksReportsList > .ks-sheet-accordion,
+#matchSheetsSection #ksReportsList > .ks-finished-summary{contain:layout style!important;}
+#matchSheetsSection .ks-sheet-expanded{overflow-anchor:auto!important;}
+#matchSheetsSection .ks-sheet-accordion > summary{scroll-margin-block:12px!important;}
+@media(prefers-reduced-motion:reduce){#matchSheetsSection #ksReportsList *{animation:none!important;transition:none!important;}}
 </style>
 
 </body>
