@@ -21465,5 +21465,169 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
 }
 </style>
 
+
+<style id="pm-add-name-live-suggestions-css">
+#players .pm-name-suggestions{display:none;margin-top:9px;padding:10px;border:1px solid #cfe0f5;border-radius:14px;background:linear-gradient(135deg,#f1f8ff 0%,#f8f2ff 55%,#fff7ed 100%);box-shadow:0 6px 18px rgba(44,86,145,.09);}
+#players .pm-name-suggestions.is-visible{display:block;}
+#players .pm-name-suggestions-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;color:#244b7a;font-size:12px;font-weight:900;}
+#players .pm-name-suggestions-count{flex:0 0 auto;padding:4px 8px;border-radius:999px;background:linear-gradient(120deg,#dbeafe,#ede9fe);color:#4c3ba8;font-size:11px;}
+#players .pm-name-suggestions-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:245px;overflow:auto;padding:1px;}
+#players .pm-name-suggestion{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:9px 10px;border:1px solid #d8e4f5;border-radius:11px;background:#fff;color:#243b59;text-align:right;font:inherit;box-shadow:0 2px 7px rgba(43,72,120,.06);}
+#players .pm-name-suggestion:active{transform:scale(.98);background:#eef4ff;}
+#players .pm-name-suggestion strong{min-width:0;overflow-wrap:anywhere;font-size:13px;font-weight:900;}
+#players .pm-name-suggestion small{flex:0 0 auto;padding:3px 7px;border-radius:8px;background:#fff1d6;color:#965b00;font-size:10px;font-weight:900;}
+#players .pm-name-suggestions-empty{padding:10px;border-radius:10px;background:#fff;color:#718096;text-align:center;font-size:12px;font-weight:700;}
+@media(max-width:520px){#players .pm-name-suggestions{padding:8px}#players .pm-name-suggestions-list{grid-template-columns:1fr;max-height:220px}#players .pm-name-suggestion{padding:10px}}
+</style>
+<script id="pm-add-name-live-suggestions-js">
+(function(){
+  'use strict';
+  const normalizeName=value=>String(value??'')
+    .normalize('NFKC')
+    .replace(/[\u064B-\u065F\u0670\u0640]/g,'')
+    .replace(/[أإآٱ]/g,'ا')
+    .replace(/ى/g,'ي')
+    .replace(/[\u200e\u200f]/g,'')
+    .replace(/\s+/g,' ')
+    .trim()
+    .toLocaleLowerCase('ar');
+  const safeText=value=>String(value??'');
+
+  function getPlayersForTeam(teamId){
+    if(!teamId||typeof db==='undefined'||!Array.isArray(db.players))return [];
+    return db.players.filter(player=>String(player?.teamId??player?.teamID??player?.team_id??'')===String(teamId));
+  }
+
+  function installFor(inputId,teamSelectId,hostId){
+    const input=document.getElementById(inputId);
+    const teamSelect=document.getElementById(teamSelectId);
+    if(!input||!teamSelect||input.dataset.liveNameSuggestionsBound==='1')return;
+
+    const host=document.createElement('div');
+    host.id=hostId;
+    host.className='pm-name-suggestions';
+    host.setAttribute('role','region');
+    host.setAttribute('aria-label','الأسماء المسجلة المشابهة في الفريق');
+    input.insertAdjacentElement('afterend',host);
+    input.dataset.liveNameSuggestionsBound='1';
+    input.setAttribute('autocomplete','off');
+    input.setAttribute('aria-autocomplete','list');
+    input.setAttribute('aria-controls',hostId);
+    let activeIndex=-1;
+
+    function hide(){
+      host.classList.remove('is-visible');
+      host.replaceChildren();
+      input.setAttribute('aria-expanded','false');
+      activeIndex=-1;
+    }
+    function showMessage(message){
+      host.replaceChildren();
+      const empty=document.createElement('div');
+      empty.className='pm-name-suggestions-empty';
+      empty.textContent=message;
+      host.appendChild(empty);
+      host.classList.add('is-visible');
+      input.setAttribute('aria-expanded','true');
+    }
+    function choose(player){
+      input.value=safeText(player.name||player.fullName||player.playerName);
+      hide();
+      input.focus();
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    function render(){
+      activeIndex=-1;
+      const query=normalizeName(input.value);
+      if(!query){hide();return;}
+      const teamId=teamSelect.value;
+      if(!teamId){showMessage('اختر البطولة والفريق أولاً لعرض الأسماء المسجلة فيه.');return;}
+      const matches=getPlayersForTeam(teamId)
+        .map(player=>({player,name:safeText(player.name||player.fullName||player.playerName)}))
+        .filter(item=>item.name&&normalizeName(item.name).includes(query))
+        .sort((a,b)=>{
+          const A=normalizeName(a.name),B=normalizeName(b.name);
+          const ap=A.startsWith(query)?0:1,bp=B.startsWith(query)?0:1;
+          return ap-bp||A.localeCompare(B,'ar');
+        });
+      if(!matches.length){showMessage('لا توجد أسماء مطابقة في الفريق المختار.');return;}
+
+      host.replaceChildren();
+      const head=document.createElement('div');
+      head.className='pm-name-suggestions-head';
+      const title=document.createElement('span');
+      title.textContent='👥 أسماء مشابهة ومسجلة في هذا الفريق';
+      const count=document.createElement('span');
+      count.className='pm-name-suggestions-count';
+      count.textContent=matches.length+' لاعب';
+      head.append(title,count);
+      const list=document.createElement('div');
+      list.className='pm-name-suggestions-list';
+      list.setAttribute('role','listbox');
+      matches.forEach(({player,name},index)=>{
+        const option=document.createElement('button');
+        option.type='button';
+        option.className='pm-name-suggestion';
+        option.setAttribute('role','option');
+        option.setAttribute('aria-selected',index===activeIndex?'true':'false');
+        const label=document.createElement('strong');
+        label.textContent=name;
+        const number=document.createElement('small');
+        number.textContent=player.number?'رقم '+player.number:'لا يوجد رقم';
+        option.append(label,number);
+        option.addEventListener('click',()=>choose(player));
+        list.appendChild(option);
+      });
+      host.append(head,list);
+      host.classList.add('is-visible');
+      input.setAttribute('aria-expanded','true');
+    }
+
+    input.addEventListener('input',render);
+    teamSelect.addEventListener('change',render);
+    const tourSelectId=inputId==='pmAddName'?'pmAddTour':'';
+    const tourSelect=tourSelectId?document.getElementById(tourSelectId):null;
+    tourSelect?.addEventListener('change',()=>{if(input.value.trim())render();else hide();});
+    input.addEventListener('keydown',event=>{
+      if(!host.classList.contains('is-visible'))return;
+      const options=[...host.querySelectorAll('.pm-name-suggestion')];
+      if(event.key==='Escape'){hide();return;}
+      if(!options.length)return;
+      if(event.key==='ArrowDown'){
+        event.preventDefault();activeIndex=(activeIndex+1)%options.length;
+        options.forEach((option,index)=>option.setAttribute('aria-selected',index===activeIndex?'true':'false'));
+      }else if(event.key==='ArrowUp'){
+        event.preventDefault();activeIndex=(activeIndex-1+options.length)%options.length;
+        options.forEach((option,index)=>option.setAttribute('aria-selected',index===activeIndex?'true':'false'));
+      }else if(event.key==='Enter'&&activeIndex>=0){
+        event.preventDefault();options[activeIndex].click();
+      }
+    });
+    document.addEventListener('pointerdown',event=>{
+      if(event.target!==input&&!host.contains(event.target))hide();
+    });
+
+    // بعد حفظ اللاعب يُفرغ الحقل برمجياً، لذا نخفي قائمة الاقتراحات مباشرة.
+    if(inputId==='pmAddName'){
+      document.querySelector('#playersAddPanel .players-form-actions button[onclick*="playersAdd"]')?.addEventListener('click',()=>{
+        setTimeout(()=>{if(!input.value.trim())hide();},0);
+      });
+    }
+  }
+
+  function install(){
+    installFor('pmAddName','pmAddTeam','pmAddNameSuggestions');
+    // دعم نموذج التسجيل الأساسي القديم إن كان موجوداً في النسخة/الواجهة الحالية.
+    installFor('playerName','playerTeam','playerNameSuggestions');
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    install();
+    setTimeout(install,250);
+    setTimeout(install,1000);
+  });
+  window.addEventListener('storage',()=>{if(document.activeElement?.id==='pmAddName'||document.activeElement?.id==='playerName')install();});
+})();
+</script>
+
 </body>
 </html>
