@@ -2708,6 +2708,8 @@ function renderEndedTournaments(){
   if(window.__tournamentDateAutoRefresh)return;
   window.__tournamentDateAutoRefresh=true;
   setInterval(function(){
+    // لا نعيد إنشاء قوائم البطولات في الخلفية؛ فتح القسم يستدعي renderAll ويحدّثه فوراً.
+    if(document.hidden || !document.getElementById('tournaments')?.classList.contains('active'))return;
     try{
       if(typeof renderTours==='function')renderTours();
     }catch(e){}
@@ -5957,6 +5959,11 @@ window.sendContactMessage=function(){
     }
 
     const players=(typeof db!=='undefined' && Array.isArray(db.players)) ? db.players : [];
+    const playerByNameNumber=new Map();
+    players.forEach(function(player){
+      const key=String(player.name||'').trim()+'\u0000'+String(player.number??'').trim();
+      if(!playerByNameNumber.has(key))playerByNameNumber.set(key,player);
+    });
 
     [...body.rows].forEach((row,index)=>{
       let td=row.querySelector('.players-admin-actions');
@@ -5973,10 +5980,7 @@ window.sendContactMessage=function(){
       const name=(nameCell?.textContent||'').trim();
       const number=(shirtCell?.textContent||'').trim();
 
-      const p=players.find(x=>
-        String(x.name||'').trim()===name &&
-        String(x.number??'').trim()===number
-      ) || players[index];
+      const p=playerByNameNumber.get(name+'\u0000'+number) || players[index];
 
       td.innerHTML='';
 
@@ -6031,8 +6035,16 @@ window.sendContactMessage=function(){
 
     const box=document.getElementById('publicSelectedTeamPlayers');
     if(box){
-      new MutationObserver(function(){
-        setTimeout(addActions,0);
+      new MutationObserver(function(records){
+        // تجاهل التغييرات التي تنشئها أزرار الإدارة نفسها؛ وإلا ستراقب
+        // المراقبة حذف الأزرار وإضافتها ثم تستدعي addActions بلا توقف.
+        const hasExternalChange=records.some(function(record){
+          const target=record.target && record.target.nodeType===1
+            ? record.target
+            : record.target && record.target.parentElement;
+          return !(target && target.closest && target.closest('.players-admin-actions'));
+        });
+        if(hasExternalChange) setTimeout(addActions,0);
       }).observe(box,{childList:true,subtree:true});
     }
   });
@@ -8208,7 +8220,10 @@ function playerPosition(player){return isGoalkeeperByNumber(player)?'حارس':'
     setTimeout(syncTeamTournamentList,4000);
   });
   // تحديث القائمة بسرعة بعد تحميل قاعدة البيانات، وليس كل 10 ثوانٍ فقط.
-  setInterval(syncTeamTournamentList,30000);
+  setInterval(function(){
+    if(document.hidden || !document.getElementById('teams')?.classList.contains('active'))return;
+    syncTeamTournamentList();
+  },30000);
 })();
 </script><script id="final-direct-icons-only">
 (function(){
@@ -10560,7 +10575,9 @@ function renderSheetsDirect(){
     return ['finished','complete','completed','played','ended','منتهية','انتهت','مكتملة','مكتمل'].includes(status);
   };
   // اعرض فقط المباريات المنتهية التي لها كشف محفوظ، وبترتيب تاريخ المباراة الأحدث أولاً.
-  const list=allSheetsForDisplay()
+  // قراءة ودمج مصادر الكشوفات مرة واحدة فقط لكل عملية رسم.
+  const allSheets=allSheetsForDisplay();
+  const list=allSheets
     .filter(sh=>{
       if(!window.__manarKashofatBelongsStrict(sh,tid))return false;
       const mid=S(sh.matchId??sh.matchID??sh.fixtureId);
@@ -10578,7 +10595,7 @@ function renderSheetsDirect(){
   }
   // رقم مستقل لكل بطولة: يبدأ من 001 ويُعاد ترتيبه عند إضافة كشف جديد.
   // نعتمد تاريخ إنشاء الكشف، ثم الرقم القديم ومعرّف المباراة لكسر التعادل بثبات.
-  const tournamentSheets=allSheetsForDisplay().filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
+  const tournamentSheets=allSheets.filter(sh=>window.__manarKashofatBelongsStrict(sh,tid));
   const numberOrder=tournamentSheets.slice().sort((x,y)=>{
     const tx=Date.parse(S(x.createdAt||x.created_at||x.savedAt||x.date||''));
     const ty=Date.parse(S(y.createdAt||y.created_at||y.savedAt||y.date||''));
@@ -10596,7 +10613,7 @@ function renderSheetsDirect(){
   const cardsHtml=list.map(sh=>{
     const sheetMatchId=S(sh.matchId??sh.matchID??sh.fixtureId);
     const displaySheetNumber=sheetNumberByMatch.get(sheetMatchId)||'001';
-    const m=A(DB().matches).find(x=>S(x.id??x.matchId??x.matchID)===sheetMatchId)||{};
+    const m=matchById.get(sheetMatchId)||{};
     // خذ اسم الفريق وهدفه من ترتيب الكشف نفسه؛ لا تربط نقاط الكشف بفريق من ترتيب مختلف في سجل المباراة.
     const homeRef=sheetSideRef(sh,m,'home');
     const awayRef=sheetSideRef(sh,m,'away');
@@ -10868,7 +10885,28 @@ function improveResultCards(){
  });
 }
 function hook(){
- const observer=new MutationObserver(()=>{improveResultCards();const ed=$("rsEditor");if(ed&&ed.style.display!=='none')installCardsUI();});
+  let observerFrame=0;
+  const relevantNode=node=>!!(node&&node.nodeType===1&&(
+    node.matches?.('.rs-match-card') ||
+    node.closest?.('.rs-match-card') ||
+    node.querySelector?.('.rs-match-card')
+  ));
+  const observer=new MutationObserver(records=>{
+    let relevant=false;
+    for(const record of records){
+      const target=record.target?.nodeType===1?record.target:record.target?.parentElement;
+      if(relevantNode(target)){relevant=true;break;}
+      for(const node of record.addedNodes||[]){if(relevantNode(node)){relevant=true;break;}}
+      if(relevant)break;
+    }
+    if(!relevant||observerFrame)return;
+    observerFrame=requestAnimationFrame(()=>{
+      observerFrame=0;
+      // هذه المراقبة مخصصة لبطاقات المباريات فقط. بناء واجهة الإنذارات
+      // يتم عند فتح محرر الكشف صراحةً، وليس عند كل تغيير داخل المحرر.
+      improveResultCards();
+    });
+  });
  observer.observe(document.body,{childList:true,subtree:true});
  document.addEventListener('click',e=>{if(e.target.closest('[data-rs-open]'))setTimeout(loadExistingCards,120)});
  const oldStart=window.startMatchSheetFor;
@@ -10958,7 +10996,13 @@ function capture(id){
 function hook(){
  const old=window.startMatchSheetFor;if(typeof old==='function'&&!old.__teamCardFix){window.startMatchSheetFor=function(id){capture(id);const r=old.apply(this,arguments);setTimeout(install,120);setTimeout(install,500);return r};window.startMatchSheetFor.__teamCardFix=true}
  document.addEventListener('click',e=>{if(e.target.closest('[data-rs-open]'))setTimeout(install,150)});
- setInterval(()=>{if(document.hidden)return;const ed=$('rsEditor');if(ed&&ed.style.display!=='none')install()},5000);
+ setInterval(()=>{
+   if(document.hidden)return;
+   const ed=$('rsEditor');
+   // لا نعيد بناء واجهة الإنذارات كل خمس ثوانٍ؛ نعيد تثبيتها فقط
+   // إن حذفها محرك الكشف أثناء فتح المحرر.
+   if(ed&&ed.style.display!=='none'&&!$('rsCardsTeamPlayerUI'))install();
+ },5000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook);else hook();
 })();
@@ -12466,7 +12510,12 @@ function install(){
  }catch(e){console.warn('prediction data-driven patch',e)}};
  document.addEventListener('change',e=>{if(e.target?.id==='predictionTournamentV2')setTimeout(run,20)},true);
  window.addEventListener('storage',e=>{if(/^manar_(sports|match_sheets|prediction)/.test(S(e.key)))setTimeout(run,30)});
- setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);setInterval(run,3000);
+ setTimeout(run,100);setTimeout(run,700);setTimeout(run,1600);
+ // لا نفحص بصمة جميع المباريات والكشوفات ما دام قسم التوقعات مخفيًا.
+ setInterval(()=>{
+   if(document.hidden||!sec.classList.contains('active'))return;
+   run();
+ },3000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 window.__getPredictionForMatch=function(m){
@@ -13337,8 +13386,26 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     installStyle(); fixHeaders(document);
     var root=document.getElementById('statsBody')||document.body;
     if(root && window.MutationObserver){
+      var tableSelector='.stats-ranking-card table, .stats-group-ranking-card table, .standings-table:not(.mini-ranking), .standings-mobile-table';
+      var queuedTables=new Set(), queuedRoots=new Set(), frame=0;
+      function queueCandidate(node){
+        if(!node||node.nodeType!==1)return;
+        var table=node.matches?.('table')&&node.matches(tableSelector)?node:node.closest?.(tableSelector);
+        if(table){queuedTables.add(table);return;}
+        if(node.matches?.(tableSelector)||node.querySelector?.(tableSelector))queuedRoots.add(node);
+      }
       var observer=new MutationObserver(function(records){
-        records.forEach(function(record){record.addedNodes.forEach(function(node){if(node.nodeType===1)fixHeaders(node);});});
+        records.forEach(function(record){
+          queueCandidate(record.target?.nodeType===1?record.target:record.target?.parentElement);
+          (record.addedNodes||[]).forEach(queueCandidate);
+        });
+        if(frame||(!queuedTables.size&&!queuedRoots.size))return;
+        frame=requestAnimationFrame(function(){
+          frame=0;
+          queuedTables.forEach(function(table){if(table.isConnected)fixHeaders(table)});
+          queuedRoots.forEach(function(node){if(node.isConnected)fixHeaders(node)});
+          queuedTables.clear();queuedRoots.clear();
+        });
       });
       observer.observe(root,{childList:true,subtree:true});
       if(root!==document.body) observer.observe(document.body,{childList:true,subtree:true});
@@ -13463,7 +13530,9 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   var lastSignature = '';
   function statsIsVisible(){
     var page=document.getElementById('stats');
-    return !!(page && (page.classList.contains('active') || page.offsetParent!==null));
+    // أقسام المنصة تُظهر القسم المختار عبر active؛ تجنب offsetParent
+    // لأنه يفرض استعلام تخطيط متكرر أثناء التمرير.
+    return !!(page && page.classList.contains('active') && !document.hidden);
   }
   function currentSignature(){
     try{
@@ -13483,7 +13552,7 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   }
   document.addEventListener('DOMContentLoaded',function(){
     setTimeout(function(){refreshIfChanged(true);},250);
-    setInterval(function(){refreshIfChanged(false);},1200);
+    setInterval(function(){refreshIfChanged(false);},3000);
   },{once:true});
   window.addEventListener('storage',function(e){
     if(!e.key || /manar_|firebase|match|tournament|player|team/i.test(e.key)){lastSignature='';setTimeout(function(){refreshIfChanged(true);},80);}
@@ -14946,16 +15015,20 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
     });
   }
   let queued=false;
+  const queuedScopes=new Set();
   function decorate(root){
+    const scope=root&&(root.nodeType===1||root.nodeType===9)?root:document;
+    queuedScopes.add(scope);
     if(queued)return;
     queued=true;
     const run=()=>{
       queued=false;
+      const scopes=[...queuedScopes];queuedScopes.clear();
       try{
         refreshState();
-        const scope=root&&root.nodeType===1?root:document;
-        decorateSelects(scope);
-        decorateNameNodes(scope);
+        const full=scopes.some(scope=>scope.nodeType===9);
+        const reduced=full?[document]:scopes.filter(scope=>!scopes.some(other=>other!==scope&&other.nodeType===1&&other.contains?.(scope)));
+        reduced.forEach(scope=>{decorateSelects(scope);decorateNameNodes(scope);});
       }catch(e){console.warn('Suspended player name highlight skipped:',e);}
     };
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(run);else setTimeout(run,0);
@@ -14969,8 +15042,18 @@ try { localStorage.setItem('manar_test_data_seed_v1', '1'); } catch (e) {}
   window.addEventListener('storage',e=>{if(!e.key||/manar|susp|player|team/i.test(e.key))decorate(document);});
 
   const observer=new MutationObserver(mutations=>{
-    const target=mutations.find(m=>m.target?.nodeType===1)?.target;
-    decorate(target?.closest?.('.card,.page,form')||document);
+    const scopes=new Set();
+    mutations.forEach(mutation=>{
+      const target=mutation.target?.nodeType===1?mutation.target:mutation.target?.parentElement;
+      const targetScope=target?.closest?.('.card,.page,form');
+      if(targetScope)scopes.add(targetScope);
+      (mutation.addedNodes||[]).forEach(node=>{
+        if(!node||node.nodeType!==1)return;
+        const scope=node.matches?.('.card,.page,form')?node:node.closest?.('.card,.page,form');
+        if(scope)scopes.add(scope);
+      });
+    });
+    scopes.forEach(scope=>decorate(scope));
   });
   const start=()=>{
     if(document.body)observer.observe(document.body,{childList:true,subtree:true});
@@ -21943,7 +22026,8 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   if(core.__ksRenderQueueWrapped)return;
   let frame=0,queueTimer=0,idleTimer=0,pending=false,pendingForce=false,lastInteraction=0;
   const now=()=>Date.now();
-  const visible=()=>section.getClientRects().length>0;
+  // حالة الصفحة النشطة تكفي؛ getClientRects كان يفرض قراءة تخطيط في مسار التمرير.
+  const visible=()=>!document.hidden&&section.classList.contains('active');
   const hasOpenSheet=()=>!!list.querySelector('details.ks-sheet-accordion[open]');
   const isBusy=()=>{
     const active=document.activeElement;
@@ -21954,6 +22038,7 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   function armIdle(){
     clearTimeout(idleTimer);
     idleTimer=setTimeout(()=>{
+      idleTimer=0;
       if(pending){
         if(pendingForce||!visible()||!isBusy())run();
         else armIdle();
@@ -21962,10 +22047,17 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   }
   function run(){
     const force=pendingForce;
-    if(!force&&visible()&&isBusy()){
+    // تحديث قسم مخفي غير مطلوب؛ يبقى الطلب معلقاً ويُنفذ عند فتح القسم.
+    if(!visible()){
+      pending=true;
+      pendingForce=pendingForce||force;
+      clearTimeout(idleTimer);idleTimer=0;
+      return;
+    }
+    if(!force&&isBusy()){
       pending=true;armIdle();return;
     }
-    pending=false;pendingForce=false;clearTimeout(idleTimer);
+    pending=false;pendingForce=false;clearTimeout(idleTimer);idleTimer=0;
     try{core.apply(window,[])}catch(error){console.warn('Match-sheet stable render failed:',error)}
     requestAnimationFrame(()=>{
       try{if(typeof window.__manarFixKashofatScoreOrder==='function')window.__manarFixKashofatScoreOrder(list)}catch(error){}
@@ -21997,14 +22089,25 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   section.addEventListener('pointerdown',event=>{
     if(event.target&&event.target.closest&&event.target.closest('summary.ks-sheet-accordion-summary')){
       lastInteraction=now();
+      if(pending&&!idleTimer)armIdle();
     }
   },{passive:true});
-  section.addEventListener('touchstart',()=>{lastInteraction=now()},{passive:true});
+  section.addEventListener('touchstart',()=>{
+    lastInteraction=now();
+    if(pending&&!idleTimer)armIdle();
+  },{passive:true});
+  let scrollFrame=0;
   window.addEventListener('scroll',()=>{
-    if(visible()){
-      lastInteraction=now();
-      if(pending)armIdle();
-    }
+    // لا نعمل شيئاً أثناء التمرير ما لم يكن هناك تحديث معلّق لقسم الكشوفات.
+    if(!pending||scrollFrame)return;
+    scrollFrame=requestAnimationFrame(()=>{
+      scrollFrame=0;
+      if(visible()){
+        lastInteraction=now();
+        // مؤقت خمول واحد فقط بدلاً من إعادة ضبطه عشرات المرات في الثانية.
+        if(!idleTimer)armIdle();
+      }
+    });
   },{passive:true});
   section.addEventListener('toggle',event=>{
     if(event.target&&event.target.matches&&event.target.matches('details.ks-sheet-accordion')){
@@ -22022,6 +22125,9 @@ body>header #platformDescriptionText{max-width:100%!important;min-width:0!import
   // Once the section is opened after being hidden, apply any updates that arrived meanwhile.
   document.querySelectorAll('#nav button[data-page="matchSheetsSection"]').forEach(button=>{
     button.addEventListener('click',()=>setTimeout(()=>{if(pending)schedule(false)},120));
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden&&pending&&visible())schedule(false);
   });
 })();
 </script>
